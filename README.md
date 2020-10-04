@@ -9,6 +9,17 @@
 11. Shell into module
 12. GutHub into module
 
+```shell
+#TODO: caching for cloning
+#TODO: rate limit error: documentation_url: "https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"
+#TODO: message: "API rate limit exceeded for 92.169.44.67. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)"
+#TODO: https://microsoft.github.io/monaco-editor/playground.html#interacting-with-the-editor-adding-an-action-to-an-editor-instance
+#TODO: https://microsoft.github.io/monaco-editor/playground.html#extending-language-services-custom-languages
+# https://github.com/emscripten-core/emscripten/blob/master/src/library_idbfs.js#L21
+# do not pass .pdf and .log to compiler
+
+```
+
 ### Links
 
 https://swimburger.net/blog/dotnet/how-to-deploy-aspnet-blazor-webassembly-to-github-pages

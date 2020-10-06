@@ -1,0 +1,3 @@
+ac_cv_search_nanosleep=yes
+gl_cv_func_nanosleep=no
+gl_cv_func_sleep_works=yes

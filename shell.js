@@ -2,10 +2,11 @@ import { Guthub } from '/guthub.js'
 
 export class Shell
 {
-    constructor(busy, terminal, editor, hash_auth_token, search_repo_path, paths, ui)
+    constructor(ui, paths, readme, busy, terminal, editor, auth_token_hash, repo_path_search)
     {
         this.home_dir = '/home/web_user';
         this.cache_dir = '/cache';
+        this.readme_tex = '/readme.tex';
 
         this.tic_ = 0;
         this.pdf_path = '';
@@ -20,12 +21,13 @@ export class Shell
         this.paths = paths;
         this.compiler = new Worker(paths.busytex_worker_js);
         this.log = ui.log;
+        this.readme = readme;
         
-        this.github_auth_token = hash_auth_token || ''
+        this.github_auth_token = auth_token_hash || ''
         if(this.github_auth_token.length > 1)
             this.github_auth_token = this.github_auth_token.slice(1);
 
-        this.github_https_path = search_repo_path || '';
+        this.github_https_path = repo_path_search || '';
         if(this.github_https_path.length > 1)
             this.github_https_path = 'https://github.com' + this.github_https_path.slice(1);
        
@@ -85,6 +87,10 @@ export class Shell
                 else if(cmd == 'clear')
                 {
                     this.clear();
+                }
+                else if(cmd == 'man')
+                {
+                    this.man();
                 }
                 else if(cmd == 'help')
                 {
@@ -253,9 +259,14 @@ export class Shell
         }
     }
 
+    man()
+    {
+        this.open(this.readme_tex, this.readme);
+    }
+
     help()
     {
-        return ['help', 'status', 'purge', 'latexmk', 'download', 'clear', 'pwd', 'ls', 'mkdir', 'cd', 'clone', 'push', 'open', 'save'].sort();
+        return ['man', 'help', 'status', 'purge', 'latexmk', 'download', 'clear', 'pwd', 'ls', 'mkdir', 'cd', 'clone', 'push', 'open', 'save'].sort();
     }
 
     save(file_path, contents)

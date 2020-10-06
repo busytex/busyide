@@ -2,7 +2,7 @@ import { Guthub } from '/guthub.js'
 
 export class Shell
 {
-    constructor(busy, terminal, editor, hash_auth_token, search_repo_path, helloworld, paths, ui)
+    constructor(busy, terminal, editor, hash_auth_token, search_repo_path, paths, ui)
     {
         this.home_dir = '/home/web_user';
         this.cache_dir = '/cache';
@@ -18,7 +18,6 @@ export class Shell
         this.editor = editor;
         this.ui = ui;
         this.paths = paths;
-        this.helloworld = helloworld;
         this.compiler = new Worker(paths.busytex_worker_js);
         this.log = ui.log;
         
@@ -191,8 +190,6 @@ export class Shell
     async run(busy)
     {
         this.compiler.postMessage(this.paths);
-        
-        this.open('helloworld.pdf', this.helloworld);
         
         await this.onload(busy);
         this.terminal_prompt();

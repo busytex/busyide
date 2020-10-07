@@ -17,7 +17,9 @@ source/diffutils.downloaded:
 build/wasm/diffutils/src/diff3: source/diffutils.downloaded
 	mkdir -p build/wasm/diffutils
 	cd build/wasm/diffutils && \
-	CONFIG_SITE=$(ROOT)/diffutils.site $(CONFIGURE_wasm) $(ROOT)/source/diffutils/configure --cache-file=$(CACHE_wasm_diffutils) CFLAGS="$(CFLAGS_wasm_diffutils)"
+	CONFIG_SITE=$(ROOT)/diffutils.site $(CONFIGURE_wasm) $(ROOT)/source/diffutils/configure \
+		--cache-file=$(CACHE_wasm_diffutils) \
+		CFLAGS="$(CFLAGS_wasm_diffutils)"
 	$(MAKE_wasm) -C build/wasm/diffutils
 
 dist:

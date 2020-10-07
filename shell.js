@@ -1,3 +1,5 @@
+// tex_path dir 
+
 import { Guthub } from '/guthub.js'
 
 export class Shell
@@ -11,6 +13,7 @@ export class Shell
         this.tic_ = 0;
         this.pdf_path = '';
         this.log_path = '';
+        this.tex_path = '';
         this.current_terminal_line = '';
         this.FS = null;
         this.busy = busy;
@@ -20,7 +23,7 @@ export class Shell
         this.ui = ui;
         this.paths = paths;
         this.compiler = new Worker(paths.busytex_worker_js);
-        this.log = ui.log;
+        this.log = this.ui.log;
         this.readme = readme;
         
         this.github_auth_token = auth_token_hash || ''
@@ -33,6 +36,9 @@ export class Shell
        
         this.compiler.onmessage = this.oncompilermessage;
         this.terminal.on('key', this.onkey.bind(this));
+
+        this.ui.clone.onclick = () => this.clone(ui.github_https_path.value);
+        this.ui.compile.onclick = () => this.latexmk();
     }
 
     async purge_cache()
@@ -196,7 +202,6 @@ export class Shell
     async run(busy)
     {
         this.compiler.postMessage(this.paths);
-        
         await this.onload(busy);
         this.terminal_prompt();
     }
@@ -227,10 +232,15 @@ export class Shell
             const repo_path = await this.clone(this.github_https_path);
             this.cd(repo_path);
         }
+        else
+            this.man();
     }
 
     open(file_path, contents)
     {
+        if(file_path.endsWith('.tex'))
+            this.tex_path = file_path;
+
         if(file_path.endsWith('.pdf') || file_path.endsWith('.jpg') || file_path.endsWith('.png') || file_path.endsWith('.svg'))
         {
             contents = contents || this.FS.readFile(file_path, {encoding : 'binary'});
@@ -319,7 +329,11 @@ export class Shell
 
     async latexmk(tex_path)
     {
-        this.println('Running in background...');
+        tex_path = tex_path || this.tex_path;
+        if(tex_path.length == 0)
+            return;
+
+        this.terminal_println('Running in background...');
         this.tic();
         this.pdf_path = tex_path.replace('.tex', '.pdf');
         this.log_path = log_path.replace('.tex', '.log');
@@ -353,10 +367,10 @@ export class Shell
 
     download(file_path, mime)
     {
-          mime = mime || "application/octet-stream";
-
-          let content = this.FS.readFile(file_path);
-          this.ui.create_and_click_download_link(file_path, content, mime);
+        mime = mime || 'application/octet-stream';
+          
+        let content = this.FS.readFile(file_path);
+        this.ui.create_and_click_download_link(file_path, content, mime);
     }
     
     async clone(https_path)
@@ -373,7 +387,7 @@ export class Shell
     }
 }
 
-function modularized(println)
+function modularized(log)
 {
     const Module =
     {
@@ -395,7 +409,7 @@ function modularized(println)
         
         setStatus(text)
         {
-            println(text);
+            log(text);
         },
         
         monitorRunDependencies(left)

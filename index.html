@@ -49,21 +49,21 @@
         }
     </style>
   </head>
-  <body>
+  <body onkeyup="on_ctrl_enter(event)">
     <div style="display: flex; flex-direction: row; height: 5%">
         <a style="display: contents" href="https://github.com/busytex/busytex">
             <img src="logo.svg" style="height:100%"></img>
         </a>
-        <select>
+        <select id="verbose">
             <option value="silent">Verbosity - Silent</option>
             <option value="info" selected="selected">Verbosity - Info</option>
             <option value="debug">Verbosity - Debug</option>
         </select>
-        <button>Compile</button>
+        <button id="compile">Compile</button>
         <button>Download PDF</button>
         <div style="display: flex; margin-left:auto">
-            <input type="text" style="width: 300px" value="https://github.com/busytex/busytex"></input>
-            <button>Clone</button>
+            <input type="text" style="width: 300px" id="github_https_path" value="https://github.com/busytex/busytex"></input>
+            <button id="clone">Clone</button>
             <button>Pull</button>
             <button>Push</button>
         </div>
@@ -86,22 +86,29 @@
       <input type="file" id="fileupload">
     </div>
 
-    <template id="readme">
-        \documentclass[11pt]{article}
+<template id="readme">\documentclass[11pt]{article}
 
-        \begin{document}
+\begin{document}
 
-        \title{My Article}
-        \author{Nobody Jr.}
-        \date{Today}
-        \maketitle
+\title{My Article}
+\author{Nobody Jr.}
+\date{Today}
+\maketitle
 
-        Blablabla said Nobody.
+Blablabla said Nobody.
 
-        \end{document}
-    </template>
+\end{document}
+</template>
 
-    <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
+<script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
+
+<script>
+function on_ctrl_enter(evt)
+{
+    if(evt.code == 'Enter' && evt.ctrlKey == true)
+        console.log('Ctrl+Enter pressed'); 
+}
+</script>
 
 <script type="module">
 
@@ -115,6 +122,10 @@ const ui =
     editor : document.getElementById('editor'),
     terminal : document.getElementById('terminal'),
     status : document.getElementById('status'),
+    clone : document.getElementById('clone'),
+    compile : document.getElementById('compile'),
+    github_https_path : document.getElementById('github_https_path'),
+
     create_and_click_download_link(file_path, content, mime)
     {
         const a = document.createElement('a');
@@ -130,11 +141,13 @@ const ui =
             URL.revokeObjectURL(a.href);
         }, 2000);
     },
+    
     onresize()
     {
         window.busyshell.editor.layout()
         window.busyshell.terminal.fit()
     },
+    
     log(text)
     {
         const ansi_reset_sequence = '\x1bc';
@@ -153,8 +166,8 @@ const paths =
 {
     busytex_js : '/dist/busytex.js', 
     busytex_wasm : '/dist/busytex.wasm',
-    busytex_worker_js : '/busytex_worker.js', 
-    busytex_pipeline_js : '/busytex_pipeline.js',
+    busytex_worker_js : '/dist/busytex_worker.js', 
+    busytex_pipeline_js : '/dist/busytex_pipeline.js',
     texmf_local : ['./texmf'],
     texlive_js : ['/dist/texlive-basic.js'] //, '/dist/texlive-latex-recommended.js', '/dist/texlive-latex-extra.js'];
 };
@@ -163,12 +176,12 @@ require.config({ paths: { vs: 'https://unpkg.com/monaco-editor@latest/min/vs', x
 
 window.MonacoEnvironment = 
 {
-  // Before loading vs/editor/editor.main, define a global MonacoEnvironment that overwrites
-  // the default worker url location (used when creating WebWorkers). The problem here is that
-  // HTML5 does not allow cross-domain web workers, so we need to proxy the instantiation of
-  // a web worker through a same-domain script
     getWorkerUrl: function (workerId, label)
     {
+        // Before loading vs/editor/editor.main, define a global MonacoEnvironment that overwrites
+        // the default worker url location (used when creating WebWorkers). The problem here is that
+        // HTML5 does not allow cross-domain web workers, so we need to proxy the instantiation of
+        // a web worker through a same-domain script
         return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
             self.MonacoEnvironment = { baseUrl: 'https://unpkg.com/monaco-editor@latest/min/' };
             importScripts('https://unpkg.com/monaco-editor@latest/min/vs/base/worker/workerMain.js');`)}`

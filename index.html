@@ -49,23 +49,23 @@
         }
     </style>
   </head>
-  <body onkeyup="on_ctrl_enter(event)">
+  <body>
     <div style="display: flex; flex-direction: row; height: 5%">
         <a style="display: contents" href="https://github.com/busytex/busytex">
             <img src="logo.svg" style="height:100%"></img>
         </a>
         <select id="verbose">
-            <option value="silent">Verbosity - Silent</option>
-            <option value="info" selected="selected">Verbosity - Info</option>
+            <option value="silent" selected="selected">Verbosity - Silent</option>
+            <option value="info">Verbosity - Info</option>
             <option value="debug">Verbosity - Debug</option>
         </select>
         <button id="compile">Compile</button>
-        <button>Download PDF</button>
+        <button id="download">Download PDF</button>
         <div style="display: flex; margin-left:auto">
             <input type="text" style="width: 300px" id="github_https_path" value="https://github.com/busytex/busytex"></input>
             <button id="clone">Clone</button>
-            <button>Pull</button>
-            <button>Push</button>
+            <button id="pull">Pull</button>
+            <button id="push">Push</button>
         </div>
     </div>
     <div style="display: flex; height: 80%">
@@ -101,11 +101,155 @@ Blablabla said Nobody.
 <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
 
 <script>
-function on_ctrl_enter(evt)
-{
-    if(evt.code == 'Enter' && evt.ctrlKey == true)
-        console.log('Ctrl+Enter pressed'); 
-}
+
+// https://github.com/koka-lang/madoko/blob/master/styles/lang/latex.json
+window.latex_language = {
+  "displayName":    "Latex",      
+  "name":           "latex",
+  "mimeTypes":      ["text/latex","text/tex"],
+  "fileExtensions": ["tex","sty","cls"],
+  
+  "lineComment":      "% ",   
+    
+  "builtin": [
+    "addcontentsline", "addtocontents", "addtocounter", "address", "addtolength", "addvspace", "alph", "appendix",
+    "arabic", "author", "backslash", "baselineskip", "baselinestretch", "bf", "bibitem", "bigskipamount", "bigskip",
+    "boldmath", "boldsymbol", "cal", "caption", "cdots", "centering", "chapter", "circle", "cite", "cleardoublepage",
+    "clearpage", "cline", "closing", "color", "copyright", "dashbox", "date", "ddots", "documentclass", "dotfill", "em",
+    "emph", "ensuremath", "epigraph", "euro", "fbox", "flushbottom", "fnsymbol", "footnote", "footnotemark",
+    "footnotesize", "footnotetext", "frac", "frame", "framebox", "frenchspacing", "hfill", "hline", "href", "hrulefill",
+    "hspace", "huge", "Huge", "hyphenation", "include", "includegraphics", "includeonly", "indent", "input", "it", "item",
+    "kill", "label", "large", "Large", "LARGE", "LaTeX", "LaTeXe", "ldots", "left", "lefteqn", "line", "linebreak",
+    "linethickness", "linewidth", "listoffigures", "listoftables", "location", "makebox", "maketitle", "markboth",
+    "mathcal", "mathop", "mbox", "medskip", "multicolumn", "multiput", "newcommand", "newcolumntype", "newcounter",
+    "newenvironment", "newfont", "newlength", "newline", "newpage", "newsavebox", "newtheorem", "nocite", "noindent",
+    "nolinebreak", "nonfrenchspacing", "normalsize", "nopagebreak", "not", "onecolumn", "opening", "oval", "overbrace",
+    "overline", "pagebreak", "pagenumbering", "pageref", "pagestyle", "par", "paragraph", "parbox", "parindent", "parskip",
+    "part", "protect", "providecommand", "put", "raggedbottom", "raggedleft", "raggedright", "raisebox", "ref",
+    "renewcommand", "right", "rm", "roman", "rule", "savebox", "sbox", "sc", "scriptsize", "section", "setcounter",
+    "setlength", "settowidth", "sf", "shortstack", "signature", "sl", "slash", "small", "smallskip", "sout", "space", "sqrt",
+    "stackrel", "stepcounter", "subparagraph", "subsection", "subsubsection", "tableofcontents", "telephone", "TeX",
+    "textbf", "textcolor", "textit", "textmd", "textnormal", "textrm", "textsc", "textsf", "textsl", "texttt", "textup",
+    "textwidth", "textheight", "thanks", "thispagestyle", "tiny", "title", "today", "tt", "twocolumn", "typeout", "typein",
+    "uline", "underbrace", "underline", "unitlength", "usebox", "usecounter", "uwave", "value", "vbox", "vcenter", "vdots",
+    "vector", "verb", "vfill", "vline", "vphantom", "vspace",
+    
+    "RequirePackage", "NeedsTeXFormat", "usepackage", "input", "include", "documentclass", "documentstyle",
+    "def","edef","defcommand","if","ifdim","ifnum","ifx","fi","else","begingroup","endgroup",
+    "definecolor","textcolor","color",
+    "eifstrequal","eeifstrequal"
+  ],
+  "tokenizer": {
+    "root": [
+      ["(\\\\begin)(\\s*)(\\{)([\\w\\-\\*\\@]+)(\\})", 
+          ["keyword.predefined","white","@brackets",{ "token": "tag.env-$4", "bracket": "@open" },"@brackets"]],
+      ["(\\\\end)(\\s*)(\\{)([\\w\\-\\*\\@]+)(\\})", 
+          ["keyword.predefined","white","@brackets",{ "token": "tag.env-$4", "bracket": "@close" }, "@brackets" ]],          
+      ["\\\\[^a-zA-Z@]", "keyword" ],  
+      ["\\@[a-zA-Z@]+", "keyword.at" ],  
+      ["\\\\([a-zA-Z@]+)", { "cases": {
+        "$1@builtin": "keyword.predefined",
+        "@default": "keyword" 
+      }}],  
+      { "include": "@whitespace" },
+      ["[{}()\\[\\]]", "@brackets"],
+      ["#+\\d", "number.arg"],
+      ["\\-?(?:\\d+(?:\\.\\d+)?|\\.\\d+)\\s*(?:em|ex|pt|pc|sp|cm|mm|in)", "number.len"]
+    ],
+
+    "whitespace": [
+      ["[ \\t\\r\\n]+", "white"],
+      ["%.*$",    "comment"]
+    ]
+  }
+};
+
+// https://github.com/koka-lang/madoko/blob/master/styles/lang/bibtex.json
+window.bibtex_language = {
+  "displayName":    "BibTeX",      
+  "name":           "bibtex",
+  "mimeTypes":      ["text/bibtex"],
+  "fileExtensions": ["bib"],
+  "ignoreCase":     true,
+  
+  "lineComment":      "% ",   
+    
+  "entries": [
+    "article", "book", "booklet", "conference", "inbook", "incollection", 
+    "inproceedings", "manual", "mastersthesis", "misc", "phdthesis", "proceedings", 
+    "techreport", "unpublished","xdata",
+    "preamble", "string", "comment"    
+  ],
+
+  "fields": [
+    "address", "annote", "author", "booktitle", "chapter", "crossref", 
+    "edition", "editor", "howpublished", "institution", "journal", "key", 
+    "month", "note", "number", "organization", "pages", "publisher", "school", 
+    "series", "title", "type", "volume", "year", "url", "isbn", "issn", "lccn", 
+    "abstract", "keywords", "price", "copyright", "language", "contents", 
+    "numpages", "doi", "http", "eds", "editors", "location",
+    "eprinttype", "etype", "eprint", "eprintpath", "primaryclass", "eprintclass","archiveprefix",
+    "origpublisher", "origlocation","venue","volumes","pagetotal", 
+    "annotation","annote","pubstate",
+    "date","urldate","eventdate","origdate", "urltext"
+  ],
+
+  
+  "tokenizer": {
+    "root": [
+      ["\\\\[^a-z]", "string.escape"],
+      
+      ["(@)([a-z]+)(\\{)(\\s*[^\\s,=]+)?",["keyword", { "cases": {
+        "$2@entries": "keyword",
+        "@default"  : ""
+      }}, "@brackets", "type"]],
+      
+      ["\\b([a-z]+)(?=\\s*=)", { "cases": {
+        "$1@fields" : "constructor",
+        "@default"  : ""
+      }}],
+      
+      ["[=]", "keyword" ],
+      
+      
+      { "include": "@whitespace" },
+      
+      
+      ["[{}()\\[\\]]", "@brackets"]      
+    ],
+
+    "whitespace": [
+      ["[ \\t\\r\\n]+", "white"],
+      ["%.*$",    "comment"]
+    ]
+  }
+};
+
+window.language_configuration = {
+	comments: {
+		lineComment: '%',
+	},
+	brackets: [
+		['{', '}'],
+		['[', ']'],
+		['(', ')']
+	],
+	autoClosingPairs: [
+		{ open: '{', close: '}' },
+		{ open: '[', close: ']' },
+		{ open: '(', close: ')' },
+		{ open: '"', close: '"', notIn: ['string'] },
+		{ open: "'", close: "'", notIn: ['string', 'comment'] }
+	],
+	surroundingPairs: [
+		{ open: '{', close: '}' },
+		{ open: '[', close: ']' },
+		{ open: '(', close: ')' },
+		{ open: '"', close: '"' },
+		{ open: "'", close: "'" }
+	]
+};
+
 </script>
 
 <script type="module">
@@ -121,7 +265,11 @@ const ui =
     terminal : document.getElementById('terminal'),
     status : document.getElementById('status'),
     clone : document.getElementById('clone'),
+    pull : document.getElementById('pull'),
+    push : document.getElementById('push'),
     compile : document.getElementById('compile'),
+    download : document.getElementById('download'),
+    verbose : document.getElementById('verbose'),
     github_https_path : document.getElementById('github_https_path'),
 
     create_and_click_download_link(file_path, content, mime)
@@ -186,17 +334,27 @@ window.MonacoEnvironment =
     }
 };
 
-require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist/busy', 'sha1'], async (editor, Terminal, fit, busy, sha1) =>
+require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist/busy', 'sha1'], async (monaco, Terminal, fit, busy, sha1) =>
 {
-    window.sha1 = sha1;
+    // https://microsoft.github.io/monaco-editor/monarch.html
+    // https://github.com/microsoft/monaco-languages/blob/master/src/python/python.ts
 
-    const text_editor = editor.editor.create(ui.editor, { theme: 'vs-dark' });
+    monaco.languages.register({ id: 'latex' });
+	monaco.languages.setMonarchTokensProvider('latex', window.latex_language);
+    monaco.languages.setLanguageConfiguration('latex', window.language_configuration);
+    
+	monaco.languages.register({ id: 'bibtex' });
+	monaco.languages.setMonarchTokensProvider('bibtex', window.latex_language);
+    monaco.languages.setLanguageConfiguration('bibtex', window.language_configuration);
+
+	const editor = monaco.editor.create(ui.editor, { theme: 'vs-dark', language : 'latex' });
 
     Terminal.applyAddon(fit);
+    
     const terminal = new Terminal();
     terminal.open(ui.terminal);
-
-    window.busyshell = new Shell(ui, paths, document.getElementById('readme').innerHTML, busy, terminal, text_editor, window.location.hash, window.location.search);
+    window.sha1 = sha1;
+    window.busyshell = new Shell(ui, paths, document.getElementById('readme').innerHTML, busy, terminal, editor, window.location.hash, window.location.search);
 
     window.onresize = ui.onresize;
     window.onresize();

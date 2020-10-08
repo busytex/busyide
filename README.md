@@ -1,26 +1,31 @@
+### Planned modes of operation
+1. github.io deployment
+2. local run with serve.py
+3. packaging of everything into one large HTML file to run from file://
+
 ### TODO
 1. publish a pdf to github releases: https://developer.github.com/v3/repos/releases/#create-a-release, https://developer.github.com/v3/repos/releases/#upload-a-release-asset, https://developer.github.com/v3/repos/releases/#update-a-release-asset
 2. Store file sha hashes in .git directory
 6. arg1/arg2
-7. TexLive / xetex.js
 8. Ctrl+V, command history
-9. Figure out Terminal sizing
 10. file tab auto-complete
-11. Shell into module
-12. GutHub into module
 
 ```shell
-#TODO: caching for cloning
-#TODO: rate limit error: documentation_url: "https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"
-#TODO: message: "API rate limit exceeded for 92.169.44.67. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)"
-#TODO: https://microsoft.github.io/monaco-editor/playground.html#interacting-with-the-editor-adding-an-action-to-an-editor-instance
-#TODO: https://microsoft.github.io/monaco-editor/playground.html#extending-language-services-custom-languages
+# https://github.com/koka-lang/madoko/blob/master/web/client/scripts/editor.js
+# https://github.com/koka-lang/madoko/blob/master/web/client/scripts/merge.js
+# rate limit error: documentation_url: "https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"
+# message: "API rate limit exceeded for 92.169.44.67. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)"
+# https://microsoft.github.io/monaco-editor/playground.html#extending-language-services-custom-languages
 # https://github.com/emscripten-core/emscripten/blob/master/src/library_idbfs.js#L21
 # do not pass .pdf and .log to compiler
-
+# http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
+# https://blog.jcoglan.com/2017/05/08/merging-with-diff3/
+# https://github.com/ywangd/stash/blob/master/lib/git/gitutils.py
 ```
 
 ### Links
+
+https://github.com/BlueMagnificent/monaco-tree
 
 https://swimburger.net/blog/dotnet/how-to-deploy-aspnet-blazor-webassembly-to-github-pages
 

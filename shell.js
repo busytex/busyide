@@ -8,7 +8,8 @@ export class Shell
     {
         this.home_dir = '/home/web_user';
         this.cache_dir = '/cache';
-        this.readme_tex = '/readme.tex';
+        this.readme_dir = this.home_dir + '/readme';
+        this.readme_tex = this.readme_dir + '/readme.tex';
 
         this.tic_ = 0;
         this.pdf_path = '';
@@ -34,11 +35,14 @@ export class Shell
         if(this.github_https_path.length > 1)
             this.github_https_path = 'https://github.com' + this.github_https_path.slice(1);
        
-        this.compiler.onmessage = this.oncompilermessage;
+        this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.on('key', this.onkey.bind(this));
 
         this.ui.clone.onclick = () => this.clone(ui.github_https_path.value);
+        this.ui.download.onclick = () => this.download(this.pdf_path);
         this.ui.compile.onclick = () => this.latexmk();
+		
+		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => this.latexmk());
     }
 
     async purge_cache()
@@ -199,13 +203,6 @@ export class Shell
         }
     }
 
-    async run(busy)
-    {
-        this.compiler.postMessage(this.paths);
-        await this.onload(busy);
-        this.terminal_prompt();
-    }
-
     tic()
     {
         this.tic_ = performance.now();
@@ -213,17 +210,24 @@ export class Shell
 
     toc()
     {
-        const elapsed = (performance.now() - this.tic_) / 1000.0;
-        
-        this.terminal_println(`Elapsed time: ${elapsed.toFixed(2)} sec`);
+        if(this.tic_ > 0)
+        {
+            const elapsed = (performance.now() - this.tic_) / 1000.0;
+            this.terminal_println(`Elapsed time: ${elapsed.toFixed(2)} sec`);
+            this.tic_ = 0.0;
+        }
     }
 
-    async onload(busy)
+    async run(busy)
     {
+        this.compiler.postMessage(this.paths);
+        
         const Module = await busy(modularized(this.log));
         this.FS = Module.FS;
+        this.FS.mkdir(this.readme_dir);
         this.FS.mkdir(this.cache_dir);
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
+        this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
         this.guthub = new Guthub(this.FS, this.busy, this.github_auth_token, this.cache_dir, this.terminal_println.bind(this));
         await this.load_cache();
@@ -234,12 +238,14 @@ export class Shell
         }
         else
             this.man();
+        
+        this.terminal_prompt();
     }
 
     open(file_path, contents)
     {
         if(file_path.endsWith('.tex'))
-            this.tex_path = file_path;
+            this.tex_path = file_path.startsWith('/') ? file_path : (this.FS.cwd() + '/' + file_path);
 
         if(file_path.endsWith('.pdf') || file_path.endsWith('.jpg') || file_path.endsWith('.png') || file_path.endsWith('.svg'))
         {
@@ -271,6 +277,7 @@ export class Shell
 
     man()
     {
+        this.cd(this.readme_dir);
         this.open(this.readme_tex, this.readme);
     }
 
@@ -329,16 +336,24 @@ export class Shell
 
     async latexmk(tex_path)
     {
-        tex_path = tex_path || this.tex_path;
+        let cwd = this.FS.cwd();
+
+        if(!tex_path)
+        {
+            const basename = this.tex_path.lastIndexOf('/');
+            [cwd, tex_path] = [this.tex_path.slice(0, basename), this.tex_path.slice(1 + basename)];
+        }
+        
         if(tex_path.length == 0)
             return;
+        
+        const verbose = this.ui.verbose.value;
 
         this.terminal_println('Running in background...');
         this.tic();
         this.pdf_path = tex_path.replace('.tex', '.pdf');
-        this.log_path = log_path.replace('.tex', '.log');
+        this.log_path = tex_path.replace('.tex', '.log');
         
-        const cwd = this.FS.cwd();
         console.assert(tex_path.endsWith('.tex'));
         console.assert(cwd.startsWith(this.home_dir));
         
@@ -347,7 +362,7 @@ export class Shell
         const main_tex_path = source_path.slice(project_dir.length + 1);
 
         const files = this.ls_R(project_dir);
-        this.compiler.postMessage({files : files, main_tex_path : main_tex_path});
+        this.compiler.postMessage({files : files, main_tex_path : main_tex_path, verbose : verbose});
     }
 
     async upload(file_path)
@@ -367,8 +382,10 @@ export class Shell
 
     download(file_path, mime)
     {
+        if(!this.FS.analyzePath(file_path).exists)
+            return;
+
         mime = mime || 'application/octet-stream';
-          
         let content = this.FS.readFile(file_path);
         this.ui.create_and_click_download_link(file_path, content, mime);
     }

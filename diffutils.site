@@ -3,6 +3,7 @@ gl_cv_func_nanosleep=no
 gl_cv_func_sleep_works=yes
 ac_cv_func_getprogname=no
 ac_cv_func_wmempcpy=no
+ac_cv_func_rawmemchr=no
 ac_cv_func__set_invalid_parameter_handler=no
 gl_cv_bitsizeof_ptrdiff_t=32
 gl_cv_bitsizeof_sig_atomic_t=32

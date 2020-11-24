@@ -169,7 +169,6 @@ export class Guthub
 
     async clone(https_path, repo_path)
     {
-        this.print(`Cloning from '${https_path}' into '${repo_path}'...`);
         const resp = await this.github_api_request(https_path, '/contents');
         const repo = await resp.json();
 

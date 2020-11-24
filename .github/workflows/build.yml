@@ -1,0 +1,22 @@
+name: build
+
+on: workflow_dispatch
+
+jobs:
+
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v7
+        with:
+          version: 2.0.5
+      
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      
+      - name: Build wasm busyide
+        run: make dist
+        env:
+            MAKEFLAGS: -j2

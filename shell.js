@@ -38,11 +38,36 @@ export class Shell
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.on('key', this.onkey.bind(this));
 
-        this.ui.clone.onclick = () => this.clone(ui.github_https_path.value);
-        this.ui.download.onclick = () => this.download(this.pdf_path);
-        this.ui.compile.onclick = () => this.latexmk();
+        this.basename = path => path.slice(path.lastIndexOf('/') + 1);
+        this.ui.clone.onclick = () => this.commands(['cd', 'clone ' + ui.github_https_path.value, 'cd ' + this.basename(ui.github_https_path.value)]);
+        this.ui.download.onclick = () => this.commands(['download ' + this.pdf_path]);
+        this.ui.compile.onclick = () => this.commands(['latexmk ' + this.tex_path]);
+        //this.ui.pull.onclick = () => this.commands(['cd ~/readme', 'ls']);
 		
-		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => this.latexmk());
+		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, this.ui.compile.onclick);
+    }
+
+    log_reset()
+    {
+        const ansi_reset_sequence = '\x1bc';
+        this.log(ansi_reset_sequence);
+    }
+
+    async type(cmd)
+    {
+        for(const c of cmd)
+            await this.onkey(c, {keyCode : null});
+        await this.onkey('', {keyCode : 13});
+    }
+    
+    async commands(cmds)
+    {
+        this.old_terminal_line = this.current_terminal_line;
+        this.current_terminal_line = '';
+        this.terminal.write('\b'.repeat(this.old_terminal_line.length));
+        for(const cmd of cmds)
+            await this.type(cmd);
+        this.terminal.write(this.old_terminal_line);
     }
 
     async purge_cache()
@@ -64,7 +89,7 @@ export class Shell
         return new Promise((resolve, reject) => this.FS.syncfs(false, x => x == null ? resolve(true) : reject(false)));
     }
 
-    terminal_println(line)
+    terminal_print(line)
     {
         this.terminal.write((line || '') + '\r\n');
     }
@@ -76,7 +101,6 @@ export class Shell
 
     async onkey(key, ev)
     {
-        const ok = 'ok!';
         if(ev.keyCode == 8)
         {
             if(this.current_terminal_line.length > 0)
@@ -87,7 +111,7 @@ export class Shell
         }
         else if(ev.keyCode == 13)
         {
-            this.terminal_println();
+            this.terminal_print();
             const [cmd, arg] = this.current_terminal_line.split(' ');
             try
             {
@@ -104,16 +128,15 @@ export class Shell
                 }
                 else if(cmd == 'help')
                 {
-                    this.terminal_println(this.help().join(' '));
+                    this.terminal_print(this.help().join(' '));
                 }
                 else if(cmd == 'download')
                 {
                     this.download(arg);
-                    this.terminal_println(ok);
                 }
                 else if(cmd == 'upload')
                 {
-                    this.terminal_println(await this.upload(arg));
+                    this.terminal_print(await this.upload(arg));
                 }
                 else if(cmd == 'latexmk')
                 {
@@ -121,13 +144,13 @@ export class Shell
                 }
                 else if(cmd == 'pwd')
                 {
-                    this.terminal_println(this.pwd());
+                    this.terminal_print(this.pwd());
                 }
                 else if(cmd == 'ls')
                 {
                     const res = this.ls(arg);
                     if(res.length > 0)
-                        this.terminal_println(res.join(' '));
+                        this.terminal_print(res.join(' '));
                 }
                 else if(cmd == 'mkdir')
                 {
@@ -144,7 +167,6 @@ export class Shell
                 else if(cmd == 'push')
                 {
                     await this.push(arg);
-                    this.terminal_println(ok);
                 }
                 else if(cmd == 'open')
                 {
@@ -162,16 +184,15 @@ export class Shell
                 else if(cmd == 'purge')
                 {
                     await this.purge_cache();
-                    this.terminal_println(ok);
                 }
                 else
                 {
-                    this.terminal_println(cmd + ': command not found');
+                    this.terminal_print(cmd + ': command not found');
                 }
             }
             catch(err)
             {
-                this.terminal_println('Error: ' + err.message);
+                this.terminal_print('Error: ' + err.message);
             }
             this.terminal_prompt();
             this.current_terminal_line = '';
@@ -213,7 +234,7 @@ export class Shell
         if(this.tic_ > 0)
         {
             const elapsed = (performance.now() - this.tic_) / 1000.0;
-            this.terminal_println(`Elapsed time: ${elapsed.toFixed(2)} sec`);
+            this.log(`Elapsed time: ${elapsed.toFixed(2)} sec`);
             this.tic_ = 0.0;
         }
     }
@@ -229,7 +250,7 @@ export class Shell
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        this.guthub = new Guthub(this.FS, this.busy, this.github_auth_token, this.cache_dir, this.terminal_println.bind(this));
+        this.guthub = new Guthub(this.FS, this.busy, this.github_auth_token, this.cache_dir, this.log.bind(this));
         await this.load_cache();
         if(this.github_https_path.length > 0)
         {
@@ -309,8 +330,8 @@ export class Shell
     
     cd(path)
     {
-        //const expanduser = path => return path.replace('~', this.home_dir);
-        this.FS.chdir(path);
+        const expanduser = path => path.replace('~', this.home_dir);
+        this.FS.chdir(expanduser(path || '~'));
     }
 
     mkdir(path)
@@ -349,7 +370,7 @@ export class Shell
         
         const verbose = this.ui.verbose.value;
 
-        this.terminal_println('Running in background...');
+        this.terminal_print('Running in background...');
         this.tic();
         this.pdf_path = tex_path.replace('.tex', '.pdf');
         this.log_path = tex_path.replace('.tex', '.log');
@@ -358,7 +379,7 @@ export class Shell
         console.assert(cwd.startsWith(this.home_dir));
         
         const project_dir = cwd.split('/').slice(0, 4).join('/');
-        const source_path = `${cwd}/${tex_path}`;
+        const source_path = tex_path.startsWith('/') ? tex_path : `${cwd}/${tex_path}`;
         const main_tex_path = source_path.slice(project_dir.length + 1);
 
         const files = this.ls_R(project_dir);
@@ -393,6 +414,8 @@ export class Shell
     async clone(https_path)
     {
         const repo_path = https_path.split('/').pop();
+        this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
+        this.log_reset();
         await this.guthub.clone(https_path, repo_path);
         await this.save_cache();
         return repo_path;

@@ -29,6 +29,7 @@ build/wasm/diffutils/src/diff3: source/diffutils.downloaded
 .PHONY: busytex
 busytex:
 	mkdir -p dist
+	cp ../busytex/busytex_{pipeline,worker}.js dist
 	wget -P dist -nc $(addprefix $(URL_RELEASE_busytex_wasm)/, busytex.wasm busytex.js texlive-basic.js texlive-basic.data)
 	wget -P dist -nc $(addprefix $(URL_RELEASE_ubuntu_packages)/, ubuntu-texlive-latex-base.data ubuntu-texlive-latex-base.js ubuntu-texlive-latex-extra.data ubuntu-texlive-latex-extra.js ubuntu-texlive-latex-recommended.data ubuntu-texlive-latex-recommended.js)
 

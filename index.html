@@ -59,13 +59,13 @@
         <button id="compile">Compile</button>
         <button id="download">Download PDF</button>
         <div style="display: flex; margin-left:auto">
-            <input type="text" style="width: 250px" id="github_https_path" value="https://github.com/busytex/busytex"></input>
-            <input type="text" style="width: 100px" id="github_token" placeholder="GitHub Token" title="for private clone/push"></input>
-            <input type="text" style="width: 100px" id="github_release" placeholder="Release Name" title="for publishing a PDF into a release"></input>
+            <input type="text" style="width: 250px" id="git_https_path" value="https://github.com/busytex/busytex"></input>
+            <input type="text" style="width: 100px" id="git_token" placeholder="GitHub Token" title="for private clone/push"></input>
+            <input type="text" style="width: 100px" id="git_release" placeholder="Release Name" title="for publishing a PDF into a release"></input>
             <button id="clone">Clone</button>
             <button id="pull">Pull</button>
             <button id="push">Push</button>
-            <button id="push">Publish</button>
+            <button id="publish">Publish PDF</button>
         </div>
     </div>
     <div style="display: flex; height: 80%">
@@ -100,158 +100,6 @@ Blablabla said Nobody.
 
 <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
 
-<script>
-
-// https://github.com/koka-lang/madoko/blob/master/styles/lang/latex.json
-window.latex_language = {
-  "displayName":    "Latex",      
-  "name":           "latex",
-  "mimeTypes":      ["text/latex","text/tex"],
-  "fileExtensions": ["tex","sty","cls"],
-  
-  "lineComment":      "% ",   
-    
-  "builtin": [
-    "addcontentsline", "addtocontents", "addtocounter", "address", "addtolength", "addvspace", "alph", "appendix",
-    "arabic", "author", "backslash", "baselineskip", "baselinestretch", "bf", "bibitem", "bigskipamount", "bigskip",
-    "boldmath", "boldsymbol", "cal", "caption", "cdots", "centering", "chapter", "circle", "cite", "cleardoublepage",
-    "clearpage", "cline", "closing", "color", "copyright", "dashbox", "date", "ddots", "documentclass", "dotfill", "em",
-    "emph", "ensuremath", "epigraph", "euro", "fbox", "flushbottom", "fnsymbol", "footnote", "footnotemark",
-    "footnotesize", "footnotetext", "frac", "frame", "framebox", "frenchspacing", "hfill", "hline", "href", "hrulefill",
-    "hspace", "huge", "Huge", "hyphenation", "include", "includegraphics", "includeonly", "indent", "input", "it", "item",
-    "kill", "label", "large", "Large", "LARGE", "LaTeX", "LaTeXe", "ldots", "left", "lefteqn", "line", "linebreak",
-    "linethickness", "linewidth", "listoffigures", "listoftables", "location", "makebox", "maketitle", "markboth",
-    "mathcal", "mathop", "mbox", "medskip", "multicolumn", "multiput", "newcommand", "newcolumntype", "newcounter",
-    "newenvironment", "newfont", "newlength", "newline", "newpage", "newsavebox", "newtheorem", "nocite", "noindent",
-    "nolinebreak", "nonfrenchspacing", "normalsize", "nopagebreak", "not", "onecolumn", "opening", "oval", "overbrace",
-    "overline", "pagebreak", "pagenumbering", "pageref", "pagestyle", "par", "paragraph", "parbox", "parindent", "parskip",
-    "part", "protect", "providecommand", "put", "raggedbottom", "raggedleft", "raggedright", "raisebox", "ref",
-    "renewcommand", "right", "rm", "roman", "rule", "savebox", "sbox", "sc", "scriptsize", "section", "setcounter",
-    "setlength", "settowidth", "sf", "shortstack", "signature", "sl", "slash", "small", "smallskip", "sout", "space", "sqrt",
-    "stackrel", "stepcounter", "subparagraph", "subsection", "subsubsection", "tableofcontents", "telephone", "TeX",
-    "textbf", "textcolor", "textit", "textmd", "textnormal", "textrm", "textsc", "textsf", "textsl", "texttt", "textup",
-    "textwidth", "textheight", "thanks", "thispagestyle", "tiny", "title", "today", "tt", "twocolumn", "typeout", "typein",
-    "uline", "underbrace", "underline", "unitlength", "usebox", "usecounter", "uwave", "value", "vbox", "vcenter", "vdots",
-    "vector", "verb", "vfill", "vline", "vphantom", "vspace",
-    
-    "RequirePackage", "NeedsTeXFormat", "usepackage", "input", "include", "documentclass", "documentstyle",
-    "def","edef","defcommand","if","ifdim","ifnum","ifx","fi","else","begingroup","endgroup",
-    "definecolor","textcolor","color",
-    "eifstrequal","eeifstrequal"
-  ],
-  "tokenizer": {
-    "root": [
-      ["(\\\\begin)(\\s*)(\\{)([\\w\\-\\*\\@]+)(\\})", 
-          ["keyword.predefined","white","@brackets",{ "token": "tag.env-$4", "bracket": "@open" },"@brackets"]],
-      ["(\\\\end)(\\s*)(\\{)([\\w\\-\\*\\@]+)(\\})", 
-          ["keyword.predefined","white","@brackets",{ "token": "tag.env-$4", "bracket": "@close" }, "@brackets" ]],          
-      ["\\\\[^a-zA-Z@]", "keyword" ],  
-      ["\\@[a-zA-Z@]+", "keyword.at" ],  
-      ["\\\\([a-zA-Z@]+)", { "cases": {
-        "$1@builtin": "keyword.predefined",
-        "@default": "keyword" 
-      }}],  
-      { "include": "@whitespace" },
-      ["[{}()\\[\\]]", "@brackets"],
-      ["#+\\d", "number.arg"],
-      ["\\-?(?:\\d+(?:\\.\\d+)?|\\.\\d+)\\s*(?:em|ex|pt|pc|sp|cm|mm|in)", "number.len"]
-    ],
-
-    "whitespace": [
-      ["[ \\t\\r\\n]+", "white"],
-      ["%.*$",    "comment"]
-    ]
-  }
-};
-
-// https://github.com/koka-lang/madoko/blob/master/styles/lang/bibtex.json
-window.bibtex_language = {
-  "displayName":    "BibTeX",      
-  "name":           "bibtex",
-  "mimeTypes":      ["text/bibtex"],
-  "fileExtensions": ["bib"],
-  "ignoreCase":     true,
-  
-  "lineComment":      "% ",   
-    
-  "entries": [
-    "article", "book", "booklet", "conference", "inbook", "incollection", 
-    "inproceedings", "manual", "mastersthesis", "misc", "phdthesis", "proceedings", 
-    "techreport", "unpublished","xdata",
-    "preamble", "string", "comment"    
-  ],
-
-  "fields": [
-    "address", "annote", "author", "booktitle", "chapter", "crossref", 
-    "edition", "editor", "howpublished", "institution", "journal", "key", 
-    "month", "note", "number", "organization", "pages", "publisher", "school", 
-    "series", "title", "type", "volume", "year", "url", "isbn", "issn", "lccn", 
-    "abstract", "keywords", "price", "copyright", "language", "contents", 
-    "numpages", "doi", "http", "eds", "editors", "location",
-    "eprinttype", "etype", "eprint", "eprintpath", "primaryclass", "eprintclass","archiveprefix",
-    "origpublisher", "origlocation","venue","volumes","pagetotal", 
-    "annotation","annote","pubstate",
-    "date","urldate","eventdate","origdate", "urltext"
-  ],
-
-  
-  "tokenizer": {
-    "root": [
-      ["\\\\[^a-z]", "string.escape"],
-      
-      ["(@)([a-z]+)(\\{)(\\s*[^\\s,=]+)?",["keyword", { "cases": {
-        "$2@entries": "keyword",
-        "@default"  : ""
-      }}, "@brackets", "type"]],
-      
-      ["\\b([a-z]+)(?=\\s*=)", { "cases": {
-        "$1@fields" : "constructor",
-        "@default"  : ""
-      }}],
-      
-      ["[=]", "keyword" ],
-      
-      
-      { "include": "@whitespace" },
-      
-      
-      ["[{}()\\[\\]]", "@brackets"]      
-    ],
-
-    "whitespace": [
-      ["[ \\t\\r\\n]+", "white"],
-      ["%.*$",    "comment"]
-    ]
-  }
-};
-
-window.language_configuration = {
-	comments: {
-		lineComment: '%',
-	},
-	brackets: [
-		['{', '}'],
-		['[', ']'],
-		['(', ')']
-	],
-	autoClosingPairs: [
-		{ open: '{', close: '}' },
-		{ open: '[', close: ']' },
-		{ open: '(', close: ')' },
-		{ open: '"', close: '"', notIn: ['string'] },
-		{ open: "'", close: "'", notIn: ['string', 'comment'] }
-	],
-	surroundingPairs: [
-		{ open: '{', close: '}' },
-		{ open: '[', close: ']' },
-		{ open: '(', close: ')' },
-		{ open: '"', close: '"' },
-		{ open: "'", close: "'" }
-	]
-};
-
-</script>
-
 <script type="module">
 
 import { Shell } from '/shell.js'
@@ -270,7 +118,9 @@ const ui =
     compile : document.getElementById('compile'),
     download : document.getElementById('download'),
     verbose : document.getElementById('verbose'),
-    github_https_path : document.getElementById('github_https_path'),
+    git_https_path : document.getElementById('git_https_path'),
+    git_token : document.getElementById('git_token'),
+    git_release : document.getElementById('git_release'),
 
     create_and_click_download_link(file_path, content, mime)
     {
@@ -315,7 +165,10 @@ const paths =
     busytex_worker_js : '/dist/busytex_worker.js', 
     busytex_pipeline_js : '/dist/busytex_pipeline.js',
     texmf_local : ['./texmf'],
-    texlive_js : ['/dist/texlive-basic.js'] //, '/dist/texlive-latex-recommended.js', '/dist/texlive-latex-extra.js'];
+    texlive_js : ['/dist/texlive-basic.js'], //, '/dist/texlive-latex-recommended.js', '/dist/texlive-latex-extra.js'];
+    lang_monarch_json : './lang_monarch.json',
+    latex_monarch_json : './latex_monarch.json',
+    bibtex_monarch_json : './bibtex_monarch.json'
 };
 
 require.config({ paths: { vs: 'https://unpkg.com/monaco-editor@latest/min/vs', xterm: 'https://unpkg.com/xterm@3.8.0/dist' } });
@@ -334,27 +187,43 @@ window.MonacoEnvironment =
     }
 };
 
-require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist/busy', 'sha1'], async (monaco, Terminal, fit, busy, sha1) =>
+function create_editor(editor_element, lang_monarch, latex_monarch, bibtex_monarch)
 {
     // https://microsoft.github.io/monaco-editor/monarch.html
     // https://github.com/microsoft/monaco-languages/blob/master/src/python/python.ts
 
+    // https://github.com/koka-lang/madoko/blob/master/styles/lang/latex.json
     monaco.languages.register({ id: 'latex' });
-	monaco.languages.setMonarchTokensProvider('latex', window.latex_language);
-    monaco.languages.setLanguageConfiguration('latex', window.language_configuration);
+	monaco.languages.setMonarchTokensProvider('latex', latex_monarch);
+    monaco.languages.setLanguageConfiguration('latex', lang_monarch);
     
+    // https://github.com/koka-lang/madoko/blob/master/styles/lang/bibtex.json
 	monaco.languages.register({ id: 'bibtex' });
-	monaco.languages.setMonarchTokensProvider('bibtex', window.latex_language);
-    monaco.languages.setLanguageConfiguration('bibtex', window.language_configuration);
+	monaco.languages.setMonarchTokensProvider('bibtex', bibtex_monarch);
+    monaco.languages.setLanguageConfiguration('bibtex', lang_monarch);
 
-	const editor = monaco.editor.create(ui.editor, { theme: 'vs-dark', language : 'latex' });
+	return monaco.editor.create(editor_element, { theme: 'vs-dark', language : 'latex' });
+}
+
+require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist/busy', 'sha1'], async (monaco, Terminal, fit, busy, sha1) =>
+{
+    const [lang_monarch, latex_monarch, bibtex_monarch] = await Promise.all([paths.lang_monarch_json, paths.latex_monarch_json, paths.bibtex_monarch_json].map(x => fetch(x).then(x => x.json())));
+    
+    const editor = create_editor(ui.editor, lang_monarch, latex_monarch, bibtex_monarch);
 
     Terminal.applyAddon(fit);
     
     const terminal = new Terminal();
     terminal.open(ui.terminal);
     window.sha1 = sha1;
-    window.busyshell = new Shell(ui, paths, document.getElementById('readme').innerHTML, busy, terminal, editor, window.location.hash, window.location.search);
+    
+    if(window.location.hash)
+    {
+        window.location.hash
+        window.location.search
+    }
+
+    window.busyshell = new Shell(ui, paths, document.getElementById('readme').innerHTML, busy, terminal, editor);
 
     window.onresize = ui.onresize;
     window.onresize();

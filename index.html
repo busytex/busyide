@@ -58,6 +58,7 @@
         </select>
         <button id="compile">Compile</button>
         <button id="download">Download PDF</button>
+        <button id="share">Share Link</button>
         <div style="display: flex; margin-left:auto">
             <input type="text" style="width: 250px" id="git_https_path" value="https://github.com/busytex/busytex"></input>
             <input type="text" style="width: 100px" id="git_token" placeholder="GitHub Token" title="for private clone/push"></input>
@@ -89,12 +90,16 @@
 <template id="readme">\documentclass[11pt]{article}
 \begin{document}
 
-\title{My Article}
-\author{Nobody Jr.}
+\title{BusyTex}
+\author{Vadim Kantorov}
 \date{Today}
 \maketitle
 
-Blablabla said Nobody.
+\section{BusyTexOnline}
+BusyTexOnline is a clientside-only LaTeX editor and compiler. Supported functions: share a link, clone from GitHub, push to GitHub. 
+
+\section{BusyTex}
+BusyTex is a collection of TexLive programs statically compiled into a single executable. Currently bundled programs are: XeTeX, bibtex8 and xdvipdfmx, kpsewhich. Currently supported platforms: Linux, wasm32 (browser execution is tested, node execution is not tested).
 
 \end{document}</template>
 
@@ -187,7 +192,7 @@ window.MonacoEnvironment =
     }
 };
 
-function create_editor(editor_element, lang_monarch, latex_monarch, bibtex_monarch)
+function init_editor(editor_element, lang_monarch, latex_monarch, bibtex_monarch)
 {
     // https://microsoft.github.io/monaco-editor/monarch.html
     // https://github.com/microsoft/monaco-languages/blob/master/src/python/python.ts
@@ -205,23 +210,28 @@ function create_editor(editor_element, lang_monarch, latex_monarch, bibtex_monar
 	return monaco.editor.create(editor_element, { theme: 'vs-dark', language : 'latex' });
 }
 
+function init_terminal(terminal_element, addon)
+{
+    Terminal.applyAddon(addon);
+    const terminal = new Terminal();
+    terminal.open(ui.terminal);
+    return terminal;
+}
+
 require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist/busy', 'sha1'], async (monaco, Terminal, fit, busy, sha1) =>
 {
     const [lang_monarch, latex_monarch, bibtex_monarch] = await Promise.all([paths.lang_monarch_json, paths.latex_monarch_json, paths.bibtex_monarch_json].map(x => fetch(x).then(x => x.json())));
     
-    const editor = create_editor(ui.editor, lang_monarch, latex_monarch, bibtex_monarch);
-
-    Terminal.applyAddon(fit);
+    const editor = init_editor(ui.editor, lang_monarch, latex_monarch, bibtex_monarch);
+    const terminal = init_terminal(ui.terminal, fit);
     
-    const terminal = new Terminal();
-    terminal.open(ui.terminal);
     window.sha1 = sha1;
     
-    if(window.location.hash)
+    /*if(window.location.hash)
     {
         window.location.hash
         window.location.search
-    }
+    }*/
 
     window.busyshell = new Shell(ui, paths, document.getElementById('readme').innerHTML, busy, terminal, editor);
 

@@ -192,7 +192,7 @@ window.MonacoEnvironment =
     }
 };
 
-function init_editor(editor_element, lang_monarch, latex_monarch, bibtex_monarch)
+function init_editor(monaco, editor_element, lang_monarch, latex_monarch, bibtex_monarch)
 {
     // https://microsoft.github.io/monaco-editor/monarch.html
     // https://github.com/microsoft/monaco-languages/blob/master/src/python/python.ts
@@ -210,7 +210,7 @@ function init_editor(editor_element, lang_monarch, latex_monarch, bibtex_monarch
 	return monaco.editor.create(editor_element, { theme: 'vs-dark', language : 'latex' });
 }
 
-function init_terminal(terminal_element, addon)
+function init_terminal(Terminal, terminal_element, addon)
 {
     Terminal.applyAddon(addon);
     const terminal = new Terminal();
@@ -222,8 +222,8 @@ require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist
 {
     const [lang_monarch, latex_monarch, bibtex_monarch] = await Promise.all([paths.lang_monarch_json, paths.latex_monarch_json, paths.bibtex_monarch_json].map(x => fetch(x).then(x => x.json())));
     
-    const editor = init_editor(ui.editor, lang_monarch, latex_monarch, bibtex_monarch);
-    const terminal = init_terminal(ui.terminal, fit);
+    const editor = init_editor(monaco, ui.editor, lang_monarch, latex_monarch, bibtex_monarch);
+    const terminal = init_terminal(Terminal, ui.terminal, fit);
     
     window.sha1 = sha1;
     

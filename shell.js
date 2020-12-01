@@ -348,7 +348,8 @@ export class Shell
             const relative_path = relative_dir_path ? `${relative_dir_path}/${name}` : name;
             const absolute_path = `${root}/${relative_path}`;
             if(entry.isFolder)
-                entries.push({path : relative_path}, ...this.ls_R(root, relative_path));
+                //entries.push({path : relative_path}, ...this.ls_R(root, relative_path));
+                entries.push(...this.ls_R(root, relative_path));
             else
                 entries.push({path : relative_path, contents : this.FS.readFile(absolute_path, {encoding : 'binary'})});
         }

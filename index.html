@@ -57,7 +57,9 @@
             <option value="debug">Verbosity - Debug</option>
         </select>
         <button id="compile">Compile</button>
-        <button id="download">Download PDF</button>
+        <button id="download_pdf">Download PDF</button>
+        <button id="download_zip">Download ZIP</button>
+        <button id="download">Download Current File</button>
         <button id="share">Share Link</button>
         <div style="display: flex; margin-left:auto">
             <input type="text" style="width: 250px" id="git_https_path" placeholder="GitHub https link"></input>
@@ -121,6 +123,8 @@ const ui =
     pull : document.getElementById('pull'),
     push : document.getElementById('push'),
     compile : document.getElementById('compile'),
+    download_pdf : document.getElementById('download_pdf'),
+    download_zip : document.getElementById('download_zip'),
     download : document.getElementById('download'),
     verbose : document.getElementById('verbose'),
     git_https_path : document.getElementById('git_https_path'),

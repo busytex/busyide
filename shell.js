@@ -40,24 +40,25 @@ export class Shell
 
         this.basename = path => path.slice(path.lastIndexOf('/') + 1);
         this.ui.clone.onclick = () => this.commands(['cd', 'clone ' + ui.github_https_path.value, 'cd ' + this.basename(ui.github_https_path.value)]);
-        this.ui.download.onclick = () => this.commands(['download ' + this.pdf_path]);
+        this.ui.download_pdf.onclick = () => this.commands(['download ' + this.pdf_path]);
+        this.ui.download.onclick = () => this.commands(['download ' + this.tex_path]);
+        this.ui.download_zip.onclick = () => this.commands(['downloadzip ' + this.home_dir]);
         this.ui.compile.onclick = () => this.commands(['latexmk ' + this.tex_path]);
         //this.ui.pull.onclick = () => this.commands(['cd ~/readme', 'ls']);
 		
 		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, this.ui.compile.onclick);
     }
 
-    log_reset()
+    log_reset(ansi_reset_sequence = '\x1bc')
     {
-        const ansi_reset_sequence = '\x1bc';
         this.log(ansi_reset_sequence);
     }
 
-    async type(cmd)
+    async type(cmd, cr_key_code = 13)
     {
         for(const c of cmd)
             await this.onkey(c, {keyCode : null});
-        await this.onkey('', {keyCode : 13});
+        await this.onkey('', {keyCode : cr_key_code});
     }
     
     async commands(cmds)
@@ -89,9 +90,9 @@ export class Shell
         return new Promise((resolve, reject) => this.FS.syncfs(false, x => x == null ? resolve(true) : reject(false)));
     }
 
-    terminal_print(line)
+    terminal_print(line, newline = '\r\n')
     {
-        this.terminal.write((line || '') + '\r\n');
+        this.terminal.write((line || '') + newline);
     }
 
     terminal_prompt()

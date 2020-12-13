@@ -123,6 +123,20 @@ export class Shell
                 {
                     this.clear();
                 }
+                else if(cmd == 'pwd')
+                {
+                    this.terminal_print(this.pwd());
+                }
+                else if(cmd == 'ls')
+                {
+                    const res = this.ls(arg);
+                    if(res.length > 0)
+                        this.terminal_print(res.join(' '));
+                }
+                else if(cmd == 'mkdir')
+                {
+                    this.mkdir(arg);
+                }
                 else if(cmd == 'man')
                 {
                     this.man();
@@ -142,20 +156,6 @@ export class Shell
                 else if(cmd == 'latexmk')
                 {
                     await this.latexmk(arg);
-                }
-                else if(cmd == 'pwd')
-                {
-                    this.terminal_print(this.pwd());
-                }
-                else if(cmd == 'ls')
-                {
-                    const res = this.ls(arg);
-                    if(res.length > 0)
-                        this.terminal_print(res.join(' '));
-                }
-                else if(cmd == 'mkdir')
-                {
-                    this.mkdir(arg);
                 }
                 else if(cmd == 'cd')
                 {

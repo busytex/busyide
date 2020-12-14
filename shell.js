@@ -12,13 +12,13 @@ export class Shell
         this.cache_dir = '/cache';
         this.readme_dir = this.home_dir + '/readme';
         this.readme_tex = this.readme_dir + '/readme.tex';
-        this.text_extensions = ['.tex', '.bib', '.txt', '.svg', '.sh', '.py', '.csv'];
 
-        this.tic_ = 0;
-        this.pdf_path = '';
-        this.log_path = '';
+        this.pdf_path = '/tmp/pdf_does_not_exist_yet';
+        this.log_path = '/tmp/log_does_not_exist_yet';
         this.tex_path = '';
         this.current_terminal_line = '';
+        this.text_extensions = ['.tex', '.bib', '.txt', '.svg', '.sh', '.py', '.csv'];
+        this.tic_ = 0;
         this.FS = null;
         this.guthub = null;
         this.terminal = terminal;

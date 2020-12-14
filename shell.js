@@ -12,6 +12,7 @@ export class Shell
         this.cache_dir = '/cache';
         this.readme_dir = this.home_dir + '/readme';
         this.readme_tex = this.readme_dir + '/readme.tex';
+        this.text_extensions = ['.tex', '.bib', '.txt', '.svg', '.sh', '.py', '.csv'];
 
         this.tic_ = 0;
         this.pdf_path = '';
@@ -385,7 +386,10 @@ export class Shell
                 //entries.push({path : relative_path}, ...this.ls_R(root, relative_path));
                 entries.push(...this.ls_R(root, relative_path));
             else if(absolute_path != this.log_path && absolute_path != this.pdf_path)
-                entries.push({path : relative_path, contents : this.FS.readFile(absolute_path, {encoding : 'binary'})});
+            {
+                const read_text = this.text_extensions.map(ext => absolute_path.endsWith(ext)).includes(true);
+                entries.push({path : relative_path, contents : this.FS.readFile(absolute_path, {encoding : read_text ? 'utf8' : 'binary'})});
+            }
         }
         return entries;
     }

@@ -16,6 +16,7 @@ Handler.extensions_map={
 	'.css':	'text/css',
 	'.js':	'application/x-javascript',
 	'.wasm': 'application/wasm',
+        '.tex': 'application/x-tex',
 	'': 'application/octet-stream', # Default
     }
 

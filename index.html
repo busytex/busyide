@@ -91,21 +91,6 @@
       <input type="file" id="fileupload">
     </div>
 
-<template id="readme">\documentclass[11pt]{article}
-\begin{document}
-
-\title{BusyTex}
-\author{Vadim Kantorov}
-\date{Today}
-\maketitle
-
-\section{BusyTexOnline}
-BusyTexOnline is a clientside-only LaTeX editor and compiler. Supported functions: share a link, clone from GitHub, push to GitHub. 
-
-\section{BusyTex}
-BusyTex is a collection of TexLive programs statically compiled into a single executable. Currently bundled programs are: XeTeX, bibtex8 and xdvipdfmx, kpsewhich. Currently supported platforms: Linux, wasm32 (browser execution is tested, node execution is not tested).
-
-\end{document}</template>
 
 <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
 
@@ -182,7 +167,8 @@ const paths =
     texlive_js : ['/dist/texlive-basic.js'], //, '/dist/texlive-latex-recommended.js', '/dist/texlive-latex-extra.js'];
     lang_monarch_json : './lang_monarch.json',
     latex_monarch_json : './latex_monarch.json',
-    bibtex_monarch_json : './bibtex_monarch.json'
+    bibtex_monarch_json : './bibtex_monarch.json',
+    readme_tex : '/readme.tex'
 };
 
 require.config({ paths: { vs: 'https://unpkg.com/monaco-editor@latest/min/vs', xterm: 'https://unpkg.com/xterm@3.8.0/dist' } });
@@ -229,6 +215,8 @@ function init_terminal(Terminal, terminal_element, addon)
 
 const monarch_promises = [paths.lang_monarch_json, paths.latex_monarch_json, paths.bibtex_monarch_json].map(x => fetch(x).then(x => x.json()));
 
+const readme_tex = fetch(paths.readme_tex).then(x => x.text());
+
 require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist/busy', 'sha1'], async (monaco, Terminal, fit, busy, sha1) =>
 {
     const editor = init_editor(monaco, ui.editor, ...(await Promise.all(monarch_promises)));
@@ -242,7 +230,7 @@ require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist
         window.location.search
     }*/
 
-    window.busyshell = new Shell(ui, paths, document.getElementById('readme').innerHTML, busy, terminal, editor, window.location.origin);
+    window.busyshell = new Shell(ui, paths, await readme_tex, busy, terminal, editor, window.location.origin);
 
     window.onresize = ui.onresize;
     window.onresize();

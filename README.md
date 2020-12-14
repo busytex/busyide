@@ -4,13 +4,11 @@
 3. packaging of everything into one large HTML file to run from file://
 
 ### TODO
-1. publish a pdf to github releases: https://developer.github.com/v3/repos/releases/#create-a-release, https://developer.github.com/v3/repos/releases/#upload-a-release-asset, https://developer.github.com/v3/repos/releases/#update-a-release-asset
 2. Store file sha hashes in .git directory
 3. Redo GitHub login
 6. arg1/arg2
 8. Ctrl+V, command history
 10. file tab auto-complete
-11. busybox: https://github.com/tbfleming/em-busybox/compare/c47917865d5f40f9044dd8845814c591d801318d...master
 
 ```shell
 # https://github.com/tomoyukim/vscode-mermaid-editor

@@ -1,6 +1,6 @@
 export class Guthub
 {
-    constructor(FS, diff3, auth_token, cache_dir, print)
+    constructor(sha1, FS, diff3, auth_token, cache_dir, print)
     {
         this.retry_delay_seconds = 2;
         this.auth_token = auth_token;
@@ -9,6 +9,7 @@ export class Guthub
         this.cache_dir = cache_dir;
         this.github_contents = '.git/githubapicontents.json';
         this.diff3 = diff3;
+        this.sha1 = sha1;
     }
 
     github_api_request(https_path, relative_url, method, body)
@@ -134,7 +135,7 @@ export class Guthub
         const byte_array = new Uint8Array(header.length + contents.length);
         byte_array.set(Array.from(header).map(c => c.charCodeAt()));
         byte_array.set(contents, header.length);
-        return window.sha1(byte_array);
+        return this.sha1(byte_array);
     }
 
     async status(ls_R)

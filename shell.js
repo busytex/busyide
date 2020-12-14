@@ -4,7 +4,7 @@ import { Guthub } from '/guthub.js'
 
 export class Shell
 {
-    constructor(ui, paths, readme, busy, terminal, editor, http_path, auth_token_hash, repo_path_search)
+    constructor(ui, paths, readme, terminal, editor, http_path, auth_token_hash, repo_path_search)
     {
         this.http_path = http_path;
         this.share_link_txt = '/tmp/share_link.txt';
@@ -19,7 +19,6 @@ export class Shell
         this.tex_path = '';
         this.current_terminal_line = '';
         this.FS = null;
-        this.busy = busy;
         this.guthub = null;
         this.terminal = terminal;
         this.editor = editor;
@@ -126,12 +125,12 @@ export class Shell
 
     terminal_prompt()
     {
-        return this.terminal.write('\x1B[1;3;31memscripten\x1B[0m:' + this.pwd(true) + '$ ');
+        return this.terminal.write('\x1B[1;3;31mbusytex\x1B[0m:' + this.pwd(true) + '$ ');
     }
 
-    async onkey(key, ev)
+    async onkey(key, ev, cr_key_code = 13, bs_key_code = 8)
     {
-        if(ev.keyCode == 8)
+        if(ev.keyCode == bs_key_code)
         {
             if(this.current_terminal_line.length > 0)
             {
@@ -139,7 +138,7 @@ export class Shell
                 this.terminal.write('\b \b');
             }
         }
-        else if(ev.keyCode == 13)
+        else if(ev.keyCode == cr_key_code)
         {
             this.terminal_print();
             const [cmd, arg] = this.current_terminal_line.split(' ');
@@ -208,8 +207,7 @@ export class Shell
                 }
                 else if(cmd == 'status')
                 {
-                    const files = this.ls_R('.');
-                    await this.guthub.status(files);
+                    await this.guthub.status(this.ls_R('.'));
                 }
                 else if(cmd == 'save')
                 {
@@ -273,18 +271,18 @@ export class Shell
         }
     }
 
-    async run(busy)
+    async run(backend_emscripten_module_async, sha1)
     {
         this.compiler.postMessage(this.paths);
         
-        const Module = await busy(modularized(this.log));
+        const Module = await backend_emscripten_module_async(backend_emscripten_module_config(this.log));
         this.FS = Module.FS;
         this.FS.mkdir(this.readme_dir);
         this.FS.mkdir(this.cache_dir);
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        this.guthub = new Guthub(this.FS, this.busy, this.github_auth_token, this.cache_dir, this.log.bind(this));
+        this.guthub = new Guthub(sha1, this.FS, Module, this.github_auth_token, this.cache_dir, this.log.bind(this));
         await this.load_cache();
         if(this.github_https_path.length > 0)
         {
@@ -462,7 +460,7 @@ export class Shell
     }
 }
 
-function modularized(log)
+function backend_emscripten_module_config(log)
 {
     const Module =
     {

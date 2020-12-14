@@ -168,10 +168,12 @@ const paths =
     lang_monarch_json : './lang_monarch.json',
     latex_monarch_json : './latex_monarch.json',
     bibtex_monarch_json : './bibtex_monarch.json',
-    readme_tex : '/readme.tex'
+    readme_tex : '/readme.tex',
+    unpkg_monaco_editor : 'https://unpkg.com/monaco-editor@latest/min/vs',
+    unpkg_xterm : 'https://unpkg.com/xterm@3.8.0/dist'
 };
 
-require.config({ paths: { vs: 'https://unpkg.com/monaco-editor@latest/min/vs', xterm: 'https://unpkg.com/xterm@3.8.0/dist' } });
+require.config({ paths: { vs: paths.unpkg_monaco_editor , xterm: paths.unpkg_xterm } });
 
 window.MonacoEnvironment = 
 {
@@ -215,14 +217,12 @@ function init_terminal(Terminal, terminal_element, addon)
 
 const monarch_promises = [paths.lang_monarch_json, paths.latex_monarch_json, paths.bibtex_monarch_json].map(x => fetch(x).then(x => x.json()));
 
-const readme_tex = fetch(paths.readme_tex).then(x => x.text());
+const readme_tex_promise = fetch(paths.readme_tex).then(x => x.text());
 
-require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist/busy', 'sha1'], async (monaco, Terminal, fit, busy, sha1) =>
+require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist/busy', 'sha1'], async (Monaco, Terminal, terminal_addon_fit, backend_emscripten_module_async, sha1) =>
 {
-    const editor = init_editor(monaco, ui.editor, ...(await Promise.all(monarch_promises)));
-    const terminal = init_terminal(Terminal, ui.terminal, fit);
-    
-    window.sha1 = sha1;
+    const editor = init_editor(Monaco, ui.editor, ...(await Promise.all(monarch_promises)));
+    const terminal = init_terminal(Terminal, ui.terminal, terminal_addon_fit);
     
     /*if(window.location.hash)
     {
@@ -230,12 +230,11 @@ require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist
         window.location.search
     }*/
 
-    window.busyshell = new Shell(ui, paths, await readme_tex, busy, terminal, editor, window.location.origin);
-
+    window.busyshell = new Shell(ui, paths, await readme_tex_promise, terminal, editor, window.location.origin);
     window.onresize = ui.onresize;
     window.onresize();
 
-    await window.busyshell.run(busy);
+    await window.busyshell.run(backend_emscripten_module_async, sha1);
 });
 
 </script>

@@ -275,14 +275,14 @@ export class Shell
     {
         this.compiler.postMessage(this.paths);
         
-        const diffutils = await backend_emscripten_module_async(backend_emscripten_module_config(this.log));
-        this.FS = Module.FS;
+        const backend = await backend_emscripten_module_async(backend_emscripten_module_config(this.log));
+        this.FS = backend.FS;
         this.FS.mkdir(this.readme_dir);
         this.FS.mkdir(this.cache_dir);
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        this.guthub = new Guthub(sha1, this.FS, diffutils, this.github_auth_token, this.cache_dir, this.log.bind(this));
+        this.guthub = new Guthub(sha1, this.FS, backend, this.github_auth_token, this.cache_dir, this.log.bind(this));
         await this.load_cache();
         if(this.github_https_path.length > 0)
         {

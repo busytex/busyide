@@ -4,8 +4,10 @@ import { Guthub } from '/guthub.js'
 
 export class Shell
 {
-    constructor(ui, paths, readme, busy, terminal, editor, auth_token_hash, repo_path_search)
+    constructor(ui, paths, readme, busy, terminal, editor, http_path, auth_token_hash, repo_path_search)
     {
+        this.http_path = http_path;
+        this.share_link_txt = '/tmp/share_link.txt';
         this.home_dir = '/home/web_user';
         this.cache_dir = '/cache';
         this.readme_dir = this.home_dir + '/readme';
@@ -44,6 +46,8 @@ export class Shell
         this.ui.download.onclick = () => this.commands(['download ' + this.tex_path]);
         this.ui.download_zip.onclick = () => this.commands(['downloadzip ' + this.home_dir]);
         this.ui.compile.onclick = () => this.commands(['latexmk ' + this.tex_path]);
+        this.ui.man.onclick = () => this.commands(['man']);
+        this.ui.share.onclick = () => this.commands(['share', 'open ' + this.share_link_txt]);
         //this.ui.pull.onclick = () => this.commands(['cd ~/readme', 'ls']);
 		
 		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, this.ui.compile.onclick);
@@ -78,6 +82,21 @@ export class Shell
             if(file_name != '.' && file_name != '..')
                 this.FS.unlink(this.cache_dir + '/' + file_name);
         await this.save_cache();
+    }
+
+    project_dir()
+    {
+        const basename = this.tex_path.lastIndexOf('/');
+        const cwd = this.tex_path.slice(0, basename);
+        const project_dir = cwd.split('/').slice(0, 4).join('/');
+        return project_dir;
+    }
+
+    share()
+    {
+        const files = this.ls_R(this.project_dir());
+        const serialized = 'HELLOWORLD';
+        this.FS.writeFile(this.share_link_txt, `${this.http_path}/#share/${serialized}`);
     }
 
     async load_cache()
@@ -140,6 +159,10 @@ export class Shell
                 else if(cmd == 'man')
                 {
                     this.man();
+                }
+                else if(cmd == 'share')
+                {
+                    this.share();
                 }
                 else if(cmd == 'help')
                 {
@@ -410,7 +433,7 @@ export class Shell
 
         mime = mime || 'application/octet-stream';
         let content = this.FS.readFile(file_path);
-        this.ui.create_and_click_download_link(file_path, content, mime);
+        this.ui.create_and_click_download_link(this.basename(file_path), content, mime);
     }
     
     async clone(https_path)

@@ -64,11 +64,12 @@
         <div style="display: flex; margin-left:auto">
             <input type="text" style="width: 250px" id="git_https_path" placeholder="GitHub https link"></input>
             <input type="text" style="width: 100px" id="git_token" placeholder="GitHub Token" title="for private clone/push"></input>
-            <input type="text" style="width: 100px" id="git_release" placeholder="Release Name" title="for publishing a PDF into a release"></input>
             <button id="clone">Clone</button>
             <button id="pull">Pull</button>
             <button id="push">Push</button>
+            <input type="text" style="width: 100px" id="git_release" placeholder="Publish Release Name" title="for publishing a PDF into a release"></input>
             <button id="publish">Publish PDF</button>
+            <button id="man">Help</button>
         </div>
     </div>
     <div style="display: flex; height: 80%">
@@ -76,6 +77,7 @@
       <div id="viewer">
         <iframe id="pdfpreview"></iframe>
         <img hidden id="imgpreview"></img>
+        <pre hidden id="txtpreview"></pre>
       </div>
     </div>
     <div style="display: flex; flex-direction: row; height: 15%">
@@ -115,6 +117,7 @@ const ui =
 {
     imgpreview : document.getElementById('imgpreview'),
     pdfpreview : document.getElementById('pdfpreview'),
+    txtpreview : document.getElementById('txtpreview'),
     fileupload : document.getElementById('fileupload'),
     editor : document.getElementById('editor'),
     terminal : document.getElementById('terminal'),
@@ -130,6 +133,8 @@ const ui =
     git_https_path : document.getElementById('git_https_path'),
     git_token : document.getElementById('git_token'),
     git_release : document.getElementById('git_release'),
+    man : document.getElementById('man'),
+    share : document.getElementById('share'),
 
     create_and_click_download_link(file_path, content, mime)
     {
@@ -222,11 +227,11 @@ function init_terminal(Terminal, terminal_element, addon)
     return terminal;
 }
 
+const monarch_promises = [paths.lang_monarch_json, paths.latex_monarch_json, paths.bibtex_monarch_json].map(x => fetch(x).then(x => x.json()));
+
 require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist/busy', 'sha1'], async (monaco, Terminal, fit, busy, sha1) =>
 {
-    const [lang_monarch, latex_monarch, bibtex_monarch] = await Promise.all([paths.lang_monarch_json, paths.latex_monarch_json, paths.bibtex_monarch_json].map(x => fetch(x).then(x => x.json())));
-    
-    const editor = init_editor(monaco, ui.editor, lang_monarch, latex_monarch, bibtex_monarch);
+    const editor = init_editor(monaco, ui.editor, ...(await Promise.all(monarch_promises)));
     const terminal = init_terminal(Terminal, ui.terminal, fit);
     
     window.sha1 = sha1;
@@ -237,7 +242,7 @@ require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist
         window.location.search
     }*/
 
-    window.busyshell = new Shell(ui, paths, document.getElementById('readme').innerHTML, busy, terminal, editor);
+    window.busyshell = new Shell(ui, paths, document.getElementById('readme').innerHTML, busy, terminal, editor, window.location.origin);
 
     window.onresize = ui.onresize;
     window.onresize();

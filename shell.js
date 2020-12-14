@@ -42,8 +42,9 @@ export class Shell
         this.basename = path => path.slice(path.lastIndexOf('/') + 1);
         this.ui.clone.onclick = () => this.commands(['cd', 'clone ' + ui.github_https_path.value, 'cd ' + this.basename(ui.github_https_path.value)]);
         this.ui.download_pdf.onclick = () => this.commands(['download ' + this.pdf_path]);
+        this.ui.download_log.onclick = () => this.commands(['download ' + this.log_path]);
         this.ui.download.onclick = () => this.commands(['download ' + this.tex_path]);
-        this.ui.download_zip.onclick = () => this.commands(['downloadzip ' + this.home_dir]);
+        //this.ui.download_zip.onclick = () => this.commands(['download ' + this.home_dir]);
         this.ui.compile.onclick = () => this.commands(['latexmk ' + this.tex_path]);
         this.ui.man.onclick = () => this.commands(['man']);
         this.ui.share.onclick = () => this.commands(['share', 'open ' + this.share_link_txt]);
@@ -93,6 +94,7 @@ export class Shell
 
     serialize_project(project_dir)
     {
+        //TODO: filter out artefacts
         const files = this.ls_R(project_dir);
         return btoa(JSON.stringify(files));
     }
@@ -382,7 +384,7 @@ export class Shell
             if(entry.isFolder)
                 //entries.push({path : relative_path}, ...this.ls_R(root, relative_path));
                 entries.push(...this.ls_R(root, relative_path));
-            else
+            else if(absolute_path != this.log_path && absolute_path != this.pdf_path)
                 entries.push({path : relative_path, contents : this.FS.readFile(absolute_path, {encoding : 'binary'})});
         }
         return entries;

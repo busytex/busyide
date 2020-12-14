@@ -94,7 +94,7 @@ export class Shell
     serialize_project(project_dir)
     {
         const files = this.ls_R(project_dir);
-        return Buffer.from(JSON.stringify(files)).toString('base64');
+        return btoa(JSON.stringify(files));
     }
 
     deserialize_project(project_str)

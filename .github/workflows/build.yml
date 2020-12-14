@@ -2,6 +2,9 @@ name: build
 
 on: workflow_dispatch
 
+env:
+    MAKEFLAGS: -j2
+
 jobs:
 
   build:
@@ -17,6 +20,9 @@ jobs:
           fetch-depth: 1
       
       - name: Build wasm busyide
-        run: make dist
+        run: make $MAKEFLAGS dist
+      
+      - name: Create Release
         env:
-            MAKEFLAGS: -j2
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: hub release create -m "Build assets" -a dist/busy.js build_${{github.sha}}

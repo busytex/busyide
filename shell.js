@@ -273,7 +273,7 @@ export class Shell
 
     async run(backend_emscripten_module_async, sha1)
     {
-        this.compiler.postMessage({preload : true, ...this.paths});
+        this.compiler.postMessage(this.paths);
         
         const diffutils = await backend_emscripten_module_async(backend_emscripten_module_config(this.log));
         this.FS = Module.FS;

@@ -92,11 +92,21 @@ export class Shell
         return project_dir;
     }
 
+    serialize_project(project_dir)
+    {
+        const files = this.ls_R(project_dir);
+        return Buffer.from(JSON.stringify(files)).toString('base64');
+    }
+
+    deserialize_project(project_str)
+    {
+        const files = JSON.parse(atob(project_str));
+    }
+
     share()
     {
-        const files = this.ls_R(this.project_dir());
-        const serialized = 'HELLOWORLD';
-        this.FS.writeFile(this.share_link_txt, `${this.http_path}/#share/${serialized}`);
+        const serialized_project_str = this.serialize_project(this.project_dir());
+        this.FS.writeFile(this.share_link_txt, `${this.http_path}#base64project/${serialized_project_str}`);
     }
 
     async load_cache()

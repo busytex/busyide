@@ -224,4 +224,14 @@ export class Guthub
             throw network_error(resp);
         }
     }
+
+    async upload_asset()
+    {
+        // https://developer.github.com/v3/repos/releases/#get-a-release-by-tag-name
+        // https://developer.github.com/v3/repos/releases/#get-a-release
+        // https://developer.github.com/v3/repos/releases/#list-releases
+        // https://developer.github.com/v3/repos/releases/#create-a-release
+        // https://developer.github.com/v3/repos/releases/#upload-a-release-asset
+        // https://developer.github.com/v3/repos/releases/#delete-a-release-asset
+    }
 }

@@ -42,8 +42,8 @@ export class Shell
 
         this.basename = path => path.slice(path.lastIndexOf('/') + 1);
         this.ui.clone.onclick = () => this.commands(['cd', 'clone ' + ui.github_https_path.value, 'cd ' + this.basename(ui.github_https_path.value)]);
-        this.ui.download_pdf.onclick = () => this.commands(['download ' + this.pdf_path]);
-        this.ui.download_log.onclick = () => this.commands(['download ' + this.log_path]);
+        this.ui.download_pdf.onclick = () => this.commands(['open ' + this.pdf_path]);
+        this.ui.view_log.onclick = () => this.commands(['download ' + this.log_path]);
         this.ui.download.onclick = () => this.commands(['download ' + this.tex_path]);
         //this.ui.download_zip.onclick = () => this.commands(['download ' + this.home_dir]);
         this.ui.compile.onclick = () => this.commands(['latexmk ' + this.tex_path]);

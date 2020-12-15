@@ -108,7 +108,7 @@ export class Shell
     share()
     {
         const serialized_project_str = this.serialize_project(this.project_dir());
-        this.FS.writeFile(this.share_link_log, `${this.http_path}#base64project/${serialized_project_str}`);
+        this.FS.writeFile(this.share_link_log, `${this.http_path}/#inline/${serialized_project_str}`);
     }
 
     async load_cache()

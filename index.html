@@ -206,7 +206,7 @@ function init_editor(monaco, editor_element, lang_monarch, latex_monarch, bibtex
 	monaco.languages.setMonarchTokensProvider('bibtex', bibtex_monarch);
     monaco.languages.setLanguageConfiguration('bibtex', lang_monarch);
 
-	return monaco.editor.create(editor_element, { theme: 'vs-dark', language : 'latex' });
+    return monaco.editor.create(editor_element, { theme: 'vs-dark', language : 'latex', minimap: {enabled: false } });
 }
 
 function init_terminal(Terminal, terminal_element, addon)

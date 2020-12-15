@@ -7,7 +7,7 @@ export class Shell
     constructor(ui, paths, readme, terminal, editor, http_path, auth_token_hash, repo_path_search)
     {
         this.http_path = http_path;
-        this.share_link_txt = '/tmp/share_link.txt';
+        this.share_link_log = '/tmp/share_link.log';
         this.home_dir = '/home/web_user';
         this.cache_dir = '/cache';
         this.readme_dir = this.home_dir + '/readme';
@@ -48,7 +48,7 @@ export class Shell
         //this.ui.download_zip.onclick = () => this.commands(['download ' + this.home_dir]);
         this.ui.compile.onclick = () => this.commands(['latexmk ' + this.tex_path]);
         this.ui.man.onclick = () => this.commands(['man']);
-        this.ui.share.onclick = () => this.commands(['share', 'open ' + this.share_link_txt]);
+        this.ui.share.onclick = () => this.commands(['share', 'open ' + this.share_link_log]);
         //this.ui.pull.onclick = () => this.commands(['cd ~/readme', 'ls']);
 		
 		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, this.ui.compile.onclick);
@@ -108,7 +108,7 @@ export class Shell
     share()
     {
         const serialized_project_str = this.serialize_project(this.project_dir());
-        this.FS.writeFile(this.share_link_txt, `${this.http_path}#base64project/${serialized_project_str}`);
+        this.FS.writeFile(this.share_link_log, `${this.http_path}#base64project/${serialized_project_str}`);
     }
 
     async load_cache()

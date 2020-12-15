@@ -309,7 +309,7 @@ export class Shell
             
             if(file_path.endsWith('.log'))
             {
-                this.ui.txtpreview.innerText = contents;
+                this.ui.txtpreview.value = contents;
                 [this.ui.imgpreview.hidden, this.ui.pdfpreview.hidden, this.ui.txtpreview.hidden] = [true, true, false];
             }
             else if(file_path.endsWith('.svg'))

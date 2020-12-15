@@ -5,7 +5,6 @@
 
 ### TODO
 2. Store file sha hashes in .git directory
-3. Redo GitHub login
 6. arg1/arg2
 8. Ctrl+V, command history
 10. file tab auto-complete
@@ -28,8 +27,6 @@
 https://github.com/BlueMagnificent/monaco-tree
 
 https://swimburger.net/blog/dotnet/how-to-deploy-aspnet-blazor-webassembly-to-github-pages
-
-https://github.com/tbfleming/em-shell
 
 https://medium.com/codingtown/xterm-js-terminal-2b19ccd2a52
 

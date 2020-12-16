@@ -16,6 +16,7 @@ export class Shell
         this.pdf_path = '/tmp/pdf_does_not_exist_yet';
         this.log_path = '/tmp/log_does_not_exist_yet';
         this.tex_path = '';
+        this.zip_path = '/tmp/archive.zip';
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.svg', '.sh', '.py', '.csv'];
         this.tic_ = 0;
@@ -28,6 +29,7 @@ export class Shell
         this.compiler = new Worker(paths.busytex_worker_js);
         this.log = this.ui.log;
         this.readme = readme;
+        this.backend = null;
         
         this.github_auth_token = ''
         if(route.length > 1 && route[0] == 'github')
@@ -41,7 +43,7 @@ export class Shell
         this.ui.download_pdf.onclick = () => this.commands(['download ' + this.pdf_path]);
         this.ui.view_log.onclick = () => this.commands(['open ' + this.log_path]);
         this.ui.download.onclick = () => this.commands(['download ' + this.tex_path]);
-        //this.ui.download_zip.onclick = () => this.commands(['download ' + this.home_dir]);
+        this.ui.download_zip.onclick = () => this.commands(['nanozip ' + this.project_dir(), 'download ' + this.zip_path]);
         this.ui.compile.onclick = () => this.commands(['latexmk ' + this.tex_path]);
         this.ui.man.onclick = () => this.commands(['man']);
         this.ui.share.onclick = () => this.commands(['share', 'open ' + this.share_link_log]);
@@ -102,12 +104,6 @@ export class Shell
         const files = JSON.parse(atob(project_str));
     }
 
-    share()
-    {
-        const serialized_project_str = this.serialize_project(this.project_dir());
-        this.FS.writeFile(this.share_link_log, `${this.http_path}/#inline/${serialized_project_str}`);
-    }
-
     async load_cache()
     {
         return new Promise((resolve, reject) => this.FS.syncfs(true, x => x == null ? resolve(true) : reject(false)));
@@ -164,6 +160,10 @@ export class Shell
                 else if(cmd == 'mkdir')
                 {
                     this.mkdir(arg);
+                }
+                else if(cmd == 'nanozip')
+                {
+                    this.terminal_print(this.nanozip(arg));
                 }
                 else if(cmd == 'man')
                 {
@@ -275,14 +275,14 @@ export class Shell
     {
         this.compiler.postMessage(this.paths);
         
-        const backend = await backend_emscripten_module_async(backend_emscripten_module_config(this.log));
+        this.backend = await backend_emscripten_module_async(backend_emscripten_module_config(this.log));
         this.FS = backend.FS;
         this.FS.mkdir(this.readme_dir);
         this.FS.mkdir(this.cache_dir);
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        this.guthub = new Guthub(sha1, this.FS, backend, this.github_auth_token, this.cache_dir, this.log.bind(this));
+        this.guthub = new Guthub(sha1, this.FS, this.backend, this.github_auth_token, this.cache_dir, this.log.bind(this));
         await this.load_cache();
         if(this.ui.github_https_path.value.length > 0)
         {
@@ -342,6 +342,19 @@ export class Shell
     help()
     {
         return ['man', 'help', 'status', 'purge', 'latexmk', 'download', 'clear', 'pwd', 'ls', 'mkdir', 'cd', 'clone', 'push', 'open', 'save'].sort();
+    }
+    
+    share()
+    {
+        const serialized_project_str = this.serialize_project(this.project_dir());
+        this.FS.writeFile(this.share_link_log, `${this.http_path}/#inline/${serialized_project_str}`);
+    }
+
+    nanozip(project_dir)
+    {
+        this.backend.output = '';
+        this.backend.callMain(['-r', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, project_dir]);
+        return 'ok!';
     }
 
     save(file_path, contents)

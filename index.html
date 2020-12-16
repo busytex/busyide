@@ -156,7 +156,19 @@ const ui =
             ui.status.value += '\n';
             ui.status.scrollTop = ui.status.scrollHeight;
         }
+    },
+
+    set_route(...route_parts)
+    {
+        window.location.hash = route_parts.join('/');
+    },
+
+    get_route()
+    {
+        const hash = window.location.hash.length > 0 ? window.location.hash.substring(1) : '';
+        return hash.split('/').filter(part => part.length > 0);
     }
+    
 };
   
 const paths = 

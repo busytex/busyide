@@ -462,6 +462,7 @@ export class Shell
         this.log_reset();
         await this.guthub.clone(https_path, repo_path);
         await this.save_cache();
+        this.ui.set_route('github', https_path);
         return repo_path;
     }
 

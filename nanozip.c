@@ -48,6 +48,8 @@ int proc_entry(const char *file_path_src, const struct stat *info, const int typ
         if(0 == strcmp(exclude[i], file_path_src))
             add = 0;
     
+    printf("deflating [%s]: %d\n", file_path_src, add);
+
     if(add)
     {
         file_path_dst = file_path_src;
@@ -82,6 +84,7 @@ int nanozip_main(int argc, char *argv[])
         {
             assert(i + 1 < argc);
             exclude[num_exclude++] = argv[++i];
+            printf("excluding [%s]\n", exclude[num_exclude - 1]);
         }
         else if(output == NULL)
             output = argv[i];

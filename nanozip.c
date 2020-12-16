@@ -55,16 +55,16 @@ int proc_entry(const char *file_path_src, const struct stat *info, const int typ
 
         if(typeflag == FTW_D)
         {
-            if(file_path_src[strlen(file_path_src) - 1] != '/')
+            /*if(file_path_src[strlen(file_path_src) - 1] != '/')
             {
                 file_path_dst = file_path_buffer;
                 snprintf(file_path_dst, MAX_FILE_PATH_LENGTH, "%s/", file_path_src);
             }
 
-            printf("mz_zip_writer_add_mem: %d\n", mz_zip_writer_add_mem(ptr_zip, file_path_dst, NULL, 0, 0));
+            printf("mz_zip_writer_add_mem: %d\n", mz_zip_writer_add_mem(ptr_zip, file_path_dst, NULL, 0, 0));*/
         }
         else if(typeflag == FTW_F)
-            printf("mz_zip_writer_add_file: %d\n", mz_zip_writer_add_file(ptr_zip, file_path_dst, file_path_src, "", 0, MZ_BEST_COMPRESSION));
+            printf("mz_zip_writer_add_file: %d\n", mz_zip_writer_add_file(ptr_zip, "myfile", file_path_src, "", 0, MZ_BEST_COMPRESSION));
     }
     
     return 0;
@@ -108,8 +108,8 @@ int nanozip_main(int argc, char *argv[])
             proc_entry(input[i], NULL, FTW_F, NULL);
 	}
 
-    mz_zip_writer_finalize_archive(ptr_zip);
-    mz_zip_writer_end(ptr_zip);
+    printf("mz_zip_writer_finalize_archive: %d\n", mz_zip_writer_finalize_archive(ptr_zip));
+    printf("mz_zip_writer_end: %d\n", mz_zip_writer_end(ptr_zip));
 	
     return 0;
 }

@@ -234,7 +234,7 @@ const monarch_promises = [paths.lang_monarch_json, paths.latex_monarch_json, pat
 
 const readme_tex_promise = fetch(paths.readme_tex).then(x => x.text());
 
-require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist/busy', 'sha1'], async (Monaco, Terminal, terminal_addon_fit, backend_emscripten_module_async, sha1) =>
+require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist/busyide', 'sha1'], async (Monaco, Terminal, terminal_addon_fit, backend_emscripten_module_async, sha1) =>
 {
     const editor = init_editor(Monaco, ui.editor, ...(await Promise.all(monarch_promises)));
     const terminal = init_terminal(Terminal, ui.terminal, terminal_addon_fit);

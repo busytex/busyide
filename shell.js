@@ -42,15 +42,16 @@ export class Shell
         this.basename = path => path.slice(path.lastIndexOf('/') + 1);
         
         const cmd = (...parts) => parts.join(' ');
-        this.ui.clone.onclick = () => this.commands(['cd', cmd('clone', ui.github_https_path.value), cmd('cd', this.basename(ui.github_https_path.value))]);
-        this.ui.download_pdf.onclick = () => this.commands([cmd('download', this.pdf_path)]);
-        this.ui.view_log.onclick = () => this.commands([cmd('open', this.log_path)]);
-        this.ui.download.onclick = () => this.commands([cmd('download', this.tex_path)]);
-        this.ui.download_zip.onclick = () => this.commands(['cd', cmd('nanozip', this.basename(this.project_dir())), cmd('cd', this.pwd(true)), cmd('download', this.zip_path)]);
-        this.ui.compile.onclick = () => this.commands([cmd('latexmk', this.tex_path)]);
-        this.ui.man.onclick = () => this.commands(['man']);
-        this.ui.share.onclick = () => this.commands(['share', cmd('open', this.share_link_log)]);
-        //this.ui.pull.onclick = () => this.commands(['cd ~/readme', 'ls']);
+        this.ui.clone.onclick = () => this.commands('cd', cmd('clone', ui.github_https_path.value), cmd('cd', this.basename(ui.github_https_path.value)));
+        this.ui.download_pdf.onclick = () => this.commands(cmd('download', this.pdf_path));
+        this.ui.view_log.onclick = () => this.commands(cmd('open', this.log_path));
+        this.ui.view_pdf.onclick = () => this.commands(cmd('open', this.pdf_path));
+        this.ui.download.onclick = () => this.commands(cmd('download', this.tex_path));
+        this.ui.download_zip.onclick = () => this.commands('cd', cmd('nanozip', this.basename(this.project_dir())), cmd('cd', this.pwd(true)), cmd('download', this.zip_path));
+        this.ui.compile.onclick = () => this.commands(cmd('latexmk', this.tex_path));
+        this.ui.man.onclick = () => this.commands('man');
+        this.ui.share.onclick = () => this.commands('share', cmd('open', this.share_link_log));
+        //this.ui.pull.onclick = () => this.commands('cd ~/readme', 'ls');
         this.ui.github_https_path.onkeypress = ev => ev.keyCode == 13 ? this.ui.clone.click() : null;
 		
 		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, this.ui.compile.onclick);
@@ -69,7 +70,7 @@ export class Shell
         await this.onkey('', {keyCode : cr_key_code});
     }
     
-    async commands(cmds)
+    async commands(...cmds)
     {
         this.old_terminal_line = this.current_terminal_line;
         this.current_terminal_line = '';
@@ -500,7 +501,7 @@ function backend_emscripten_module_config(log)
         print(text) 
         {
             text = arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text;
-            Module.output += text;
+            Module.output += text + '\r\n';
             Module.setStatus('stdout: ' + (arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text));
         },
 

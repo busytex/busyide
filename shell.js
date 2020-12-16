@@ -4,7 +4,7 @@ import { Guthub } from '/guthub.js'
 
 export class Shell
 {
-    constructor(ui, paths, readme, terminal, editor, http_path, route)
+    constructor(ui, paths, readme, terminal, editor, http_path)
     {
         this.http_path = http_path;
         this.share_link_log = '/tmp/share_link.log';
@@ -32,10 +32,6 @@ export class Shell
         this.readme = readme;
         this.backend = null;
         
-        this.github_auth_token = ''
-        if(route.length > 1 && route[0] == 'github')
-            this.ui.github_https_path.value = route[1];
-       
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.on('key', this.onkey.bind(this));
 
@@ -106,7 +102,7 @@ export class Shell
 
     deserialize_project(project_str)
     {
-        const files = JSON.parse(atob(project_str));
+        return JSON.parse(atob(project_str));
     }
 
     async load_cache()
@@ -276,8 +272,11 @@ export class Shell
         }
     }
 
-    async run(backend_emscripten_module_async, sha1)
+    async run(route, backend_emscripten_module_async, sha1)
     {
+        if(route.length > 1 && route[0] == 'github')
+            this.ui.github_https_path.value = route[1];
+       
         this.compiler.postMessage(this.paths);
         this.backend = await backend_emscripten_module_async(backend_emscripten_module_config(this.log));
         
@@ -288,12 +287,45 @@ export class Shell
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        this.guthub = new Guthub(sha1, this.FS, this.backend, this.github_auth_token, this.cache_dir, this.log.bind(this));
+        this.guthub = new Guthub(sha1, this.FS, this.backend, this.ui.github_token.value, this.cache_dir, this.log.bind(this));
         await this.load_cache();
         if(this.ui.github_https_path.value.length > 0)
         {
             const repo_path = await this.clone(this.ui.github_https_path.value);
             this.cd(repo_path);
+        }
+        else if(route.length > 1 && route[0] == 'inline')
+        {
+            const files = this.deserialize_project(route[1]);
+            const project_dir = '/home/web_user/anonymous_project';
+            this.FS.mkdir(project_dir)
+
+            let dirs = new Set(['/', project_dir]);
+
+            const mkdir_p = dirpath =>
+            {
+                if(!dirs.has(dirpath))
+                {
+                    mkdir_p(this.PATH.dirname(dirpath));
+                    
+                    this.FS.mkdir(dirpath);
+                    dirs.add(dirpath);
+                }
+            };
+
+            for(const {path, contents} of files.sort((lhs, rhs) => lhs['path'] < rhs['path'] ? -1 : 1))
+            {
+                const absolute_path = this.PATH.join2(project_dir, path);
+                if(contents == null)
+                    mkdir_p(absolute_path);
+                else
+                {
+                    mkdir_p(this.PATH.dirname(absolute_path));
+                    this.FS.writeFile(absolute_path, contents);
+                }
+            }
+
+            this.FS.chdir(project_dir);
         }
         else
             this.man();

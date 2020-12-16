@@ -247,11 +247,11 @@ require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist
         window.location.search
     }*/
 
-    window.busyshell = new Shell(ui, paths, await readme_tex_promise, terminal, editor, window.location.origin, ui.get_route());
+    window.busyshell = new Shell(ui, paths, await readme_tex_promise, terminal, editor, window.location.origin);
     window.onresize = ui.onresize;
     window.onresize();
 
-    await window.busyshell.run(backend_emscripten_module_async, sha1);
+    await window.busyshell.run(ui.get_route(), backend_emscripten_module_async, sha1);
 });
 
 </script>

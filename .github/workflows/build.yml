@@ -25,4 +25,4 @@ jobs:
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: hub release create -m "Build assets" -a dist/busy.js build_${{github.sha}}
+        run: hub release create -m "Build assets" -a dist/busyide.js build_${{github.sha}}

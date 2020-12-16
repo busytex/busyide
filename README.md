@@ -9,6 +9,7 @@
 8. Ctrl+V, command history
 10. file tab auto-complete
 11. https://github.com/ElektraInitiative/libelektra/issues/2873
+12. auto-open a tex file after cloning
 
 ```shell
 # https://github.com/tomoyukim/vscode-mermaid-editor

@@ -30,7 +30,6 @@ export class Shell
         this.readme = readme;
         
         this.github_auth_token = ''
-        this.github_https_path = '';
         if(route.length > 1 && route[0] == 'github')
             this.ui.github_https_path.value = route[1];
        
@@ -285,9 +284,9 @@ export class Shell
         this.FS.chdir(this.home_dir);
         this.guthub = new Guthub(sha1, this.FS, backend, this.github_auth_token, this.cache_dir, this.log.bind(this));
         await this.load_cache();
-        if(this.github_https_path.length > 0)
+        if(this.ui.github_https_path.value.length > 0)
         {
-            const repo_path = await this.clone(this.github_https_path);
+            const repo_path = await this.clone(this.ui.github_https_path.value);
             this.cd(repo_path);
         }
         else

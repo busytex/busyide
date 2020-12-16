@@ -274,9 +274,9 @@ export class Shell
     async run(backend_emscripten_module_async, sha1)
     {
         this.compiler.postMessage(this.paths);
-        
         this.backend = await backend_emscripten_module_async(backend_emscripten_module_config(this.log));
-        this.FS = backend.FS;
+        
+        this.FS = this.backend.FS;
         this.FS.mkdir(this.readme_dir);
         this.FS.mkdir(this.cache_dir);
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);

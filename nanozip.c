@@ -60,10 +60,10 @@ int proc_entry(const char *file_path_src, const struct stat *info, const int typ
                 file_path_dst = file_path_buffer;
                 snprintf(file_path_dst, MAX_FILE_PATH_LENGTH, "%s/", file_path_src);
             }
-            mz_zip_writer_add_mem(ptr_zip, file_path_dst, NULL, 0, 0);
+            mz_zip_writer_add_mem(ptr_zip, file_path_dst[0] == '/' ? file_path_dst + 1 : file_path_dst, NULL, 0, 0);
         }
         else if(typeflag == FTW_F)
-            mz_zip_writer_add_file(ptr_zip, file_path_dst, file_path_src, "", 0, MZ_BEST_COMPRESSION);
+            mz_zip_writer_add_file(ptr_zip, file_path_dst[0] == '/' ? file_path_dst + 1 : file_path_dst, file_path_src, "", 0, MZ_BEST_COMPRESSION);
     }
     
     return 0;

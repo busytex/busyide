@@ -496,6 +496,7 @@ function backend_emscripten_module_config(log)
         {
             text = arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text;
             Module.output += text;
+            Module.setStatus('stdout: ' + (arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text));
         },
 
         printErr(text)

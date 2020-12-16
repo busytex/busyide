@@ -166,7 +166,8 @@ const ui =
     get_route()
     {
         const hash = window.location.hash.length > 0 ? window.location.hash.substring(1) : '';
-        return hash.split('/').filter(part => part.length > 0);
+        const route_parts = hash.split('/').filter(part => part.length > 0);
+        return route_parts.length > 1 ? [route_parts[0], route_parts.slice(1).join('/')] : route_parts;
     }
     
 };
@@ -244,7 +245,7 @@ require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist
         window.location.search
     }*/
 
-    window.busyshell = new Shell(ui, paths, await readme_tex_promise, terminal, editor, window.location.origin);
+    window.busyshell = new Shell(ui, paths, await readme_tex_promise, terminal, editor, window.location.origin, ui.get_route());
     window.onresize = ui.onresize;
     window.onresize();
 

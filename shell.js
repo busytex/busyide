@@ -4,7 +4,7 @@ import { Guthub } from '/guthub.js'
 
 export class Shell
 {
-    constructor(ui, paths, readme, terminal, editor, http_path, auth_token_hash, repo_path_search)
+    constructor(ui, paths, readme, terminal, editor, http_path, route)
     {
         this.http_path = http_path;
         this.share_link_log = '/tmp/share_link.log';
@@ -29,13 +29,10 @@ export class Shell
         this.log = this.ui.log;
         this.readme = readme;
         
-        this.github_auth_token = auth_token_hash || ''
-        if(this.github_auth_token.length > 1)
-            this.github_auth_token = this.github_auth_token.slice(1);
-
-        this.github_https_path = repo_path_search || '';
-        if(this.github_https_path.length > 1)
-            this.github_https_path = 'https://github.com' + this.github_https_path.slice(1);
+        this.github_auth_token = ''
+        this.github_https_path = '';
+        if(route.length > 1 && route[0] == 'github')
+            this.ui.github_https_path.value = route[1];
        
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.on('key', this.onkey.bind(this));

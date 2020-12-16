@@ -1,3 +1,5 @@
+// gists https://developer.github.com/v3/gists/#update-a-gist
+
 export class Guthub
 {
     constructor(sha1, FS, diff3, auth_token, cache_dir, print)

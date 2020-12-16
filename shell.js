@@ -353,7 +353,7 @@ export class Shell
     nanozip(project_dir)
     {
         this.backend.output = '';
-        this.backend.callMain(['-r', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, project_dir]);
+        this.backend.callMain(['nanozip', '-r', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, project_dir]);
         return 'ok!';
     }
 
@@ -486,6 +486,8 @@ function backend_emscripten_module_config(log)
 {
     const Module =
     {
+        thisProgram : 'busybox',
+
         noInitialRun : true,
 
         output : '',

@@ -21,6 +21,7 @@ export class Shell
         this.text_extensions = ['.tex', '.bib', '.txt', '.svg', '.sh', '.py', '.csv'];
         this.tic_ = 0;
         this.FS = null;
+        this.PATH = null;
         this.guthub = null;
         this.terminal = terminal;
         this.editor = editor;
@@ -39,19 +40,22 @@ export class Shell
         this.terminal.on('key', this.onkey.bind(this));
 
         this.basename = path => path.slice(path.lastIndexOf('/') + 1);
-        this.ui.clone.onclick = () => this.commands(['cd', 'clone ' + ui.github_https_path.value, 'cd ' + this.basename(ui.github_https_path.value)]);
-        this.ui.download_pdf.onclick = () => this.commands(['download ' + this.pdf_path]);
-        this.ui.view_log.onclick = () => this.commands(['open ' + this.log_path]);
-        this.ui.download.onclick = () => this.commands(['download ' + this.tex_path]);
-        this.ui.download_zip.onclick = () => this.commands(['nanozip ' + this.project_dir(), 'download ' + this.zip_path]);
-        this.ui.compile.onclick = () => this.commands(['latexmk ' + this.tex_path]);
+        
+        cmd = (...parts) => parts.join(' ');
+        this.ui.clone.onclick = () => this.commands(['cd', this.cmd('clone', ui.github_https_path.value), this.cmd('cd', this.basename(ui.github_https_path.value))]);
+        this.ui.download_pdf.onclick = () => this.commands([cmd('download', this.pdf_path)]);
+        this.ui.view_log.onclick = () => this.commands([cmd('open', this.log_path)]);
+        this.ui.download.onclick = () => this.commands([cmd('download', this.tex_path)]);
+        this.ui.download_zip.onclick = () => this.commands(['cd', cmd('nanozip', this.basename(this.project_dir())), cmd('cd', this.pwd(true)), cmd('download', this.zip_path)]);
+        this.ui.compile.onclick = () => this.commands([cmd('latexmk', this.tex_path)]);
         this.ui.man.onclick = () => this.commands(['man']);
-        this.ui.share.onclick = () => this.commands(['share', 'open ' + this.share_link_log]);
+        this.ui.share.onclick = () => this.commands(['share', cmd('open', this.share_link_log)]);
         //this.ui.pull.onclick = () => this.commands(['cd ~/readme', 'ls']);
         this.ui.github_https_path.onkeypress = ev => ev.keyCode == 13 ? this.ui.clone.click() : null;
 		
 		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, this.ui.compile.onclick);
     }
+
 
     log_reset(ansi_reset_sequence = '\x1bc')
     {
@@ -276,6 +280,7 @@ export class Shell
         this.compiler.postMessage(this.paths);
         this.backend = await backend_emscripten_module_async(backend_emscripten_module_config(this.log));
         
+        this.PATH = this.backend.PATH;
         this.FS = this.backend.FS;
         this.FS.mkdir(this.readme_dir);
         this.FS.mkdir(this.cache_dir);
@@ -353,8 +358,8 @@ export class Shell
     nanozip(project_dir)
     {
         this.backend.output = '';
-        this.backend.callMain(['nanozip', '-r', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, project_dir]);
-        return 'ok!';
+        this.backend.callMain(['nanozip', '-r', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, this.basename(project_dir)]);
+        return this.backend.output;
     }
 
     save(file_path, contents)

@@ -47,7 +47,7 @@
     </style>
   </head>
   <body>
-    <div style="display: flex; flex-direction: row; height: 5%">
+    <!--<div style="display: flex; flex-direction: row; height: 5%">
         <a style="display: contents" href="https://github.com/busytex/busytex">
             <img src="logo.svg" style="height:100%"></img>
         </a>
@@ -73,8 +73,39 @@
             <input type="text" style="width: 100px" id="github_release" placeholder="Publish Release Name" title="for publishing a PDF into a release"></input>
             <button id="publish">Publish PDF</button>
         </div>
+    </div>-->
+    <div style="display: flex; flex-direction: row; height: 5%">
+        <a style="display: contents" href="https://github.com/busytex/busytex">
+            <img src="logo.svg" style="height:100%"></img>
+        </a>
+        <select id="verbose">
+            <option value="silent" selected="selected">Verbosity - Silent</option>
+            <option value="info">Verbosity - Info</option>
+            <option value="debug">Verbosity - Debug</option>
+        </select>
+        <button id="compile">Compile</button>
+        <div style="display: flex; margin-left:auto">
+            <input type="text" style="width: 250px" id="github_https_path" placeholder="GitHub https link"></input>
+            <input type="text" style="width: 100px" id="github_token" placeholder="GitHub token" title="for private clone/push"></input>
+            <button id="clone">Clone</button>
+            <button id="pull">Pull</button>
+            <button id="push">Push</button>
+            <input type="text" style="width: 100px" id="github_release" placeholder="Publish Release Name" title="for publishing a PDF into a release"></input>
+            <button id="publish">Publish PDF</button>
+        </div>
     </div>
-    <div style="display: flex; height: 80%">
+    <div style="display: flex; flex-direction: row; height: 5%">
+        <button id="man">Help</button>
+        <button id="download_pdf">Download PDF</button>
+        <button id="download_zip">Download ZIP</button>
+        <button id="download">Download Current File</button>
+        <div style="display: flex; margin-left:auto">
+            <button id="view_pdf">View PDF</button>
+            <button id="view_log">View LOG</button>
+            <button id="share">Share Link</button>
+        </div>
+    </div>
+    <div style="display: flex; height: 75%">
       <div id="editor"></div>
       <div id="viewer">
         <iframe id="pdfpreview"></iframe>

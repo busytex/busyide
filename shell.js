@@ -41,8 +41,8 @@ export class Shell
 
         this.basename = path => path.slice(path.lastIndexOf('/') + 1);
         
-        cmd = (...parts) => parts.join(' ');
-        this.ui.clone.onclick = () => this.commands(['cd', this.cmd('clone', ui.github_https_path.value), this.cmd('cd', this.basename(ui.github_https_path.value))]);
+        const cmd = (...parts) => parts.join(' ');
+        this.ui.clone.onclick = () => this.commands(['cd', cmd('clone', ui.github_https_path.value), cmd('cd', this.basename(ui.github_https_path.value))]);
         this.ui.download_pdf.onclick = () => this.commands([cmd('download', this.pdf_path)]);
         this.ui.view_log.onclick = () => this.commands([cmd('open', this.log_path)]);
         this.ui.download.onclick = () => this.commands([cmd('download', this.tex_path)]);

@@ -47,6 +47,7 @@ export class Shell
         this.ui.man.onclick = () => this.commands(['man']);
         this.ui.share.onclick = () => this.commands(['share', 'open ' + this.share_link_log]);
         //this.ui.pull.onclick = () => this.commands(['cd ~/readme', 'ls']);
+        this.ui.github_https_path.onkeypress = ev => ev.keyCode == 13 ? this.ui.clone.click() : null;
 		
 		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, this.ui.compile.onclick);
     }

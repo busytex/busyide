@@ -22,6 +22,9 @@
 #include <libbb.h>
 #include "miniz.c"
 
+int nanozip_main(int argc, char *argv[]);
+int proc_entry(const char *file_path_src, const struct stat *info, const int typeflag, struct FTW *pathinfo);
+
 enum { MAX_FILE_PATH_LENGTH = 1024, MAX_EXCLUDE_PATHS = 16, MAX_INPUT_PATHS = 16, USE_FDS = 15 };
 
 char* exclude[MAX_EXCLUDE_PATHS];
@@ -32,10 +35,6 @@ char* output;
 int recurse, num_input, num_exclude;
 
 void* ptr_zip;
-
-int nanozip_main(int argc, char *argv[]);
-int proc_entry(const char *file_path_src, const struct stat *info, const int typeflag, struct FTW *pathinfo);
-
 
 int proc_entry(const char *file_path_src, const struct stat *info, const int typeflag, struct FTW *pathinfo)
 {
@@ -62,10 +61,10 @@ int proc_entry(const char *file_path_src, const struct stat *info, const int typ
                 snprintf(file_path_dst, MAX_FILE_PATH_LENGTH, "%s/", file_path_src);
             }
 
-            mz_zip_writer_add_mem(ptr_zip, file_path_dst, NULL, 0, 0);
+            printf("mz_zip_writer_add_mem: %d\n", mz_zip_writer_add_mem(ptr_zip, file_path_dst, NULL, 0, 0));
         }
         else if(typeflag == FTW_F)
-            mz_zip_writer_add_file(ptr_zip, file_path_dst, file_path_src, "", 0, MZ_BEST_COMPRESSION);
+            printf("mz_zip_writer_add_file: %d\n", mz_zip_writer_add_file(ptr_zip, file_path_dst, file_path_src, "", 0, MZ_BEST_COMPRESSION));
     }
     
     return 0;

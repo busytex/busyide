@@ -63,12 +63,12 @@
         <button id="view_log">View LOG</button>
         <button id="share">Share Link</button>
         <div style="display: flex; margin-left:auto">
-            <input type="text" style="width: 250px" id="git_https_path" placeholder="GitHub https link"></input>
-            <input type="text" style="width: 100px" id="git_token" placeholder="GitHub Token" title="for private clone/push"></input>
+            <input type="text" style="width: 250px" id="github_https_path" placeholder="GitHub https link"></input>
+            <input type="text" style="width: 100px" id="github_token" placeholder="GitHub Token" title="for private clone/push"></input>
             <button id="clone">Clone</button>
             <button id="pull">Pull</button>
             <button id="push">Push</button>
-            <input type="text" style="width: 100px" id="git_release" placeholder="Publish Release Name" title="for publishing a PDF into a release"></input>
+            <input type="text" style="width: 100px" id="github_release" placeholder="Publish Release Name" title="for publishing a PDF into a release"></input>
             <button id="publish">Publish PDF</button>
             <button id="man">Help</button>
         </div>
@@ -117,9 +117,9 @@ const ui =
     download_zip : document.getElementById('download_zip'),
     download : document.getElementById('download'),
     verbose : document.getElementById('verbose'),
-    git_https_path : document.getElementById('git_https_path'),
-    git_token : document.getElementById('git_token'),
-    git_release : document.getElementById('git_release'),
+    github_https_path : document.getElementById('git_https_path'),
+    github_token : document.getElementById('git_token'),
+    github_release : document.getElementById('git_release'),
     man : document.getElementById('man'),
     share : document.getElementById('share'),
 

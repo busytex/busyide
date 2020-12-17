@@ -78,7 +78,7 @@
         <a style="display: contents" href="https://github.com/busytex/busytex">
             <img src="logo.svg" style="height:100%"></img>
         </a>
-        <select id="verbose">
+        <select id="verbose" hidden>
             <option value="silent" selected="selected">Verbosity - Silent</option>
             <option value="info">Verbosity - Info</option>
             <option value="debug">Verbosity - Debug</option>
@@ -88,10 +88,10 @@
             <input type="text" style="width: 250px" id="github_https_path" placeholder="GitHub https link"></input>
             <input type="text" style="width: 100px" id="github_token" placeholder="GitHub token" title="for private clone/push"></input>
             <button id="clone">Clone</button>
-            <button id="pull">Pull</button>
-            <button id="push">Push</button>
-            <input type="text" style="width: 100px" id="github_release" placeholder="Publish Release Name" title="for publishing a PDF into a release"></input>
-            <button id="publish">Publish PDF</button>
+            <button id="pull" hidden>Pull</button>
+            <button id="push" hidden>Push</button>
+            <input id="github_release" hidden type="text" style="width: 100px" placeholder="Publish Release Name" title="for publishing a PDF into a release"></input>
+            <button id="publish" hidden>Publish PDF</button>
         </div>
     </div>
     <div style="display: flex; flex-direction: row; height: 5%">

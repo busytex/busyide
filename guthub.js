@@ -1,5 +1,9 @@
 // gists https://developer.github.com/v3/gists/#update-a-gist
-
+// 403 {
+//   "message": "API rate limit exceeded for 84.110.59.167. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)",
+//     "documentation_url": "https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"
+//     }
+//
 export class Guthub
 {
     constructor(sha1, FS, diff3, auth_token, cache_dir, print)

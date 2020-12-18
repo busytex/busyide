@@ -291,8 +291,11 @@ export class Shell
         await this.load_cache();
         if(this.ui.github_https_path.value.length > 0)
         {
-            const repo_path = await this.clone(this.ui.github_https_path.value);
-            this.cd(repo_path);
+            const project_dir = await this.clone(this.ui.github_https_path.value);
+            this.cd(project_dir);
+            const default_text_document = this.default_text_document(project_dir);
+            if(default_text_document)
+                this.open(default_text_document);
         }
         else if(route.length > 1 && route[0] == 'inline')
         {
@@ -326,6 +329,9 @@ export class Shell
             }
 
             this.FS.chdir(project_dir);
+            const default_text_document = this.default_text_document(project_dir);
+            if(default_text_document)
+                this.open(default_text_document);
         }
         else
             this.man();
@@ -445,6 +451,22 @@ export class Shell
             }
         }
         return entries;
+    }
+
+    default_text_document(project_dir)
+    {
+        const files = this.ls_R(project_dir).filter(f => f.path.endsWith('.tex') && f.contents != null);
+        if(files.length == 0)
+            return null;
+        else if(files.length == 1)
+            return files[0].path;
+        else
+        {
+            const main_files = files.filter(f => f.path.includes('main'));
+            if(main_files.length > 0)
+                return main_files[0].path;
+            return files[0].path;
+        }
     }
 
     async latexmk(tex_path)

@@ -2,6 +2,7 @@
 2. local run with serve.py
 3. packaging of everything into one large HTML file to run from file://
 4. GitHub links: github repo, github file, gist, project
+5. Broken texpath
 
 ### TODO
 2. Store file sha hashes in .git directory

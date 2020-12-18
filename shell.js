@@ -340,7 +340,7 @@ export class Shell
     {
         if(this.FS.isDir(this.FS.lookupPath(file_path).node.mode))
         {
-            const files = this.ls_R(file_path).filter(f => f.path.endsWith('.tex') && f.contents != null);
+            const files = this.ls_R(file_path, '', false).filter(f => f.path.endsWith('.tex') && f.contents != null);
             let default_path = null;
             if(files.length == 1)
                 default_path = files[0].path;
@@ -447,17 +447,19 @@ export class Shell
         this.FS.mkdir(path);
     }
 
-    ls_R(root, relative_dir_path)
+    ls_R(root, relative_dir_path = '', recurse = true)
     {
-        relative_dir_path = relative_dir_path || '';
         let entries = [];
         for(const [name, entry] of Object.entries(this.FS.lookupPath(`${root}/${relative_dir_path}`, {parent : false}).node.contents))
         {
             const relative_path = relative_dir_path ? `${relative_dir_path}/${name}` : name;
             const absolute_path = `${root}/${relative_path}`;
             if(entry.isFolder)
+            {
                 //entries.push({path : relative_path}, ...this.ls_R(root, relative_path));
-                entries.push(...this.ls_R(root, relative_path));
+                if(recurse)
+                    entries.push(...this.ls_R(root, relative_path));
+            }
             else if(absolute_path != this.log_path && absolute_path != this.pdf_path)
             {
                 const read_text = this.text_extensions.map(ext => absolute_path.endsWith(ext)).includes(true);

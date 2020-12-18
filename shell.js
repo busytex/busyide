@@ -36,18 +36,16 @@ export class Shell
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.on('key', this.onkey.bind(this));
 
-        this.basename = path => path.slice(path.lastIndexOf('/') + 1);
-        
         const cmd = (...parts) => parts.join(' ');
         const arg = path => this.expandcollapseuser(path, false);
         const chain = (...cmds) => cmds.join(' && ');
 
-        this.ui.clone.onclick = () => this.commands(chain('cd', cmd('clone', ui.github_https_path.value), cmd('open', this.PATH.join2('~', this.basename(ui.github_https_path.value))), cmd('cd', this.basename(ui.github_https_path.value))));
+        this.ui.clone.onclick = () => this.commands(chain('cd', cmd('clone', ui.github_https_path.value), cmd('open', this.PATH.join2('~', this.PATH.basename(ui.github_https_path.value))), cmd('cd', this.PATH.basename(ui.github_https_path.value))));
         this.ui.download_pdf.onclick = () => this.commands(cmd('download', arg(this.pdf_path)));
         this.ui.view_log.onclick = () => this.commands(cmd('open', arg(this.log_path)));
         this.ui.view_pdf.onclick = () => this.commands(cmd('open', arg(this.pdf_path)));
         this.ui.download.onclick = () => this.commands(cmd('download', arg(this.tex_path)));
-        this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', this.basename(this.project_dir())), cmd('cd', this.pwd(true)), cmd('download', arg(this.zip_path))));
+        this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', this.PATH.basename(this.project_dir())), cmd('cd', this.pwd(true)), cmd('download', arg(this.zip_path))));
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
         this.ui.share.onclick = () => this.commands(chain('share', cmd('open', arg(this.share_link_log))));
@@ -361,6 +359,7 @@ export class Shell
         else
         {
             contents = contents || this.FS.readFile(file_path, {encoding : 'utf8'});
+            this.ui.current_file.textContent = this.PATH.basename(file_path);
             this.editor.getModel().setValue(contents);
         }
     }
@@ -500,7 +499,7 @@ export class Shell
 
         mime = mime || 'application/octet-stream';
         let content = this.FS.readFile(file_path);
-        this.ui.create_and_click_download_link(this.basename(file_path), content, mime);
+        this.ui.create_and_click_download_link(this.PATH.basename(file_path), content, mime);
     }
     
     async clone(https_path)

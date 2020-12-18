@@ -40,6 +40,10 @@
             box-sizing: border-box;
         }
 
+        #current_file {
+            margin-left: auto
+        }
+
         #pdfpreview, #txtpreview {
             width: 99%;
             height: 100%;
@@ -85,6 +89,7 @@
         </select>
         <button id="man">Help</button>
         <button id="compile">Compile</button>
+        <span id="current_file"></span>
         <div style="display: flex; margin-left:auto">
             <input type="text" style="width: 250px" id="github_https_path" placeholder="GitHub https link"></input>
             <input type="text" style="width: 100px" id="github_token" placeholder="GitHub token" title="for private clone/push"></input>
@@ -155,6 +160,7 @@ const ui =
     github_release : document.getElementById('github_release'),
     man : document.getElementById('man'),
     share : document.getElementById('share'),
+    current_file : document.getElementById('current_file'),
 
     create_and_click_download_link(file_path, content, mime)
     {

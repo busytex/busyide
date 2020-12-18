@@ -143,7 +143,7 @@ export class Shell
 
             for(const cmdline of this.current_terminal_line.split('&&'))
             {
-                let [cmd, ...args] = cmdline.split(' ');
+                let [cmd, ...args] = cmdline.trim().split(' ');
                 
                 args = args.map(a => this.expandcollapseuser(a));
                 

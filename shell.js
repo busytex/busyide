@@ -292,10 +292,10 @@ export class Shell
         if(this.ui.github_https_path.value.length > 0)
         {
             const project_dir = await this.clone(this.ui.github_https_path.value);
-            this.cd(project_dir);
             const default_text_document = this.default_text_document(project_dir);
             if(default_text_document)
                 this.open(default_text_document);
+            this.FS.cd(project_dir);
         }
         else if(route.length > 1 && route[0] == 'inline')
         {
@@ -328,10 +328,10 @@ export class Shell
                 }
             }
 
-            this.FS.chdir(project_dir);
             const default_text_document = this.default_text_document(project_dir);
             if(default_text_document)
                 this.open(default_text_document);
+            this.FS.chdir(project_dir);
         }
         else
             this.man();

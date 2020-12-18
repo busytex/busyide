@@ -174,6 +174,7 @@ export class Guthub
     {
         const resp = await this.github_api_request(https_path, '/contents');
         const repo = await resp.json();
+        console.log('clone', repo);
 
         this.FS.mkdir(repo_path);
         this.FS.mkdir(repo_path + '/.git');

@@ -38,7 +38,7 @@ export class Shell
         this.basename = path => path.slice(path.lastIndexOf('/') + 1);
         
         const cmd = (...parts) => parts.join(' ');
-        this.ui.clone.onclick = () => this.commands('cd', cmd('clone', ui.github_https_path.value), cmd('cd', this.basename(ui.github_https_path.value)));
+        this.ui.clone.onclick = () => this.commands('cd', cmd('clone', ui.github_https_path.value), cmd('open', this.basename(ui.github_https_path.value)), cmd('cd', this.basename(ui.github_https_path.value)));
         this.ui.download_pdf.onclick = () => this.commands(cmd('download', this.pdf_path));
         this.ui.view_log.onclick = () => this.commands(cmd('open', this.log_path));
         this.ui.view_pdf.onclick = () => this.commands(cmd('open', this.pdf_path));
@@ -292,9 +292,7 @@ export class Shell
         if(this.ui.github_https_path.value.length > 0)
         {
             const project_dir = await this.clone(this.ui.github_https_path.value);
-            const default_text_document = this.default_text_document(project_dir);
-            if(default_text_document)
-                this.open(default_text_document);
+            this.open(project_dir);
             this.FS.cd(project_dir);
         }
         else if(route.length > 1 && route[0] == 'inline')
@@ -328,9 +326,7 @@ export class Shell
                 }
             }
 
-            const default_text_document = this.default_text_document(project_dir);
-            if(default_text_document)
-                this.open(default_text_document);
+            this.open(project_dir);
             this.FS.chdir(project_dir);
         }
         else
@@ -341,6 +337,23 @@ export class Shell
 
     open(file_path, contents)
     {
+        if(this.FS.isdir(file_path))
+        {
+            const files = this.ls_R(file_path).filter(f => f.path.endsWith('.tex') && f.contents != null);
+            let default_path = null;
+            else if(files.length == 1)
+                default_path = files[0].path;
+            else if(files.length > 1)
+            {
+                const main_files = files.filter(f => f.path.includes('main'));
+                default_path = main_files.length > 0 ? main_files[0].path : files[0].path;
+            }
+            file_path = default_path;
+        }
+
+        if(file_path == null && contents == null)
+            return;
+
         if(file_path.endsWith('.tex'))
             this.tex_path = file_path.startsWith('/') ? file_path : (this.FS.cwd() + '/' + file_path);
 
@@ -451,22 +464,6 @@ export class Shell
             }
         }
         return entries;
-    }
-
-    default_text_document(project_dir)
-    {
-        const files = this.ls_R(project_dir).filter(f => f.path.endsWith('.tex') && f.contents != null);
-        if(files.length == 0)
-            return null;
-        else if(files.length == 1)
-            return files[0].path;
-        else
-        {
-            const main_files = files.filter(f => f.path.includes('main'));
-            if(main_files.length > 0)
-                return main_files[0].path;
-            return files[0].path;
-        }
     }
 
     async latexmk(tex_path)

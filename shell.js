@@ -341,7 +341,7 @@ export class Shell
         {
             const files = this.ls_R(file_path).filter(f => f.path.endsWith('.tex') && f.contents != null);
             let default_path = null;
-            else if(files.length == 1)
+            if(files.length == 1)
                 default_path = files[0].path;
             else if(files.length > 1)
             {

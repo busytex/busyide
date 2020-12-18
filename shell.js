@@ -13,6 +13,7 @@ export class Shell
         this.readme_dir = this.home_dir + '/readme';
         this.readme_tex = this.readme_dir + '/readme.tex';
 
+        this.shared_project = '/home/web_user/shared_project';
         this.pdf_path = '/tmp/pdf_does_not_exist_yet';
         this.log_path = '/tmp/log_does_not_exist_yet';
         this.tex_path = '';
@@ -298,7 +299,7 @@ export class Shell
         else if(route.length > 1 && route[0] == 'inline')
         {
             const files = this.deserialize_project(route[1]);
-            const project_dir = '/home/web_user/anonymous_project';
+            const project_dir = this.shared_project;
             this.FS.mkdir(project_dir)
 
             let dirs = new Set(['/', project_dir]);

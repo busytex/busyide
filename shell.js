@@ -359,7 +359,7 @@ export class Shell
         else
         {
             contents = contents || this.FS.readFile(file_path, {encoding : 'utf8'});
-            this.ui.current_file.textContent = this.PATH.basename(file_path);
+            this.ui.current_file.textContent = 'editing [' + this.PATH.basename(file_path) + ']';
             this.editor.getModel().setValue(contents);
         }
     }

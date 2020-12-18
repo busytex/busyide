@@ -414,7 +414,7 @@ export class Shell
     nanozip(project_dir)
     {
         this.backend.output = '';
-        this.backend.callMain(['nanozip', '-r', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, this.basename(project_dir)]);
+        this.backend.callMain(['nanozip', '-r', '-x', '.git', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, project_dir]);
         return this.backend.output;
     }
 

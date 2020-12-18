@@ -39,15 +39,16 @@ export class Shell
         this.basename = path => path.slice(path.lastIndexOf('/') + 1);
         
         const cmd = (...parts) => parts.join(' ');
+        const arg = path => this.expandcollapseuser(path, false);
         this.ui.clone.onclick = () => this.commands('cd', cmd('clone', ui.github_https_path.value), cmd('open', this.PATH.join2('~', this.basename(ui.github_https_path.value))), cmd('cd', this.basename(ui.github_https_path.value)));
-        this.ui.download_pdf.onclick = () => this.commands(cmd('download', this.expandcollapseuser(this.pdf_path, false)));
-        this.ui.view_log.onclick = () => this.commands(cmd('open', this.expandcollapseuser(this.log_path, false)));
-        this.ui.view_pdf.onclick = () => this.commands(cmd('open', this.expandcollapseuser(this.pdf_path, false)));
-        this.ui.download.onclick = () => this.commands(cmd('download', this.expandcollapseuser(this.tex_path, false)));
-        this.ui.download_zip.onclick = () => this.commands('cd', cmd('nanozip', this.basename(this.project_dir())), cmd('cd', this.pwd(true)), cmd('download', this.expandcollapseuser(this.zip_path, false)));
-        this.ui.compile.onclick = () => this.commands(cmd('latexmk', this.expandcollapseuser(this.tex_path, false)));
+        this.ui.download_pdf.onclick = () => this.commands(cmd('download', arg(this.pdf_path)));
+        this.ui.view_log.onclick = () => this.commands(cmd('open', arg(this.log_path)));
+        this.ui.view_pdf.onclick = () => this.commands(cmd('open', arg(this.pdf_path)));
+        this.ui.download.onclick = () => this.commands(cmd('download', arg(this.tex_path)));
+        this.ui.download_zip.onclick = () => this.commands('cd', cmd('nanozip', this.basename(this.project_dir())), cmd('cd', this.pwd(true)), cmd('download', arg(this.zip_path)));
+        this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
-        this.ui.share.onclick = () => this.commands('share', cmd('open', this.expandcollapseuser(this.share_link_log, false)));
+        this.ui.share.onclick = () => this.commands('share && ' + cmd('open', arg(this.share_link_log)));
         //this.ui.pull.onclick = () => this.commands('cd ~/readme', 'ls');
         this.ui.github_https_path.onkeypress = ev => ev.keyCode == 13 ? this.ui.clone.click() : null;
 		
@@ -139,97 +140,65 @@ export class Shell
         else if(ev.keyCode == cr_key_code)
         {
             this.terminal_print();
-            let [cmd, ...args] = this.current_terminal_line.split(' ');
-            
-            args = args.map(a => this.expandcollapseuser(a));
-            
-            try
+
+            for(const cmdline of this.current_terminal_line.split('&&'))
             {
-                if (cmd == '')
+                let [cmd, ...args] = cmdline.split(' ');
+                
+                args = args.map(a => this.expandcollapseuser(a));
+                
+                try
                 {
+                    if (cmd == '')
+                    {
+                    }
+                    else if(cmd == 'ls')
+                    {
+                        const res = this.ls(...args);
+                        if(res.length > 0)
+                            this.terminal_print(res.join(' '));
+                    }
+                    else if(cmd == 'pwd')
+                        this.terminal_print(this.pwd());
+                    else if(cmd == 'clear')
+                        this.clear();
+                    else if(cmd == 'mkdir')
+                        this.mkdir(...args);
+                    else if(cmd == 'nanozip')
+                        this.terminal_print(this.nanozip(...args));
+                    else if(cmd == 'man')
+                        this.man();
+                    else if(cmd == 'share')
+                        this.share();
+                    else if(cmd == 'help')
+                        this.terminal_print(this.help().join(' '));
+                    else if(cmd == 'download')
+                        this.download(...args);
+                    else if(cmd == 'upload')
+                        this.terminal_print(await this.upload(args[0]));
+                    else if(cmd == 'latexmk')
+                        await this.latexmk(...args);
+                    else if(cmd == 'cd')
+                        this.cd(args[0]);
+                    else if(cmd == 'clone')
+                        await this.clone(...args);
+                    else if(cmd == 'push')
+                        await this.push(...args);
+                    else if(cmd == 'open')
+                        this.open(...args);
+                    else if(cmd == 'status')
+                        await this.guthub.status(this.ls_R('.'));
+                    else if(cmd == 'save')
+                        this.save(args[0], this.editor.getModel().getValue());
+                    else if(cmd == 'purge')
+                        await this.purge_cache();
+                    else
+                        this.terminal_print(cmd + ': command not found');
                 }
-                else if(cmd == 'clear')
+                catch(err)
                 {
-                    this.clear();
+                    this.terminal_print('Error: ' + err.message);
                 }
-                else if(cmd == 'pwd')
-                {
-                    this.terminal_print(this.pwd());
-                }
-                else if(cmd == 'ls')
-                {
-                    const res = this.ls(...args);
-                    if(res.length > 0)
-                        this.terminal_print(res.join(' '));
-                }
-                else if(cmd == 'mkdir')
-                {
-                    this.mkdir(...args);
-                }
-                else if(cmd == 'nanozip')
-                {
-                    this.terminal_print(this.nanozip(...args));
-                }
-                else if(cmd == 'man')
-                {
-                    this.man();
-                }
-                else if(cmd == 'share')
-                {
-                    this.share();
-                }
-                else if(cmd == 'help')
-                {
-                    this.terminal_print(this.help().join(' '));
-                }
-                else if(cmd == 'download')
-                {
-                    this.download(...args);
-                }
-                else if(cmd == 'upload')
-                {
-                    this.terminal_print(await this.upload(args[0]));
-                }
-                else if(cmd == 'latexmk')
-                {
-                    await this.latexmk(...args);
-                }
-                else if(cmd == 'cd')
-                {
-                    this.cd(args[0]);
-                }
-                else if(cmd == 'clone')
-                {
-                    await this.clone(...args);
-                }
-                else if(cmd == 'push')
-                {
-                    await this.push(...args);
-                }
-                else if(cmd == 'open')
-                {
-                    this.open(...args);
-                }
-                else if(cmd == 'status')
-                {
-                    await this.guthub.status(this.ls_R('.'));
-                }
-                else if(cmd == 'save')
-                {
-                    this.save(args[0], this.editor.getModel().getValue());
-                }
-                else if(cmd == 'purge')
-                {
-                    await this.purge_cache();
-                }
-                else
-                {
-                    this.terminal_print(cmd + ': command not found');
-                }
-            }
-            catch(err)
-            {
-                this.terminal_print('Error: ' + err.message);
             }
             this.terminal_prompt();
             this.current_terminal_line = '';

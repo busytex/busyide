@@ -9,6 +9,7 @@ export class Shell
         this.http_path = http_path;
         this.share_link_log = '/tmp/share_link.log';
         this.home_dir = '/home/web_user';
+        this.OLDPWD = this.home_dir;
         this.cache_dir = '/cache';
         this.readme_dir = this.home_dir + '/readme';
         this.readme_tex = this.readme_dir + '/readme.tex';
@@ -45,10 +46,10 @@ export class Shell
         this.ui.view_log.onclick = () => this.commands(cmd('open', arg(this.log_path)));
         this.ui.view_pdf.onclick = () => this.commands(cmd('open', arg(this.pdf_path)));
         this.ui.download.onclick = () => this.commands(cmd('download', arg(this.tex_path)));
-        this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', this.PATH.basename(this.project_dir())), cmd('cd', this.pwd(true)), cmd('download', arg(this.zip_path))));
+        this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
-        this.ui.share.onclick = () => this.commands(chain(cmd('share', this.project_dir(), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
+        this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
         //this.ui.pull.onclick = () => this.commands('cd ~/readme', 'ls');
         this.ui.github_https_path.onkeypress = ev => ev.keyCode == 13 ? this.ui.clone.click() : null;
 		
@@ -425,6 +426,10 @@ export class Shell
 
     cd(path)
     {
+        if(path == '-')
+            path = this.OLDPWD;
+
+        this.OLDPWD = this.FS.cwd();
         this.FS.chdir(this.expandcollapseuser(path || '~'));
     }
 

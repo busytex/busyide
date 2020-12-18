@@ -337,7 +337,7 @@ export class Shell
 
     open(file_path, contents)
     {
-        if(this.FS.isdir(file_path))
+        if(this.FS.isDir(this.FS.lookupPath(file_path).node.mode))
         {
             const files = this.ls_R(file_path).filter(f => f.path.endsWith('.tex') && f.contents != null);
             let default_path = null;

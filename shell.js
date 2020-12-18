@@ -139,7 +139,7 @@ export class Shell
         else if(ev.keyCode == cr_key_code)
         {
             this.terminal_print();
-            const [cmd, ...args] = this.current_terminal_line.split(' ');
+            let [cmd, ...args] = this.current_terminal_line.split(' ');
             
             args = args.map(a => this.expandcollapseuser(a));
             

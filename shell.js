@@ -294,7 +294,7 @@ export class Shell
         {
             const project_dir = await this.clone(this.ui.github_https_path.value);
             this.open(project_dir);
-            this.FS.cd(project_dir);
+            this.FS.chdir(project_dir);
         }
         else if(route.length > 1 && route[0] == 'inline')
         {

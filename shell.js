@@ -288,7 +288,7 @@ export class Shell
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        this.guthub = new Guthub(sha1, this.FS, this.backend, this.ui.github_token.value, this.cache_dir, this.log.bind(this));
+        this.guthub = new Guthub(sha1, this.FS, this.backend, this.cache_dir, this.log.bind(this));
         await this.load_cache();
         if(this.ui.github_https_path.value.length > 0)
         {
@@ -530,7 +530,7 @@ export class Shell
         const repo_path = https_path.split('/').pop();
         this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
         this.log_reset();
-        await this.guthub.clone(https_path, repo_path);
+        await this.guthub.clone(this.ui.github_token.value, https_path, repo_path);
         await this.save_cache();
         this.ui.set_route('github', https_path);
         return repo_path;

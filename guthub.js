@@ -6,10 +6,10 @@
 //
 export class Guthub
 {
-    constructor(sha1, FS, diff3, auth_token, cache_dir, print)
+    constructor(sha1, FS, diff3, cache_dir, print)
     {
         this.retry_delay_seconds = 2;
-        this.auth_token = auth_token;
+        this.auth_token = '';
         this.print = print || (line => null);
         this.FS = FS;
         this.cache_dir = cache_dir;
@@ -174,8 +174,9 @@ export class Guthub
         this.print('ok!');
     }
 
-    async clone(https_path, repo_path)
+    async clone(auth_token, https_path, repo_path)
     {
+        this.auth_token = auth_token;
         const resp = await this.github_api_request(https_path, '/contents');
         const repo = await resp.json();
         console.log('clone', repo);

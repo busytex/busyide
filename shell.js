@@ -48,7 +48,7 @@ export class Shell
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', this.PATH.basename(this.project_dir())), cmd('cd', this.pwd(true)), cmd('download', arg(this.zip_path))));
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
-        this.ui.share.onclick = () => this.commands(chain('share', cmd('open', arg(this.share_link_log))));
+        this.ui.share.onclick = () => this.commands(chain(cmd('share', this.project_dir(), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
         //this.ui.pull.onclick = () => this.commands('cd ~/readme', 'ls');
         this.ui.github_https_path.onkeypress = ev => ev.keyCode == 13 ? this.ui.clone.click() : null;
 		
@@ -141,8 +141,17 @@ export class Shell
         {
             this.terminal_print();
 
-            for(const cmdline of this.current_terminal_line.split('&&'))
+            for(let cmdline of this.current_terminal_line.split('&&'))
             {
+                let print_or_dump = str => this.terminal_print(str);
+                let redirect_or_output = null;
+
+                if(cmdline.includes('>'))
+                {
+                    [cmdline, redirect_or_output] = cmdline.split('>');
+                    print_or_dump = str => this.FS.writeFile(redirect_or_output.trim(), str);
+                }
+
                 let [cmd, ...args] = cmdline.trim().split(' ');
                 
                 args = args.map(a => this.expandcollapseuser(a));
@@ -169,7 +178,7 @@ export class Shell
                     else if(cmd == 'man')
                         this.man();
                     else if(cmd == 'share')
-                        this.share();
+                        print_or_dump(this.share(...args));
                     else if(cmd == 'help')
                         this.terminal_print(this.help().join(' '));
                     else if(cmd == 'download')
@@ -375,10 +384,10 @@ export class Shell
         return ['man', 'help', 'status', 'purge', 'latexmk', 'download', 'clear', 'pwd', 'ls', 'mkdir', 'cd', 'clone', 'push', 'open', 'save'].sort();
     }
     
-    share()
+    share(project_dir)
     {
-        const serialized_project_str = this.serialize_project(this.project_dir());
-        this.FS.writeFile(this.share_link_log, `${this.http_path}/#inline/${serialized_project_str}`);
+        const serialized_project_str = this.serialize_project(project_dir);
+        return `${this.http_path}/#inline/${serialized_project_str}`;
     }
 
     nanozip(project_dir)

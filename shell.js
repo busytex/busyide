@@ -40,15 +40,17 @@ export class Shell
         
         const cmd = (...parts) => parts.join(' ');
         const arg = path => this.expandcollapseuser(path, false);
-        this.ui.clone.onclick = () => this.commands('cd', cmd('clone', ui.github_https_path.value), cmd('open', this.PATH.join2('~', this.basename(ui.github_https_path.value))), cmd('cd', this.basename(ui.github_https_path.value)));
+        const chain = (...cmds) => cmds.join(' && ');
+
+        this.ui.clone.onclick = () => this.commands(chain('cd', cmd('clone', ui.github_https_path.value), cmd('open', this.PATH.join2('~', this.basename(ui.github_https_path.value))), cmd('cd', this.basename(ui.github_https_path.value))));
         this.ui.download_pdf.onclick = () => this.commands(cmd('download', arg(this.pdf_path)));
         this.ui.view_log.onclick = () => this.commands(cmd('open', arg(this.log_path)));
         this.ui.view_pdf.onclick = () => this.commands(cmd('open', arg(this.pdf_path)));
         this.ui.download.onclick = () => this.commands(cmd('download', arg(this.tex_path)));
-        this.ui.download_zip.onclick = () => this.commands('cd', cmd('nanozip', this.basename(this.project_dir())), cmd('cd', this.pwd(true)), cmd('download', arg(this.zip_path)));
+        this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', this.basename(this.project_dir())), cmd('cd', this.pwd(true)), cmd('download', arg(this.zip_path))));
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
-        this.ui.share.onclick = () => this.commands('share && ' + cmd('open', arg(this.share_link_log)));
+        this.ui.share.onclick = () => this.commands(chain('share', cmd('open', arg(this.share_link_log))));
         //this.ui.pull.onclick = () => this.commands('cd ~/readme', 'ls');
         this.ui.github_https_path.onkeypress = ev => ev.keyCode == 13 ? this.ui.clone.click() : null;
 		

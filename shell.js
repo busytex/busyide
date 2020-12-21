@@ -1,7 +1,7 @@
 // tex_path dir 
 
 import { Guthub } from '/guthub.js'
-import { Guthub } from '/busybox.js'
+import { Busybox } from '/busybox.js'
 
 export class Shell
 {
@@ -262,10 +262,11 @@ export class Shell
             this.ui.github_https_path.value = route[1];
        
         this.compiler.postMessage(this.paths);
-        this.busybox = new Busybox(busybox_module_constructor, paths.busybox_wasm, this.log.bind(this));
+        this.busybox = new Busybox(busybox_module_constructor, '/dist/busybox_unstripped.wasm', this.log.bind(this));
+        await this.busybox.load()
         
-        this.PATH = this.busybox.PATH;
-        this.FS = this.busybox.FS;
+        this.PATH = this.busybox.Module.PATH;
+        this.FS = this.busybox.Module.FS;
         this.FS.mkdir(this.readme_dir);
         this.FS.mkdir(this.cache_dir);
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);

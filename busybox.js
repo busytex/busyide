@@ -1,16 +1,18 @@
-class Busybox
+export class Busybox
 {
     constructor(busybox_module_constructor, busybox_wasm, print)
     {
         this.mem_header_size = 2 ** 25;
         this.wasm_module_promise = fetch(busybox_wasm).then(WebAssembly.compileStreaming);
         this.busybox_module_constructor = busybox_module_constructor;
-        this.Module = this.reload_module(print)
+        this.print = print;
+        this.Module = null;
     }
     
-    async reload_module(print)
+    async load() 
     {
         const wasm_module = await this.wasm_module_promise;
+        const print = this.print;
         const Module =
         {
             thisProgram : 'busybox',
@@ -48,16 +50,14 @@ class Busybox
             },
         };
        
-        const initialized_module = await busybox_module_constructor(Module);
-        console.assert(this.mem_header_size % 4 == 0 && initialized_module.HEAP32.slice(this.mem_header_size / 4).every(x => x == 0));
-        return initialized_module;
+        this.Module = await this.busybox_module_constructor(Module);
+        console.assert(this.mem_header_size % 4 == 0 && this.Module.HEAP32.slice(this.mem_header_size / 4).every(x => x == 0));
     }
 
     run(cmd)
     {
         const NOCLEANUP_callMain = (Module, args) =>
         {
-            Module.setPrefix(args[0]);
             const entryFunction = Module['_main'];
             const argc = args.length+1;
             const argv = Module.stackAlloc((argc + 1) * 4);
@@ -80,10 +80,10 @@ class Busybox
         }
 
         let exit_code = 0;
-        const mem_header = Uint8Array.from(Module.HEAPU8.slice(0, this.mem_header_size));
-        exit_code = NOCLEANUP_callMain(Module, cmd, this.print);
-        Module.HEAPU8.fill(0);
-        Module.HEAPU8.set(mem_header);
+        const mem_header = Uint8Array.from(this.Module.HEAPU8.slice(0, this.mem_header_size));
+        exit_code = NOCLEANUP_callMain(this.Module, cmd, this.print);
+        this.Module.HEAPU8.fill(0);
+        this.Module.HEAPU8.set(mem_header);
         return exit_code;
     }
 }

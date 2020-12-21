@@ -31,14 +31,14 @@ export class Busybox
             {
                 text = arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text;
                 Module.output_stdout += text + '\r\n';
-                Module.setStatus(Module.prefix + 'stdout: ' + text);
+                Module.setStatus(Module.prefix + ' | stdout: ' + text);
             },
 
             printErr(text)
             {
                 text = arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text;
                 Module.output_stderr += text + '\r\n';
-                Module.setStatus(Module.prefix + 'stderr: ' + text);
+                Module.setStatus(Module.prefix + ' | stderr: ' + text);
             },
             
             setStatus(text)

@@ -22,7 +22,7 @@ export class Shell
         this.zip_path = '/tmp/archive.zip';
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.svg', '.sh', '.py', '.csv'];
-        this.busybox_applets = ['nanozip', 'find', 'mkdir', 'pwd', 'ls', 'clear'];
+        this.busybox_applets = ['nanozip', 'find', 'mkdir', 'pwd', 'ls'];
         this.tic_ = 0;
         this.FS = null;
         this.PATH = null;
@@ -172,8 +172,8 @@ export class Shell
                     //}
                     //else if(cmd == 'pwd')
                     //    this.terminal_print(this.pwd());
-                    //else if(cmd == 'clear')
-                    //    this.clear();
+                    else if(cmd == 'clear')
+                        this.clear();
                     //else if(cmd == 'mkdir')
                     //    this.mkdir(...args);
                     else if(this.busybox_applets.includes(cmd))
@@ -410,7 +410,7 @@ export class Shell
         return replace_home == true ? cwd.replace(this.home_dir, '~') : cwd;    
     }
     
-    clear()
+    clear(ansi_clear_sequence = '\033[H\033[J')
     {
         this.terminal.write('\x1bc');
     }

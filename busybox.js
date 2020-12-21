@@ -79,9 +79,8 @@ export class Busybox
             return 0;
         }
 
-        let exit_code = 0;
         const mem_header = Uint8Array.from(this.Module.HEAPU8.slice(0, this.mem_header_size));
-        exit_code = NOCLEANUP_callMain(this.Module, cmd, this.print);
+        const exit_code = NOCLEANUP_callMain(this.Module, cmd, this.print);
         this.Module.HEAPU8.fill(0);
         this.Module.HEAPU8.set(mem_header);
         return exit_code;

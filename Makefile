@@ -4,7 +4,7 @@ URL_diff3 ?= https://raw.githubusercontent.com/openbsd/src/master/usr.bin/diff3/
 URL_RELEASE_busytex_wasm ?= https://github.com/busytex/busytex/releases/tag/build_b16fdf28019d93ccfd8f09776e4191835acea5dc
 URL_RELEASE_ubuntu_packages ?= https://github.com/busytex/busytex/releases/tag/release_88f12c721278c652c9fb69c6a097af9481a2ae7e
 
-CFLAGS_wasm_busyide = -s ERROR_ON_UNDEFINED_SYMBOLS=0 -lidbfs.js -s WASM=1 -s SINGLE_FILE=1 -s MODULARIZE=1 -s EXPORT_NAME=busyide -s FORCE_FILESYSTEM=1 -s EXPORTED_RUNTIME_METHODS=[\"callMain\",\"FS\",\"PATH\"] -s INVOKE_RUN=0 -Oz
+CFLAGS_wasm_busyide = -Oz -s ERROR_ON_UNDEFINED_SYMBOLS=0 -lidbfs.js -s INVOKE_RUN=0 -s MODULARIZE=1 -s EXPORT_NAME=busbox -s FORCE_FILESYSTEM=1 -s EXPORTED_RUNTIME_METHODS=[\"callMain\",\"FS\",\"PATH\"]
 
 source/busybox.tar.bz2:
 	mkdir -p source

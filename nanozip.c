@@ -82,7 +82,6 @@ int nanozip_main(int argc, char *argv[])
         {
             assert(i + 1 < argc);
             exclude[num_exclude++] = argv[++i];
-            printf("excluding [%s]\n", exclude[num_exclude - 1]);
         }
         else if(output == NULL)
             output = argv[i];

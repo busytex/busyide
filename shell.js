@@ -1,6 +1,7 @@
 // tex_path dir 
 
 import { Guthub } from '/guthub.js'
+import { Guthub } from '/busybox.js'
 
 export class Shell
 {
@@ -32,7 +33,7 @@ export class Shell
         this.compiler = new Worker(paths.busytex_worker_js);
         this.log = this.ui.log;
         this.readme = readme;
-        this.backend = null;
+        this.busybox = null;
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.on('key', this.onkey.bind(this));
@@ -255,22 +256,22 @@ export class Shell
         }
     }
 
-    async run(route, backend_emscripten_module_async, sha1)
+    async run(route, busybox_module_constructor, sha1)
     {
         if(route.length > 1 && route[0] == 'github')
             this.ui.github_https_path.value = route[1];
        
         this.compiler.postMessage(this.paths);
-        this.backend = await backend_emscripten_module_async(backend_emscripten_module_config(this.log));
+        this.busybox = new Busybox(busybox_module_constructor, paths.busybox_wasm, this.log.bind(this));
         
-        this.PATH = this.backend.PATH;
-        this.FS = this.backend.FS;
+        this.PATH = this.busybox.PATH;
+        this.FS = this.busybox.FS;
         this.FS.mkdir(this.readme_dir);
         this.FS.mkdir(this.cache_dir);
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        this.guthub = new Guthub(sha1, this.FS, this.backend, this.cache_dir, this.log.bind(this));
+        this.guthub = new Guthub(sha1, this.FS, (...args) => this.busybox.run(['diff3', ...args]), this.cache_dir, this.log.bind(this));
         await this.load_cache();
         if(this.ui.github_https_path.value.length > 0)
         {
@@ -393,9 +394,9 @@ export class Shell
 
     nanozip(project_dir)
     {
-        this.backend.output = '';
-        this.backend.callMain(['nanozip', '-r', '-x', '.git', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, project_dir]);
-        return this.backend.output;
+        this.busybox.output = '';
+        this.busybox.run(['nanozip', '-r', '-x', '.git', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, project_dir]);
+        return this.busybox.output;
     }
 
     save(file_path, contents)
@@ -531,44 +532,5 @@ export class Shell
     {
         await this.guthub.push(relative_file_path, 'guthub');
     }
-}
-
-function backend_emscripten_module_config(log)
-{
-    const Module =
-    {
-        thisProgram : 'busybox',
-
-        noInitialRun : true,
-
-        output : '',
-
-        print(text) 
-        {
-            text = arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text;
-            Module.output += text + '\r\n';
-            Module.setStatus('stdout: ' + (arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text));
-        },
-
-        printErr(text)
-        {
-            text = arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text;
-            Module.setStatus('stderr: ' + (arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text));
-        },
-        
-        setStatus(text)
-        {
-            log(text);
-        },
-        
-        monitorRunDependencies(left)
-        {
-            this.totalDependencies = Math.max(this.totalDependencies, left);
-            Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
-        },
-        
-        totalDependencies: 0,
-    };
-    return Module;
 }
 

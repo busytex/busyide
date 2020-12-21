@@ -44,9 +44,7 @@ export class Guthub
 
     merge(ours_path, parent_path, theirs_path)
     {
-        this.diff3.output = '';
-        this.diff3.callMain(['--merge', ours_path, parent_path, theirs_path]);
-        return this.diff3.output;
+        return this.diff3(['--merge', ours_path, parent_path, theirs_path]);
     }
 
     object_path(file)

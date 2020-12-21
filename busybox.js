@@ -1,9 +1,9 @@
 export class Busybox
 {
-    constructor(busybox_module_constructor, busybox_wasm, print)
+    constructor(busybox_module_constructor, busybox_wasm_module_promise, print)
     {
         this.mem_header_size = 2 ** 25;
-        this.wasm_module_promise = fetch(busybox_wasm).then(WebAssembly.compileStreaming);
+        this.wasm_module_promise = busybox_wasm_module_promise;
         this.busybox_module_constructor = busybox_module_constructor;
         this.print = print;
         this.Module = null;
@@ -18,7 +18,9 @@ export class Busybox
             thisProgram : 'busybox',
             noInitialRun : true,
             totalDependencies: 0,
-            output : '',
+            output_stdout : '',
+            output_stderr : '',
+            prefix : '',
             
             instantiateWasm(imports, successCallback)
             {
@@ -28,19 +30,20 @@ export class Busybox
             print(text) 
             {
                 text = arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text;
-                Module.output += text + '\r\n';
-                Module.setStatus('stdout: ' + (arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text));
+                Module.output_stdout += text + '\r\n';
+                Module.setStatus(Module.prefix + 'stdout: ' + text);
             },
 
             printErr(text)
             {
                 text = arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text;
-                Module.setStatus('stderr: ' + (arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text));
+                Module.output_stderr += text + '\r\n';
+                Module.setStatus(Module.prefix + 'stderr: ' + text);
             },
             
             setStatus(text)
             {
-                print(text);
+                print(Module.thisProgram + ': ' + text);
             },
             
             monitorRunDependencies(left)
@@ -79,6 +82,7 @@ export class Busybox
             return 0;
         }
 
+        this.Module.prefix = cmd[0];
         const mem_header = Uint8Array.from(this.Module.HEAPU8.slice(0, this.mem_header_size));
         const exit_code = NOCLEANUP_callMain(this.Module, cmd, this.print);
         this.Module.HEAPU8.fill(0);

@@ -273,6 +273,7 @@ function init_terminal(Terminal, terminal_element, addon)
 const monarch_promises = [paths.lang_monarch_json, paths.latex_monarch_json, paths.bibtex_monarch_json].map(x => fetch(x).then(x => x.json()));
 
 const readme_tex_promise = fetch(paths.readme_tex).then(x => x.text());
+const busybox_wasm_module_promise = fetch(paths.busybox_wasm).then(WebAssembly.compileStreaming);
 
 require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist/busybox_unstripped.js', 'sha1'], async (Monaco, Terminal, terminal_addon_fit, busybox_module_constructor, sha1) =>
 {
@@ -283,7 +284,7 @@ require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist
     window.onresize = ui.onresize;
     window.onresize();
 
-    await window.busyshell.run(ui.get_route(), busybox_module_constructor, sha1);
+    await window.busyshell.run(ui.get_route(), busybox_module_constructor, busybox_wasm_module_promise, sha1);
 });
 
 </script>

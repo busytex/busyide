@@ -256,13 +256,13 @@ export class Shell
         }
     }
 
-    async run(route, busybox_module_constructor, sha1)
+    async run(route, busybox_module_constructor, busybox_wasm_module_promise, sha1)
     {
         if(route.length > 1 && route[0] == 'github')
             this.ui.github_https_path.value = route[1];
        
         this.compiler.postMessage(this.paths);
-        this.busybox = new Busybox(busybox_module_constructor, '/dist/busybox_unstripped.wasm', this.log.bind(this));
+        this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, this.log.bind(this));
         await this.busybox.load()
         
         this.PATH = this.busybox.Module.PATH;

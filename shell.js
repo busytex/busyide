@@ -22,7 +22,7 @@ export class Shell
         this.zip_path = '/tmp/archive.zip';
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.svg', '.sh', '.py', '.csv'];
-        this.busybox_applets = ['nanozip', 'find']
+        this.busybox_applets = ['nanozip', 'find', 'mkdir', 'pwd', 'ls'];
         this.tic_ = 0;
         this.FS = null;
         this.PATH = null;
@@ -164,18 +164,18 @@ export class Shell
                     if (cmd == '')
                     {
                     }
-                    else if(cmd == 'ls')
-                    {
-                        const res = this.ls(...args);
-                        if(res.length > 0)
-                            this.terminal_print(res.join(' '));
-                    }
-                    else if(cmd == 'pwd')
-                        this.terminal_print(this.pwd());
+                    //else if(cmd == 'ls')
+                    //{
+                    //    const res = this.ls(...args);
+                    //    if(res.length > 0)
+                    //        this.terminal_print(res.join(' '));
+                    //}
+                    //else if(cmd == 'pwd')
+                    //    this.terminal_print(this.pwd());
                     else if(cmd == 'clear')
                         this.clear();
-                    else if(cmd == 'mkdir')
-                        this.mkdir(...args);
+                    //else if(cmd == 'mkdir')
+                    //    this.mkdir(...args);
                     else if(this.busybox_applets.includes(cmd))
                         this.terminal_print(this.busybox.run([cmd, ...args]).stdout);
                     else if(cmd == 'man')
@@ -434,7 +434,7 @@ export class Shell
         this.FS.chdir(this.expandcollapseuser(path || '~'));
     }
 
-    mkdir(path)
+    mkdir_(path)
     {
         this.FS.mkdir(path);
     }

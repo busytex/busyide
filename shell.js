@@ -22,7 +22,7 @@ export class Shell
         this.zip_path = '/tmp/archive.zip';
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.svg', '.sh', '.py', '.csv'];
-        this.busybox_applets = ['nanozip', 'find', 'mkdir', 'pwd', 'ls'];
+        this.busybox_applets = ['nanozip', 'find', 'mkdir', 'pwd', 'ls', 'clear'];
         this.tic_ = 0;
         this.FS = null;
         this.PATH = null;
@@ -172,8 +172,8 @@ export class Shell
                     //}
                     //else if(cmd == 'pwd')
                     //    this.terminal_print(this.pwd());
-                    else if(cmd == 'clear')
-                        this.clear();
+                    //else if(cmd == 'clear')
+                    //    this.clear();
                     //else if(cmd == 'mkdir')
                     //    this.mkdir(...args);
                     else if(this.busybox_applets.includes(cmd))
@@ -385,7 +385,7 @@ export class Shell
 
     help()
     {
-        return ['man', 'help', 'status', 'purge', 'latexmk', 'download', 'clear', 'pwd', 'ls', 'mkdir', 'cd', 'clone', 'push', 'open', 'save'].sort();
+        return ['man', 'help', 'open', 'save', 'download', 'cd', 'purge', 'latexmk', 'status', 'clone', 'push'].concat(this.busybox_applets).sort();
     }
     
     share(project_dir)

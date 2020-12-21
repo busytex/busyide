@@ -22,6 +22,7 @@ export class Shell
         this.zip_path = '/tmp/archive.zip';
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.svg', '.sh', '.py', '.csv'];
+        this.busybox_applets = ['nanozip', 'find']
         this.tic_ = 0;
         this.FS = null;
         this.PATH = null;
@@ -47,7 +48,7 @@ export class Shell
         this.ui.view_log.onclick = () => this.commands(cmd('open', arg(this.log_path)));
         this.ui.view_pdf.onclick = () => this.commands(cmd('open', arg(this.pdf_path)));
         this.ui.download.onclick = () => this.commands(cmd('download', arg(this.tex_path)));
-        this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
+        this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
         this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
@@ -175,8 +176,8 @@ export class Shell
                         this.clear();
                     else if(cmd == 'mkdir')
                         this.mkdir(...args);
-                    else if(cmd == 'nanozip')
-                        this.terminal_print(this.nanozip(...args));
+                    else if(this.busybox_applets.includes(cmd))
+                        this.terminal_print(this.busybox.run([cmd, ...args]).stdout);
                     else if(cmd == 'man')
                         this.man();
                     else if(cmd == 'share')
@@ -393,11 +394,9 @@ export class Shell
         return `${this.http_path}/#inline/${serialized_project_str}`;
     }
 
-    nanozip(project_dir)
+    archive(project_dir)
     {
-        this.busybox.output = '';
-        this.busybox.run(['nanozip', '-r', '-x', '.git', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, project_dir]);
-        return this.busybox.output;
+        return this.busybox.run(['nanozip', '-r', '-x', '.git', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, project_dir]).stdout;
     }
 
     save(file_path, contents)

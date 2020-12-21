@@ -15,7 +15,7 @@ export class Busybox
         const print = this.print;
         const Module =
         {
-            thisProgram : 'busybox',
+            thisProgram : '/bin/busybox',
             noInitialRun : true,
             totalDependencies: 0,
             output_stdout : '',
@@ -82,11 +82,15 @@ export class Busybox
             return 0;
         }
 
+        this.Module.output_stdout = '';
+        this.Module.output_stderr = '';
+        
         this.Module.prefix = cmd[0];
         const mem_header = Uint8Array.from(this.Module.HEAPU8.slice(0, this.mem_header_size));
         const exit_code = NOCLEANUP_callMain(this.Module, cmd, this.print);
         this.Module.HEAPU8.fill(0);
         this.Module.HEAPU8.set(mem_header);
-        return exit_code;
+
+        return {exit_code : exit_code, stdout : this.Module.output_stdout, stderr : this.Module.output_stderr};
     }
 }

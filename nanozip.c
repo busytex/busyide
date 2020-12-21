@@ -30,8 +30,8 @@ enum { MAX_FILE_PATH_LENGTH = 1024, MAX_EXCLUDE_PATHS = 16, MAX_INPUT_PATHS = 16
 char* exclude[MAX_EXCLUDE_PATHS];
 char* input[MAX_INPUT_PATHS];
 char file_path_buffer[MAX_FILE_PATH_LENGTH];
-
 char* output;
+
 int recurse, num_input, num_exclude;
 
 void* ptr_zip;
@@ -74,6 +74,7 @@ int nanozip_main(int argc, char *argv[])
     mz_zip_archive zip;
     struct stat st;
 
+    recurse = num_input = num_exclude = 0;
     for(int i = 1; i < argc; i++)
     {
         if(0 == strcmp("-r", argv[i]))

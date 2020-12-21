@@ -400,7 +400,7 @@ export class Shell
         return replace_home == true ? cwd.replace(this.home_dir, '~') : cwd;    
     }
     
-    clear(ansi_clear_sequence = '\033[H\033[J')
+    clear(ansi_clear_sequence = '\x1b[H\x1b[J')
     {
         this.terminal.write('\x1bc');
     }

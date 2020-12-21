@@ -22,7 +22,7 @@ export class Shell
         this.zip_path = '/tmp/archive.zip';
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.svg', '.sh', '.py', '.csv'];
-        this.busybox_applets = ['nanozip', 'diff3', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'whoami', 'wc'];
+        this.busybox_applets = ['nanozip', 'diff3', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'whoami', 'wc', 'cat', 'head'];
         this.tic_ = 0;
         this.FS = null;
         this.PATH = null;

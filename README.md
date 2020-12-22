@@ -1,21 +1,22 @@
 ### Planned modes of operation
 2. local run with serve.py
 3. packaging of everything into one large HTML file to run from file://
-4. GitHub links: github repo, github file, gist, project
-5. Broken texpath
-6. autosave
-7. status is broken
 
 ### TODO
 2. Store file sha hashes in .git directory
 8. Ctrl+V, command history
 10. file tab auto-complete
 11. https://github.com/ElektraInitiative/libelektra/issues/2873
-12. auto-open a tex file after cloning
 13. do not download all artefacts, not just a single pdfpath/logpath -> move artefacts to /tmp
 14. Typing is not shown until commands finished processing
 15. Splitter: https://codepen.io/rstrahl/pen/eJZQej
 16. Compress files before sharing
+5. Broken texpath
+6. autosave
+7. status is broken
+8. pseudo-shell quotes
+9. renaming
+4. GitHub links: github repo, github file, gist, project
 
 ```shell
 # https://github.com/xloem/emterm

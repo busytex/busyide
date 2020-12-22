@@ -14,6 +14,7 @@ export class Shell
         this.cache_dir = '/cache';
         this.readme_dir = this.home_dir + '/readme';
         this.readme_tex = this.readme_dir + '/readme.tex';
+        this.hello_world = "\\documentclass[11pt]{article}\n\\begin{document}\n\n\\title{Hello}\n\\maketitle\n\n\\section{world}\nindeed!\n\n\\end{document}";
 
         this.shared_project = '/home/web_user/shared_project';
         this.pdf_path = '/tmp/pdf_does_not_exist_yet';
@@ -22,7 +23,7 @@ export class Shell
         this.zip_path = '/tmp/archive.zip';
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.svg', '.sh', '.py', '.csv'];
-        this.busybox_applets = ['nanozip', 'diff3', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'whoami', 'wc', 'cat', 'head'];
+        this.busybox_applets = ['nanozip', 'diff3', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'whoami', 'wc', 'cat', 'head'];
         this.tic_ = 0;
         this.FS = null;
         this.PATH = null;
@@ -43,6 +44,7 @@ export class Shell
         const arg = path => this.expandcollapseuser(path, false);
         const chain = (...cmds) => cmds.join(' && ');
 
+        const cr_key_code = 13;
         this.ui.clone.onclick = () => this.commands(chain('cd', cmd('clone', ui.github_https_path.value), cmd('open', this.PATH.join2('~', this.PATH.basename(ui.github_https_path.value))), cmd('cd', this.PATH.basename(ui.github_https_path.value))));
         this.ui.download_pdf.onclick = () => this.commands(cmd('download', arg(this.pdf_path)));
         this.ui.view_log.onclick = () => this.commands(cmd('open', arg(this.log_path)));
@@ -52,9 +54,12 @@ export class Shell
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
         this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
+        this.ui.new_file.onclick = () => this.commands(chain(cmd('echo', this.hello_world, '>', 'newfile.tex'), cmd('open', 'newfile.tex')));
         //this.ui.pull.onclick = () => this.commands('cd ~/readme', 'ls');
-        this.ui.github_https_path.onkeypress = ev => ev.keyCode == 13 ? this.ui.clone.click() : null;
+        this.ui.github_https_path.onkeypress = ev => ev.keyCode == cr_key_code ? this.ui.clone.click() : null;
         this.ui.filetree.onchange = ev => {console.log(ev); this.open(this.ui.filetree.options[this.ui.filetree.selectedIndex].text)};
+        this.ui.current_file.onclick = () => this.ui.toggle_current_file_rename();
+        this.ui.current_file_rename.onkeypress = ev => ev.keyCode == cr_key_code ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value) || this.ui.toggle_current_file_rename()) : null;
 		
 		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, this.ui.compile.onclick);
     }
@@ -102,8 +107,7 @@ export class Shell
     serialize_project(project_dir)
     {
         //TODO: filter out artefacts
-        const files = this.ls_R(project_dir);
-        return btoa(JSON.stringify(files));
+        return btoa(JSON.stringify(this.ls_R(project_dir)));
     }
 
     deserialize_project(project_str)
@@ -170,13 +174,13 @@ export class Shell
                     else if(cmd == 'clear')
                         this.clear();
                     else if(this.busybox_applets.includes(cmd))
-                        this.terminal_print(this.busybox.run([cmd, ...args]).stdout);
+                        print_or_dump(this.busybox.run([cmd, ...args]).stdout);
                     else if(cmd == 'man')
                         this.man();
                     else if(cmd == 'share')
-                        true; //print_or_dump(this.share(...args));
+                        print_or_dump(this.share(...args));
                     else if(cmd == 'help')
-                        this.terminal_print(this.help().join(' '));
+                        this.terminal_print(this.help().join('\t'));
                     else if(cmd == 'download')
                         this.download(...args);
                     else if(cmd == 'upload')
@@ -312,6 +316,11 @@ export class Shell
         this.terminal_prompt();
     }
 
+    mv(src_file_path, dst_file_path)
+    {
+
+    }
+
     open(file_path, contents)
     {
         if(this.FS.isDir(this.FS.lookupPath(file_path).node.mode))
@@ -363,7 +372,7 @@ export class Shell
         else
         {
             contents = contents || this.FS.readFile(file_path, {encoding : 'utf8'});
-            this.ui.current_file.textContent = 'editing [' + this.PATH.basename(file_path) + ']';
+            this.ui.set_current_file(this.PATH.basename(file_path));
             this.editor.getModel().setValue(contents);
         }
     }

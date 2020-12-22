@@ -56,7 +56,9 @@ export class Shell
         this.ui.new_file.onclick = () => this.commands(chain(cmd('echo', this.hello_world, '>', 'newfile.tex'), cmd('open', 'newfile.tex')));
         //this.ui.pull.onclick = () => this.commands('cd ~/readme', 'ls');
         this.ui.github_https_path.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
-        this.ui.filetree.onchange = ev => {console.log(ev); this.open(this.ui.filetree.options[this.ui.filetree.selectedIndex].text)};
+        this.ui.filetree.onchange = ev => this.ui.filetree.options[this.ui.filetree.selectedIndex].className != 'filetreedirectory' ? this.open(this.ui.filetree.options[this.ui.filetree.selectedIndex].text) : this.open('', '');
+        this.ui.filetree.ondblclick = ev => this.ui.filetree.options[this.ui.filetree.selectedIndex].className == 'filetreedirectory' ? this.cd(this.ui.filetree.options[this.ui.filetree.selectedIndex].text, true) : null;
+
         this.ui.current_file.onclick = () => this.ui.toggle_current_file_rename();
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value) || this.ui.toggle_current_file_rename()) : ev.key == 'Escape' ? (this.ui.set_current_file(this.ui.get_current_file()) || this.ui.toggle_current_file_rename()) : null;
 		
@@ -322,7 +324,15 @@ export class Shell
 
     open(file_path, contents)
     {
-        if(this.FS.isDir(this.FS.lookupPath(file_path).node.mode))
+        if(file_path == '')
+        {
+            this.tex_path = '';
+            this.ui.txtpreview.value = '';
+            [this.ui.imgpreview.hidden, this.ui.pdfpreview.hidden, this.ui.txtpreview.hidden] = [true, true, false];
+            return;
+        }
+        
+        if(this.FS.analyzePath(file_path).exists && this.FS.isDir(this.FS.lookupPath(file_path).node.mode))
         {
             const files = this.ls_R(file_path, '', false).filter(f => f.path.endsWith('.tex') && f.contents != null);
             let default_path = null;
@@ -427,10 +437,10 @@ export class Shell
         this.OLDPWD = this.FS.cwd();
         this.FS.chdir(this.expandcollapseuser(path || '~'));
         if(update_file_tree)
-            this.ui.update_file_tree(this.ls_R());
+            this.ui.update_file_tree(this.ls_R('.', '', true, true));
     }
 
-    ls_R(root = '.', relative_dir_path = '', recurse = true, exclude = ['.git'])
+    ls_R(root = '.', relative_dir_path = '', recurse = true, preserve_directories = false, exclude = ['.git'])
     {
         let entries = [];
         for(const [name, entry] of Object.entries(this.FS.lookupPath(`${root}/${relative_dir_path}`, {parent : false}).node.contents))
@@ -439,9 +449,13 @@ export class Shell
             const absolute_path = this.PATH.join2(root, relative_path);
             if(entry.isFolder)
             {
-                //entries.push({path : relative_path}, ...this.ls_R(root, relative_path));
-                if(recurse && !exclude.includes(name))
-                    entries.push(...this.ls_R(root, relative_path));
+                if(!exclude.includes(name))
+                {
+                    if(preserve_directories)
+                        entries.push({path : relative_path});
+                    if(recurse)
+                        entries.push(...this.ls_R(root, relative_path));
+                }
             }
             else if(absolute_path != this.log_path && absolute_path != this.pdf_path)
             {

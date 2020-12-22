@@ -4,6 +4,7 @@
 4. GitHub links: github repo, github file, gist, project
 5. Broken texpath
 6. autosave
+7. status is broken
 
 ### TODO
 2. Store file sha hashes in .git directory

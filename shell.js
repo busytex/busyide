@@ -270,8 +270,7 @@ export class Shell
         {
             const project_dir = await this.clone(this.ui.github_https_path.value);
             this.open(project_dir);
-            this.FS.chdir(project_dir);
-            this.ui.update_file_tree(this.ls_R());
+            this.cd(project_dir, true);
         }
         else if(route.length > 1 && route[0] == 'inline')
         {
@@ -305,8 +304,7 @@ export class Shell
             }
 
             this.open(project_dir);
-            this.FS.chdir(project_dir);
-            this.ui.update_file_tree(this.ls_R());
+            this.cd(project_dir, true);
         }
         else
             this.man();
@@ -372,9 +370,8 @@ export class Shell
 
     man()
     {
-        this.cd(this.readme_dir);
+        this.cd(this.readme_dir, true);
         this.open(this.readme_tex, this.readme);
-        this.ui.update_file_tree(this.ls_R());
     }
 
     help()
@@ -409,41 +406,33 @@ export class Shell
         this.terminal.write('\x1bc');
     }
 
-    ls(path)
-    {
-        return Object.keys(this.FS.lookupPath(path || '.').node.contents);
-    }
-    
     expandcollapseuser(path, expand = true)
     {
         return expand ? path.replace('~', this.home_dir) : path.replace(this.home_dir, '~');
     }
 
-    cd(path)
+    cd(path, update_file_tree = true)
     {
         if(path == '-')
             path = this.OLDPWD;
 
         this.OLDPWD = this.FS.cwd();
         this.FS.chdir(this.expandcollapseuser(path || '~'));
+        if(update_file_tree)
+            this.ui.update_file_tree(this.ls_R());
     }
 
-    mkdir_(path)
-    {
-        this.FS.mkdir(path);
-    }
-
-    ls_R(root = '.', relative_dir_path = '', recurse = true)
+    ls_R(root = '.', relative_dir_path = '', recurse = true, exclude = ['.git'])
     {
         let entries = [];
         for(const [name, entry] of Object.entries(this.FS.lookupPath(`${root}/${relative_dir_path}`, {parent : false}).node.contents))
         {
-            const relative_path = relative_dir_path ? `${relative_dir_path}/${name}` : name;
-            const absolute_path = `${root}/${relative_path}`;
+            const relative_path = relative_dir_path ? this.PATH.join2(relative_dir_path, name) : name;
+            const absolute_path = this.PATH.join2(root, relative_path);
             if(entry.isFolder)
             {
                 //entries.push({path : relative_path}, ...this.ls_R(root, relative_path));
-                if(recurse)
+                if(recurse && !exclude.includes(name))
                     entries.push(...this.ls_R(root, relative_path));
             }
             else if(absolute_path != this.log_path && absolute_path != this.pdf_path)

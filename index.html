@@ -178,6 +178,7 @@ const ui =
             if(select.options[i] == null)
                 select.options.add(document.createElement('option'));
             select.options[i].text = files[i].path;
+            select.options[i].title = files[i].path;
             select.options[i].disabled = files[i].contents == null;
         }
         for(const j = select.length - 1; j >= i; j--)

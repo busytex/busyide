@@ -7,12 +7,14 @@
 
 ### TODO
 2. Store file sha hashes in .git directory
-6. arg1/arg2
 8. Ctrl+V, command history
 10. file tab auto-complete
 11. https://github.com/ElektraInitiative/libelektra/issues/2873
 12. auto-open a tex file after cloning
 13. do not download all artefacts, not just a single pdfpath/logpath -> move artefacts to /tmp
+14. Typing is not shown until commands finished processing
+15. Splitter: https://codepen.io/rstrahl/pen/eJZQej
+16. Compress files before sharing
 
 ```shell
 # https://github.com/xloem/emterm

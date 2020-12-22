@@ -174,7 +174,7 @@ export class Shell
                     else if(cmd == 'man')
                         this.man();
                     else if(cmd == 'share')
-                        print_or_dump(this.share(...args));
+                        true; //print_or_dump(this.share(...args));
                     else if(cmd == 'help')
                         this.terminal_print(this.help().join(' '));
                     else if(cmd == 'download')

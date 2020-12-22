@@ -182,8 +182,7 @@ const ui =
     {
         let span = document.getElementById('current_file');
         let input = document.getElementById('current_file_rename');
-        span.textContent = `[${file_path}]`;
-        input.value = file_path;
+        span.textContent = input.value = file_path;
     },
 
     toggle_current_file_rename()

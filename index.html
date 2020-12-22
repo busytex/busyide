@@ -22,8 +22,13 @@
         }
 
         #editor {
-            width: 50%; 
+            width: 40%; 
             border: 1px solid grey;
+        }
+
+        #filetree {
+            height:100%;
+            width: 10%;
         }
 
         #terminal {
@@ -111,6 +116,7 @@
         </div>
     </div>
     <div style="display: flex; height: 80%">
+      <select id="filetree" size="100"></select>
       <div id="editor"></div>
       <div id="viewer">
         <iframe id="pdfpreview"></iframe>
@@ -161,6 +167,22 @@ const ui =
     man : document.getElementById('man'),
     share : document.getElementById('share'),
     current_file : document.getElementById('current_file'),
+    filetree : document.getElementById('filetree'),
+
+    update_file_tree(files)
+    {
+        const select = document.getElementById('filetree');
+        let i = 0;
+        for(i = 0; i < files.length; i++)
+        {
+            if(select.options[i] == null)
+                select.options.add(document.createElement('option'));
+            select.options[i].text = files[i].path;
+            select.options[i].disabled = files[i].contents == null;
+        }
+        for(const j = select.length - 1; j >= i; j--)
+            select.options.remove(j);
+    },
 
     create_and_click_download_link(file_path, content, mime)
     {

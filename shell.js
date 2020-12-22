@@ -54,6 +54,7 @@ export class Shell
         this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
         //this.ui.pull.onclick = () => this.commands('cd ~/readme', 'ls');
         this.ui.github_https_path.onkeypress = ev => ev.keyCode == 13 ? this.ui.clone.click() : null;
+        this.ui.filetree.onchange = ev => {console.log(ev); this.open(this.ui.filetree.options[this.ui.filetree.selectedIndex].text)};
 		
 		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, this.ui.compile.onclick);
     }
@@ -189,7 +190,7 @@ export class Shell
                     else if(cmd == 'open')
                         this.open(...args);
                     else if(cmd == 'status')
-                        await this.guthub.status(this.ls_R('.'));
+                        await this.guthub.status(this.ls_R());
                     else if(cmd == 'save')
                         this.save(args[0], this.editor.getModel().getValue());
                     else if(cmd == 'purge')
@@ -270,6 +271,7 @@ export class Shell
             const project_dir = await this.clone(this.ui.github_https_path.value);
             this.open(project_dir);
             this.FS.chdir(project_dir);
+            this.ui.update_file_tree(this.ls_R());
         }
         else if(route.length > 1 && route[0] == 'inline')
         {
@@ -304,6 +306,7 @@ export class Shell
 
             this.open(project_dir);
             this.FS.chdir(project_dir);
+            this.ui.update_file_tree(this.ls_R());
         }
         else
             this.man();
@@ -371,6 +374,7 @@ export class Shell
     {
         this.cd(this.readme_dir);
         this.open(this.readme_tex, this.readme);
+        this.ui.update_file_tree(this.ls_R());
     }
 
     help()
@@ -429,7 +433,7 @@ export class Shell
         this.FS.mkdir(path);
     }
 
-    ls_R(root, relative_dir_path = '', recurse = true)
+    ls_R(root = '.', relative_dir_path = '', recurse = true)
     {
         let entries = [];
         for(const [name, entry] of Object.entries(this.FS.lookupPath(`${root}/${relative_dir_path}`, {parent : false}).node.contents))

@@ -56,9 +56,9 @@ export class Shell
         this.ui.new_file.onclick = () => this.commands(chain(cmd('echo', this.hello_world, '>', 'newfile.tex'), cmd('open', 'newfile.tex')));
         //this.ui.pull.onclick = () => this.commands('cd ~/readme', 'ls');
         this.ui.github_https_path.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
-        this.ui.filetree.onchange = ev => this.ui.filetree.options[this.ui.filetree.selectedIndex].className != 'filetreedirectory' ? this.open(this.ui.filetree.options[this.ui.filetree.selectedIndex].text) : this.open('', '');
-        this.ui.filetree.ondblclick = ev => this.ui.filetree.options[this.ui.filetree.selectedIndex].className == 'filetreedirectory' ? this.cd(this.ui.filetree.options[this.ui.filetree.selectedIndex].text, true) : null;
-
+        this.ui.filetree.onchange = ev => this.open(this.ui.filetree.options[this.ui.filetree.selectedIndex].className != 'filetreedirectory' ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : '');
+        this.ui.filetree.ondblclick = ev => this.ui.filetree.options[this.ui.filetree.selectedIndex].className == 'filetreedirectory' ? this.cd(this.ui.filetree.options[this.ui.filetree.selectedIndex].value, true) : null;
+        this.ui.filetree.onkeydown = ev => ev.key == 'Enter' ? this.ui.filetree.ondblclick() : null;
         this.ui.current_file.onclick = () => this.ui.toggle_current_file_rename();
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value) || this.ui.toggle_current_file_rename()) : ev.key == 'Escape' ? (this.ui.set_current_file(this.ui.get_current_file()) || this.ui.toggle_current_file_rename()) : null;
 		
@@ -328,6 +328,8 @@ export class Shell
         {
             this.tex_path = '';
             this.ui.txtpreview.value = '';
+            this.ui.set_current_file('');
+            this.editor.getModel().setValue('');
             [this.ui.imgpreview.hidden, this.ui.pdfpreview.hidden, this.ui.txtpreview.hidden] = [true, true, false];
             return;
         }
@@ -437,12 +439,16 @@ export class Shell
         this.OLDPWD = this.FS.cwd();
         this.FS.chdir(this.expandcollapseuser(path || '~'));
         if(update_file_tree)
-            this.ui.update_file_tree(this.ls_R('.', '', true, true));
+            this.ui.update_file_tree(this.ls_R('.', '', false, true, true));
     }
 
-    ls_R(root = '.', relative_dir_path = '', recurse = true, preserve_directories = false, exclude = ['.git'])
+    ls_R(root = '.', relative_dir_path = '', recurse = true, preserve_directories = false, include_parent_directories = false, exclude = ['.git'])
     {
         let entries = [];
+        if(include_parent_directories)
+        {
+            entries.push({path : this.PATH.join2(root, '..'), name : '..'});
+        }
         for(const [name, entry] of Object.entries(this.FS.lookupPath(`${root}/${relative_dir_path}`, {parent : false}).node.contents))
         {
             const relative_path = relative_dir_path ? this.PATH.join2(relative_dir_path, name) : name;
@@ -452,7 +458,7 @@ export class Shell
                 if(!exclude.includes(name))
                 {
                     if(preserve_directories)
-                        entries.push({path : relative_path});
+                        entries.push({path : relative_path, name : name});
                     if(recurse)
                         entries.push(...this.ls_R(root, relative_path));
                 }
@@ -460,9 +466,10 @@ export class Shell
             else if(absolute_path != this.log_path && absolute_path != this.pdf_path)
             {
                 const read_text = this.text_extensions.map(ext => absolute_path.endsWith(ext)).includes(true);
-                entries.push({path : relative_path, contents : this.FS.readFile(absolute_path, {encoding : read_text ? 'utf8' : 'binary'})});
+                entries.push({path : relative_path, name : name, contents : this.FS.readFile(absolute_path, {encoding : read_text ? 'utf8' : 'binary'})});
             }
         }
+        console.log(root, entries);
         return entries;
     }
 

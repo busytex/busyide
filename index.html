@@ -198,10 +198,9 @@ const ui =
 
     update_file_tree(files)
     {
-        const basename = path => path.slice(path.lastIndexOf('/') + 1);
         const select = document.getElementById('filetree');
-        let i = 0;
-        for(i = 0; i < files.length; i++)
+        let i = 0, j = select.length - 1;
+        for(; i < files.length; i++)
         {
             let option = select.options[i];
             if(option == null)
@@ -209,13 +208,12 @@ const ui =
                 option = document.createElement('option');
                 select.options.add(option);
             }
-            option.text = basename(files[i].name);
-            option.value = files[i].path;
-            option.title = files[i].path;
+            option.text = files[i].name;
+            option.value = option.title = files[i].path;
             option.dataset.type = files[i].contents == null ? 'd' : 'f';
             option.className = files[i].contents == null ? 'filetreedirectory' : '';
         }
-        for(const j = select.length - 1; j >= i; j--)
+        for(; j >= i; j--)
             select.options.remove(j);
     },
 

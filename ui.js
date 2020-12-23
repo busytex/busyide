@@ -1,5 +1,3 @@
-// tex_path dir 
-
 import { Guthub } from '/guthub.js'
 import { Busybox } from '/busybox.js'
 
@@ -10,6 +8,7 @@ export class Shell
         this.http_path = http_path;
         this.share_link_log = '/tmp/share_link.log';
         this.home_dir = '/home/web_user';
+        this.tmp_dir = '/tmp';
         this.OLDPWD = this.home_dir;
         this.cache_dir = '/cache';
         this.readme_dir = this.home_dir + '/readme';
@@ -97,12 +96,16 @@ export class Shell
         await this.save_cache();
     }
 
-    project_dir()
+    project_dir(four = '/home/web_user/proj'.split('/').length)
     {
-        const basename = this.tex_path.lastIndexOf('/');
-        const cwd = this.tex_path.slice(0, basename);
-        const project_dir = cwd.split('/').slice(0, 4).join('/');
+        const cwd = this.PATH.dirname(this.tex_path)
+        const project_dir = cwd.split('/').slice(0, four).join('/');
         return project_dir;
+    }
+
+    project_tmp_dir()
+    {
+        return this.project_dir().replace(this.home_dir, this.tmp_dir);
     }
 
     serialize_project(project_dir)
@@ -195,7 +198,7 @@ export class Shell
                     else if(cmd == 'open')
                         this.open(...args);
                     else if(cmd == 'status')
-                        await this.guthub.status(this.ls_R());
+                        await this.guthub.status(this.ls_R('.', '', true, true, false, false));
                     else if(cmd == 'save')
                         this.save(args[0], this.editor.getModel().getValue());
                     else if(cmd == 'purge')
@@ -224,12 +227,14 @@ export class Shell
         if(pdf)
         {
             this.toc();
+            this.mkdir_p(this.PATH.dirname(this.pdf_path));
             this.FS.writeFile(this.pdf_path, pdf);
             this.open(this.pdf_path, pdf);
         }
         if(log)
         {
             this.toc();
+            this.mkdir_p(this.PATH.dirname(this.log_path));
             this.FS.writeFile(this.log_path, log);
         }
         if(print)
@@ -252,6 +257,16 @@ export class Shell
             this.tic_ = 0.0;
         }
     }
+    
+    mkdir_p(dirpath, dirs = new Set(['/']))
+    {
+        if(!dirs.has(dirpath) && !this.FS.analyzePath(dirpath).exists)
+        {
+            this.mkdir_p(this.PATH.dirname(dirpath), dirs);
+            this.FS.mkdir(dirpath);
+            dirs.add(dirpath);
+        }
+    };
 
     async run(route, busybox_module_constructor, busybox_wasm_module_promise, sha1)
     {
@@ -284,26 +299,14 @@ export class Shell
             this.FS.mkdir(project_dir)
 
             let dirs = new Set(['/', project_dir]);
-
-            const mkdir_p = dirpath =>
-            {
-                if(!dirs.has(dirpath))
-                {
-                    mkdir_p(this.PATH.dirname(dirpath));
-                    
-                    this.FS.mkdir(dirpath);
-                    dirs.add(dirpath);
-                }
-            };
-
             for(const {path, contents} of files.sort((lhs, rhs) => lhs['path'] < rhs['path'] ? -1 : 1))
-            {
+        {
                 const absolute_path = this.PATH.join2(project_dir, path);
                 if(contents == null)
-                    mkdir_p(absolute_path);
+                    this.mkdir_p(absolute_path, dirs);
                 else
                 {
-                    mkdir_p(this.PATH.dirname(absolute_path));
+                    this.mkdir_p(this.PATH.dirname(absolute_path));
                     this.FS.writeFile(absolute_path, contents);
                 }
             }
@@ -439,20 +442,21 @@ export class Shell
         this.OLDPWD = this.FS.cwd();
         this.FS.chdir(this.expandcollapseuser(path || '~'));
         if(update_file_tree)
-            this.ui.update_file_tree(this.ls_R('.', '', false, true, true));
+            this.ui.update_file_tree(this.ls_R('.', this.pwd(true), false, true, true));
     }
 
-    ls_R(root = '.', relative_dir_path = '', recurse = true, preserve_directories = false, include_parent_directories = false, exclude = ['.git'])
+    ls_R(root = '.', relative_dir_path = '', recurse = true, preserve_directories = false, include_parent_directories = false, read_contents_as_string = true, exclude = ['.git'])
     {
         let entries = [];
         if(include_parent_directories)
         {
-            entries.push({path : this.PATH.join2(root, '..'), name : '..'});
+            entries.push({path : this.PATH.dirname(relative_dir_path || root), name : '..'});
         }
-        for(const [name, entry] of Object.entries(this.FS.lookupPath(`${root}/${relative_dir_path}`, {parent : false}).node.contents))
+        const absolute_dir_path = this.expandcollapseuser(this.PATH.join2(root, relative_dir_path))
+        for(const [name, entry] of Object.entries(this.FS.lookupPath(absolute_dir_path, {parent : false}).node.contents))
         {
             const relative_path = relative_dir_path ? this.PATH.join2(relative_dir_path, name) : name;
-            const absolute_path = this.PATH.join2(root, relative_path);
+            const absolute_path = this.expandcollapseuser(this.PATH.join2(root, relative_path));
             if(entry.isFolder)
             {
                 if(!exclude.includes(name))
@@ -460,13 +464,12 @@ export class Shell
                     if(preserve_directories)
                         entries.push({path : relative_path, name : name});
                     if(recurse)
-                        entries.push(...this.ls_R(root, relative_path));
+                        entries.push(...this.ls_R(root, relative_path, recurse, preserve_directories, include_parent_directories, read_contents_as_string, exclude));
                 }
             }
             else if(absolute_path != this.log_path && absolute_path != this.pdf_path)
             {
-                const read_text = this.text_extensions.map(ext => absolute_path.endsWith(ext)).includes(true);
-                entries.push({path : relative_path, name : name, contents : this.FS.readFile(absolute_path, {encoding : read_text ? 'utf8' : 'binary'})});
+                entries.push({path : relative_path, name : name, contents : this.FS.readFile(absolute_path, {encoding : read_contents_as_string && this.text_extensions.map(ext => absolute_path.endsWith(ext)).includes(true) ? 'utf8' : 'binary'})});
             }
         }
         console.log(root, entries);
@@ -490,8 +493,8 @@ export class Shell
 
         this.terminal_print('Running in background...');
         this.tic();
-        this.pdf_path = tex_path.replace('.tex', '.pdf');
-        this.log_path = tex_path.replace('.tex', '.log');
+        this.pdf_path = tex_path.replace('.tex', '.pdf').replace(this.project_dir(), this.project_tmp_dir());
+        this.log_path = tex_path.replace('.tex', '.log').replace(this.project_dir(), this.project_tmp_dir());
         
         console.assert(tex_path.endsWith('.tex'));
         console.assert(cwd.startsWith(this.home_dir));

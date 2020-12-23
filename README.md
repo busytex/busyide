@@ -17,6 +17,10 @@
 8. pseudo-shell quotes
 9. renaming
 4. GitHub links: github repo, github file, gist, project
+17. http://showdownjs.com/
+18. support cors proxy + tar/tar.gz/gz inputs (arxiv paper sources, github tar.gz)
+19. support single file mode from http
+20. Open file when navigating to a directory with a single file
 
 ```shell
 # https://github.com/xloem/emterm

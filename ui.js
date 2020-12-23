@@ -53,7 +53,7 @@ export class Shell
         this.ui.man.onclick = () => this.commands('man');
         this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
         this.ui.new_file.onclick = () => this.commands(chain(cmd('echo', this.hello_world, '>', 'newfile.tex'), cmd('open', 'newfile.tex')));
-        //this.ui.pull.onclick = () => this.commands('cd ~/readme', 'ls');
+        this.ui.pull.onclick = () => this.commands('pull');
         this.ui.github_https_path.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
         this.ui.filetree.onchange = ev => this.open(this.ui.filetree.options[this.ui.filetree.selectedIndex].className != 'filetreedirectory' ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : '');
         this.ui.filetree.ondblclick = ev => this.ui.filetree.options[this.ui.filetree.selectedIndex].className == 'filetreedirectory' ? this.cd(this.ui.filetree.options[this.ui.filetree.selectedIndex].value, true) : null;
@@ -193,8 +193,8 @@ export class Shell
                         await this.latexmk(...args);
                     else if(cmd == 'clone')
                         await this.clone(...args);
-                    else if(cmd == 'push')
-                        await this.push(...args);
+                    else if(cmd == 'pull')
+                        await this.guthub.pull();
                     else if(cmd == 'open')
                         this.open(...args);
                     else if(cmd == 'status')
@@ -284,7 +284,7 @@ export class Shell
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        this.guthub = new Guthub(sha1, this.FS, (...args) => this.busybox.run(['diff3', ...args]), this.cache_dir, this.log.bind(this));
+        this.guthub = new Guthub(sha1, this.FS, (ours, theirs) => this.busybox.run(['diff', ours, theirs]).stdout, (...args) => this.busybox.run(['diff3prog', ...args]).stdout, this.cache_dir, this.log.bind(this));
         await this.load_cache();
         if(this.ui.github_https_path.value.length > 0)
         {
@@ -399,7 +399,7 @@ export class Shell
 
     help()
     {
-        return ['man', 'help', 'open', 'save', 'download', 'cd', 'purge', 'latexmk', 'status', 'clone', 'push'].concat(this.busybox_applets).sort();
+        return ['man', 'help', 'open', 'save', 'download', 'cd', 'purge', 'latexmk', 'status', 'clone', 'push', 'pull'].concat(this.busybox_applets).sort();
     }
     
     share(project_dir)
@@ -541,11 +541,6 @@ export class Shell
         await this.save_cache();
         this.ui.set_route('github', https_path);
         return repo_path;
-    }
-
-    async push(relative_file_path)
-    {
-        await this.guthub.push(relative_file_path, 'guthub');
     }
 }
 

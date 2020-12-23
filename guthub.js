@@ -6,7 +6,7 @@
 //
 export class Guthub
 {
-    constructor(sha1, FS, diff3, cache_dir, print)
+    constructor(sha1, FS, diff, diff3prog, cache_dir, print)
     {
         this.retry_delay_seconds = 2;
         this.auth_token = '';
@@ -14,8 +14,11 @@ export class Guthub
         this.FS = FS;
         this.cache_dir = cache_dir;
         this.github_contents = '.git/githubapicontents.json';
-        this.diff3 = diff3;
+        this.diff = diff;
+        this.diff3prog = diff3prog;
         this.sha1 = sha1;
+        this.ours_to_parent_diff = '/tmp/ours_to_parent.diff';
+        this.theirs_to_parent_diff = '/tmp/theirs_to_parent.diff';
     }
 
     github_api_request(https_path, relative_url, method, body)
@@ -42,9 +45,11 @@ export class Guthub
         this.FS.writeFile(repo_path + '/' + this.github_contents, JSON.stringify(repo));
     }
 
-    merge(ours_path, parent_path, theirs_path)
+    merge(ours_path, theirs_path, parent_path)
     {
-        return this.diff3(['--merge', ours_path, parent_path, theirs_path]);
+        this.FS.writeFile(this.ours_to_parent_diff, this.diff(ours_path, parent_path));
+        this.FS.writeFile(this.theirs_to_parent_diff, this.diff(theirs_path, parent_path));
+        this.FS.writeFile(ours_path, this.diff3prog([this.ours_to_parent_diff, this.theirs_to_parent_diff, ours_path, theirs_path, parent_path]));
     }
 
     object_path(file)
@@ -60,12 +65,13 @@ export class Guthub
         this.FS.writeFile(obj_path, contents);
     }
 
-    async pull()
+    async pull(repo_path = '.')
     {
         const https_path = this.read_https_path();
         this.print(`Pulling from '${https_path}'...`);
         
         const prev = this.read_githubcontents();
+        console.log('prev', prev);
         
         const resp = await this.github_api_request(https_path, '/contents');
         const repo = await resp.json();
@@ -83,17 +89,16 @@ export class Guthub
                     this.FS.writeFile(file_path, contents);
                     this.print('new: ' + file_path)
                 }
-                else if(prev_files.length > 0 && prev[0].sha != file.sha) 
+                else if(prev_files.length > 0 && prev_files[0].sha != file.sha) 
                 {
                     const contents = await this.load_file(file.path, file);
                     const theirs_path = this.object_path(file);
                     this.save_object(theirs_path, contents);
 
                     const ours_path = file.path;
-                    const old_file = prev[file.path];
+                    const old_file = prev_files[0];
                     const old_path = this.object_path(old_file);
-                    const merged = this.merge(ours_path, old_path, theirs_path);
-                    this.FS.writeFile(file_path, merged);
+                    this.merge(ours_path, theirs_path, old_path);
                     this.print('merged: ' + file_path);
                 }
             }

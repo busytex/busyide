@@ -6,7 +6,7 @@
 //
 export class Guthub
 {
-    constructor(sha1, FS, cache_dir, diff, diff3prog, ed, print)
+    constructor(sha1, FS, cache_dir, merge, print)
     {
         this.retry_delay_seconds = 2;
         this.auth_token = '';
@@ -14,9 +14,7 @@ export class Guthub
         this.FS = FS;
         this.cache_dir = cache_dir;
         this.github_contents = '.git/githubapicontents.json';
-        this.diff = diff;
-        this.diff3prog = diff3prog;
-        this.ed = ed;
+        this.merge = merge;
         this.sha1 = sha1;
         this.df13_diff = '/tmp/df13.diff';
         this.df23_diff = '/tmp/df23.diff';
@@ -45,15 +43,6 @@ export class Guthub
     save_githubcontents(repo_path, repo)
     {
         this.FS.writeFile(repo_path + '/' + this.github_contents, JSON.stringify(repo));
-    }
-
-    merge(ours_path, theirs_path, parent_path)
-    {
-        const [f1, f2, f3] = [ours_path, parent_path, theirs_path];
-        this.FS.writeFile(this.df13_diff, this.diff(f1, f3));
-        this.FS.writeFile(this.df23_diff, this.diff(f2, f3));
-        const edscript = this.diff3prog('-E', this.df13_diff, this.df23_diff, f1, f2, f3) + 'w';
-        this.ed(f1, edscript)
     }
 
     object_path(file)

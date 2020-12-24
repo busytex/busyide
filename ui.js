@@ -291,7 +291,7 @@ export class Shell
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        this.guthub = new Guthub(sha1, this.FS, this.cache_dir, (...args) => this.busybox.run(['bsddiff', ...args]).stdout_, (...args) => this.busybox.run(['bsddiff3prog', ...args]).stdout_, (path, stdin) => this.busybox.run(['ed', path], stdin).stdout_, this.log.bind(this));
+        this.guthub = new Guthub(sha1, this.FS, this.cache_dir, this.merge.bind(this), this.log.bind(this));
         await this.load_cache();
         if(this.ui.github_https_path.value.length > 0)
         {
@@ -547,6 +547,15 @@ export class Shell
         await this.save_cache();
         this.ui.set_route('github', https_path);
         return repo_path;
+    }
+    
+    merge(ours_path, theirs_path, parent_path, df13_diff = '/tmp/df13.diff', df23_diff = '/tmp/df23.diff')
+    {
+        const [f1, f2, f3] = [ours_path, parent_path, theirs_path];
+        this.FS.writeFile(df13_diff, this.busybox.run(['bsddiff', f1, f3]).stdout_);
+        this.FS.writeFile(df23_diff, this.busybox.run(['bsddiff', f2, f3]).stdout_);
+        const edscript = this.busybox.run(['bsddiff3prog', '-E', df13_diff, df23_diff, f1, f2, f3]).stdout_ + 'w';
+        this.busybox.run(['ed', ours_path], edscript);
     }
 }
 

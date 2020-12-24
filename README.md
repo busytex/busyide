@@ -37,6 +37,8 @@
 
 ### Links
 
+http://www.jpeek.com/articles/linuxmag/2007-06/
+
 https://github.com/BlueMagnificent/monaco-tree
 
 https://swimburger.net/blog/dotnet/how-to-deploy-aspnet-blazor-webassembly-to-github-pages

@@ -23,6 +23,8 @@ export class Shell
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['nanozip', 'diff3', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'whoami', 'wc', 'cat', 'head'];
+        this.shell_builtins =  ['man', 'help', 'open', 'save', 'download', 'cd', 'purge', 'latexmk', 'status', 'clone', 'push', 'pull'];
+        this.shell_commands = this.shell_builtins.concat(this.busybox_applets).sort();
         this.tic_ = 0;
         this.FS = null;
         this.PATH = null;
@@ -139,8 +141,71 @@ export class Shell
         return this.terminal.write('\x1B[1;3;31mbusytex\x1B[0m:' + this.pwd(true) + '$ ');
     }
 
+    async shell(current_terminal_line)
+    {
+        for(let cmdline of current_terminal_line.split('&&'))
+        {
+            let print_or_dump = str => this.terminal_print(str);
+            let redirect_or_output = null;
+
+            if(cmdline.includes('>'))
+            {
+                [cmdline, redirect_or_output] = cmdline.split('>');
+                print_or_dump = str => this.FS.writeFile(redirect_or_output.trim(), str);
+            }
+
+            let [cmd, ...args] = cmdline.trim().split(' ');
+            
+            args = args.map(a => this.expandcollapseuser(a));
+            
+            try
+            {
+                if (cmd == '')
+                {
+                }
+                else if(cmd == 'cd')
+                    this.cd(args[0]);
+                else if(cmd == 'clear')
+                    this.clear();
+                else if(this.busybox_applets.includes(cmd))
+                    print_or_dump(this.busybox.run([cmd, ...args]).stdout);
+                else if(cmd == 'man')
+                    this.man();
+                else if(cmd == 'share')
+                    print_or_dump(this.share(...args));
+                else if(cmd == 'help')
+                    this.terminal_print(this.shell_commands.join('\t'));
+                else if(cmd == 'download')
+                    this.download(...args);
+                else if(cmd == 'upload')
+                    this.terminal_print(await this.upload(args[0]));
+                else if(cmd == 'latexmk')
+                    await this.latexmk(...args);
+                else if(cmd == 'clone')
+                    await this.clone(...args);
+                else if(cmd == 'pull')
+                    await this.guthub.pull();
+                else if(cmd == 'open')
+                    this.open(...args);
+                else if(cmd == 'status')
+                    await this.guthub.status(this.ls_R('.', '', true, true, false, false));
+                else if(cmd == 'save')
+                    this.save(args[0], this.editor.getModel().getValue());
+                else if(cmd == 'purge')
+                    await this.purge_cache();
+                else
+                    this.terminal_print(cmd + ': command not found');
+            }
+            catch(err)
+            {
+                this.terminal_print('Error: ' + err.message);
+            }
+        }
+    }
+
     async onkey(key, ev, cr_key_code = 13, bs_key_code = 8)
     {
+        console.log('onkey ev.key', ev.key);
         if(ev.keyCode == bs_key_code)
         {
             if(this.current_terminal_line.length > 0)
@@ -152,65 +217,7 @@ export class Shell
         else if(ev.keyCode == cr_key_code)
         {
             this.terminal_print();
-
-            for(let cmdline of this.current_terminal_line.split('&&'))
-            {
-                let print_or_dump = str => this.terminal_print(str);
-                let redirect_or_output = null;
-
-                if(cmdline.includes('>'))
-                {
-                    [cmdline, redirect_or_output] = cmdline.split('>');
-                    print_or_dump = str => this.FS.writeFile(redirect_or_output.trim(), str);
-                }
-
-                let [cmd, ...args] = cmdline.trim().split(' ');
-                
-                args = args.map(a => this.expandcollapseuser(a));
-                
-                try
-                {
-                    if (cmd == '')
-                    {
-                    }
-                    else if(cmd == 'cd')
-                        this.cd(args[0]);
-                    else if(cmd == 'clear')
-                        this.clear();
-                    else if(this.busybox_applets.includes(cmd))
-                        print_or_dump(this.busybox.run([cmd, ...args]).stdout);
-                    else if(cmd == 'man')
-                        this.man();
-                    else if(cmd == 'share')
-                        print_or_dump(this.share(...args));
-                    else if(cmd == 'help')
-                        this.terminal_print(this.help().join('\t'));
-                    else if(cmd == 'download')
-                        this.download(...args);
-                    else if(cmd == 'upload')
-                        this.terminal_print(await this.upload(args[0]));
-                    else if(cmd == 'latexmk')
-                        await this.latexmk(...args);
-                    else if(cmd == 'clone')
-                        await this.clone(...args);
-                    else if(cmd == 'pull')
-                        await this.guthub.pull();
-                    else if(cmd == 'open')
-                        this.open(...args);
-                    else if(cmd == 'status')
-                        await this.guthub.status(this.ls_R('.', '', true, true, false, false));
-                    else if(cmd == 'save')
-                        this.save(args[0], this.editor.getModel().getValue());
-                    else if(cmd == 'purge')
-                        await this.purge_cache();
-                    else
-                        this.terminal_print(cmd + ': command not found');
-                }
-                catch(err)
-                {
-                    this.terminal_print('Error: ' + err.message);
-                }
-            }
+            await this.shell(this.current_terminal_line);
             this.terminal_prompt();
             this.current_terminal_line = '';
         }
@@ -284,7 +291,7 @@ export class Shell
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        this.guthub = new Guthub(sha1, this.FS, (ours, theirs) => this.busybox.run(['diff', ours, theirs]).stdout, (...args) => this.busybox.run(['diff3prog', ...args]).stdout, this.cache_dir, this.log.bind(this));
+        this.guthub = new Guthub(sha1, this.FS, this.cache_dir, (...args) => this.busybox.run(['bsddiff', ...args]).stdout_, (...args) => this.busybox.run(['bsddiff3prog', ...args]).stdout_, (path, stdin) => this.busybox.run(['ed', path], stdin).stdout_, this.log.bind(this));
         await this.load_cache();
         if(this.ui.github_https_path.value.length > 0)
         {
@@ -336,19 +343,22 @@ export class Shell
             [this.ui.imgpreview.hidden, this.ui.pdfpreview.hidden, this.ui.txtpreview.hidden] = [true, true, false];
             return;
         }
-        
-        if(this.FS.analyzePath(file_path).exists && this.FS.isDir(this.FS.lookupPath(file_path).node.mode))
+        else if(file_path != null)
         {
-            const files = this.ls_R(file_path, '', false).filter(f => f.path.endsWith('.tex') && f.contents != null);
-            let default_path = null;
-            if(files.length == 1)
-                default_path = files[0].path;
-            else if(files.length > 1)
+            file_path = this.expandcollapseuser(file_path);
+            if(file_path != null && this.FS.analyzePath(file_path).exists && this.FS.isDir(this.FS.lookupPath(file_path).node.mode))
             {
-                const main_files = files.filter(f => f.path.includes('main'));
-                default_path = main_files.length > 0 ? main_files[0].path : files[0].path;
+                const files = this.ls_R(file_path, '', false).filter(f => f.path.endsWith('.tex') && f.contents != null);
+                let default_path = null;
+                if(files.length == 1)
+                    default_path = files[0].path;
+                else if(files.length > 1)
+                {
+                    const main_files = files.filter(f => f.path.includes('main'));
+                    default_path = main_files.length > 0 ? main_files[0].path : files[0].path;
+                }
+                file_path = default_path != null ? this.PATH.join2(file_path, default_path) : null;
             }
-            file_path = default_path != null ? this.PATH.join2(file_path, default_path) : null;
         }
 
         if(file_path == null && contents == null)
@@ -397,10 +407,6 @@ export class Shell
         this.open(this.readme_tex, this.readme);
     }
 
-    help()
-    {
-        return ['man', 'help', 'open', 'save', 'download', 'cd', 'purge', 'latexmk', 'status', 'clone', 'push', 'pull'].concat(this.busybox_applets).sort();
-    }
     
     share(project_dir)
     {

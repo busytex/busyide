@@ -21,10 +21,11 @@ export class Shell
         this.tex_path = '';
         this.zip_path = '/tmp/archive.zip';
         this.current_terminal_line = '';
-        this.text_extensions = ['.tex', '.bib', '.txt', '.svg', '.sh', '.py', '.csv'];
+        this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['nanozip', 'diff3', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'whoami', 'wc', 'cat', 'head'];
-        this.shell_builtins =  ['man', 'help', 'open', 'save', 'download', 'cd', 'purge', 'latexmk', 'status', 'clone', 'push', 'pull'];
-        this.shell_commands = this.shell_builtins.concat(this.busybox_applets).sort();
+        this.shell_builtins =  ['man', 'help', 'open', 'save', 'download', 'cd', 'purge', 'latexmk', 'git'];
+        this.git_applets = ['clone', 'pull', 'status'];
+        this.shell_commands = this.shell_builtins.concat(this.busybox_applets).concat(this.git_applets.map(cmd => 'git ' + cmd)).sort();
         this.tic_ = 0;
         this.FS = null;
         this.PATH = null;
@@ -45,7 +46,7 @@ export class Shell
         const arg = path => this.expandcollapseuser(path, false);
         const chain = (...cmds) => cmds.join(' && ');
 
-        this.ui.clone.onclick = () => this.commands(chain('cd', cmd('clone', ui.github_https_path.value), cmd('open', this.PATH.join2('~', this.PATH.basename(ui.github_https_path.value))), cmd('cd', this.PATH.basename(ui.github_https_path.value))));
+        this.ui.clone.onclick = () => this.commands(chain('cd', cmd('git', 'clone', ui.github_https_path.value), cmd('open', this.PATH.join2('~', this.PATH.basename(ui.github_https_path.value))), cmd('cd', this.PATH.basename(ui.github_https_path.value))));
         this.ui.download_pdf.onclick = () => this.commands(cmd('download', arg(this.pdf_path)));
         this.ui.view_log.onclick = () => this.commands(cmd('open', arg(this.log_path)));
         this.ui.view_pdf.onclick = () => this.commands(cmd('open', arg(this.pdf_path)));
@@ -163,36 +164,22 @@ export class Shell
                 if (cmd == '')
                 {
                 }
-                else if(cmd == 'cd')
-                    this.cd(args[0]);
-                else if(cmd == 'clear')
-                    this.clear();
                 else if(this.busybox_applets.includes(cmd))
                     print_or_dump(this.busybox.run([cmd, ...args]).stdout);
-                else if(cmd == 'man')
-                    this.man();
+                else if(cmd == 'git' && args.length == 0)
+                    this.terminal_print(this.git_applets.join('\t'));
+                else if(cmd == 'git' && args.length > 0 && this.git_applets.includes(args[0]))
+                    await this['git_' + args[0]](...args.slice(1));
                 else if(cmd == 'share')
                     print_or_dump(this.share(...args));
                 else if(cmd == 'help')
-                    this.terminal_print(this.shell_commands.join('\t'));
-                else if(cmd == 'download')
-                    this.download(...args);
+                    print_or_dump(this.shell_commands.join('\t'));
                 else if(cmd == 'upload')
-                    this.terminal_print(await this.upload(args[0]));
-                else if(cmd == 'latexmk')
-                    await this.latexmk(...args);
-                else if(cmd == 'clone')
-                    await this.clone(...args);
-                else if(cmd == 'pull')
-                    await this.guthub.pull();
-                else if(cmd == 'open')
-                    this.open(...args);
-                else if(cmd == 'status')
-                    await this.guthub.status(this.ls_R('.', '', true, true, false, false));
+                    print_or_dump(await this.upload(args[0]));
                 else if(cmd == 'save')
                     this.save(args[0], this.editor.getModel().getValue());
-                else if(cmd == 'purge')
-                    await this.purge_cache();
+                else if(this.shell_builtins.includes(cmd))
+                    await this[cmd](...args);
                 else
                     this.terminal_print(cmd + ': command not found');
             }
@@ -202,11 +189,31 @@ export class Shell
             }
         }
     }
-
-    async onkey(key, ev, cr_key_code = 13, bs_key_code = 8)
+    
+    async git_clone(https_path)
     {
-        console.log('onkey ev.key', ev.key);
-        if(ev.keyCode == bs_key_code)
+        const repo_path = https_path.split('/').pop();
+        this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
+        this.log_reset();
+        await this.guthub.clone(this.ui.github_token.value, https_path, repo_path);
+        await this.save_cache();
+        this.ui.set_route('github', https_path);
+        return repo_path;
+    }
+
+    git_status()
+    {
+       return this.guthub.status(this.ls_R('.', '', true, true, false, false));
+    }
+
+    git_pull()
+    {
+        return this.guthub.pull();
+    }
+
+    async onkey(key, ev)
+    {
+        if(ev.key == 'Backspace')
         {
             if(this.current_terminal_line.length > 0)
             {
@@ -214,7 +221,7 @@ export class Shell
                 this.terminal.write('\b \b');
             }
         }
-        else if(ev.keyCode == cr_key_code)
+        else if(ev.key == 'Enter')
         {
             this.terminal_print();
             await this.shell(this.current_terminal_line);
@@ -295,7 +302,7 @@ export class Shell
         await this.load_cache();
         if(this.ui.github_https_path.value.length > 0)
         {
-            const project_dir = await this.clone(this.ui.github_https_path.value);
+            const project_dir = await this.git_clone(this.ui.github_https_path.value);
             this.open(project_dir);
             this.cd(project_dir, true);
         }
@@ -536,17 +543,6 @@ export class Shell
         mime = mime || 'application/octet-stream';
         let content = this.FS.readFile(file_path);
         this.ui.create_and_click_download_link(this.PATH.basename(file_path), content, mime);
-    }
-    
-    async clone(https_path)
-    {
-        const repo_path = https_path.split('/').pop();
-        this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
-        this.log_reset();
-        await this.guthub.clone(this.ui.github_token.value, https_path, repo_path);
-        await this.save_cache();
-        this.ui.set_route('github', https_path);
-        return repo_path;
     }
     
     merge(ours_path, theirs_path, parent_path, df13_diff = '/tmp/df13.diff', df23_diff = '/tmp/df23.diff')

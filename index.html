@@ -273,8 +273,12 @@ const ui =
         const hash = window.location.hash.length > 0 ? window.location.hash.substring(1) : '';
         const route_parts = hash.split('/');
         return route_parts.length > 1 ? [route_parts[0], route_parts.slice(1).join('/')] : route_parts;
+    },
+
+    toggle_viewer(mode)
+    {
+        [ui.imgpreview.hidden, ui.pdfpreview.hidden, ui.txtpreview.hidden] = [mode != 'image', mode != 'pdf', mode != 'text'];
     }
-    
 };
   
 const paths = 

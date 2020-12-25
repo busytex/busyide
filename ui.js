@@ -199,7 +199,7 @@ export class Shell
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        this.guthub = new Guthub(sha1, this.FS, this.cache_dir, this.merge.bind(this), this.log_small.bind(this));
+        this.guthub = new Guthub(sha1, this.FS, this.cache_dir, this.merge.bind(this), this.log_big.bind(this));
         await this.load_cache();
         if(this.ui.github_https_path.value.length > 0)
         {
@@ -237,9 +237,10 @@ export class Shell
     
     async git_clone(https_path)
     {
+        this.ui.toggle_viewer('text'); this.log_big(this.ansi_reset_sequence);
+        
         const repo_path = https_path.split('/').pop();
         this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
-        this.log_small(this.ansi_reset_sequence);
         await this.guthub.clone(this.ui.github_token.value, https_path, repo_path);
         await this.save_cache();
         this.ui.set_route('github', https_path);
@@ -248,11 +249,15 @@ export class Shell
 
     git_status()
     {
-       return this.guthub.status(this.ls_R('.', '', true, true, false, false));
+        this.ui.toggle_viewer('text'); this.log_big(this.ansi_reset_sequence);
+        
+        return this.guthub.status(this.ls_R('.', '', true, true, false, false));
     }
 
     git_pull()
     {
+        this.ui.toggle_viewer('text'); this.log_big(this.ansi_reset_sequence);
+        
         return this.guthub.pull();
     }
 
@@ -328,7 +333,7 @@ export class Shell
             this.ui.txtpreview.value = '';
             this.ui.set_current_file('');
             this.editor.getModel().setValue('');
-            [this.ui.imgpreview.hidden, this.ui.pdfpreview.hidden, this.ui.txtpreview.hidden] = [true, true, false];
+            this.ui.toggle_viewer('text');
             return;
         }
         else if(file_path != null)
@@ -362,23 +367,23 @@ export class Shell
             if(file_path.endsWith('.log'))
             {
                 this.ui.txtpreview.value = contents;
-                [this.ui.imgpreview.hidden, this.ui.pdfpreview.hidden, this.ui.txtpreview.hidden] = [true, true, false];
+                this.ui.toggle_viewer('text');
             }
             else if(file_path.endsWith('.svg'))
             {
                 this.ui.imgpreview.src = 'data:image/svg+xml;base64,' + btoa(String.fromCharCode.apply(null, contents));
-                [this.ui.imgpreview.hidden, this.ui.pdfpreview.hidden, this.ui.txtpreview.hidden] = [false, true, true];
+                this.ui.toggle_viewer('image');
             }
             else if(file_path.endsWith('.png') || file_path.endsWith('.jpg'))
             {
                 const ext = file_path.endsWith('.png') ? 'png' : 'jpg';
                 this.ui.imgpreview.src = `data:image/${ext};base64,` + btoa(String.fromCharCode.apply(null, contents));
-                [this.ui.imgpreview.hidden, this.ui.pdfpreview.hidden, this.ui.txtpreview.hidden] = [false, true, true];
+                this.ui.toggle_viewer('image');
             }
             else if(file_path.endsWith('.pdf'))
             {
                 this.ui.pdfpreview.src = URL.createObjectURL(new Blob([contents], {type: 'application/pdf'}));
-                [this.ui.imgpreview.hidden, this.ui.pdfpreview.hidden, this.ui.txtpreview.hidden] = [true, false, true];
+                this.ui.toggle_viewer('pdf');
             }
         }
         else

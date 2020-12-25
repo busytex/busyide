@@ -69,21 +69,26 @@ export class Shell
 		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, this.ui.compile.onclick);
     }
 
+    tic()
+    {
+        this.tic_ = performance.now();
+    }
+
+    toc()
+    {
+        if(this.tic_ > 0)
+        {
+            const elapsed = (performance.now() - this.tic_) / 1000.0;
+            this.log_small(`Elapsed time: ${elapsed.toFixed(2)} sec`);
+            this.tic_ = 0.0;
+        }
+    }
+
     async type(cmd, cr_key_code = 13)
     {
         for(const c of cmd)
             await this.onkey(c, {keyCode : null});
         await this.onkey('', {keyCode : cr_key_code});
-    }
-    
-    async commands(...cmds)
-    {
-        this.old_terminal_line = this.current_terminal_line;
-        this.current_terminal_line = '';
-        this.terminal.write('\b'.repeat(this.old_terminal_line.length));
-        for(const cmd of cmds)
-            await this.type(cmd);
-        this.terminal.write(this.old_terminal_line);
     }
 
     terminal_print(line, newline = '\r\n')
@@ -95,7 +100,7 @@ export class Shell
     {
         return this.terminal.write('\x1B[1;3;31mbusytex\x1B[0m:' + this.pwd(true) + '$ ');
     }
-
+    
     async onkey(key, ev)
     {
         if(ev.key == 'Backspace')
@@ -118,6 +123,16 @@ export class Shell
             this.current_terminal_line += key;
             this.terminal.write(key);
         }
+    }
+    
+    async commands(...cmds)
+    {
+        this.old_terminal_line = this.current_terminal_line;
+        this.current_terminal_line = '';
+        this.terminal.write('\b'.repeat(this.old_terminal_line.length));
+        for(const cmd of cmds)
+            await this.type(cmd);
+        this.terminal.write(this.old_terminal_line);
     }
 
     async shell(current_terminal_line)
@@ -290,21 +305,6 @@ export class Shell
         if(print)
         {
             this.log_small(print);
-        }
-    }
-
-    tic()
-    {
-        this.tic_ = performance.now();
-    }
-
-    toc()
-    {
-        if(this.tic_ > 0)
-        {
-            const elapsed = (performance.now() - this.tic_) / 1000.0;
-            this.log_small(`Elapsed time: ${elapsed.toFixed(2)} sec`);
-            this.tic_ = 0.0;
         }
     }
 

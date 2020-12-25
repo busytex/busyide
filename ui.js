@@ -35,12 +35,14 @@ export class Shell
         this.ui = ui;
         this.paths = paths;
         this.compiler = new Worker(paths.busytex_worker_js);
-        this.log = this.ui.log;
+        this.log_small = this.ui.log_small;
+        this.log_big = this.ui.log_big;
         this.readme = readme;
         this.busybox = null;
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.on('key', this.onkey.bind(this));
+        this.ansi_reset_sequence = '\x1bc';
 
         const cmd = (...parts) => parts.join(' ');
         const arg = path => this.expandcollapseuser(path, false);
@@ -67,12 +69,6 @@ export class Shell
 		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, this.ui.compile.onclick);
     }
 
-
-    log_reset(ansi_reset_sequence = '\x1bc')
-    {
-        this.log(ansi_reset_sequence);
-    }
-
     async type(cmd, cr_key_code = 13)
     {
         for(const c of cmd)
@@ -90,48 +86,6 @@ export class Shell
         this.terminal.write(this.old_terminal_line);
     }
 
-    async purge_cache()
-    {
-        const cached_files = this.FS.readdir(this.cache_dir);
-        for(const file_name of cached_files)
-            if(file_name != '.' && file_name != '..')
-                this.FS.unlink(this.cache_dir + '/' + file_name);
-        await this.save_cache();
-    }
-
-    project_dir(four = '/home/web_user/proj'.split('/').length)
-    {
-        const cwd = this.PATH.dirname(this.tex_path)
-        const project_dir = cwd.split('/').slice(0, four).join('/');
-        return project_dir;
-    }
-
-    project_tmp_dir()
-    {
-        return this.project_dir().replace(this.home_dir, this.tmp_dir);
-    }
-
-    serialize_project(project_dir)
-    {
-        //TODO: filter out artefacts
-        return btoa(JSON.stringify(this.ls_R(project_dir)));
-    }
-
-    deserialize_project(project_str)
-    {
-        return JSON.parse(atob(project_str));
-    }
-
-    async load_cache()
-    {
-        return new Promise((resolve, reject) => this.FS.syncfs(true, x => x == null ? resolve(true) : reject(false)));
-    }
-    
-    async save_cache()
-    {
-        return new Promise((resolve, reject) => this.FS.syncfs(false, x => x == null ? resolve(true) : reject(false)));
-    }
-
     terminal_print(line, newline = '\r\n')
     {
         this.terminal.write((line || '') + newline);
@@ -140,6 +94,30 @@ export class Shell
     terminal_prompt()
     {
         return this.terminal.write('\x1B[1;3;31mbusytex\x1B[0m:' + this.pwd(true) + '$ ');
+    }
+
+    async onkey(key, ev)
+    {
+        if(ev.key == 'Backspace')
+        {
+            if(this.current_terminal_line.length > 0)
+            {
+                this.current_terminal_line = this.current_terminal_line.slice(0, this.current_terminal_line.length - 1);
+                this.terminal.write('\b \b');
+            }
+        }
+        else if(ev.key == 'Enter')
+        {
+            this.terminal_print();
+            await this.shell(this.current_terminal_line);
+            this.terminal_prompt();
+            this.current_terminal_line = '';
+        }
+        else
+        {
+            this.current_terminal_line += key;
+            this.terminal.write(key);
+        }
     }
 
     async shell(current_terminal_line)
@@ -189,98 +167,6 @@ export class Shell
             }
         }
     }
-    
-    async git_clone(https_path)
-    {
-        const repo_path = https_path.split('/').pop();
-        this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
-        this.log_reset();
-        await this.guthub.clone(this.ui.github_token.value, https_path, repo_path);
-        await this.save_cache();
-        this.ui.set_route('github', https_path);
-        return repo_path;
-    }
-
-    git_status()
-    {
-       return this.guthub.status(this.ls_R('.', '', true, true, false, false));
-    }
-
-    git_pull()
-    {
-        return this.guthub.pull();
-    }
-
-    async onkey(key, ev)
-    {
-        if(ev.key == 'Backspace')
-        {
-            if(this.current_terminal_line.length > 0)
-            {
-                this.current_terminal_line = this.current_terminal_line.slice(0, this.current_terminal_line.length - 1);
-                this.terminal.write('\b \b');
-            }
-        }
-        else if(ev.key == 'Enter')
-        {
-            this.terminal_print();
-            await this.shell(this.current_terminal_line);
-            this.terminal_prompt();
-            this.current_terminal_line = '';
-        }
-        else
-        {
-            this.current_terminal_line += key;
-            this.terminal.write(key);
-        }
-    }
-
-    oncompilermessage(e)
-    {
-        const {pdf, log, print} = e.data;
-        if(pdf)
-        {
-            this.toc();
-            this.mkdir_p(this.PATH.dirname(this.pdf_path));
-            this.FS.writeFile(this.pdf_path, pdf);
-            this.open(this.pdf_path, pdf);
-        }
-        if(log)
-        {
-            this.toc();
-            this.mkdir_p(this.PATH.dirname(this.log_path));
-            this.FS.writeFile(this.log_path, log);
-        }
-        if(print)
-        {
-            this.log(print);
-        }
-    }
-
-    tic()
-    {
-        this.tic_ = performance.now();
-    }
-
-    toc()
-    {
-        if(this.tic_ > 0)
-        {
-            const elapsed = (performance.now() - this.tic_) / 1000.0;
-            this.log(`Elapsed time: ${elapsed.toFixed(2)} sec`);
-            this.tic_ = 0.0;
-        }
-    }
-    
-    mkdir_p(dirpath, dirs = new Set(['/']))
-    {
-        if(!dirs.has(dirpath) && !this.FS.analyzePath(dirpath).exists)
-        {
-            this.mkdir_p(this.PATH.dirname(dirpath), dirs);
-            this.FS.mkdir(dirpath);
-            dirs.add(dirpath);
-        }
-    };
 
     async run(route, busybox_module_constructor, busybox_wasm_module_promise, sha1)
     {
@@ -288,7 +174,7 @@ export class Shell
             this.ui.github_https_path.value = route[1];
        
         this.compiler.postMessage(this.paths);
-        this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, this.log.bind(this));
+        this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, this.log_small.bind(this));
         await this.busybox.load()
         
         this.PATH = this.busybox.Module.PATH;
@@ -298,7 +184,7 @@ export class Shell
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        this.guthub = new Guthub(sha1, this.FS, this.cache_dir, this.merge.bind(this), this.log.bind(this));
+        this.guthub = new Guthub(sha1, this.FS, this.cache_dir, this.merge.bind(this), this.log_small.bind(this));
         await this.load_cache();
         if(this.ui.github_https_path.value.length > 0)
         {
@@ -333,10 +219,105 @@ export class Shell
         
         this.terminal_prompt();
     }
-
-    mv(src_file_path, dst_file_path)
+    
+    async git_clone(https_path)
     {
+        const repo_path = https_path.split('/').pop();
+        this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
+        this.log_small(this.ansi_reset_sequence);
+        await this.guthub.clone(this.ui.github_token.value, https_path, repo_path);
+        await this.save_cache();
+        this.ui.set_route('github', https_path);
+        return repo_path;
+    }
 
+    git_status()
+    {
+       return this.guthub.status(this.ls_R('.', '', true, true, false, false));
+    }
+
+    git_pull()
+    {
+        return this.guthub.pull();
+    }
+
+    serialize_project(project_dir)
+    {
+        //TODO: filter out artefacts
+        return btoa(JSON.stringify(this.ls_R(project_dir)));
+    }
+
+    deserialize_project(project_str)
+    {
+        return JSON.parse(atob(project_str));
+    }
+
+    async load_cache()
+    {
+        return new Promise((resolve, reject) => this.FS.syncfs(true, x => x == null ? resolve(true) : reject(false)));
+    }
+    
+    async save_cache()
+    {
+        return new Promise((resolve, reject) => this.FS.syncfs(false, x => x == null ? resolve(true) : reject(false)));
+    }
+
+    async purge_cache()
+    {
+        const cached_files = this.FS.readdir(this.cache_dir);
+        for(const file_name of cached_files)
+            if(file_name != '.' && file_name != '..')
+                this.FS.unlink(this.cache_dir + '/' + file_name);
+        await this.save_cache();
+    }
+
+    oncompilermessage(e)
+    {
+        const {pdf, log, print} = e.data;
+        if(pdf)
+        {
+            this.toc();
+            this.mkdir_p(this.PATH.dirname(this.pdf_path));
+            this.FS.writeFile(this.pdf_path, pdf);
+            this.open(this.pdf_path, pdf);
+        }
+        if(log)
+        {
+            this.toc();
+            this.mkdir_p(this.PATH.dirname(this.log_path));
+            this.FS.writeFile(this.log_path, log);
+        }
+        if(print)
+        {
+            this.log_small(print);
+        }
+    }
+
+    tic()
+    {
+        this.tic_ = performance.now();
+    }
+
+    toc()
+    {
+        if(this.tic_ > 0)
+        {
+            const elapsed = (performance.now() - this.tic_) / 1000.0;
+            this.log_small(`Elapsed time: ${elapsed.toFixed(2)} sec`);
+            this.tic_ = 0.0;
+        }
+    }
+
+    project_dir(four = '/home/web_user/proj'.split('/').length)
+    {
+        const cwd = this.PATH.dirname(this.tex_path)
+        const project_dir = cwd.split('/').slice(0, four).join('/');
+        return project_dir;
+    }
+
+    project_tmp_dir()
+    {
+        return this.project_dir().replace(this.home_dir, this.tmp_dir);
     }
 
     open(file_path, contents)
@@ -408,12 +389,16 @@ export class Shell
         }
     }
 
+    save(file_path, contents)
+    {
+        this.FS.writeFile(file_path, contents);
+    }
+
     man()
     {
         this.cd(this.readme_dir, true);
         this.open(this.readme_tex, this.readme);
     }
-
     
     share(project_dir)
     {
@@ -425,68 +410,10 @@ export class Shell
     {
         return this.busybox.run(['nanozip', '-r', '-x', '.git', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, project_dir]).stdout;
     }
-
-    save(file_path, contents)
-    {
-        this.FS.writeFile(file_path, contents);
-    }
-
-    pwd(replace_home)
-    {
-        const cwd = this.FS ? this.FS.cwd() : this.home_dir;
-        return replace_home == true ? cwd.replace(this.home_dir, '~') : cwd;    
-    }
     
     clear(ansi_clear_sequence = '\x1b[H\x1b[J')
     {
-        this.terminal.write('\x1bc');
-    }
-
-    expandcollapseuser(path, expand = true)
-    {
-        return expand ? path.replace('~', this.home_dir) : path.replace(this.home_dir, '~');
-    }
-
-    cd(path, update_file_tree = true)
-    {
-        if(path == '-')
-            path = this.OLDPWD;
-
-        this.OLDPWD = this.FS.cwd();
-        this.FS.chdir(this.expandcollapseuser(path || '~'));
-        if(update_file_tree)
-            this.ui.update_file_tree(this.ls_R('.', this.pwd(true), false, true, true));
-    }
-
-    ls_R(root = '.', relative_dir_path = '', recurse = true, preserve_directories = false, include_parent_directories = false, read_contents_as_string = true, exclude = ['.git'])
-    {
-        let entries = [];
-        if(include_parent_directories)
-        {
-            entries.push({path : this.PATH.dirname(relative_dir_path || root), name : '..'});
-        }
-        const absolute_dir_path = this.expandcollapseuser(this.PATH.join2(root, relative_dir_path))
-        for(const [name, entry] of Object.entries(this.FS.lookupPath(absolute_dir_path, {parent : false}).node.contents))
-        {
-            const relative_path = relative_dir_path ? this.PATH.join2(relative_dir_path, name) : name;
-            const absolute_path = this.expandcollapseuser(this.PATH.join2(root, relative_path));
-            if(entry.isFolder)
-            {
-                if(!exclude.includes(name))
-                {
-                    if(preserve_directories)
-                        entries.push({path : relative_path, name : name});
-                    if(recurse)
-                        entries.push(...this.ls_R(root, relative_path, recurse, preserve_directories, include_parent_directories, read_contents_as_string, exclude));
-                }
-            }
-            else if(absolute_path != this.log_path && absolute_path != this.pdf_path)
-            {
-                entries.push({path : relative_path, name : name, contents : this.FS.readFile(absolute_path, {encoding : read_contents_as_string && this.text_extensions.map(ext => absolute_path.endsWith(ext)).includes(true) ? 'utf8' : 'binary'})});
-            }
-        }
-        console.log(root, entries);
-        return entries;
+        this.terminal.write(this.ansi_reset_sequence);
     }
 
     async latexmk(tex_path)
@@ -552,6 +479,74 @@ export class Shell
         this.FS.writeFile(df23_diff, this.busybox.run(['bsddiff', f2, f3]).stdout_);
         const edscript = this.busybox.run(['bsddiff3prog', '-E', df13_diff, df23_diff, f1, f2, f3]).stdout_ + 'w';
         this.busybox.run(['ed', ours_path], edscript);
+    }
+
+    ls_R(root = '.', relative_dir_path = '', recurse = true, preserve_directories = false, include_parent_directories = false, read_contents_as_string = true, exclude = ['.git'])
+    {
+        let entries = [];
+        if(include_parent_directories)
+        {
+            entries.push({path : this.PATH.dirname(relative_dir_path || root), name : '..'});
+        }
+        const absolute_dir_path = this.expandcollapseuser(this.PATH.join2(root, relative_dir_path))
+        for(const [name, entry] of Object.entries(this.FS.lookupPath(absolute_dir_path, {parent : false}).node.contents))
+        {
+            const relative_path = relative_dir_path ? this.PATH.join2(relative_dir_path, name) : name;
+            const absolute_path = this.expandcollapseuser(this.PATH.join2(root, relative_path));
+            if(entry.isFolder)
+            {
+                if(!exclude.includes(name))
+                {
+                    if(preserve_directories)
+                        entries.push({path : relative_path, name : name});
+                    if(recurse)
+                        entries.push(...this.ls_R(root, relative_path, recurse, preserve_directories, include_parent_directories, read_contents_as_string, exclude));
+                }
+            }
+            else if(absolute_path != this.log_path && absolute_path != this.pdf_path)
+            {
+                entries.push({path : relative_path, name : name, contents : this.FS.readFile(absolute_path, {encoding : read_contents_as_string && this.text_extensions.map(ext => absolute_path.endsWith(ext)).includes(true) ? 'utf8' : 'binary'})});
+            }
+        }
+        console.log(root, entries);
+        return entries;
+    }
+
+    cd(path, update_file_tree = true)
+    {
+        if(path == '-')
+            path = this.OLDPWD;
+
+        this.OLDPWD = this.FS.cwd();
+        this.FS.chdir(this.expandcollapseuser(path || '~'));
+        if(update_file_tree)
+            this.ui.update_file_tree(this.ls_R('.', this.pwd(true), false, true, true));
+    }
+
+    pwd(replace_home)
+    {
+        const cwd = this.FS ? this.FS.cwd() : this.home_dir;
+        return replace_home == true ? cwd.replace(this.home_dir, '~') : cwd;    
+    }
+    
+    expandcollapseuser(path, expand = true)
+    {
+        return expand ? path.replace('~', this.home_dir) : path.replace(this.home_dir, '~');
+    }
+    
+    mkdir_p(dirpath, dirs = new Set(['/']))
+    {
+        if(!dirs.has(dirpath) && !this.FS.analyzePath(dirpath).exists)
+        {
+            this.mkdir_p(this.PATH.dirname(dirpath), dirs);
+            this.FS.mkdir(dirpath);
+            dirs.add(dirpath);
+        }
+    };
+
+    mv(src_file_path, dst_file_path)
+    {
+
     }
 }
 

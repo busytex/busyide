@@ -238,10 +238,21 @@ const ui =
         window.busyshell.editor.layout()
         window.busyshell.terminal.fit()
     },
-    
-    log(text)
+
+    log_big(text)
     {
-        const ansi_reset_sequence = '\x1bc';
+        if(text == ansi_reset_sequence)
+            ui.txtpreview.value = '';
+        else
+        {
+            ui.txtpreview.value += text;
+            ui.txtpreview.value += '\n';
+            ui.txtpreview.scrollTop = ui.txtpreview.scrollHeight;
+        }
+    }
+    
+    log_small(text, ansi_reset_sequence = '\x1bc')
+    {
         if(text == ansi_reset_sequence)
             ui.status.value = '';
         else

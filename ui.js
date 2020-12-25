@@ -84,11 +84,11 @@ export class Shell
         }
     }
 
-    async type(cmd, cr_key_code = 13)
+    async type(cmd)
     {
         for(const c of cmd)
-            await this.onkey(c, {keyCode : null});
-        await this.onkey('', {keyCode : cr_key_code});
+            await this.onkey(c, {key : null});
+        await this.onkey('', {key : 'Enter'});
     }
 
     terminal_print(line, newline = '\r\n')

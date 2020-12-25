@@ -21,6 +21,7 @@
 18. support cors proxy + tar/tar.gz/gz inputs (arxiv paper sources, github tar.gz)
 19. support single file mode from http
 20. Open file when navigating to a directory with a single file
+21. Versions file, preload all media in HTML
 
 ```shell
 # https://github.com/xloem/emterm

@@ -5,7 +5,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>busytex</title>
-    <link rel="stylesheet" href="https://unpkg.com/xterm@3.8.0/dist/xterm.css" />
+    <link rel="preload" href="https://unpkg.com/monaco-editor@0.21.2/min/vs/editor/editor.main.js" />
+    <link rel="preload" href="https://unpkg.com/monaco-editor@latest/min/vs/editor/editor.main.css" />
+    <link rel="preload" href="https://unpkg.com/xterm@3.8.0/dist/xterm.css" />
+    <link rel="preload" href="/monarch_lang.json" />
+    <link rel="preload" href="/monarch_latex.json" />
+    <link rel="preload" href="/monarch_bibtex.json" />
+
     <style>
         body {
             height: 100vh;
@@ -359,6 +365,8 @@ require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist
 });
 
 </script>
+
+<link rel="stylesheet" href="https://unpkg.com/xterm@3.8.0/dist/xterm.css" />
   
 </body>
 </html>

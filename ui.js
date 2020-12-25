@@ -39,10 +39,10 @@ export class Shell
         this.log_big = this.ui.log_big;
         this.readme = readme;
         this.busybox = null;
+        this.terminal_reset_sequence = '\x1bc';
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.on('key', this.onkey.bind(this));
-        this.ansi_reset_sequence = '\x1bc';
 
         const cmd = (...parts) => parts.join(' ');
         const arg = path => this.expandcollapseuser(path, false);
@@ -237,7 +237,7 @@ export class Shell
     
     async git_clone(https_path)
     {
-        this.ui.toggle_viewer('text'); this.log_big(this.ansi_reset_sequence);
+        this.ui.toggle_viewer('text'); this.log_big(this.ui.log_reset_sequence);
         
         const repo_path = https_path.split('/').pop();
         this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
@@ -249,14 +249,14 @@ export class Shell
 
     git_status()
     {
-        this.ui.toggle_viewer('text'); this.log_big(this.ansi_reset_sequence);
+        this.ui.toggle_viewer('text'); this.log_big(this.ui.log_reset_sequence);
         
         return this.guthub.status(this.ls_R('.', '', true, true, false, false));
     }
 
     git_pull()
     {
-        this.ui.toggle_viewer('text'); this.log_big(this.ansi_reset_sequence);
+        this.ui.toggle_viewer('text'); this.log_big(this.ui.log_reset_sequence);
         
         return this.guthub.pull();
     }
@@ -418,7 +418,7 @@ export class Shell
     
     clear(ansi_clear_sequence = '\x1b[H\x1b[J')
     {
-        this.terminal.write(this.ansi_reset_sequence);
+        this.terminal.write(this.terminal_reset_sequence);
     }
 
     async latexmk(tex_path)

@@ -176,7 +176,8 @@ const ui =
     current_file : document.getElementById('current_file'),
     current_file_rename: document.getElementById('current_file_rename'),
     filetree : document.getElementById('filetree'),
-    
+    log_reset_sequence : '\x1bc',
+
     get_current_file()
     {
         return document.getElementById('current_file').textContent;
@@ -241,7 +242,7 @@ const ui =
 
     log_big(text)
     {
-        if(text == ansi_reset_sequence)
+        if(text == ui.log_reset_sequence)
             ui.txtpreview.value = '';
         else
         {
@@ -249,11 +250,11 @@ const ui =
             ui.txtpreview.value += '\n';
             ui.txtpreview.scrollTop = ui.txtpreview.scrollHeight;
         }
-    }
+    },
     
-    log_small(text, ansi_reset_sequence = '\x1bc')
+    log_small(text)
     {
-        if(text == ansi_reset_sequence)
+        if(text == ui.log_reset_sequence)
             ui.status.value = '';
         else
         {

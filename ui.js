@@ -477,13 +477,15 @@ export class Shell
         this.ui.create_and_click_download_link(this.PATH.basename(file_path), content, mime);
     }
     
-    merge(ours_path, theirs_path, parent_path, df13_diff = '/tmp/df13.diff', df23_diff = '/tmp/df23.diff')
+    merge(ours_path, theirs_path, parent_path, df13_diff = '/tmp/df13.diff', df23_diff = '/tmp/df23.diff', conflict_left = '<<<<<<<', conflict_right = '>>>>>>>')
     {
         const [f1, f2, f3] = [ours_path, parent_path, theirs_path];
         this.FS.writeFile(df13_diff, this.busybox.run(['bsddiff', f1, f3]).stdout_);
         this.FS.writeFile(df23_diff, this.busybox.run(['bsddiff', f2, f3]).stdout_);
         const edscript = this.busybox.run(['bsddiff3prog', '-E', df13_diff, df23_diff, f1, f2, f3]).stdout_ + 'w';
         this.busybox.run(['ed', ours_path], edscript);
+        const merged = FS.readFile(ours_path, {encoding : 'utf8'});
+        return merged.includes(conflict_left) && merged.includes(conflict_right);
     }
 
     ls_R(root = '.', relative_dir_path = '', recurse = true, preserve_directories = false, include_parent_directories = false, read_contents_as_string = true, exclude = ['.git'])

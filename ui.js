@@ -42,7 +42,7 @@ export class Shell
         this.terminal_reset_sequence = '\x1bc';
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);
-        this.terminal.on('key', this.onkey.bind(this));
+        this.terminal.onKey(this.onkey.bind(this));
 
         const cmd = (...parts) => parts.join(' ');
         const arg = path => this.expandcollapseuser(path, false);
@@ -87,8 +87,8 @@ export class Shell
     async type(cmd)
     {
         for(const c of cmd)
-            await this.onkey(c, {key : null});
-        await this.onkey('', {key : 'Enter'});
+            await this.onkey({key : c, domEvent: {key : null}});
+        await this.onkey({key : '', domEvent: {key : 'Enter'}});
     }
 
     terminal_print(line, newline = '\r\n')
@@ -101,9 +101,9 @@ export class Shell
         return this.terminal.write('\x1B[1;3;31mbusytex\x1B[0m:' + this.pwd(true) + '$ ');
     }
     
-    async onkey(key, ev)
+    async onkey({key, domEvent})
     {
-        if(ev.key == 'Backspace')
+        if(domEvent.key == 'Backspace')
         {
             if(this.current_terminal_line.length > 0)
             {
@@ -111,7 +111,7 @@ export class Shell
                 this.terminal.write('\b \b');
             }
         }
-        else if(ev.key == 'Enter')
+        else if(domEvent.key == 'Enter')
         {
             this.terminal_print();
             await this.shell(this.current_terminal_line);

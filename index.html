@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>busytex</title>
-    <link rel="stylesheet" href="https://unpkg.com/xterm@3.8.0/dist/xterm.css" />
+    <link rel="stylesheet" href="https://unpkg.com/xterm@4.9.0/css/xterm.css" />
     <link rel="icon" type="image/png" href="logo.png" />
   
     <!--<link rel="preload" href="https://unpkg.com/monaco-editor@latest/min/vs/loader.js" as="script" />
@@ -172,6 +172,75 @@
 
 import { Shell } from '/ui.js'
 
+class FitAddon{
+
+  constructor() {this._terminal = undefined;}
+
+  activate(terminal) {
+    this._terminal = terminal;
+  }
+
+  dispose(){}
+
+  fit(){
+    const dims = this.proposeDimensions();
+    if (!dims || !this._terminal) {
+      return;
+    }
+
+    // TODO: Remove reliance on private API
+    const core = (this._terminal)._core;
+
+    // Force a full render
+    if (this._terminal.rows !== dims.rows || this._terminal.cols !== dims.cols) {
+      core._renderService.clear();
+      this._terminal.resize(dims.cols, dims.rows);
+    }
+  }
+
+  proposeDimensions(){
+    if (!this._terminal) {
+      return undefined;
+    }
+
+    if (!this._terminal.element || !this._terminal.element.parentElement) {
+      return undefined;
+    }
+
+    // TODO: Remove reliance on private API
+    const core = (this._terminal)._core;
+
+    if (core._renderService.dimensions.actualCellWidth === 0 || core._renderService.dimensions.actualCellHeight === 0) {
+      return undefined;
+    }
+
+    const parentElementStyle = window.getComputedStyle(this._terminal.element.parentElement);
+    const parentElementHeight = parseInt(parentElementStyle.getPropertyValue('height'));
+    const parentElementWidth = Math.max(0, parseInt(parentElementStyle.getPropertyValue('width')));
+    const elementStyle = window.getComputedStyle(this._terminal.element);
+    const elementPadding = {
+      top: parseInt(elementStyle.getPropertyValue('padding-top')),
+      bottom: parseInt(elementStyle.getPropertyValue('padding-bottom')),
+      right: parseInt(elementStyle.getPropertyValue('padding-right')),
+      left: parseInt(elementStyle.getPropertyValue('padding-left'))
+    };
+    const elementPaddingVer = elementPadding.top + elementPadding.bottom;
+    const elementPaddingHor = elementPadding.right + elementPadding.left;
+    const availableHeight = parentElementHeight - elementPaddingVer;
+    const availableWidth = parentElementWidth - elementPaddingHor - core.viewport.scrollBarWidth;
+    
+    const MINIMUM_COLS = 2;
+    const MINIMUM_ROWS = 1;
+
+    const geometry = {
+      cols: Math.max(MINIMUM_COLS, Math.floor(availableWidth / core._renderService.dimensions.actualCellWidth)),
+      rows: Math.max(MINIMUM_ROWS, Math.floor(availableHeight / core._renderService.dimensions.actualCellHeight))
+    };
+    return geometry;
+  }
+}
+
+
 const ui =
 {
     imgpreview : document.getElementById('imgpreview'),
@@ -261,7 +330,7 @@ const ui =
     onresize()
     {
         window.busyshell.editor.layout()
-        window.busyshell.terminal.fit()
+        window.busyshell.terminal.fit_addon.fit()
     },
 
     log_big(text)
@@ -320,7 +389,7 @@ const paths =
     bibtex_monarch_json : './monarch_bibtex.json',
     readme_tex : '/readme.tex',
     unpkg_monaco_editor : 'https://unpkg.com/monaco-editor@latest/min/vs',
-    unpkg_xterm : 'https://unpkg.com/xterm@3.8.0/dist'
+    unpkg_xterm : 'https://unpkg.com/xterm@4.9.0/lib'
 };
 
 require.config({ paths: { vs: paths.unpkg_monaco_editor , xterm: paths.unpkg_xterm } });
@@ -357,10 +426,14 @@ function init_editor(monaco, editor_element, lang_monarch, latex_monarch, bibtex
     return monaco.editor.create(editor_element, { theme: 'vs-dark', language : 'latex', minimap: {enabled: false } });
 }
 
-function init_terminal(Terminal, terminal_element, addon)
+function init_terminal(Terminal, terminal_element, FitAddon)
 {
-    Terminal.applyAddon(addon);
-    const terminal = new Terminal();
+    //Terminal.applyAddon(addon);
+    const terminal = new Terminal.Terminal();
+    const fit_addon = new FitAddon();
+    terminal.loadAddon(fit_addon);
+    terminal.fit_addon = fit_addon;
+
     terminal.open(ui.terminal);
     return terminal;
 }
@@ -370,10 +443,11 @@ const monarch_promises = [paths.lang_monarch_json, paths.latex_monarch_json, pat
 const readme_tex_promise = fetch(paths.readme_tex).then(x => x.text());
 const busybox_wasm_module_promise = fetch(paths.busybox_wasm).then(WebAssembly.compileStreaming);
 
-require(['vs/editor/editor.main', 'xterm/xterm', 'xterm/addons/fit/fit', './dist/busybox_unstripped.js', 'sha1'], async (Monaco, Terminal, terminal_addon_fit, busybox_module_constructor, sha1) =>
+//'xterm/addons/fit/fit',
+require(['vs/editor/editor.main', 'xterm/xterm',  './dist/busybox_unstripped.js', 'sha1'], async (Monaco, Terminal, busybox_module_constructor, sha1) =>
 {
     const editor = init_editor(Monaco, ui.editor, ...(await Promise.all(monarch_promises)));
-    const terminal = init_terminal(Terminal, ui.terminal, terminal_addon_fit);
+    const terminal = init_terminal(Terminal, ui.terminal, FitAddon);
     
     window.busyshell = new Shell(ui, paths, await readme_tex_promise, terminal, editor, window.location.origin);
     window.onresize = ui.onresize;

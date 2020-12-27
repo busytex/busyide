@@ -16,8 +16,6 @@ export class Guthub
         this.github_contents = '.git/githubapicontents.json';
         this.merge = merge;
         this.sha1 = sha1;
-        this.df13_diff = '/tmp/df13.diff';
-        this.df23_diff = '/tmp/df23.diff';
     }
 
     github_api_request(https_path, relative_url, method, body)
@@ -81,12 +79,15 @@ export class Guthub
                 {
                     const contents = await this.load_file(file.path, file);
                     this.FS.writeFile(file_path, contents);
-                    this.print('new: ' + file_path)
+                    this.print('deleted: ' + file_path)
                 }
+                
+                else if(prev_files.length > 0 && prev_files[0].sha == file.sha) 
+                  this.print('nothing to merge: ' + file.path);
+                
                 else if(prev_files.length > 0 && prev_files[0].sha != file.sha) 
                 {
                     const ours_path = file.path;
-                    this.print('merging: ' + ours_path);
                     
                     const contents = await this.load_file(file.path, file);
                     const theirs_path = this.object_path(file);
@@ -97,8 +98,6 @@ export class Guthub
                     const conflicted = this.merge(ours_path, theirs_path, old_path);
                     this.print((conflicted ? 'conflicted: ' : 'merged: ') + ours_path);
                 }
-                else
-                  this.print('skipping: ' + file.path);
             }
             else if(file.type == 'dir')
             {

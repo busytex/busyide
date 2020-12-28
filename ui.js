@@ -60,9 +60,30 @@ export class Shell
         this.ui.new_file.onclick = () => this.commands(chain(cmd('echo', this.hello_world, '>', 'newfile.tex'), cmd('open', 'newfile.tex')));
         this.ui.pull.onclick = () => this.commands('pull');
         this.ui.github_https_path.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
-        this.ui.filetree.onchange = ev => this.open(this.ui.filetree.options[this.ui.filetree.selectedIndex].className != 'filetreedirectory' ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : '');
-        this.ui.filetree.ondblclick = ev => this.ui.filetree.options[this.ui.filetree.selectedIndex].className == 'filetreedirectory' ? this.cd(this.ui.filetree.options[this.ui.filetree.selectedIndex].value, true) : null;
-        this.ui.filetree.onkeydown = ev => ev.key == 'Enter' ? this.ui.filetree.ondblclick() : null;
+        this.ui.filetree.onchange = ev => {
+            const option = this.ui.filetree.options[this.ui.filetree.selectedIndex];
+            if(option.className == 'filetreedirectory')
+            {
+                this.open('');
+                if(option.text == '.git')
+                    this.ui.filetree.ondblclick();
+            }
+            else
+                this.open(option.value);
+        }
+        this.ui.filetree.ondblclick = ev => {
+            const option = this.ui.filetree.options[this.ui.filetree.selectedIndex];
+            if(option.className == 'filetreedirectory')
+            {
+                if(option.text == '.git')
+                    this.git_status();
+                else if(option.text == '.')
+                    this.refresh();
+                else
+                    this.cd(option.value, true);
+            }
+        };
+        this.ui.filetree.onkeydown = ev => ev.key == 'Enter' || ev.key == ' ' ? this.ui.filetree.ondblclick() : null;
         this.ui.current_file.onclick = () => this.ui.toggle_current_file_rename();
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value) || this.ui.toggle_current_file_rename()) : ev.key == 'Escape' ? (this.ui.set_current_file(this.ui.get_current_file()) || this.ui.toggle_current_file_rename()) : null;
 		
@@ -234,10 +255,17 @@ export class Shell
         
         this.terminal_prompt();
     }
-    
+   
+    log_big_header(text)
+    {
+        this.ui.toggle_viewer('text');
+        this.log_big(this.ui.log_reset_sequence);
+        this.log_big(text);
+    }
+
     async git_clone(https_path)
     {
-        this.ui.toggle_viewer('text'); this.log_big(this.ui.log_reset_sequence);
+        this.log_big_header('[git clone]'); 
         
         const repo_path = https_path.split('/').pop();
         this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
@@ -249,14 +277,14 @@ export class Shell
 
     git_status()
     {
-        this.ui.toggle_viewer('text'); this.log_big(this.ui.log_reset_sequence);
+        this.log_big_header('[git status]');
         
         return this.guthub.status(this.ls_R('.', '', true, true, false, false));
     }
 
     git_pull()
     {
-        this.ui.toggle_viewer('text'); this.log_big(this.ui.log_reset_sequence);
+        this.log_big_header('[git pull]');
         
         return this.guthub.pull();
     }
@@ -488,11 +516,12 @@ export class Shell
         return merged.includes(conflict_left) && merged.includes(conflict_right);
     }
 
-    ls_R(root = '.', relative_dir_path = '', recurse = true, preserve_directories = false, include_parent_directories = false, read_contents_as_string = true, exclude = ['.git'])
+    ls_R(root = '.', relative_dir_path = '', recurse = true, preserve_directories = false, include_dot_directories = false, read_contents_as_string = true, exclude = ['.git'])
     {
         let entries = [];
-        if(include_parent_directories)
+        if(include_dot_directories)
         {
+            entries.push({path : relative_dir_path || root, name : '.'});
             entries.push({path : this.PATH.dirname(relative_dir_path || root), name : '..'});
         }
         const absolute_dir_path = this.expandcollapseuser(this.PATH.join2(root, relative_dir_path))
@@ -507,7 +536,7 @@ export class Shell
                     if(preserve_directories)
                         entries.push({path : relative_path, name : name});
                     if(recurse)
-                        entries.push(...this.ls_R(root, relative_path, recurse, preserve_directories, include_parent_directories, read_contents_as_string, exclude));
+                        entries.push(...this.ls_R(root, relative_path, recurse, preserve_directories, include_dot_directories, read_contents_as_string, exclude));
                 }
             }
             else if(absolute_path != this.log_path && absolute_path != this.pdf_path)
@@ -519,6 +548,10 @@ export class Shell
         return entries;
     }
 
+    refresh()
+    {
+    }
+
     cd(path, update_file_tree = true)
     {
         if(path == '-')
@@ -527,7 +560,7 @@ export class Shell
         this.OLDPWD = this.FS.cwd();
         this.FS.chdir(this.expandcollapseuser(path || '~'));
         if(update_file_tree)
-            this.ui.update_file_tree(this.ls_R('.', this.pwd(true), false, true, true));
+            this.ui.update_file_tree(this.ls_R('.', this.pwd(true), false, true, true, true, []));
     }
 
     pwd(replace_home)

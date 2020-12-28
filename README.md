@@ -23,6 +23,7 @@
 20. Open file when navigating to a directory with a single file
 21. Versions file, preload all media in HTML
 22. Merge binary files
+23. .. is incorrect at ~
 
 ```shell
 # https://github.com/xloem/emterm

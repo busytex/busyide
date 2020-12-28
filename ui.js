@@ -550,17 +550,18 @@ export class Shell
 
     refresh()
     {
+        this.ui.update_file_tree(this.ls_R('.', this.pwd(true), false, true, true, true, []));
     }
 
-    cd(path, update_file_tree = true)
+    cd(path, refresh = true)
     {
         if(path == '-')
             path = this.OLDPWD;
 
         this.OLDPWD = this.FS.cwd();
         this.FS.chdir(this.expandcollapseuser(path || '~'));
-        if(update_file_tree)
-            this.ui.update_file_tree(this.ls_R('.', this.pwd(true), false, true, true, true, []));
+        if(refresh)
+            this.refresh();
     }
 
     pwd(replace_home)
@@ -586,7 +587,8 @@ export class Shell
 
     mv(src_file_path, dst_file_path)
     {
-
+        this.FS.rename(src_file_path, dst_file_path);
+        this.refresh();
     }
 }
 

@@ -23,7 +23,10 @@
 20. Open file when navigating to a directory with a single file
 21. Versions file, preload all media in HTML
 22. Merge binary files
-23. .. is incorrect at ~
+23. .. + title is incorrect at ~
+24. timer for auto-save https://stackoverflow.com/questions/5766263/run-settimeout-only-when-tab-is-active
+25. auto-open a single tex/t file in the current directory
+26. selection is unchanged when going inside a directory
 
 ```shell
 # https://github.com/xloem/emterm

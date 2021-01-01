@@ -74,7 +74,7 @@ export class Shell
             const option = this.ui.filetree.options[this.ui.filetree.selectedIndex];
             if(option.className == 'filetreedirectory')
             {
-                this.open('');
+                this.open(option.value);
                 if(option.text == '.git')
                     this.ui.filetree.ondblclick();
             }
@@ -521,7 +521,7 @@ export class Shell
         if(file_path.endsWith('.pdf') || file_path.endsWith('.jpg') || file_path.endsWith('.png') || file_path.endsWith('.svg') || file_path.endsWith('.log'))
         {
             contents = contents || (file_path.endsWith('.log') ? this.FS.readFile(file_path, {encoding: 'utf8'}) : this.FS.readFile(file_path, {encoding : 'binary'}));
-            const b64encode = uint8array => btoa(String.fromCharCode.apply(null, uint8array));
+            const b64encode = uint8array => btoa(uint8Array.reduce((acc, i) => acc += String.fromCharCode.apply(null, [i]), ''));
             if(file_path.endsWith('.log'))
             {
                 this.ui.txtpreview.value = contents;

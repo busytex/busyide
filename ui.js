@@ -25,7 +25,7 @@ export class Shell
         this.zip_path = '/tmp/archive.zip';
         this.arxiv_path = '/tmp/arxiv.downloaded';
         this.new_file_path = 'newfile.tex';
-        this.new_dir_path = 'new folder';
+        this.new_dir_path = 'newfolder';
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['nanozip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'whoami', 'wc', 'cat', 'head', 'clear'];

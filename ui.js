@@ -26,8 +26,8 @@ export class Shell
         this.new_path = 'newfile.tex';
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
-        this.busybox_applets = ['nanozip', 'diff3', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'whoami', 'wc', 'cat', 'head'];
-        this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git'];
+        this.busybox_applets = ['nanozip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'whoami', 'wc', 'cat', 'head', 'clear'];
+        this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'share', 'upload'];
         this.git_applets = ['clone', 'pull', 'status'];
         this.shell_commands = this.shell_builtins.concat(this.busybox_applets).concat(this.git_applets.map(cmd => 'git ' + cmd)).sort();
         this.tic_ = 0;
@@ -221,12 +221,8 @@ export class Shell
                     this.terminal_print(this.git_applets.join('\t'));
                 else if(cmd == 'git' && args.length > 0 && this.git_applets.includes(args[0]))
                     await this['git_' + args[0]](...args.slice(1));
-                else if(cmd == 'share')
-                    print_or_dump(this.share(...args));
-                else if(cmd == 'upload')
-                    print_or_dump(await this.upload(args[0]));
                 else if(this.shell_builtins.includes(cmd))
-                    await this[cmd](...args);
+                    print_or_dump(await this[cmd](...args));
                 else
                     this.terminal_print(cmd + ': command not found');
             }
@@ -533,7 +529,7 @@ export class Shell
         return this.busybox.run(['nanozip', '-r', '-x', '.git', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, project_dir]).stdout;
     }
     
-    clear(ansi_clear_sequence = '\x1b[H\x1b[J')
+    clear_(ansi_clear_sequence = '\x1b[H\x1b[J')
     {
         this.terminal.write(this.terminal_reset_sequence);
     }

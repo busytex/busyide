@@ -24,7 +24,8 @@ export class Shell
         this.tex_path = '';
         this.zip_path = '/tmp/archive.zip';
         this.arxiv_path = '/tmp/arxiv.downloaded';
-        this.new_path = 'newfile.tex';
+        this.new_file_path = 'newfile.tex';
+        this.new_dir_path = 'new folder';
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['nanozip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'whoami', 'wc', 'cat', 'head', 'clear'];
@@ -63,8 +64,9 @@ export class Shell
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
+        this.ui.new_folder.onclick = () => this.refresh([{path : this.new_dir_path}]) || this.commands(chain(cmd('mkdir', this.new_dir_path), cmd('open', this.new_dir_path)));
         this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
-        this.ui.new_file.onclick = () => this.refresh([{path : this.new_path, contents : this.hello_world}]) || this.commands(chain(cmd('echo', this.hello_world, '>', this.new_path), cmd('open', this.new_path)));
+        this.ui.new_file.onclick = () => this.refresh([{path : this.new_file_path, contents : this.hello_world}]) || this.commands(chain(cmd('echo', this.hello_world, '>', this.new_file_path), cmd('open', this.new_file_path)));
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
         this.ui.github_https_path.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' && this.ui.clone.click();
         this.ui.filetree.onchange = ev => {
@@ -602,15 +604,17 @@ export class Shell
         this.compiler.postMessage({files : files, main_tex_path : main_tex_path, verbose : verbose});
     }
 
-    async upload(file_path)
+    async upload(file_path = null)
     {
         const fileupload = this.ui.fileupload;
         const reader = new FileReader();
         return new Promise((resolve, reject) =>
         {
             reader.onloadend = () => {
+                const chosen_file_name = fileupload.files[0].name;
+                file_path = file_path || chosen_file_name;
                 this.FS.writeFile(file_path, new Uint8Array(reader.result));
-                resolve(`Local file [${fileupload.files[0].name}] uploaded into [${file_path}]`);
+                resolve(`Local file [${chosen_file_name}] uploaded into [${file_path}]`);
             };
             fileupload.onchange = () => reader.readAsArrayBuffer(fileupload.files[0]);
             fileupload.click();

@@ -23,6 +23,7 @@ export class Shell
         this.edit_path = '/tmp/no_file_opened';
         this.tex_path = '';
         this.zip_path = '/tmp/archive.zip';
+        this.arxiv_path = '/tmp/arxiv.downloaded';
         this.new_path = 'newfile.tex';
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
@@ -233,37 +234,64 @@ export class Shell
         }
     }
 
+    async arxiv_clone(arxiv_https_path, cors_proxy = 'https://cors-anywhere.herokuapp.com/')
+    {
+        arxiv_https_path = arxiv_https_path.replace('/abs/', '/e-print/');
+        const repo_path = arxiv_https_path.split('/').pop();
+        const project_dir = repo_path;
+        
+        const resp = await fetch(cors_proxy + '/' + arxiv_https_path, {headers : {"X-Requested-With": "XMLHttpRequest"}});
+        const uint8array = new Uint8Array(await resp.arrayBuffer());
+        this.FS.writeFile(this.arxiv_path, uint8array);
+        
+        this.FS.mkdir(project_dir);
+        this.busybox.run(['tar', '-xf', this.arxiv_path, '-C', project_dir]);
+
+        return project_dir;
+    }
+
+    inline_clone(serialized)
+    {
+        const files = this.deserialize_project(serialized);
+        project_dir = this.shared_project;
+        this.FS.mkdir(project_dir)
+
+        let dirs = new Set(['/', project_dir]);
+        for(const {path, contents} of files.sort((lhs, rhs) => lhs['path'] < rhs['path'] ? -1 : 1))
+        {
+            const absolute_path = this.PATH.join2(project_dir, path);
+            if(contents == null)
+                this.mkdir_p(absolute_path, dirs);
+            else
+            {
+                this.mkdir_p(this.PATH.dirname(absolute_path));
+                this.FS.writeFile(absolute_path, contents);
+            }
+        }
+        return project_dir;
+    }
+
     async init(route, github_https_path)
     {
+        let project_dir = null;
+
         if(github_https_path.length > 0)
         {
-            const project_dir = await this.git_clone(this.ui.github_https_path.value);
-            this.open(project_dir);
-            this.cd(project_dir, true);
+            project_dir = await this.git_clone(this.ui.github_https_path.value);
+        }
+        else if(route[0] == 'arxiv')
+        {
+            project_dir = await this.arxiv_clone(route[1]);
         }
         else if(route[0] == 'inline')
         {
-            const files = this.deserialize_project(route[1]);
-            const project_dir = this.shared_project;
-            this.FS.mkdir(project_dir)
-
-            let dirs = new Set(['/', project_dir]);
-            for(const {path, contents} of files.sort((lhs, rhs) => lhs['path'] < rhs['path'] ? -1 : 1))
-            {
-                const absolute_path = this.PATH.join2(project_dir, path);
-                if(contents == null)
-                    this.mkdir_p(absolute_path, dirs);
-                else
-                {
-                    this.mkdir_p(this.PATH.dirname(absolute_path));
-                    this.FS.writeFile(absolute_path, contents);
-                }
-            }
-
+            project_dir = this.inline_clone(route[1]);
+        }
+        if(project_dir != null)
+        {
             this.open(project_dir);
             this.cd(project_dir, true);
         }
-
     }
 
     async run(route, busybox_module_constructor, busybox_wasm_module_promise, sha1)

@@ -71,8 +71,7 @@ export class Busybox
     {
         const NOCLEANUP_callMain = (Module, args) =>
         {
-            const main = Module['_main'];
-            const fflush = Module['_fflush'];
+            const main = Module['_main'], fflush = Module['_fflush'];
             const argc = args.length+1;
             const argv = Module.stackAlloc((argc + 1) * 4);
             const NULL = 0;

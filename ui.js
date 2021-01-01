@@ -620,12 +620,20 @@ export class Shell
         return new Promise((resolve, reject) =>
         {
             reader.onloadend = () => {
-                const chosen_file_name = fileupload.files[0].name;
+                const chosen_file_name = reader.chosen_file_name;
                 file_path = file_path || chosen_file_name;
+
                 this.FS.writeFile(file_path, new Uint8Array(reader.result));
                 resolve(`Local file [${chosen_file_name}] uploaded into [${file_path}]`);
             };
-            fileupload.onchange = () => reader.readAsArrayBuffer(fileupload.files[0]);
+            fileupload.onchange = () =>
+            {
+                for(const file of fileupload.files)
+                {
+                    reader.chosen_file_name = file.name;
+                    reader.readAsArrayBuffer(file)
+                }
+            };
             fileupload.click();
         });
     }

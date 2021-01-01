@@ -504,6 +504,7 @@ export class Shell
                 if(default_path == null)
                 {
                     this.ui.set_current_file(this.PATH.basename(file_path));
+                    open_editor_tab('', '');
                     file_path = null;
                 }
                 else

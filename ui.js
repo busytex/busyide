@@ -501,7 +501,13 @@ export class Shell
             if(file_path != null && this.isdir(file_path))
             {
                 const default_path = this.open_find_default_path(file_path);
-                file_path = default_path != null ? this.PATH.join2(file_path, default_path) : null;
+                if(default_path == null)
+                {
+                    this.ui.set_current_file(this.PATH.basename(file_path));
+                    file_path = null;
+                }
+                else
+                    file_path = this.PATH.join2(file_path, default_path); 
             }
         }
 

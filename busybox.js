@@ -91,11 +91,11 @@ export class Busybox
             try
             {
                 main(argc, argv);
-                fflush(NULL);
             }
             catch(e)
             {
                 this.print('callMain: ' + e.message);
+                fflush(NULL);
                 return e.status;
             }
             

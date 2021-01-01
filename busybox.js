@@ -92,7 +92,7 @@ export class Busybox
             try
             {
                 main(argc, argv);
-                fflush(NULL);
+                //fflush(NULL);
             }
             catch(e)
             {

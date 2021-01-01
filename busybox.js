@@ -39,7 +39,6 @@ export class Busybox
             
             print(text) 
             {
-                console.log(arguments);
                 text = (arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text) || '';
                 Module.output_stdout += text + '\n';
                 Module.setStatus(Module.prefix + ' | stdout: ' + text);
@@ -47,7 +46,6 @@ export class Busybox
 
             printErr(text)
             {
-                console.log(arguments);
                 text = (arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text) || '';
                 Module.output_stderr += text + '\n';
                 Module.setStatus(Module.prefix + ' | stderr: ' + text);
@@ -73,9 +71,11 @@ export class Busybox
     {
         const NOCLEANUP_callMain = (Module, args) =>
         {
-            const entryFunction = Module['_main'];
+            const main = Module['_main'];
+            const fflush = Module['_fflush'];
             const argc = args.length+1;
             const argv = Module.stackAlloc((argc + 1) * 4);
+            const NULL = 0;
             
             /*Module.HEAP32[argv >> 2] = Module.allocateUTF8OnStack(Module.thisProgram);
             for (let i = 1; i < argc; i++)
@@ -87,11 +87,12 @@ export class Busybox
             Module.HEAP32[argv >> 2] = Module.allocateUTF8OnStack(args.join('\0'));
             for(let i = 1; i < argc; i++)
                 Module.HEAP32[(argv >> 2) + i] = Module.HEAP32[(argv >> 2) + i - 1] + lens[i - 1] + 1;
-            Module.HEAP32[(argv >> 2) + argc] = 0;
+            Module.HEAP32[(argv >> 2) + argc] = NULL;
 
             try
             {
-                entryFunction(argc, argv);
+                main(argc, argv);
+                fflush(NULL);
             }
             catch(e)
             {

@@ -1,16 +1,18 @@
-import { Guthub } from '/guthub.js'
+import { Github } from '/github.js'
 import { Busybox } from '/busybox.js'
 
 export class Shell
 {
-    constructor(ui, paths, readme, terminal, editor, http_path)
+    constructor(ui, paths, readme, terminal, editor, monaco, http_path)
     {
+        this.monaco = monaco;
         this.http_path = http_path;
         this.share_link_log = '/tmp/share_link.log';
         this.home_dir = '/home/web_user';
         this.tmp_dir = '/tmp';
         this.OLDPWD = this.home_dir;
         this.cache_dir = '/cache';
+        this.tex_ext = '.tex';
         this.readme_dir = this.home_dir + '/readme';
         this.readme_tex = this.readme_dir + '/readme.tex';
         this.hello_world = "\\documentclass[11pt]{article}\n\\begin{document}\n\n\\title{Hello}\n\\maketitle\n\n\\section{world}\nindeed!\n\n\\end{document}";
@@ -18,18 +20,21 @@ export class Shell
         this.shared_project = '/home/web_user/shared_project';
         this.pdf_path = '/tmp/pdf_does_not_exist_yet';
         this.log_path = '/tmp/log_does_not_exist_yet';
+        this.edit_path = '/tmp/no_file_opened';
         this.tex_path = '';
         this.zip_path = '/tmp/archive.zip';
+        this.new_path = 'newfile.tex';
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['nanozip', 'diff3', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'whoami', 'wc', 'cat', 'head'];
-        this.shell_builtins =  ['man', 'help', 'open', 'save', 'download', 'cd', 'purge', 'latexmk', 'git'];
+        this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git'];
         this.git_applets = ['clone', 'pull', 'status'];
         this.shell_commands = this.shell_builtins.concat(this.busybox_applets).concat(this.git_applets.map(cmd => 'git ' + cmd)).sort();
         this.tic_ = 0;
+        this.timer_delay_millisec = 1000;
         this.FS = null;
         this.PATH = null;
-        this.guthub = null;
+        this.github = null;
         this.terminal = terminal;
         this.editor = editor;
         this.ui = ui;
@@ -40,6 +45,7 @@ export class Shell
         this.readme = readme;
         this.busybox = null;
         this.terminal_reset_sequence = '\x1bc';
+        this.tabs = {};
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.onKey(this.onkey.bind(this));
@@ -48,18 +54,18 @@ export class Shell
         const arg = path => this.expandcollapseuser(path, false);
         const chain = (...cmds) => cmds.join(' && ');
 
-        this.ui.clone.onclick = () => this.commands(chain('cd', cmd('git', 'clone', ui.github_https_path.value), cmd('open', this.PATH.join2('~', this.PATH.basename(ui.github_https_path.value))), cmd('cd', this.PATH.basename(ui.github_https_path.value))));
+        this.ui.clone.onclick = () => this.commands(chain('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('open', this.PATH.join2('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('cd', this.PATH.basename(this.ui.github_https_path.value))));
         this.ui.download_pdf.onclick = () => this.commands(cmd('download', arg(this.pdf_path)));
         this.ui.view_log.onclick = () => this.commands(cmd('open', arg(this.log_path)));
         this.ui.view_pdf.onclick = () => this.commands(cmd('open', arg(this.pdf_path)));
-        this.ui.download.onclick = () => this.commands(cmd('download', arg(this.tex_path)));
+        this.ui.download.onclick = () => this.commands(cmd('download', arg(this.edit_path)));
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
         this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
-        this.ui.new_file.onclick = () => this.commands(chain(cmd('echo', this.hello_world, '>', 'newfile.tex'), cmd('open', 'newfile.tex'))) || this.refresh();
-        this.ui.pull.onclick = () => this.commands('pull');
-        this.ui.github_https_path.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
+        this.ui.new_file.onclick = () => this.refresh([{path : this.new_path, contents : this.hello_world}]) || this.commands(chain(cmd('echo', this.hello_world, '>', this.new_path), cmd('open', this.new_path)));
+        this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
+        this.ui.github_https_path.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' && this.ui.clone.click();
         this.ui.filetree.onchange = ev => {
             const option = this.ui.filetree.options[this.ui.filetree.selectedIndex];
             if(option.className == 'filetreedirectory')
@@ -87,7 +93,30 @@ export class Shell
         this.ui.current_file.onclick = () => this.ui.toggle_current_file_rename();
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value) || this.ui.toggle_current_file_rename()) : ev.key == 'Escape' ? (this.ui.set_current_file(this.ui.get_current_file()) || this.ui.toggle_current_file_rename()) : null;
 		
-		editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, this.ui.compile.onclick);
+		editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyCode.Enter, this.ui.compile.onclick);
+
+        this.interval_id = 0;
+    }
+
+    abspath(path)
+    {
+        return path.startsWith('/') ? path : this.PATH.join2(this.FS.cwd(), path);
+    }
+
+    isdir(path)
+    {
+        return this.FS.analyzePath(path).exists && this.FS.isDir(this.FS.lookupPath(path).node.mode);
+    }
+
+    dirty_timer(mode)
+    {
+        if(mode)
+            this.interval_id = self.setInterval(this.save, this.timer_delay_millisec, this);
+        else
+        {
+            self.clearInterval(this.interval_id);
+            this.interval_id = 0;
+        }
     }
 
     tic()
@@ -180,18 +209,22 @@ export class Shell
                 }
                 else if(this.busybox_applets.includes(cmd))
                     print_or_dump(this.busybox.run([cmd, ...args]).stdout);
+                else if(cmd == 'tabs')
+                    print_or_dump(Object.keys(this.tabs).sort().join('\t'));
+                else if(cmd == 'dirty')
+                    this.ui.set_dirty(true);
+                else if(cmd == 'stoptimer')
+                    this.ui.timer();
+                else if(cmd == 'help')
+                    print_or_dump(this.shell_commands.join('\t'));
                 else if(cmd == 'git' && args.length == 0)
                     this.terminal_print(this.git_applets.join('\t'));
                 else if(cmd == 'git' && args.length > 0 && this.git_applets.includes(args[0]))
                     await this['git_' + args[0]](...args.slice(1));
                 else if(cmd == 'share')
                     print_or_dump(this.share(...args));
-                else if(cmd == 'help')
-                    print_or_dump(this.shell_commands.join('\t'));
                 else if(cmd == 'upload')
                     print_or_dump(await this.upload(args[0]));
-                else if(cmd == 'save')
-                    this.save(args[0], this.editor.getModel().getValue());
                 else if(this.shell_builtins.includes(cmd))
                     await this[cmd](...args);
                 else
@@ -202,6 +235,39 @@ export class Shell
                 this.terminal_print('Error: ' + err.message);
             }
         }
+    }
+
+    async init(route, github_https_path)
+    {
+        if(github_https_path.length > 0)
+        {
+            const project_dir = await this.git_clone(this.ui.github_https_path.value);
+            this.open(project_dir);
+            this.cd(project_dir, true);
+        }
+        else if(route[0] == 'inline')
+        {
+            const files = this.deserialize_project(route[1]);
+            const project_dir = this.shared_project;
+            this.FS.mkdir(project_dir)
+
+            let dirs = new Set(['/', project_dir]);
+            for(const {path, contents} of files.sort((lhs, rhs) => lhs['path'] < rhs['path'] ? -1 : 1))
+            {
+                const absolute_path = this.PATH.join2(project_dir, path);
+                if(contents == null)
+                    this.mkdir_p(absolute_path, dirs);
+                else
+                {
+                    this.mkdir_p(this.PATH.dirname(absolute_path));
+                    this.FS.writeFile(absolute_path, contents);
+                }
+            }
+
+            this.open(project_dir);
+            this.cd(project_dir, true);
+        }
+
     }
 
     async run(route, busybox_module_constructor, busybox_wasm_module_promise, sha1)
@@ -220,39 +286,14 @@ export class Shell
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        this.guthub = new Guthub(sha1, this.FS, this.cache_dir, this.merge.bind(this), this.log_big.bind(this));
+        this.github = new Github(sha1, this.FS, this.cache_dir, this.merge.bind(this), this.log_big.bind(this));
         await this.load_cache();
-        if(this.ui.github_https_path.value.length > 0)
-        {
-            const project_dir = await this.git_clone(this.ui.github_https_path.value);
-            this.open(project_dir);
-            this.cd(project_dir, true);
-        }
-        else if(route.length > 1 && route[0] == 'inline')
-        {
-            const files = this.deserialize_project(route[1]);
-            const project_dir = this.shared_project;
-            this.FS.mkdir(project_dir)
-
-            let dirs = new Set(['/', project_dir]);
-            for(const {path, contents} of files.sort((lhs, rhs) => lhs['path'] < rhs['path'] ? -1 : 1))
-        {
-                const absolute_path = this.PATH.join2(project_dir, path);
-                if(contents == null)
-                    this.mkdir_p(absolute_path, dirs);
-                else
-                {
-                    this.mkdir_p(this.PATH.dirname(absolute_path));
-                    this.FS.writeFile(absolute_path, contents);
-                }
-            }
-
-            this.open(project_dir);
-            this.cd(project_dir, true);
-        }
+        if(this.ui.github_https_path.value.length > 0 || route.length > 1)
+            await this.init(route, this.ui.github_https_path.value);
         else
             this.man();
-        
+       
+        this.dirty_timer();
         this.terminal_prompt();
     }
    
@@ -267,9 +308,22 @@ export class Shell
     {
         this.log_big_header('[git clone]'); 
         
-        const repo_path = https_path.split('/').pop();
-        this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
-        await this.guthub.clone(this.ui.github_token.value, https_path, repo_path);
+        const token = this.ui.github_token.value;
+        const route = https_path.split('/');
+
+        let repo_path = route.pop();
+        if(https_path.includes('gist.github.com'))
+        {
+            const gistname = repo_path;
+            this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
+            await this.github.clone_gist(token, gistname, repo_path);
+        }
+        else
+        {
+            repo_path = route.pop();
+            this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
+            await this.github.clone_repo(token, https_path, repo_path);
+        }
         await this.save_cache();
         this.ui.set_route('github', https_path);
         return repo_path;
@@ -279,14 +333,14 @@ export class Shell
     {
         this.log_big_header('[git status]');
         
-        return this.guthub.status(this.ls_R('.', '', true, true, false, false));
+        return this.github.status(this.ls_R('.', '', true, true, false, false));
     }
 
     git_pull()
     {
         this.log_big_header('[git pull]');
         
-        return this.guthub.pull();
+        return this.github.pull();
     }
 
     serialize_project(project_dir)
@@ -353,31 +407,64 @@ export class Shell
         return this.project_dir().replace(this.home_dir, this.tmp_dir);
     }
 
+    open_find_default_path(file_path)
+    {
+        const tex_files = this.ls_R(file_path, '', false).filter(f => f.contents != null && f.path.endsWith(this.tex_ext));
+        let default_path = null;
+        if(tex_files.length == 1)
+            default_path = tex_files[0].path;
+        else if(tex_files.length > 1)
+        {
+            const main_tex_files = this.ls_R(file_path, '', false).filter(f => f.contents != null && f.path.endsWith(this.tex_ext) && f.path.includes('main'));
+            default_path = main_tex_files.length > 0 ? main_tex_files[0].path : tex_files[0].path;
+        }
+        if(default_path == null)
+        {
+            const text_files = this.ls_R(file_path, '', false).filter(f => f.contents != null && this.text_extensions.map(ext => f.path.endsWith(ext)).includes(true));
+            if(text_files.length == 1)
+                default_path = text_files[0].path;
+            else if(text_files.length > 1)
+            {
+                const main_text_files = this.ls_R(file_path, '', false).filter(f => f.contents != null && f.path.toUpperCase().includes('README'));
+                default_path = main_text_files.length > 0 ? main_text_files[0].path : text_files[0].path;
+            }
+        }
+        return default_path;
+    }
+
     open(file_path, contents)
     {
+        const open_editor_tab = (file_path, contents) =>
+        {
+            const abspath = this.abspath(file_path);
+            this.edit_path = abspath;
+
+            if(!(abspath in this.tabs))
+                this.tabs[abspath] = this.monaco.editor.createModel(contents, undefined, this.monaco.Uri.file(abspath));
+
+            const editor_model = this.tabs[abspath];
+            editor_model.setValue(contents);
+            this.editor.setModel(editor_model);
+            //var currentState = this.editor.saveViewState();
+            //this.editor.restoreViewState(data[desiredModelId].state);
+            //this.editor.focus();
+        };
+
         if(file_path == '')
         {
             this.tex_path = '';
             this.ui.txtpreview.value = '';
             this.ui.set_current_file('');
-            this.editor.getModel().setValue('');
+            open_editor_tab('', '');
             this.ui.toggle_viewer('text');
             return;
         }
         else if(file_path != null)
         {
             file_path = this.expandcollapseuser(file_path);
-            if(file_path != null && this.FS.analyzePath(file_path).exists && this.FS.isDir(this.FS.lookupPath(file_path).node.mode))
+            if(file_path != null && this.isdir(file_path))
             {
-                const files = this.ls_R(file_path, '', false).filter(f => f.path.endsWith('.tex') && f.contents != null);
-                let default_path = null;
-                if(files.length == 1)
-                    default_path = files[0].path;
-                else if(files.length > 1)
-                {
-                    const main_files = files.filter(f => f.path.includes('main'));
-                    default_path = main_files.length > 0 ? main_files[0].path : files[0].path;
-                }
+                default_path = this.open_find_default_path(file_path);
                 file_path = default_path != null ? this.PATH.join2(file_path, default_path) : null;
             }
         }
@@ -391,7 +478,7 @@ export class Shell
         if(file_path.endsWith('.pdf') || file_path.endsWith('.jpg') || file_path.endsWith('.png') || file_path.endsWith('.svg') || file_path.endsWith('.log'))
         {
             contents = contents || (file_path.endsWith('.log') ? this.FS.readFile(file_path, {encoding: 'utf8'}) : this.FS.readFile(file_path, {encoding : 'binary'}));
-            
+            const b64encode = uint8array => btoa(String.fromCharCode.apply(null, uint8array));
             if(file_path.endsWith('.log'))
             {
                 this.ui.txtpreview.value = contents;
@@ -399,13 +486,13 @@ export class Shell
             }
             else if(file_path.endsWith('.svg'))
             {
-                this.ui.imgpreview.src = 'data:image/svg+xml;base64,' + btoa(String.fromCharCode.apply(null, contents));
+                this.ui.imgpreview.src = 'data:image/svg+xml;base64,' + b64encode(contents);
                 this.ui.toggle_viewer('image');
             }
             else if(file_path.endsWith('.png') || file_path.endsWith('.jpg'))
             {
                 const ext = file_path.endsWith('.png') ? 'png' : 'jpg';
-                this.ui.imgpreview.src = `data:image/${ext};base64,` + btoa(String.fromCharCode.apply(null, contents));
+                this.ui.imgpreview.src = `data:image/${ext};base64,` + b64encode(contents);
                 this.ui.toggle_viewer('image');
             }
             else if(file_path.endsWith('.pdf'))
@@ -418,13 +505,15 @@ export class Shell
         {
             contents = contents || this.FS.readFile(file_path, {encoding : 'utf8'});
             this.ui.set_current_file(this.PATH.basename(file_path));
-            this.editor.getModel().setValue(contents);
+            open_editor_tab(file_path, contents);
         }
     }
 
-    save(file_path, contents)
+    save(busyshell)
     {
-        this.FS.writeFile(file_path, contents);
+        for(const abspath in busyshell.tabs)
+            busyshell.FS.writeFile(abspath, busyshell.tabs[abspath].getValue());
+        busyshell.ui.set_dirty(false);
     }
 
     man()
@@ -512,8 +601,8 @@ export class Shell
         this.FS.writeFile(df23_diff, this.busybox.run(['bsddiff', f2, f3]).stdout_);
         const edscript = this.busybox.run(['bsddiff3prog', '-E', df13_diff, df23_diff, f1, f2, f3]).stdout_ + 'w';
         this.busybox.run(['ed', ours_path], edscript);
-        const merged = FS.readFile(ours_path, {encoding : 'utf8'});
-        return merged.includes(conflict_left) && merged.includes(conflict_right);
+        //const merged = FS.readFile(ours_path, {encoding : 'utf8'});
+        return edscript.includes(conflict_left) && edscript.includes(conflict_right);
     }
 
     ls_R(root = '.', relative_dir_path = '', recurse = true, preserve_directories = false, include_dot_directories = false, read_contents_as_string = true, exclude = ['.git'])
@@ -544,13 +633,21 @@ export class Shell
                 entries.push({path : relative_path, name : name, contents : this.FS.readFile(absolute_path, {encoding : read_contents_as_string && this.text_extensions.map(ext => absolute_path.endsWith(ext)).includes(true) ? 'utf8' : 'binary'})});
             }
         }
-        console.log(root, entries);
         return entries;
     }
 
-    refresh()
+    refresh(extra_files = [])
     {
-        this.ui.update_file_tree(this.ls_R('.', this.pwd(true), false, true, true, true, []));
+        this.ui.update_file_tree(this.ls_R('.', this.pwd(true), false, true, true, true, []).concat(extra_files));
+
+        for(const abspath in this.tabs)
+        {
+            if(!this.FS.analyzePath(abspath).exists)
+            {
+                this.tabs[abspath].dispose();
+                delete this.tabs[abspath];
+            }
+        }
     }
 
     cd(path, refresh = true)
@@ -583,12 +680,22 @@ export class Shell
             this.FS.mkdir(dirpath);
             dirs.add(dirpath);
         }
-    };
+    }
 
     mv(src_file_path, dst_file_path)
     {
+        const src_abspath = this.abspath(src_file_path), dst_abspath = this.abspath(dst_file_path);
+        if(src_abspath == dst_abspath)
+            return;
+
+        this.dirty_timer(false);
         this.FS.rename(src_file_path, dst_file_path);
+        if(this.tabs[dst_abspath])
+            this.tabs[dst_abspath].dispose();
+        this.tabs[dst_abspath] = this.tabs[src_abspath];
+        delete this.tabs[src_abspath];
         this.refresh();
+        this.dirty_timer(true);
     }
 }
 

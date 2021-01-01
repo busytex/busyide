@@ -16,7 +16,7 @@
 7. status is broken
 8. pseudo-shell quotes
 9. renaming
-4. GitHub links: github repo, github file, gist, project
+4. GitHub links: github repo, github file, gist, project: https://gist.github.com/btoone/2288960 https://github.com/go-jsonfile/jsonfiddle#usage-1
 17. http://showdownjs.com/
 18. support cors proxy + tar/tar.gz/gz inputs (arxiv paper sources, github tar.gz)
 19. support single file mode from http
@@ -27,6 +27,7 @@
 24. timer for auto-save https://stackoverflow.com/questions/5766263/run-settimeout-only-when-tab-is-active
 25. auto-open a single tex/t file in the current directory
 26. selection is unchanged when going inside a directory
+27. Disposing an opened model, do not close upon renaming
 
 ```shell
 # https://github.com/xloem/emterm

@@ -38,7 +38,7 @@
         }
 
         .filetreedirectory {
-            background-color: lightgray
+            background-color: yellow
         }
 
         #fileupload {
@@ -124,6 +124,7 @@
         <button id="compile">Compile</button>
         <span id="current_file" title="Click to rename"></span>
         <input hidden type="text" id="current_file_rename" title="Press [Enter] to complete renaming"></input>
+        <span id="dirty" hidden title="file is changed. wait for autosave">*</span>
         <div style="display: flex; margin-left:auto">
             <input type="text" style="width: 250px" id="github_https_path" placeholder="GitHub https link"></input>
             <input type="text" style="width: 100px" id="github_token" placeholder="GitHub token" title="for private clone/push"></input>
@@ -269,30 +270,34 @@ const ui =
     current_file : document.getElementById('current_file'),
     current_file_rename: document.getElementById('current_file_rename'),
     filetree : document.getElementById('filetree'),
+    dirty : document.getElementById('dirty'),
     log_reset_sequence : '\x1bc',
+
+    set_dirty(dirty)
+    {
+        ui.dirty.hidden = !dirty;
+    },
 
     get_current_file()
     {
-        return document.getElementById('current_file').textContent;
+        return ui.current_file.textContent;
     },
 
     set_current_file(file_path)
     {
-        let span = document.getElementById('current_file');
-        let input = document.getElementById('current_file_rename');
+        let span = ui.current_file, input = ui.current_file_rename;
         span.textContent = input.value = file_path;
     },
 
     toggle_current_file_rename()
     {
-        let span = document.getElementById('current_file');
-        let input = document.getElementById('current_file_rename');
+        let span = ui.current_file, input = ui.current_file_rename;
         [span.hidden, input.hidden] = [!span.hidden, !input.hidden];
     },
 
     update_file_tree(files)
     {
-        const select = document.getElementById('filetree');
+        const select = ui.filetree;
         let i = 0, j = select.length - 1;
         for(; i < files.length; i++)
         {
@@ -302,7 +307,7 @@ const ui =
                 option = document.createElement('option');
                 select.options.add(option);
             }
-            option.text = files[i].name;
+            option.text = files[i].name || files[i].path;
             option.value = option.title = files[i].path;
             option.dataset.type = files[i].contents == null ? 'd' : 'f';
             option.className = files[i].contents == null ? 'filetreedirectory' : '';
@@ -414,16 +419,16 @@ function init_editor(monaco, editor_element, lang_monarch, latex_monarch, bibtex
     // https://github.com/microsoft/monaco-languages/blob/master/src/python/python.ts
 
     // https://github.com/koka-lang/madoko/blob/master/styles/lang/latex.json
-    monaco.languages.register({ id: 'latex' });
-	monaco.languages.setMonarchTokensProvider('latex', latex_monarch);
-    monaco.languages.setLanguageConfiguration('latex', lang_monarch);
+    monaco.languages.register({ id: latex_monarch.name, mimetypes : latex_monarch.mimeTypes, extensions : latex_monarch.fileExtensions});
+	monaco.languages.setMonarchTokensProvider(latex_monarch.name, latex_monarch);
+    monaco.languages.setLanguageConfiguration(latex_monarch.name, lang_monarch);
     
     // https://github.com/koka-lang/madoko/blob/master/styles/lang/bibtex.json
-	monaco.languages.register({ id: 'bibtex' });
-	monaco.languages.setMonarchTokensProvider('bibtex', bibtex_monarch);
-    monaco.languages.setLanguageConfiguration('bibtex', lang_monarch);
+	monaco.languages.register({ id: bibtex_monarch.name, mimetypes : bibtex_monarch.mimeTypes, extensions : bibtex_monarch.fileExtensions});
+	monaco.languages.setMonarchTokensProvider(bibtex_monarch.name, bibtex_monarch);
+    monaco.languages.setLanguageConfiguration(bibtex_monarch.name, lang_monarch);
 
-    return monaco.editor.create(editor_element, { theme: 'vs-dark', language : 'latex', minimap: {enabled: false } });
+    return monaco.editor.create(editor_element, { theme: 'vs-dark', minimap: {enabled: false } });
 }
 
 function init_terminal(Terminal, terminal_element, FitAddon)
@@ -449,7 +454,7 @@ require(['vs/editor/editor.main', 'xterm/xterm',  './dist/busybox_unstripped.js'
     const editor = init_editor(Monaco, ui.editor, ...(await Promise.all(monarch_promises)));
     const terminal = init_terminal(Terminal, ui.terminal, FitAddon);
     
-    window.busyshell = new Shell(ui, paths, await readme_tex_promise, terminal, editor, window.location.origin);
+    window.busyshell = new Shell(ui, paths, await readme_tex_promise, terminal, editor, monaco, window.location.origin);
     window.onresize = ui.onresize;
     window.onresize();
 

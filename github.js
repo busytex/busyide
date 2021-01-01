@@ -4,7 +4,7 @@
 //     "documentation_url": "https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"
 //     }
 //
-export class Guthub
+export class Github
 {
     constructor(sha1, FS, cache_dir, merge, print)
     {
@@ -18,13 +18,13 @@ export class Guthub
         this.sha1 = sha1;
     }
 
-    github_api_request(https_path, relative_url, method, body)
+    api_request(realm, https_path, relative_url = '', method = 'get', body = null)
     {
-        const api = https_path.replace('github.com', 'api.github.com/repos');
+        const api = https_path.replace('github.com', 'api.github.com/' + realm);
         const headers = Object.assign({Authorization : 'Basic ' + btoa(this.auth_token), 'If-None-Match' : ''}, body != null ? {'Content-Type' : 'application/json'} : {});
         return fetch(api + relative_url, Object.assign({method : method || 'get', headers : headers}, body != null ? {body : JSON.stringify(body)} : {}));
     }
-
+    
     read_https_path()
     {
         return this.FS.readFile('.git/config', {encoding : 'utf8'}).split('\n')[1].split(' ')[2];
@@ -64,7 +64,7 @@ export class Guthub
         const prev = this.read_githubcontents();
         console.log('prev', prev);
         
-        const resp = await this.github_api_request(https_path, '/contents');
+        const resp = await this.api_request('repos', https_path, '/contents');
         const repo = await resp.json();
         let Q = [...repo];
 
@@ -104,7 +104,7 @@ export class Guthub
                 const dir_path = repo_path + '/' + file.path;
                 if(!this.FS.analyzePath(dir_path).exists)
                     this.FS.mkdir(dir_path);
-                const resp = await this.github_api_request(https_path, '/contents/' + file.path);
+                const resp = await this.api_request('repos', https_path, '/contents/' + file.path);
                 const dir = await resp.json();
                 repo.push(...dir);
                 Q.push(...dir);
@@ -177,12 +177,33 @@ export class Guthub
         this.print('ok!');
     }
 
-    async clone(auth_token, https_path, repo_path)
+    async clone_gist(auth_token, gistname, repo_path)
     {
         this.auth_token = auth_token;
-        const resp = await this.github_api_request(https_path, '/contents');
+        const https_path = 'https://github.com/' + gistname;
+        const resp = await this.api_request('gists', https_path);
         const repo = await resp.json();
-        console.log('clone', repo);
+
+        this.FS.mkdir(repo_path);
+        this.FS.mkdir(repo_path + '/.git');
+        this.FS.mkdir(repo_path + '/.git/objects');
+        this.FS.writeFile(repo_path + '/.git/config', '[remote "origin"]\nurl = ' + https_path);
+
+        for(const file_name in repo.files)
+        {
+            const file = repo.files[file_name];
+            const file_path = repo_path + '/' + file_name;
+            const contents = file.truncated ? (await fetch(file.raw_url).then(x => x.text())) : file.content;
+            this.FS.writeFile(file_path, contents);
+        }
+        this.save_githubcontents(repo_path, repo);
+    }
+
+    async clone_repo(auth_token, https_path, repo_path)
+    {
+        this.auth_token = auth_token;
+        const resp = await this.api_request('repos', https_path, '/contents');
+        const repo = await resp.json();
 
         this.FS.mkdir(repo_path);
         this.FS.mkdir(repo_path + '/.git');
@@ -203,7 +224,7 @@ export class Guthub
             else if(file.type == 'dir')
             {
                 this.FS.mkdir(repo_path + '/' + file.path);
-                const resp = await this.github_api_request(https_path, '/contents/' + file.path);
+                const resp = await this.api_request('repos', https_path, '/contents/' + file.path);
                 const dir = await resp.json();
                 repo.push(...dir);
                 Q.push(...dir);
@@ -222,7 +243,7 @@ export class Guthub
         const content = this.FS.readFile(file_path, {encoding : 'utf8'});
         let sha = this.read_githubcontents().filter(f => f.path == file_path);
         sha = sha.length > 0 ? sha[0].sha : null;
-        const resp = await this.github_api_request(this.read_https_path(), '/contents/' + file_path, 'put', Object.assign({message : `${file_path}: ${message}`, content : base64_encode_utf8(content)}, sha ? {sha : sha} : {}));
+        const resp = await this.api_request('repos', this.read_https_path(), '/contents/' + file_path, 'PUT', Object.assign({message : `${file_path}: ${message}`, content : base64_encode_utf8(content)}, sha ? {sha : sha} : {}));
         if(resp.ok)
             sha = (await resp.json()).content.sha;
         else if(resp.status == 409 && retry != false)

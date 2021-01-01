@@ -613,8 +613,6 @@ export class Shell
         this.compiler.postMessage({files : files, main_tex_path : main_tex_path, verbose : verbose});
     }
 
-    this upload_simgle
-
     async upload(file_path = null)
     {
         const fileupload = this.ui.fileupload;

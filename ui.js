@@ -29,7 +29,7 @@ export class Shell
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['nanozip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'whoami', 'wc', 'cat', 'head', 'clear'];
         this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'share', 'upload'];
-        this.git_applets = ['clone', 'pull', 'status'];
+        this.git_applets = ['clone', 'pull', 'push', 'status'];
         this.shell_commands = this.shell_builtins.concat(this.busybox_applets).concat(this.git_applets.map(cmd => 'git ' + cmd)).sort();
         this.tic_ = 0;
         this.timer_delay_millisec = 1000;
@@ -320,7 +320,7 @@ export class Shell
         else
             this.man();
        
-        this.dirty_timer();
+        this.dirty_timer(true);
         this.terminal_prompt();
     }
    
@@ -368,6 +368,12 @@ export class Shell
         this.log_big_header('[git pull]');
         
         return this.github.pull();
+    }
+    
+    git_push(...args)
+    {
+        this.log_big_header('[git push]');
+        return this.github.push_gist(...args) ? "ok!" : "error!";
     }
 
     serialize_project(project_dir)
@@ -491,7 +497,7 @@ export class Shell
             file_path = this.expandcollapseuser(file_path);
             if(file_path != null && this.isdir(file_path))
             {
-                default_path = this.open_find_default_path(file_path);
+                const default_path = this.open_find_default_path(file_path);
                 file_path = default_path != null ? this.PATH.join2(file_path, default_path) : null;
             }
         }

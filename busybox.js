@@ -94,7 +94,7 @@ export class Busybox
             }
             catch(e)
             {
-                fflush(NULL);
+                //fflush(NULL);
                 this.print('callMain: ' + e.message);
                 return e.status;
             }

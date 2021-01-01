@@ -177,6 +177,13 @@ export class Github
         this.print('ok!');
     }
 
+    async push_gist(file_path)
+    {
+        const content = this.FS.readFile(file_path, {encoding: 'utf8'});
+        const resp = await this.api_request('gists', this.read_https_path(), '', 'PATCH', {files : {[file_path] : {filename: file_path, content : content}}});
+        return resp.status == 200 ? true : false;
+    }
+
     async clone_gist(auth_token, gistname, repo_path)
     {
         this.auth_token = auth_token;
@@ -191,6 +198,7 @@ export class Github
 
         for(const file_name in repo.files)
         {
+            this.print(`Creating [${file_name}]`);
             const file = repo.files[file_name];
             const file_path = repo_path + '/' + file_name;
             const contents = file.truncated ? (await fetch(file.raw_url).then(x => x.text())) : file.content;

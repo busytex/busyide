@@ -613,26 +613,36 @@ export class Shell
         this.compiler.postMessage({files : files, main_tex_path : main_tex_path, verbose : verbose});
     }
 
+    this upload_simgle
+
     async upload(file_path = null)
     {
         const fileupload = this.ui.fileupload;
-        const reader = new FileReader();
+        if(file_path != null)
+            fileupload.removeAttribute('multiple');
+        else
+            fileupload.setAttribute('mutiple', 'true');
+
+        const onloadend = ev => {
+            const reader = ev.target;
+            const chosen_file_name = reader.chosen_file_name;
+            this.FS.writeFile(file_path || chosen_file_name, new Uint8Array(reader.result));
+        };
+        
         return new Promise((resolve, reject) =>
         {
-            reader.onloadend = () => {
-                const chosen_file_name = reader.chosen_file_name;
-                file_path = file_path || chosen_file_name;
-
-                this.FS.writeFile(file_path, new Uint8Array(reader.result));
-                resolve(`Local file [${chosen_file_name}] uploaded into [${file_path}]`);
-            };
+            let log = '';
             fileupload.onchange = () =>
             {
                 for(const file of fileupload.files)
                 {
+                    const reader = new FileReader();
                     reader.chosen_file_name = file.name;
+                    reader.onloadend = onloadend;
                     reader.readAsArrayBuffer(file)
+                    log += `Local file [${reader.chosen_file_name}] uploaded into [${file_path}]\r\n`;
                 }
+                resolve(log);
             };
             fileupload.click();
         });

@@ -234,7 +234,7 @@ export class Shell
                 else if(cmd == 'git' && args.length > 0 && this.git_applets.includes(args[0]))
                     await this['git_' + args[0]](...args.slice(1));
                 else if(cmd == 'cache' && args.length > 0 && this.cache_applets.includes(args[0]))
-                    await this['cache_' + args[0]](...args.slice(1));
+                    print_or_dump(await this['cache_' + args[0]](...args.slice(1)));
                 else if(this.shell_builtins.includes(cmd))
                     print_or_dump(await this[cmd](...args));
                 else
@@ -433,6 +433,8 @@ export class Shell
         const gist = github_https_path.includes('gist.github.com');
         const record = {reponame : reponame, username : username, gist: gist, token: token};
         this.FS.writeFile(this.cached_tokens_jsonl, this.cache_tokenls() + JSON.stringify(record) + '\n');
+        await this.cache_save();
+        return 'ok!';
     }
 
     async cache_tokenget(github_https_path)

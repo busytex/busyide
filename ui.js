@@ -620,33 +620,31 @@ export class Shell
 
     async upload(file_path = null)
     {
+        const upload_file = (src_path, dst_path) =>
+        {
+            return new Promise((resolve, reject) => 
+            {
+                const reader = new FileReader();
+                reader.onloadend = ev => {
+                    this.FS.writeFile(dst_path, new Uint8Array(reader.result));
+                    resolve(`Local file [${src_path}] uploaded into [${dst_path}]`);
+                }
+                reader.readAsArrayBuffer(file);
+            });
+        };
+        
         const fileupload = this.ui.fileupload;
         if(file_path != null)
             fileupload.removeAttribute('multiple');
         else
             fileupload.setAttribute('multiple', 'true');
-
-        let log = '';
-
-        const onloadend = ev => {
-            const reader = ev.target;
-            const dst_path = file_path || reader.chosen_file_name;
-            this.FS.writeFile(dst_path, new Uint8Array(reader.result));
-            log += `Local file [${reader.chosen_file_name}] uploaded into [${dst_path}]\r\n`;
-        };
-        
         return new Promise((resolve, reject) =>
         {
             fileupload.onchange = () =>
             {
-                for(const file of fileupload.files)
-                {
-                    const reader = new FileReader();
-                    reader.chosen_file_name = file.name;
-                    reader.onloadend = onloadend;
-                    reader.readAsArrayBuffer(file);
-                }
-                resolve(log);
+                const uploads = Array.from(fileupload.files).map(file => upload_file(file.name, file_path || file.name));
+                const logs = await Promise.all(uploads);
+                resolve(logs.join('\r\n'));
             };
             fileupload.click();
         });

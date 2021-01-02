@@ -31,7 +31,7 @@ export class Shell
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['nanozip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'whoami', 'wc', 'cat', 'head', 'clear'];
         this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'share', 'upload'];
-        this.cache_applets = ['purge', 'tokenadd', 'tokenls'];
+        this.cache_applets = ['purge', 'tokenadd', 'tokenls', 'tokenpurge'];
         this.git_applets = ['clone', 'pull', 'push', 'status'];
         this.shell_commands = this.shell_builtins.concat(this.busybox_applets).concat(this.git_applets.map(cmd => 'git ' + cmd)).sort();
         this.tic_ = 0;
@@ -438,6 +438,12 @@ export class Shell
         for(const file_name of cached_files)
             if(file_name != '.' && file_name != '..')
                 this.FS.unlink(this.PATH.join2(this.cache_dir, file_name));
+        await this.save_cache();
+    }
+
+    async cache_tokenpurge()
+    {
+        this.FS.unlink(this.cached_tokens_jsonl);
         await this.save_cache();
     }
     

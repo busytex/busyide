@@ -365,8 +365,8 @@ export class Shell
 
         token = token || this.ui.github_token.value;
         const route = https_path.split('/');
-
         let repo_path = route.pop();
+        
         if(https_path.includes('gist.github.com'))
         {
             const gistname = repo_path;
@@ -375,7 +375,6 @@ export class Shell
         }
         else
         {
-            repo_path = route.pop();
             this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
             await this.github.clone_repo(token, https_path, repo_path);
         }

@@ -462,7 +462,7 @@ export class Shell
         return 'ok!';
     }
 
-    async cache_tokenget(github_https_path)
+    cache_tokenget(github_https_path)
     {
         const route = github_https_path.split('/');
         const reponame = route.pop();

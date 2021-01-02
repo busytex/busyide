@@ -287,13 +287,13 @@ export class Shell
         return project_dir;
     }
 
-    async init(route, github_https_path, github_token)
+    async init(route, github_https_path)
     {
         let project_dir = null;
 
         if(github_https_path.length > 0)
         {
-            project_dir = await this.git_clone(github_https_path, github_token);
+            project_dir = await this.git_clone(github_https_path);
         }
         else if(route[0] == 'arxiv')
         {
@@ -331,11 +331,10 @@ export class Shell
         if(route.length > 1 && route[0] == 'github')
         {
             this.ui.github_https_path.value = route[1];
-            this.ui.github_token.value = this.cache_tokenget(this.ui.github_https_path.value);
         }
        
         if(this.ui.github_https_path.value.length > 0 || route.length > 1)
-            await this.init(route, this.ui.github_https_path.value, this.ui.github_token.value);
+            await this.init(route, this.ui.github_https_path.value);
         else
             this.man();
        
@@ -354,6 +353,16 @@ export class Shell
     {
         this.log_big_header('[git clone]'); 
         
+        let token_cached = false;
+        if(token == null || token == '')
+        {
+            this.terminal_print(`Searching token cache for '${https_path}'...`);
+            token = this.cache_tokenget(this.ui.github_https_path.value);
+            this.ui.github_token.value = token;
+            token_cached = token != '';
+            this.terminal_print(token_cached ? `Token found [${token}] in cache...` : 'Token not found in cache...');
+        }
+
         token = token || this.ui.github_token.value;
         const route = https_path.split('/');
 
@@ -370,7 +379,13 @@ export class Shell
             this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
             await this.github.clone_repo(token, https_path, repo_path);
         }
-        this.cache_tokenadd(https_path, token);
+        
+        if(!token_cached)
+        {
+            this.terminal_print(`Caching for '${https_path}' token [${token}]...`);
+            this.cache_tokenadd(https_path, token);
+        }
+        
         await this.cache_save();
         this.ui.set_route('github', https_path);
         return repo_path;

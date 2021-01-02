@@ -12,6 +12,7 @@ export class Shell
         this.tmp_dir = '/tmp';
         this.OLDPWD = this.home_dir;
         this.cache_dir = '/cache';
+        this.cached_tokens_jsonl = this.cache_dir + '/cached_tokens.jsonl';
         this.tex_ext = '.tex';
         this.readme_dir = this.home_dir + '/readme';
         this.readme_tex = this.readme_dir + '/readme.tex';
@@ -30,6 +31,7 @@ export class Shell
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['nanozip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'whoami', 'wc', 'cat', 'head', 'clear'];
         this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'share', 'upload'];
+        this.cache_applets = ['purge', 'tokenadd', 'tokenls'];
         this.git_applets = ['clone', 'pull', 'push', 'status'];
         this.shell_commands = this.shell_builtins.concat(this.busybox_applets).concat(this.git_applets.map(cmd => 'git ' + cmd)).sort();
         this.tic_ = 0;
@@ -231,6 +233,8 @@ export class Shell
                     this.terminal_print(this.git_applets.join('\t'));
                 else if(cmd == 'git' && args.length > 0 && this.git_applets.includes(args[0]))
                     await this['git_' + args[0]](...args.slice(1));
+                else if(cmd == 'cache' && args.length > 0 && this.cache_applets.includes(args[0]))
+                    await this['cache_' + args[0]](...args.slice(1));
                 else if(this.shell_builtins.includes(cmd))
                     print_or_dump(await this[cmd](...args));
                 else
@@ -323,7 +327,7 @@ export class Shell
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
         this.github = new Github(sha1, this.FS, this.cache_dir, this.merge.bind(this), this.log_big.bind(this));
-        await this.load_cache();
+        await this.cache_load();
         if(this.ui.github_https_path.value.length > 0 || route.length > 1)
             await this.init(route, this.ui.github_https_path.value);
         else
@@ -360,7 +364,8 @@ export class Shell
             this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
             await this.github.clone_repo(token, https_path, repo_path);
         }
-        await this.save_cache();
+        this.cache_tokenadd(https_path, token);
+        await this.cache_save();
         this.ui.set_route('github', https_path);
         return repo_path;
     }
@@ -396,23 +401,51 @@ export class Shell
         return JSON.parse(atob(project_str));
     }
 
-    async load_cache()
+    async cache_load()
     {
         return new Promise((resolve, reject) => this.FS.syncfs(true, x => x == null ? resolve(true) : reject(false)));
     }
     
-    async save_cache()
+    async cache_save()
     {
         return new Promise((resolve, reject) => this.FS.syncfs(false, x => x == null ? resolve(true) : reject(false)));
     }
 
-    async purge_cache()
+    async cache_purge()
     {
         const cached_files = this.FS.readdir(this.cache_dir);
         for(const file_name of cached_files)
             if(file_name != '.' && file_name != '..')
-                this.FS.unlink(this.cache_dir + '/' + file_name);
+                this.FS.unlink(this.PATH.join2(this.cache_dir, file_name));
         await this.save_cache();
+    }
+    
+    cache_tokenls()
+    {
+        return this.exists(this.cached_tokens_jsonl) ? this.FS.readFile(this.cached_tokens_jsonl, {encoding: 'utf8'}) : '';
+    }
+
+    async cache_tokenadd(github_https_path, token)
+    {
+        const route = github_https_path.split('/');
+        const reponame = route.pop();
+        const username = route.pop();
+        const gist = github_https_path.includes('gist.github.com');
+        const record = {reponame : reponame, username : username, gist: gist, token: token};
+        this.FS.writeFile(this.cached_tokens_jsonl, this.cache_tokenls() + JSON.stringify(record) + '\n');
+    }
+
+    async cache_tokenget(github_https_path)
+    {
+        // for gist:
+        // 1. username+reponame+[gist=true]
+        // 2. username+[gist=true]
+        // 3. username+[gist=false]
+        // 4. [gist=true]
+        // for non-gist:
+        // 1. username+reponame+[gist=false]
+        // 2. username
+        // 3. [gist=true]
     }
 
     oncompilermessage(e)

@@ -20,10 +20,7 @@ export class Github
 
     parse_url(https_path)
     {
-        if(https_path.endsWith('/'))
-            https_path = https_path.substr(0, https_path.length - 1);
-
-        const route = https_path.split('/');
+        const route = https_path.split('/').filter(s => s != '');
         const reponame = route.pop();
         const username = route.pop();
         const gist = https_path.includes('gist.github.com');

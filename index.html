@@ -130,6 +130,7 @@
             <input type="text" style="width: 250px" id="github_https_path" placeholder="GitHub https link"></input>
             <input type="text" style="width: 100px" id="github_token" placeholder="GitHub token" title="for private clone/push"></input>
             <button id="clone">Clone</button>
+            <button id="cache_tokenpurge">Purge Token Cache</button>
             <button id="pull" hidden>Pull</button>
             <button id="push" hidden>Push</button>
             <input id="github_release" hidden type="text" style="width: 100px" placeholder="Publish Release Name" title="for publishing a PDF into a release"></input>
@@ -261,6 +262,7 @@ const ui =
     download_pdf : document.getElementById('download_pdf'),
     view_log : document.getElementById('view_log'),
     view_pdf : document.getElementById('view_pdf'),
+    cache_tokenpurge : document.getElementById('cache_tokenpurge'),
     download_zip : document.getElementById('download_zip'),
     new_file : document.getElementById('new_file'),
     new_folder : document.getElementById('new_folder'),

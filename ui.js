@@ -459,11 +459,7 @@ export class Shell
 
     async cache_tokenadd(github_https_path, token)
     {
-        const route = github_https_path.split('/');
-        const reponame = route.pop();
-        const username = route.pop();
-        const gist = github_https_path.includes('gist.github.com');
-        const record = {reponame : reponame, username : username, gist: gist, token: token};
+        const parsed = {token: token, ...this.github.parse_url(github_https_path)};
         this.FS.writeFile(this.cached_tokens_jsonl, this.cache_tokenls() + JSON.stringify(record) + '\n');
         await this.cache_save();
         return 'ok!';
@@ -471,13 +467,9 @@ export class Shell
 
     cache_tokenget(github_https_path)
     {
-        const route = github_https_path.split('/');
-        const reponame = route.pop();
-        const username = route.pop();
-        const gist = github_https_path.includes('gist.github.com');
-
+        const parsed = this.github.parse_url(github_https_path);
         const tokens = this.cache_tokenls(false);
-        const good = tokens.filter(t => t.username == username);
+        const good = tokens.filter(t => t.username == parsed.username);
         if(good.length > 0)
             return good[0].token;
         return '';

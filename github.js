@@ -18,6 +18,19 @@ export class Github
         this.sha1 = sha1;
     }
 
+    parse_url(https_path)
+    {
+        if(https_path.endsWith('/'))
+            https_path = https_path.substr(0, https_path.length - 1);
+
+        const route = https_path.split('/');
+        const reponame = route.pop();
+        const username = route.pop();
+        const gist = https_path.includes('gist.github.com');
+
+        return {reponame : reponame, username : username, gist: gist, path : https_path};
+    }
+
     api_request(realm, https_path, relative_url = '', method = 'get', body = null)
     {
         const api = https_path.replace('github.com', 'api.github.com/' + realm);

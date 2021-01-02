@@ -619,17 +619,19 @@ export class Shell
         if(file_path != null)
             fileupload.removeAttribute('multiple');
         else
-            fileupload.setAttribute('mutiple', 'true');
+            fileupload.setAttribute('multiple', 'true');
+
+        let log = '';
 
         const onloadend = ev => {
             const reader = ev.target;
-            const chosen_file_name = reader.chosen_file_name;
-            this.FS.writeFile(file_path || chosen_file_name, new Uint8Array(reader.result));
+            const file_path = file_path || reader.chosen_file_name;
+            this.FS.writeFile(file_path, new Uint8Array(reader.result));
+            log += `Local file [${reader.chosen_file_name}] uploaded into [${file_path}]\r\n`;
         };
         
         return new Promise((resolve, reject) =>
         {
-            let log = '';
             fileupload.onchange = () =>
             {
                 for(const file of fileupload.files)
@@ -637,8 +639,7 @@ export class Shell
                     const reader = new FileReader();
                     reader.chosen_file_name = file.name;
                     reader.onloadend = onloadend;
-                    reader.readAsArrayBuffer(file)
-                    log += `Local file [${reader.chosen_file_name}] uploaded into [${file_path}]\r\n`;
+                    reader.readAsArrayBuffer(file);
                 }
                 resolve(log);
             };

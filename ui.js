@@ -349,12 +349,13 @@ export class Shell
         this.log_big(text);
     }
 
-    async git_clone(https_path, token = null)
+    async git_clone(https_path)
     {
         this.log_big_header('[git clone]'); 
         
         let token_cached = false;
-        if(token == null || token == '')
+        let token = this.ui.github_token.value;
+        if(token == '')
         {
             this.terminal_print(`Searching token cache for '${https_path}'...`);
             token = this.cache_tokenget(this.ui.github_https_path.value);

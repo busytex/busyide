@@ -620,14 +620,16 @@ export class Shell
 
     async upload(file_path = null)
     {
-        const upload_file = (src_path, dst_path) =>
+        const upload_file = file =>
         {
+            const src_name = file.name;
+            const dst_path = file_path || src_name;
             return new Promise((resolve, reject) => 
             {
                 const reader = new FileReader();
                 reader.onloadend = ev => {
                     this.FS.writeFile(dst_path, new Uint8Array(reader.result));
-                    resolve(`Local file [${src_path}] uploaded into [${dst_path}]`);
+                    resolve(`Local file [${src_name}] uploaded into [${dst_path}]`);
                 }
                 reader.readAsArrayBuffer(file);
             });
@@ -642,7 +644,7 @@ export class Shell
         {
             fileupload.onchange = async () =>
             {
-                const uploads = Array.from(fileupload.files).map(file => upload_file(file.name, file_path || file.name));
+                const uploads = Array.from(fileupload.files).map(file => upload_file(file));
                 const logs = await Promise.all(uploads);
                 resolve(logs.join('\r\n'));
             };

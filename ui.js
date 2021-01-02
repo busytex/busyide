@@ -640,7 +640,7 @@ export class Shell
             fileupload.setAttribute('multiple', 'true');
         return new Promise((resolve, reject) =>
         {
-            fileupload.onchange = () =>
+            fileupload.onchange = async () =>
             {
                 const uploads = Array.from(fileupload.files).map(file => upload_file(file.name, file_path || file.name));
                 const logs = await Promise.all(uploads);

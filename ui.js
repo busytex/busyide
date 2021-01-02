@@ -438,13 +438,13 @@ export class Shell
         for(const file_name of cached_files)
             if(file_name != '.' && file_name != '..')
                 this.FS.unlink(this.PATH.join2(this.cache_dir, file_name));
-        await this.save_cache();
+        await this.cache_save();
     }
 
     async cache_tokenpurge()
     {
         this.FS.unlink(this.cached_tokens_jsonl);
-        await this.save_cache();
+        await this.cache_save();
     }
     
     cache_tokenls(str = true)

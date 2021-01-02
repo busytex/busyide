@@ -380,7 +380,7 @@ export class Shell
             await this.github.clone_repo(token, https_path, repo_path);
         }
         
-        if(!token_cached)
+        if(!token_cached && token != '')
         {
             this.terminal_print(`Caching for '${https_path}' token [${token}]...`);
             this.cache_tokenadd(https_path, token);

@@ -102,6 +102,11 @@ export class Shell
         this.interval_id = 0;
     }
 
+    exists(path)
+    {
+        return this.FS.analyzePath(path).exists;
+    }
+
     abspath(path)
     {
         return path.startsWith('/') ? path : this.PATH.join2(this.FS.cwd(), path);
@@ -625,9 +630,9 @@ export class Shell
 
         const onloadend = ev => {
             const reader = ev.target;
-            const file_path = file_path || reader.chosen_file_name;
-            this.FS.writeFile(file_path, new Uint8Array(reader.result));
-            log += `Local file [${reader.chosen_file_name}] uploaded into [${file_path}]\r\n`;
+            const dst_path = file_path || reader.chosen_file_name;
+            this.FS.writeFile(dst_path, new Uint8Array(reader.result));
+            log += `Local file [${reader.chosen_file_name}] uploaded into [${dst_path}]\r\n`;
         };
         
         return new Promise((resolve, reject) =>

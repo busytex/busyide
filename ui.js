@@ -287,13 +287,13 @@ export class Shell
         return project_dir;
     }
 
-    async init(route, github_https_path)
+    async init(route, github_https_path, github_token)
     {
         let project_dir = null;
 
         if(github_https_path.length > 0)
         {
-            project_dir = await this.git_clone(this.ui.github_https_path.value);
+            project_dir = await this.git_clone(github_https_path, github_token);
         }
         else if(route[0] == 'arxiv')
         {
@@ -312,11 +312,9 @@ export class Shell
 
     async run(route, busybox_module_constructor, busybox_wasm_module_promise, sha1)
     {
-        if(route.length > 1 && route[0] == 'github')
-            this.ui.github_https_path.value = route[1];
-       
         this.compiler.postMessage(this.paths);
         this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, this.log_small.bind(this));
+        
         await this.busybox.load()
         
         this.PATH = this.busybox.Module.PATH;
@@ -327,9 +325,17 @@ export class Shell
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
         this.github = new Github(sha1, this.FS, this.cache_dir, this.merge.bind(this), this.log_big.bind(this));
+        
         await this.cache_load();
+        
+        if(route.length > 1 && route[0] == 'github')
+        {
+            this.ui.github_https_path.value = route[1];
+            this.ui.github_token.value = this.cache_tokenget(this.ui.github_https_path.value);
+        }
+       
         if(this.ui.github_https_path.value.length > 0 || route.length > 1)
-            await this.init(route, this.ui.github_https_path.value);
+            await this.init(route, this.ui.github_https_path.value, this.ui.github_token.value);
         else
             this.man();
        
@@ -344,11 +350,11 @@ export class Shell
         this.log_big(text);
     }
 
-    async git_clone(https_path)
+    async git_clone(https_path, token = null)
     {
         this.log_big_header('[git clone]'); 
         
-        const token = this.ui.github_token.value;
+        token = token || this.ui.github_token.value;
         const route = https_path.split('/');
 
         let repo_path = route.pop();
@@ -420,9 +426,13 @@ export class Shell
         await this.save_cache();
     }
     
-    cache_tokenls()
+    cache_tokenls(str = true)
     {
-        return this.exists(this.cached_tokens_jsonl) ? this.FS.readFile(this.cached_tokens_jsonl, {encoding: 'utf8'}) : '';
+        const content = this.exists(this.cached_tokens_jsonl) ? this.FS.readFile(this.cached_tokens_jsonl, {encoding: 'utf8'}) : '';
+        if(str)
+            return content;
+        else
+            return content != '' ? content.split('\n').filter(s => s != '').map(s => JSON.parse(s)) : [];
     }
 
     async cache_tokenadd(github_https_path, token)
@@ -439,6 +449,17 @@ export class Shell
 
     async cache_tokenget(github_https_path)
     {
+        const route = github_https_path.split('/');
+        const reponame = route.pop();
+        const username = route.pop();
+        const gist = github_https_path.includes('gist.github.com');
+
+        const tokens = this.cache_tokenls(false);
+        const good = tokens.filter(t => t.username == username);
+        if(good.length > 0)
+            return good[0].token;
+        return '';
+
         // for gist:
         // 1. username+reponame+[gist=true]
         // 2. username+[gist=true]

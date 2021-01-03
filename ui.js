@@ -89,7 +89,7 @@ export class Shell
             if(option.className == 'filetreedirectory')
             {
                 if(option.text == '.git')
-                    this.git_status();
+                    this.commands(cmd('git', 'status'));
                 else if(option.text == '.')
                     this.refresh();
                 else
@@ -353,6 +353,9 @@ export class Shell
     async git_clone(https_path)
     {
         this.log_big_header('[git clone]'); 
+        const route = https_path.split('/');
+        let repo_path = route.pop();
+        this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
         
         let token_cached = false;
         let token = this.ui.github_token.value;
@@ -366,18 +369,14 @@ export class Shell
         }
 
         token = token || this.ui.github_token.value;
-        const route = https_path.split('/');
-        let repo_path = route.pop();
         
         if(https_path.includes('gist.github.com'))
         {
             const gistname = repo_path;
-            this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
             await this.github.clone_gist(token, gistname, repo_path);
         }
         else
         {
-            this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
             await this.github.clone_repo(token, https_path, repo_path);
         }
         

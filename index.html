@@ -345,13 +345,21 @@ const ui =
     update_tbody(tbody, st)
     {
         tbody.innerHTML = '';
-        for(const {path, status} of st)
+        for(const {path, status, onclick} of st)
         {
             const tr = tbody.insertRow();
             let tc = tr.insertCell();
             tc.appendChild(document.createTextNode(path));
             tc = tr.insertCell();
-            tc.appendChild(document.createTextNode(status));
+            const text = document.createTextNode(status);
+            if(onclick)
+            {
+                const a = document.createElement('a');
+                a.href = "#";
+                a.onclick = onclick;
+                tc = a;
+            }
+            tc.appendChild(text);
         }
     },
 
@@ -379,8 +387,13 @@ const ui =
         const tbody_notmodified = details_notmodified.querySelector('tbody');
 
         table_modified.hidden = modified.length == 0;
+        const onclick = ev => console.log(ev.target, ev.target.innerHTML) || false;
         if(!table_modified.hidden)
+        {
+            for(let m of modified)
+                m.onclick = onclick;
             this.update_tbody(tbody_modified, modified);
+        }
             
         details_notmodified.hidden = notmodified.length == 0;
         if(!details_notmodified.hidden)

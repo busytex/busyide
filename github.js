@@ -71,7 +71,6 @@ export class Github
         let res = [];
 
         const https_path = this.read_https_path();
-        this.print(`Pulling from '${https_path}'...`);
         
         const prev = this.read_githubcontents();
         console.log('prev', prev);

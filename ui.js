@@ -31,7 +31,7 @@ export class Shell
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['nanozip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'whoami', 'wc', 'cat', 'head', 'clear'];
         this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'share', 'upload'];
-        this.cache_applets = ['purge', 'tokenadd', 'tokenls', 'tokenpurge'];
+        this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status'];
         this.shell_commands = this.shell_builtins.concat(this.busybox_applets).concat(this.git_applets.map(cmd => 'git ' + cmd)).sort();
         this.tic_ = 0;
@@ -60,7 +60,7 @@ export class Shell
 
         this.ui.clone.onclick = () => this.commands(chain('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('open', this.PATH.join2('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('cd', this.PATH.basename(this.ui.github_https_path.value))));
         this.ui.download_pdf.onclick = () => this.commands(cmd('download', arg(this.pdf_path)));
-        this.ui.cache_tokenpurge.onclick = () => this.commands(cmd('cache', 'tokenpurge'));
+        this.ui.cache_tokenpurge.onclick = () => this.commands(cmd('cache', 'token', 'purge'));
         this.ui.view_log.onclick = () => this.commands(cmd('open', arg(this.log_path)));
         this.ui.view_pdf.onclick = () => this.commands(cmd('open', arg(this.pdf_path)));
         this.ui.download.onclick = () => this.commands(cmd('download', arg(this.edit_path)));
@@ -433,56 +433,58 @@ export class Shell
         return new Promise((resolve, reject) => this.FS.syncfs(false, x => x == null ? resolve(true) : reject(false)));
     }
 
-    async cache_purge()
+    async cache_object(cmd)
     {
-        const cached_files = this.FS.readdir(this.cache_dir);
-        for(const file_name of cached_files)
-            if(file_name != '.' && file_name != '..')
-                this.FS.unlink(this.PATH.join2(this.cache_dir, file_name));
-        await this.cache_save();
+        if(cmd == 'purge')
+        {
+            const cached_files = this.FS.readdir(this.cache_dir);
+            for(const file_name of cached_files)
+                if(file_name != '.' && file_name != '..')
+                    this.FS.unlink(this.PATH.join2(this.cache_dir, file_name));
+            await this.cache_save();
+        }
     }
 
-    async cache_tokenpurge()
+    async cache_token(cmd, github_https_path, token)
     {
-        this.FS.unlink(this.cached_tokens_jsonl);
-        await this.cache_save();
-    }
-    
-    cache_tokenls(str = true)
-    {
-        const content = this.exists(this.cached_tokens_jsonl) ? this.FS.readFile(this.cached_tokens_jsonl, {encoding: 'utf8'}) : '';
-        if(str)
-            return content;
-        else
-            return content != '' ? content.split('\n').filter(s => s != '').map(s => JSON.parse(s)) : [];
-    }
+        if(cmd == 'purge')
+        {
+            this.FS.unlink(this.cached_tokens_jsonl);
+            await this.cache_save();
+        }
+        else if(cmd == 'ls')
+        {
+            const content = this.exists(this.cached_tokens_jsonl) ? this.FS.readFile(this.cached_tokens_jsonl, {encoding: 'utf8'}) : '';
+            if(github_https_path != false)
+                return content;
+            else
+                return content != '' ? content.split('\n').filter(s => s != '').map(s => JSON.parse(s)) : [];
+        }
+        else if(cmd == 'add')
+        {
+            const parsed = {token: token, ...this.github.parse_url(github_https_path)};
+            this.FS.writeFile(this.cached_tokens_jsonl, (await this.cache_token('ls')) + JSON.stringify(record) + '\n');
+            await this.cache_save();
+        }
+        else if(cmd == 'get')
+        {
+            const parsed = this.github.parse_url(github_https_path);
+            const tokens = await this.cache_token('ls', false);
+            const good = tokens.filter(t => t.username == parsed.username);
+            if(good.length > 0)
+                return good[0].token;
+            return '';
 
-    async cache_tokenadd(github_https_path, token)
-    {
-        const parsed = {token: token, ...this.github.parse_url(github_https_path)};
-        this.FS.writeFile(this.cached_tokens_jsonl, this.cache_tokenls() + JSON.stringify(record) + '\n');
-        await this.cache_save();
-        return 'ok!';
-    }
-
-    cache_tokenget(github_https_path)
-    {
-        const parsed = this.github.parse_url(github_https_path);
-        const tokens = this.cache_tokenls(false);
-        const good = tokens.filter(t => t.username == parsed.username);
-        if(good.length > 0)
-            return good[0].token;
-        return '';
-
-        // for gist:
-        // 1. username+reponame+[gist=true]
-        // 2. username+[gist=true]
-        // 3. username+[gist=false]
-        // 4. [gist=true]
-        // for non-gist:
-        // 1. username+reponame+[gist=false]
-        // 2. username
-        // 3. [gist=true]
+            // for gist:
+            // 1. username+reponame+[gist=true]
+            // 2. username+[gist=true]
+            // 3. username+[gist=false]
+            // 4. [gist=true]
+            // for non-gist:
+            // 1. username+reponame+[gist=false]
+            // 2. username
+            // 3. [gist=true]
+        }
     }
 
     oncompilermessage(e)

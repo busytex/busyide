@@ -359,7 +359,7 @@ export class Shell
         if(token == '')
         {
             this.terminal_print(`Searching token cache for '${https_path}'...`);
-            token = this.cache_token('get', this.ui.github_https_path.value);
+            token = await this.cache_token('get', this.ui.github_https_path.value);
             this.ui.github_token.value = token;
             token_cached = token != '';
             this.terminal_print(token_cached ? `Token found [${token}] in cache...` : 'Token not found in cache...');

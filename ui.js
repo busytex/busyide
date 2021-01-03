@@ -394,16 +394,15 @@ export class Shell
     git_status()
     {
         const status = this.github.status(this.ls_R('.', '', true, true, false, false));
-        
         this.ui.update_git_status(status.filter(f => f.status != 'not modified'), status.filter(f => f.status == 'not modified'));
         this.ui.toggle_viewer('gitstatus');
     }
 
     git_pull()
     {
-        this.log_big_header('[git pull]');
-        
-        return this.github.pull();
+        const status = this.github.pull();
+        this.ui.update_git_pull(status.filter(f => f.status != 'not modified'), status.filter(f => f.status == 'not modified'));
+        this.ui.toggle_viewer('gitpull');
     }
     
     git_push(...args)

@@ -168,13 +168,27 @@
         <textarea hidden id="txtpreview"></textarea>
         <figure hidden id="gitstatus">
             <figcaption>[git status]</figcaption>
-            <table id="gitmodified">
+            <table id="gittatusmodified">
                 <thead><tr><th>path</th><th>status</th></tr></thead>
                 <tbody></tbody>
             </table>
             <details>
                 <summary>Not modified</summary>
-                <table id="gitnotmodified">
+                <table>
+                    <thead><tr><th>path</th><th>status</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </details>
+        </figure>
+        <figure hidden id="gitpull">
+            <figcaption>[git status]</figcaption>
+            <table id="gitpullmodified">
+                <thead><tr><th>path</th><th>status</th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <details>
+                <summary>Not modified</summary>
+                <table>
                     <thead><tr><th>path</th><th>status</th></tr></thead>
                     <tbody></tbody>
                 </table>
@@ -275,6 +289,7 @@ const ui =
     pdfpreview : document.getElementById('pdfpreview'),
     txtpreview : document.getElementById('txtpreview'),
     gitstatus : document.getElementById('gitstatus'),
+    gitpull : document.getElementById('gitpull'),
     fileupload : document.getElementById('fileupload'),
     editor : document.getElementById('editor'),
     terminal : document.getElementById('terminal'),
@@ -329,7 +344,7 @@ const ui =
 
     update_git_status(modified, notmodified)
     {
-        const table_modified = ui.gitstatus.querySelector('#gitmodified');
+        const table_modified = ui.gitstatus.querySelector('#gitstatusmodified');
         const details_notmodified = ui.gitstatus.querySelector('details');
         const tbody_modified = table_modified.querySelector('tbody');
         const tbody_notmodified = details_notmodified.querySelector('tbody');

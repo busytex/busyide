@@ -81,6 +81,15 @@
             width: 99%;
             height: 100%;
         }
+        
+        summary {
+            width: 95%;
+        }
+        
+        figure, details, table {
+            width: 95%;
+            height: 95%;
+        }
     </style>
   </head>
   <body>
@@ -157,6 +166,20 @@
         <iframe id="pdfpreview"></iframe>
         <img hidden id="imgpreview"></img>
         <textarea hidden id="txtpreview"></textarea>
+        <figure hidden id="gitstatus">
+            <figcaption>[git status]</figcaption>
+            <table id="gitmodified">
+                <thead><tr><th>path</th><th>status</th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <details>
+                <summary>Not modified</summary>
+                <table id="gitnotmodified">
+                    <thead><tr><th>path</th><th>status</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </details>
+        </figure>
       </div>
     </div>
     <div style="display: flex; flex-direction: row; height: 10%">
@@ -251,6 +274,7 @@ const ui =
     imgpreview : document.getElementById('imgpreview'),
     pdfpreview : document.getElementById('pdfpreview'),
     txtpreview : document.getElementById('txtpreview'),
+    gitstatus : document.getElementById('gitstatus'),
     fileupload : document.getElementById('fileupload'),
     editor : document.getElementById('editor'),
     terminal : document.getElementById('terminal'),
@@ -301,6 +325,43 @@ const ui =
     {
         let span = ui.current_file, input = ui.current_file_rename;
         [span.hidden, input.hidden] = [!span.hidden, !input.hidden];
+    },
+
+    update_git_status(modified, notmodified)
+    {
+        const table_modified = ui.gitstatus.querySelector('#gitmodified');
+        const details_notmodified = ui.gitstatus.querySelector('details');
+        const tbody_modified = table_modified.querySelector('tbody');
+        const tbody_notmodified = details_notmodified.querySelector('tbody');
+
+        table_modified.hidden = modified.length == 0;
+        if(!table_modified.hidden)
+        {
+            tbody_modified.innerHTML = '';
+            for(const {path, status} of modified)
+            {
+                const tr = tbody_modified.insertRow();
+                let tc = tr.insertCell();
+                tc.appendChild(document.createTextNode(path));
+                tc = tr.insertCell();
+                tc.appendChild(document.createTextNode(status));
+            }
+        }
+            
+
+        details_notmodified.hidden = notmodified.length == 0;
+        if(!details_notmodified.hidden)
+        {
+            tbody_notmodified.innerHTML = '';
+            for(const {path, status} of notmodified)
+            {
+                const tr = tbody_notmodified.insertRow();
+                let tc = tr.insertCell();
+                tc.appendChild(document.createTextNode(path));
+                tc = tr.insertCell();
+                tc.appendChild(document.createTextNode(status));
+            }
+        }
     },
 
     update_file_tree(files, selected_option_text = null)
@@ -384,7 +445,7 @@ const ui =
 
     toggle_viewer(mode)
     {
-        [ui.imgpreview.hidden, ui.pdfpreview.hidden, ui.txtpreview.hidden] = [mode != 'image', mode != 'pdf', mode != 'text'];
+        [ui.imgpreview.hidden, ui.pdfpreview.hidden, ui.txtpreview.hidden, ui.gitstatus.hidden] = [mode != 'image', mode != 'pdf', mode != 'text', mode != 'gitstatus'];
     }
 };
   

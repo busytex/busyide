@@ -394,9 +394,10 @@ export class Shell
 
     git_status()
     {
-        this.log_big_header('[git status]');
+        const status = this.github.status(this.ls_R('.', '', true, true, false, false));
         
-        return this.github.status(this.ls_R('.', '', true, true, false, false));
+        this.ui.update_git_status(status.filter(f => f.status != 'not modified'), status.filter(f => f.status == 'not modified'));
+        this.ui.toggle_viewer('gitstatus');
     }
 
     git_pull()
@@ -550,9 +551,8 @@ export class Shell
     {
         const open_editor_tab = (file_path, contents) =>
         {
-            const abspath = this.abspath(file_path);
+            let abspath = file_path == '' ? '' : this.abspath(file_path);
             this.edit_path = abspath;
-
             if(!(abspath in this.tabs))
                 this.tabs[abspath] = this.monaco.editor.createModel(contents, undefined, this.monaco.Uri.file(abspath));
 
@@ -633,7 +633,8 @@ export class Shell
     save(busyshell)
     {
         for(const abspath in busyshell.tabs)
-            busyshell.FS.writeFile(abspath, busyshell.tabs[abspath].getValue());
+            if(abspath != '')
+                busyshell.FS.writeFile(abspath, busyshell.tabs[abspath].getValue());
         busyshell.ui.set_dirty(false);
     }
 

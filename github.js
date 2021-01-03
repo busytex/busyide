@@ -157,8 +157,10 @@ export class Github
         return this.sha1(byte_array);
     }
 
-    async status(ls_R)
+    status(ls_R)
     {
+        let res = [];
+
         const prev = this.read_githubcontents(true);
         for(const file of ls_R)
         {
@@ -171,20 +173,22 @@ export class Github
             const sha = prev[file.path];
             
             if(!sha)
-                this.print(`new: ${file.path}`);
+                res.push({path : file.path, status : 'new'});
             else
             {
                 if(sha != this.blob_sha(file.contents))
-                    this.print(`modified: ${file.path}`);
+                    res.push({path : file.path, status : 'modified'});
+                else
+                    res.push({path : file.path, status : 'not modified'});
 
                 delete prev[file.path];
             }
         }
         
         for(const file_path in prev)
-            this.print(`deleted: ${file_path}`)
+            res.push({path : file_path, status : 'deleted'});
 
-        this.print('ok!');
+        return res;
     }
 
     async push_gist(file_path)

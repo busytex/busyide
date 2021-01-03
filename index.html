@@ -303,7 +303,7 @@ const ui =
         [span.hidden, input.hidden] = [!span.hidden, !input.hidden];
     },
 
-    update_file_tree(files)
+    update_file_tree(files, selected_option_text = null)
     {
         const select = ui.filetree;
         let i = 0, j = select.length - 1;

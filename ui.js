@@ -19,9 +19,9 @@ export class Shell
         this.hello_world = "\\documentclass[11pt]{article}\n\\begin{document}\n\n\\title{Hello}\n\\maketitle\n\n\\section{world}\nindeed!\n\n\\end{document}";
 
         this.shared_project = '/home/web_user/shared_project';
-        this.pdf_path = '/tmp/pdf_does_not_exist_yet';
-        this.log_path = '/tmp/log_does_not_exist_yet';
-        this.edit_path = '/tmp/no_file_opened';
+        this.pdf_path = null;
+        this.log_path = null;
+        this.edit_path = null;
         this.tex_path = '';
         this.zip_path = '/tmp/archive.zip';
         this.arxiv_path = '/tmp/arxiv.downloaded';
@@ -59,11 +59,11 @@ export class Shell
         const chain = (...cmds) => cmds.join(' && ');
 
         this.ui.clone.onclick = () => this.commands(chain('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('open', this.PATH.join2('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('cd', this.PATH.basename(this.ui.github_https_path.value))));
-        this.ui.download_pdf.onclick = () => this.commands(cmd('download', arg(this.pdf_path)));
+        this.ui.download_pdf.onclick = () => this.pdf_path && this.commands(cmd('download', arg(this.pdf_path)));
         this.ui.cache_tokenpurge.onclick = () => this.commands(cmd('cache', 'token', 'purge'));
-        this.ui.view_log.onclick = () => this.commands(cmd('open', arg(this.log_path)));
-        this.ui.view_pdf.onclick = () => this.commands(cmd('open', arg(this.pdf_path)));
-        this.ui.download.onclick = () => this.commands(cmd('download', arg(this.edit_path)));
+        this.ui.view_log.onclick = () => this.log_path && this.commands(cmd('open', arg(this.log_path)));
+        this.ui.view_pdf.onclick = () => this.pdf_path && this.commands(cmd('open', arg(this.pdf_path)));
+        this.ui.download.onclick = () => this.edit_path && this.commands(cmd('download', arg(this.edit_path)));
         this.ui.upload.onclick = async () => await this.commands('upload');
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
@@ -776,13 +776,13 @@ export class Shell
         return entries;
     }
 
-    refresh(extra_files = [])
+    refresh(selected_file_name = null)
     {
-        this.ui.update_file_tree(this.ls_R('.', this.pwd(true), false, true, true, true, []).concat(extra_files));
+        this.ui.update_file_tree(this.ls_R('.', this.pwd(true), false, true, true, true, []), selected_file_name);
 
         for(const abspath in this.tabs)
         {
-            if(!this.FS.analyzePath(abspath).exists)
+            if(!this.exists(abspath))
             {
                 this.tabs[abspath].dispose();
                 delete this.tabs[abspath];

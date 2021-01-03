@@ -384,7 +384,7 @@ export class Shell
         if(!token_cached && token != '')
         {
             this.terminal_print(`Caching for '${https_path}' token [${token}]...`);
-            this.cache_tokenadd(https_path, token);
+            await this.cache_token('add', https_path, token);
         }
         
         await this.cache_save();

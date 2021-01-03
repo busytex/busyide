@@ -398,17 +398,17 @@ export class Shell
         this.ui.toggle_viewer('gitstatus');
     }
 
-    git_pull()
+    async git_pull()
     {
-        const status = this.github.pull();
+        const status = await this.github.pull();
         this.ui.update_git_pull(status.filter(f => f.status != 'not modified'), status.filter(f => f.status == 'not modified'));
         this.ui.toggle_viewer('gitpull');
     }
     
-    git_push(...args)
+    async git_push(...args)
     {
         this.log_big_header('[git push]');
-        return this.github.push_gist(...args) ? "ok!" : "error!";
+        return await this.github.push_gist(...args);
     }
 
     serialize_project(project_dir)

@@ -181,7 +181,7 @@
             </details>
         </figure>
         <figure hidden id="gitpull">
-            <figcaption>[git status]</figcaption>
+            <figcaption>[git pull]</figcaption>
             <table id="gitpullmodified">
                 <thead><tr><th>path</th><th>status</th></tr></thead>
                 <tbody></tbody>
@@ -342,6 +342,19 @@ const ui =
         [span.hidden, input.hidden] = [!span.hidden, !input.hidden];
     },
 
+    update_tbody(tbody, st)
+    {
+        tbody.innerHTML = '';
+        for(const {path, status} of st)
+        {
+            const tr = tbody.insertRow();
+            let tc = tr.insertCell();
+            tc.appendChild(document.createTextNode(path));
+            tc = tr.insertCell();
+            tc.appendChild(document.createTextNode(status));
+        }
+    },
+
     update_git_status(modified, notmodified)
     {
         const table_modified = ui.gitstatus.querySelector('#gitstatusmodified');
@@ -351,32 +364,11 @@ const ui =
 
         table_modified.hidden = modified.length == 0;
         if(!table_modified.hidden)
-        {
-            tbody_modified.innerHTML = '';
-            for(const {path, status} of modified)
-            {
-                const tr = tbody_modified.insertRow();
-                let tc = tr.insertCell();
-                tc.appendChild(document.createTextNode(path));
-                tc = tr.insertCell();
-                tc.appendChild(document.createTextNode(status));
-            }
-        }
-            
+            this.update_tbody(tbody_modified, modified); 
 
         details_notmodified.hidden = notmodified.length == 0;
         if(!details_notmodified.hidden)
-        {
-            tbody_notmodified.innerHTML = '';
-            for(const {path, status} of notmodified)
-            {
-                const tr = tbody_notmodified.insertRow();
-                let tc = tr.insertCell();
-                tc.appendChild(document.createTextNode(path));
-                tc = tr.insertCell();
-                tc.appendChild(document.createTextNode(status));
-            }
-        }
+            this.update_tbody(tbody_notmodified, notmodified); 
     },
     
     update_git_pull(modified, notmodified)
@@ -388,32 +380,11 @@ const ui =
 
         table_modified.hidden = modified.length == 0;
         if(!table_modified.hidden)
-        {
-            tbody_modified.innerHTML = '';
-            for(const {path, pull} of modified)
-            {
-                const tr = tbody_modified.insertRow();
-                let tc = tr.insertCell();
-                tc.appendChild(document.createTextNode(path));
-                tc = tr.insertCell();
-                tc.appendChild(document.createTextNode(pull));
-            }
-        }
+            this.update_tbody(tbody_modified, modified);
             
-
         details_notmodified.hidden = notmodified.length == 0;
         if(!details_notmodified.hidden)
-        {
-            tbody_notmodified.innerHTML = '';
-            for(const {path, pull} of notmodified)
-            {
-                const tr = tbody_notmodified.insertRow();
-                let tc = tr.insertCell();
-                tc.appendChild(document.createTextNode(path));
-                tc = tr.insertCell();
-                tc.appendChild(document.createTextNode(pull));
-            }
-        }
+            this.update_tbody(tbody_notmodified, notmodified);
     },
 
     update_file_tree(files, selected_option_text = null)

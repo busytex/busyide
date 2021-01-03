@@ -85,7 +85,6 @@ export class Github
             const file = Q.pop();
             if(file.type == 'file')
             {
-                this.print('processing: ' + file.path);
                 const prev_files = prev.filter(f => f.path == file.path);
                 if(!this.FS.analyzePath(file.path).exists)
                 {

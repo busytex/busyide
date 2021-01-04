@@ -315,11 +315,13 @@ export class Shell
 
         if(github_https_path.length > 0)
         {
+            this.terminal_prompt();
             this.terminal_print('# ', '');
             project_dir = await this.git_clone(github_https_path);
         }
         else if(route[0] == 'arxiv')
         {
+            this.terminal_prompt();
             this.terminal_print('# ', '');
             project_dir = await this.arxiv_clone(route[1]);
         }
@@ -357,7 +359,6 @@ export class Shell
             this.ui.github_https_path.value = route[1];
         }
        
-        this.terminal_prompt();
         if(this.ui.github_https_path.value.length > 0 || route.length > 1)
             await this.init(route, this.ui.github_https_path.value);
         else

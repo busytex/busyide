@@ -30,7 +30,7 @@ export class Shell
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['nanozip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'whoami', 'wc', 'cat', 'head', 'clear'];
-        this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'share', 'upload'];
+        this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'share', 'upload', 'uploadimport'];
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status'];
         this.shell_commands = this.shell_builtins.concat(this.busybox_applets).concat(this.git_applets.map(cmd => 'git ' + cmd)).sort();
@@ -717,8 +717,12 @@ export class Shell
     async uploadimport()
     {
         this.FS.cwd(this.tmp_dir);
-        let [archive_path] = await this.upload(null, ['.tar', '.tar.gz', '.zip']);
-        const basename = this.FS.basename(archive_path);
+        const paths = await this.upload(null, ['.tar', '.tar.gz', '.zip']);
+        if(paths.length == 0)
+            return;
+
+        let archive_path = paths[0];
+        const basename = this.PATH.basename(archive_path);
         const project_dir = this.PATH.join2(this.home_dir, basename.slice(0, path.indexOf('.')));
         this.FS.mkdir(project_dir);
         

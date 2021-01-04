@@ -65,6 +65,7 @@ export class Shell
         this.ui.view_pdf.onclick = () => this.pdf_path && this.commands(cmd('open', arg(this.pdf_path)));
         this.ui.download.onclick = () => this.edit_path && this.commands(cmd('download', arg(this.edit_path)));
         this.ui.upload.onclick = async () => await this.commands('upload');
+        this.ui.uploadimport.onclick = async () => await this.commands('uploadimport');
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', '-x', this.log_path, '-x', this.pdf_path, this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
@@ -689,6 +690,12 @@ export class Shell
 
         const files = this.ls_R(project_dir);
         this.compiler.postMessage({files : files, main_tex_path : main_tex_path, verbose : verbose});
+    }
+
+    async uploadimport()
+    {
+        // unzip /tmp/imported.zip -d /home/web_user/imported
+        //
     }
 
     async upload(file_path = null)

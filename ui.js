@@ -722,15 +722,16 @@ export class Shell
         const project_dir = this.PATH.join2(this.home_dir, basename.slice(0, basename.indexOf('.')));
         this.FS.mkdir(project_dir);
         
-        if(archive_path.endsWith('.tar.gz'))
+        if(archive_path.endsWith('.gz'))
         {
             console.assert(this.EXIT_SUCCESS == this.busybox.run(['gzip', '-d', archive_path]).exit_code);
-            archive_path = archive_path.replace('.tar.gz', '.tar');
+            archive_path = archive_path.replace('.gz', '');
         }
 
         if(archive_path.endsWith('.tar'))
-            console.assert(this.EXIT_SUCCESS == this.busybox.run(['tar', '-xf', archive_path, '-C', project_dir]).exit_code);
-        else if(archive_path.endsWith('.zip'))
+            console.assert(this.EXIT_SUCCESS == this.busybox.run(['tar', '-xf', archive_path, '-C', project_dir, '--strip-components=1']).exit_code);
+        
+        if(archive_path.endsWith('.zip'))
             console.assert(this.EXIT_SUCCESS == this.busybox.run(['unzip', archive_path, '-d', project_dir]).exit_code);
 
         this.FS.unlink(archive_path);

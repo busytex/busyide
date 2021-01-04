@@ -730,7 +730,7 @@ export class Shell
 
         if(archive_path.endsWith('.tar'))
             this.busybox.run(['tar', '-xf', archive_path, '-C', project_dir]);
-        else if(archive_path.endsWith('.zip')
+        else if(archive_path.endsWith('.zip'))
             this.busybox.run(['unzip', archive_path, '-d', project_dir]);
 
         this.FS.unlink(archive_path);

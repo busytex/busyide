@@ -237,7 +237,6 @@ export class Github
         this.FS.mkdir(repo_path + '/.git');
         this.FS.mkdir(repo_path + '/.git/objects');
         this.FS.writeFile(repo_path + '/.git/config', '[remote "origin"]\nurl = ' + https_path);
-        https://api.github.com/repos/busytex/busytex/git/trees/
         let Q = [...repo];
         while(Q.length > 0)
         {

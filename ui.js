@@ -716,7 +716,7 @@ export class Shell
 
     async uploadimport()
     {
-        this.FS.cwd(this.tmp_dir);
+        this.FS.chdir(this.tmp_dir);
         const paths = await this.upload(null, ['.tar', '.tar.gz', '.zip']);
         if(paths.length == 0)
             return;

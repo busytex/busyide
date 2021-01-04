@@ -204,11 +204,11 @@ export class Shell
     {
         const toString = arg =>
         {
-            if(arg == null)
+            if(arg === '' || arg === null)
                 return '';
-            else if(arg == true)
+            else if(arg === true)
                 return 'ok!';
-            else if(arg == false)
+            else if(arg === false)
                 return 'error!';
             else if(typeof(arg) == 'string')
                 return arg;

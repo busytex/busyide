@@ -49,6 +49,7 @@ export class Shell
         this.readme = readme;
         this.busybox = null;
         this.terminal_reset_sequence = '\x1bc';
+        this.EXIT_SUCCESS = 0;
         this.tabs = {};
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);
@@ -282,7 +283,7 @@ export class Shell
         
         this.FS.mkdir(project_dir);
         const OLDPWD = this.FS.cwd();
-        console.assert(0 == this.busybox.run(['tar', '-xf', this.arxiv_path, '-C', project_dir]).exit_code);
+        console.assert(this.EXIT_SUCCESS == this.busybox.run(['tar', '-xf', this.arxiv_path, '-C', project_dir]).exit_code);
         this.FS.chdir(OLDPWD);
 
         return project_dir;
@@ -728,14 +729,14 @@ export class Shell
         
         if(archive_path.endsWith('.tar.gz'))
         {
-            this.busybox.run(['gzip', '-d', archive_path]);
+            console.assert(this.EXIT_SUCCESS == this.busybox.run(['gzip', '-d', archive_path]).exit_code);
             archive_path = archive_path.replace('.tar.gz', '.tar');
         }
 
         if(archive_path.endsWith('.tar'))
-            this.busybox.run(['tar', '-xf', archive_path, '-C', project_dir]);
+            console.assert(this.EXIT_SUCCESS == this.busybox.run(['tar', '-xf', archive_path, '-C', project_dir]).exit_code);
         else if(archive_path.endsWith('.zip'))
-            this.busybox.run(['unzip', archive_path, '-d', project_dir]);
+            console.assert(this.EXIT_SUCCESS == this.busybox.run(['unzip', archive_path, '-d', project_dir]).exit_code);
 
         this.FS.unlink(archive_path);
         this.cd(project_dir, true);

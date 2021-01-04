@@ -716,11 +716,25 @@ export class Shell
 
     async uploadimport()
     {
-        // unzip /tmp/imported.zip -d /home/web_user/imported
-        //
+        this.FS.cwd(this.tmp_dir);
+        let [archive_path] = await this.upload(null, ['.tar.gz', '.zip']);
+        const basename = this.FS.basename(archive_path);
+        const project_dir = this.PATH.join2(this.home_dir, basename.slice(0, path.indexOf('.')));
+        this.FS.mkdir(project_dir);
+        
+        if(path.endsWith('.zip')
+            this.busybox.run(['unzip', archive_path, '-d', project_dir]);
+        else if(path.endsWith('.tar.gz'))
+        {
+            this.busybox.run(['gzip', '-d', archive_path]);
+            archive_path = archive_path.replace('.tar.gz', '.tar');
+            this.busybox.run(['tar', '-xf', archive_path, '-C', project_dir]);
+        }
+        this.FS.unlink(archive_path);
+        this.cd(project_dir, true);
     }
 
-    async upload(file_path = null)
+    async upload(file_path = null, ext = [])
     {
         const upload_file = file =>
         {
@@ -731,7 +745,7 @@ export class Shell
                 const reader = new FileReader();
                 reader.onloadend = ev => {
                     this.FS.writeFile(dst_path, new Uint8Array(reader.result));
-                    resolve(`Local file [${src_name}] uploaded into [${dst_path}]`);
+                    resolve(dst_path);
                 }
                 reader.readAsArrayBuffer(file);
             });
@@ -742,13 +756,17 @@ export class Shell
             fileupload.removeAttribute('multiple');
         else
             fileupload.setAttribute('multiple', 'true');
+        if(ext.length == 0)
+            fileupload.removeAttribute('accept');
+        else
+            fileupload.setAttribute('accept', ext.join(','));
         return new Promise((resolve, reject) =>
         {
             fileupload.onchange = async () =>
             {
                 const uploads = Array.from(fileupload.files).map(file => upload_file(file));
-                const logs = await Promise.all(uploads);
-                resolve(logs.join('\r\n'));
+                const paths = await Promise.all(uploads);
+                resolve(paths);
             };
             fileupload.click();
         });

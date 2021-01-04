@@ -729,7 +729,7 @@ export class Shell
         }
 
         if(archive_path.endsWith('.tar'))
-            console.assert(this.EXIT_SUCCESS == this.busybox.run(['tar', '-xf', archive_path, '-C', project_dir, '--strip-components=1']).exit_code);
+            console.assert(this.EXIT_SUCCESS == this.busybox.run(['tar', '-xf', archive_path, '-C', project_dir, '--strip-components', '1']).exit_code);
         
         if(archive_path.endsWith('.zip'))
             console.assert(this.EXIT_SUCCESS == this.busybox.run(['unzip', archive_path, '-d', project_dir]).exit_code);

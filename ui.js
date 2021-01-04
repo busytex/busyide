@@ -717,19 +717,22 @@ export class Shell
     async uploadimport()
     {
         this.FS.cwd(this.tmp_dir);
-        let [archive_path] = await this.upload(null, ['.tar.gz', '.zip']);
+        let [archive_path] = await this.upload(null, ['.tar', '.tar.gz', '.zip']);
         const basename = this.FS.basename(archive_path);
         const project_dir = this.PATH.join2(this.home_dir, basename.slice(0, path.indexOf('.')));
         this.FS.mkdir(project_dir);
         
-        if(path.endsWith('.zip')
-            this.busybox.run(['unzip', archive_path, '-d', project_dir]);
-        else if(path.endsWith('.tar.gz'))
+        if(archive_path.endsWith('.tar.gz'))
         {
             this.busybox.run(['gzip', '-d', archive_path]);
             archive_path = archive_path.replace('.tar.gz', '.tar');
-            this.busybox.run(['tar', '-xf', archive_path, '-C', project_dir]);
         }
+
+        if(archive_path.endsWith('.tar'))
+            this.busybox.run(['tar', '-xf', archive_path, '-C', project_dir]);
+        else if(archive_path.endsWith('.zip')
+            this.busybox.run(['unzip', archive_path, '-d', project_dir]);
+
         this.FS.unlink(archive_path);
         this.cd(project_dir, true);
     }

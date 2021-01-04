@@ -28,6 +28,7 @@
 25. auto-open a single tex/t file in the current directory
 26. selection is unchanged when going inside a directory
 27. Disposing an opened model, do not close upon renaming
+28. https://api.github.com/repos/busytex/busytex/git/trees/main?recursive=1
 
 ```shell
 # https://github.com/xloem/emterm

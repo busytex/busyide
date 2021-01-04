@@ -222,9 +222,14 @@ export class Github
         this.save_githubcontents(repo_path, repo);
     }
 
-    async clone_repo(auth_token, https_path, repo_path)
+    async clone_repo(auth_token, https_path, repo_path, branch = null)
     {
         this.auth_token = auth_token;
+
+        branch = branch || (await this.api_request('repos', https_path).then(r => r.json())).default_branch;
+        const tree = await this.api_request('repos', https_path, `/git/trees/${branch}/recursive=1`);
+        const sha = tree.sha;
+
         const resp = await this.api_request('repos', https_path, '/contents');
         const repo = await resp.json();
 
@@ -232,7 +237,7 @@ export class Github
         this.FS.mkdir(repo_path + '/.git');
         this.FS.mkdir(repo_path + '/.git/objects');
         this.FS.writeFile(repo_path + '/.git/config', '[remote "origin"]\nurl = ' + https_path);
-
+        https://api.github.com/repos/busytex/busytex/git/trees/
         let Q = [...repo];
         while(Q.length > 0)
         {

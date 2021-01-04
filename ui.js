@@ -248,7 +248,7 @@ export class Shell
         }
     }
 
-    async arxiv_clone(arxiv_https_path, cors_proxy_fmt = 'https://cors-anywhere.herokuapp.com/${url}')
+    async arxiv_clone(arxiv_https_path, cors_proxy_fmt = 'https://cors-anywhere.herokuapp.com/${url}', http_ok = 200)
     {
         const https_path = arxiv_https_path.replace('/abs/', '/e-print/');
         const repo_path = arxiv_https_path.split('/').pop();
@@ -257,12 +257,14 @@ export class Shell
         this.terminal_print(`Downloading sources '${https_path}' into '${repo_path}'...`);
         const proxy_path = cors_proxy_fmt.replace('${url}', https_path);
         const resp = await fetch(proxy_path, {headers : {'X-Requested-With': 'XMLHttpRequest'}});
+        console.assert(http_ok == resp.status);
         const uint8array = new Uint8Array(await resp.arrayBuffer());
         this.FS.writeFile(this.arxiv_path, uint8array);
-        //TODO: check for not found etc, resp 200 OK
         
         this.FS.mkdir(project_dir);
-        this.busybox.run(['tar', '-xf', this.arxiv_path, '-C', project_dir]);
+        const OLDPWD = this.FS.cwd();
+        console.assert(0 == this.busybox.run(['tar', '-xf', this.arxiv_path, '-C', project_dir]).exit_code);
+        this.FS.chdir(OLDPWD);
 
         return project_dir;
     }

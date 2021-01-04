@@ -723,7 +723,7 @@ export class Shell
 
         let archive_path = paths[0];
         const basename = this.PATH.basename(archive_path);
-        const project_dir = this.PATH.join2(this.home_dir, basename.slice(0, path.indexOf('.')));
+        const project_dir = this.PATH.join2(this.home_dir, basename.slice(0, basename.indexOf('.')));
         this.FS.mkdir(project_dir);
         
         if(archive_path.endsWith('.tar.gz'))

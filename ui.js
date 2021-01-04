@@ -722,7 +722,7 @@ export class Shell
         if(paths.length == 0)
             return;
 
-        let archive_path = paths[0];
+        let archive_path = this.abspath(paths[0]);
         const basename = this.PATH.basename(archive_path);
         const project_dir = this.PATH.join2(this.home_dir, basename.slice(0, basename.indexOf('.')));
         this.FS.mkdir(project_dir);

@@ -51,13 +51,17 @@ export class Shell
         this.terminal_reset_sequence = '\x1bc';
         this.EXIT_SUCCESS = 0;
         this.tabs = {};
-        
-        this.compiler.onmessage = this.oncompilermessage.bind(this);
-        this.terminal.onKey(this.onkey.bind(this));
+        this.interval_id = 0;
+    }
 
+    bind()
+    {
         const cmd = (...parts) => parts.join(' ');
         const arg = path => this.expandcollapseuser(path, false);
         const chain = (...cmds) => cmds.join(' && ');
+        
+        this.compiler.onmessage = this.oncompilermessage.bind(this);
+        this.terminal.onKey(this.onkey.bind(this));
 
         this.ui.clone.onclick = () => this.commands(chain('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('open', this.PATH.join2('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('cd', this.PATH.basename(this.ui.github_https_path.value))));
         this.ui.download_pdf.onclick = () => this.pdf_path && this.commands(cmd('download', arg(this.pdf_path)));
@@ -103,8 +107,6 @@ export class Shell
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value) || this.ui.toggle_current_file_rename()) : ev.key == 'Escape' ? (this.ui.set_current_file(this.ui.get_current_file()) || this.ui.toggle_current_file_rename()) : null;
 		
 		editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyCode.Enter, this.ui.compile.onclick);
-
-        this.interval_id = 0;
     }
 
     exists(path)
@@ -364,7 +366,8 @@ export class Shell
             await this.init(route, this.ui.github_https_path.value);
         else
             this.man();
-       
+
+        this.bind();
         this.dirty_timer(true);
         this.terminal_prompt();
     }
@@ -735,7 +738,7 @@ export class Shell
             console.assert(this.EXIT_SUCCESS == this.busybox.run(['unzip', archive_path, '-d', project_dir]).exit_code);
 
         this.FS.unlink(archive_path);
-        this.cd(project_dir, true);
+        this.cd(project_dir, true, 1);
     }
 
     async upload(file_path = null, ext = [])
@@ -842,13 +845,22 @@ export class Shell
         }
     }
 
-    cd(path, refresh = true)
+    cd(path, refresh = true, strip_components = 0)
     {
         if(path == '-')
             path = this.OLDPWD;
 
         this.OLDPWD = this.FS.cwd();
-        this.FS.chdir(this.expandcollapseuser(path || '~'));
+        path = this.expandcollapseuser(path || '~');
+        this.FS.chdir(path);
+        for(let i = 1; i < strip_components; i++)
+        {
+            const dir = ls_R('.', '', false, true);
+            if(dir.length == 1 && dir[0].contents === null)
+                this.FS.chdir(dir[0].path);
+            else
+                break;
+        }
         if(refresh)
             this.refresh();
     }

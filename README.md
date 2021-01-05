@@ -28,6 +28,8 @@
 28. https://api.github.com/repos/busytex/busytex/git/trees/main?recursive=1
 29. Unify ok/error + initial promp
 30. pstoedit
+31. wget https://arxiv.org/e-print/1808.00158 -O /tmp/arxiv.tar && mkdir ~/1808.00158 && tar -xf /tmp/arxiv.tar -C ~/1808.00158 && cd ~/1808.00158
+
 
 ```shell
 # https://github.com/xloem/emterm

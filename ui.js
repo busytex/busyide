@@ -853,9 +853,9 @@ export class Shell
         this.OLDPWD = this.FS.cwd();
         path = this.expandcollapseuser(path || '~');
         this.FS.chdir(path);
-        for(let i = 1; i < strip_components; i++)
+        for(let i = 0; i < strip_components; i++)
         {
-            const dir = ls_R('.', '', false, true);
+            const dir = this.ls_R('.', '', false, true);
             if(dir.length == 1 && dir[0].contents === null)
                 this.FS.chdir(dir[0].path);
             else

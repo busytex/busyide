@@ -206,7 +206,7 @@ export class Shell
     {
         const toString = arg =>
         {
-            if(arg === '' || arg === null)
+            if(arg === '' || arg === null || arg === undefined)
                 return '';
             else if(arg === true)
                 return 'ok!';
@@ -856,7 +856,7 @@ export class Shell
         for(let i = 0; i < strip_components; i++)
         {
             const dir = this.ls_R('.', '', false, true);
-            if(dir.length == 1 && dir[0].contents === null)
+            if(dir.length == 1 && dir[0].contents == null)
                 this.FS.chdir(dir[0].path);
             else
                 break;

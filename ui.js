@@ -322,6 +322,23 @@ export class Shell
             
             await this.commands(this.chain(this.cmd('wget', arxiv_https_path, '-O', this.arxiv_path), this.cmd('mkdir', project_dir), this.cmd('tar', '-xf', this.arxiv_path, '-C', project_dir)));
         }
+        else if(route[0] == 'file')
+        {
+            this.terminal_prompt();
+            const file_https_path = route[1];
+            const basename = this.PATH.basename(file_https_path);
+            const file_path = this.PATH.join2(this.tmp_dir, basename);
+
+            project_dir = this.PATH.join2('~', basename.slice(0, basename.indexOf('.')));
+            
+            let cmds = [this.cmd('wget', file_https_path, '-O', file_path), this.cmd('mkdir', project_dir)];
+            if(file_https_path.endsWith('.tar.gz'))
+                cmds.push(this.cmd('gzip', '-d', file_path), this.cmd('tar', '-xf', file_path.replace('.gz', ''), '-C', project_dir));
+            else if(file_https_path.endsWith('.zip'))
+                cmds.push(this.cmd('unzip', file_path, '-d', project_dir));
+            
+            await this.commands(this.chain(...cmds));
+        }
         else if(route[0] == 'inline')
         {
             project_dir = this.inline_clone(route[1]);

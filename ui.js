@@ -329,7 +329,7 @@ export class Shell
             const basename = this.PATH.basename(file_https_path);
             const file_path = this.PATH.join2(this.tmp_dir, basename);
 
-            project_dir = basename.slice(0, basename.indexOf('.'));
+            project_dir = this.PATH.join2('~', basename.slice(0, basename.indexOf('.')));
             
             let cmds = [this.cmd('wget', file_https_path, '-O', file_path), this.cmd('mkdir', project_dir)];
             if(file_https_path.endsWith('.tar.gz'))
@@ -346,7 +346,7 @@ export class Shell
         if(project_dir != null)
         {
             this.open(project_dir);
-            this.cd(project_dir, true);
+            this.cd(project_dir, true, 1);
         }
     }
 

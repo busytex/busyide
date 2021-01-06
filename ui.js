@@ -376,11 +376,10 @@ export class Shell
         if(this.ui.github_https_path.value.length > 0 || route.length > 1)
             await this.init(route, this.ui.github_https_path.value);
         else
-            this.man();
+            await this.commands('man');
 
         this.bind();
         this.dirty_timer(true);
-        this.terminal_prompt();
     }
    
     log_big_header(text)

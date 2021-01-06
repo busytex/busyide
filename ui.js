@@ -30,7 +30,7 @@ export class Shell
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['nanozip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip'];
-        this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'share', 'upload', 'archive_clone'];
+        this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'share', 'upload', 'wget', 'archive_clone'];
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status'];
         this.shell_commands = this.shell_builtins.concat(this.busybox_applets).concat(this.git_applets.map(cmd => 'git ' + cmd)).sort();
@@ -54,13 +54,14 @@ export class Shell
         this.interval_id = 0;
         this.HTTP_OK = 200;
         this.cors_proxy_fmt = cors_proxy_fmt;
+        this.cmd = (...parts) => parts.join(' ');
+        this.arg = path => this.expandcollapseuser(path, false);
+        this.chain = (...cmds) => cmds.join(' && ');
     }
 
     bind()
     {
-        const cmd = (...parts) => parts.join(' ');
-        const arg = path => this.expandcollapseuser(path, false);
-        const chain = (...cmds) => cmds.join(' && ');
+        const {cmd, arg, chain} = this;
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.onKey(this.onkey.bind(this));
@@ -272,7 +273,7 @@ export class Shell
         }
     }
 
-    async wget(url, output_path = null)
+    async wget(url, _O = '-O', output_path = null)
     {
         output_path = output_path || this.PATH.basename(url);
         const proxy_path = this.cors_proxy_fmt.replace('${url}', url);
@@ -280,23 +281,6 @@ export class Shell
         console.assert(this.HTTP_OK == resp.status);
         const uint8array = new Uint8Array(await resp.arrayBuffer());
         this.FS.writeFile(output_path, uint8array);
-    }
-
-    async arxiv_clone(arxiv_https_path)
-    {
-        const https_path = arxiv_https_path.replace('/abs/', '/e-print/');
-        const repo_path = arxiv_https_path.split('/').pop();
-        const project_dir = repo_path;
-        
-        this.terminal_print(`Downloading sources '${https_path}' into '${repo_path}'...`);
-        await this.wget(https_path, this.arxiv_path);
-        
-        this.FS.mkdir(project_dir);
-        const OLDPWD = this.FS.cwd();
-        console.assert(this.EXIT_SUCCESS == this.busybox.run(['tar', '-xf', this.arxiv_path, '-C', project_dir]).exit_code);
-        this.FS.chdir(OLDPWD);
-
-        return project_dir;
     }
 
     inline_clone(serialized)
@@ -327,14 +311,16 @@ export class Shell
         if(github_https_path.length > 0)
         {
             this.terminal_prompt();
-            this.terminal_print('# ', '');
-            project_dir = await this.git_clone(github_https_path);
+            project_dir = this.github.parse_url(github_https_path).reponame;
+            await this.commands(this.cmd('git', 'clone', github_https_path));
         }
         else if(route[0] == 'arxiv')
         {
             this.terminal_prompt();
-            this.terminal_print('# ', '');
-            project_dir = await this.arxiv_clone(route[1]);
+            project_dir = this.PATH.basename(route[1]);
+            const arxiv_https_path = route[1].replace('/abs/', '/e-print/');
+            
+            await this.commands(this.chain(this.cmd('wget', arxiv_https_path, '-O', this.arxiv_path), this.cmd('mkdir', project_dir), this.cmd('tar', '-xf', this.arxiv_path, '-C', project_dir)));
         }
         else if(route[0] == 'inline')
         {

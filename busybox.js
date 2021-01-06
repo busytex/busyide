@@ -1,12 +1,13 @@
 export class Busybox
 {
-    constructor(busybox_module_constructor, busybox_wasm_module_promise, print)
+    constructor(busybox_module_constructor, busybox_wasm_module_promise, print, verbose = false)
     {
         this.mem_header_size = 2 ** 25;
         this.wasm_module_promise = busybox_wasm_module_promise;
         this.busybox_module_constructor = busybox_module_constructor;
         this.print = print;
         this.Module = null;
+        this.verbose = verbose;
     }
     
     async load() 
@@ -41,19 +42,20 @@ export class Busybox
             {
                 text = (arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text) || '';
                 Module.output_stdout += text + '\n';
-                Module.setStatus(Module.prefix + ' | stdout: ' + text);
+                if(this.verbose)
+                    Module.setStatus(' | stdout: ' + text);
             },
 
             printErr(text)
             {
                 text = (arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text) || '';
                 Module.output_stderr += text + '\n';
-                Module.setStatus(Module.prefix + ' | stderr: ' + text);
+                Module.setStatus(' | stderr: ' + text);
             },
             
             setStatus(text)
             {
-                print(Module.thisProgram + ': ' + text);
+                print(Module.thisProgram + ': ' + Module.prefix + text);
             },
             
             monitorRunDependencies(left)
@@ -95,7 +97,8 @@ export class Busybox
             catch(e)
             {
                 //fflush(NULL);
-                this.print('callMain: ' + e.message);
+                if(this.verbose)
+                    Module.setStatus(`Exit code: [${e.status}], message: [${e.message}]`);
                 return e.status;
             }
             

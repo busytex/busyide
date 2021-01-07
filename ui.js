@@ -16,7 +16,7 @@ export class Shell
         this.cached_tokens_jsonl = this.cache_dir + '/cached_tokens.jsonl';
         this.tex_ext = '.tex';
         this.readme_dir = this.home_dir + '/readme';
-        this.readme_tex = this.readme_dir + '/readme.tex';
+        this.readme_tex = this.readme_dir + '/README.tex';
         this.hello_world = "\\documentclass[11pt]{article}\n\\begin{document}\n\n\\title{Hello}\n\\maketitle\n\n\\section{world}\nindeed!\n\n\\end{document}";
 
         this.shared_project = '/home/web_user/shared_project';

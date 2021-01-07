@@ -79,10 +79,8 @@ export class Shell
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
         this.ui.new_folder.onclick = () => this.commands(chain(cmd('mkdir', this.new_dir_path), cmd('open', this.new_dir_path)));
-        
-        //this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));  
-        //this.ui.share.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.shared_project_zip, this.project_dir()), cmd('echo', '-n', 'https://busytex.github.io/#base64zip/'), cmd('base64', this.shared_project_zip), cmd('cd', '-')));
-        this.ui.share.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.shared_project_zip, this.project_dir())));
+        //this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
+        this.ui.share.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.shared_project_zip, this.project_dir()), cmd('echo', '-n', 'https://busytex.github.io/#base64zip/'), cmd('base64', this.shared_project_zip), cmd('cd', '-')));
 
         this.ui.new_file.onclick = () => this.commands(chain(cmd('echo', this.hello_world, '>', this.new_file_path), cmd('open', this.new_file_path)));
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));

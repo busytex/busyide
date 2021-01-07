@@ -47,7 +47,8 @@ int proc_entry(const char *file_path_src, const struct stat *info, const int typ
         if(0 == strcmp(exclude[i], file_path_src))
             add = 0;
     
-    fprintf(stderr, "deflating: %s\n", file_path_src);
+    //fprintf(stderr, "deflating: %s\n", file_path_src);
+    printf("deflating: %s\n", file_path_src);
 
     if(add)
     {

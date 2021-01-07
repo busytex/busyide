@@ -73,16 +73,13 @@ export class Busybox
     {
         const NOCLEANUP_callMain = (Module, args) =>
         {
-            const main = Module['_main'], fflush = Module['_fflush'];
+            const main = Module['_main'], fflush = Module['_fflush'], NULL = 0;
             const argc = args.length+1;
             const argv = Module.stackAlloc((argc + 1) * 4);
-            const NULL = 0;
             
-            /*Module.HEAP32[argv >> 2] = Module.allocateUTF8OnStack(Module.thisProgram);
-            for (let i = 1; i < argc; i++)
-                Module.HEAP32[(argv >> 2) + i] = Module.allocateUTF8OnStack(args[i - 1]);
-            Module.HEAP32[(argv >> 2) + argc] = 0;*/
-            
+            // allocating arugments in an address-increasing way to work around OpenBSD's diff bug:
+            // https://marc.info/?l=openbsd-bugs&m=160898324728639&w=2
+            // https://github.com/emscripten-core/emscripten/issues/13106
             args = [Module.thisProgram].concat(args);
             const lens = args.map(a => Module.lengthBytesUTF8(a));
             Module.HEAP32[argv >> 2] = Module.allocateUTF8OnStack(args.join('\0'));

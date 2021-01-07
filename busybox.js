@@ -13,7 +13,7 @@ export class Busybox
     async load() 
     {
         const wasm_module = await this.wasm_module_promise;
-        const print = this.print;
+        const {print, verbose} = this;
         const Module =
         {
             thisProgram : '/bin/busybox',
@@ -42,7 +42,7 @@ export class Busybox
             {
                 text = (arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text) || '';
                 Module.output_stdout += text + '\n';
-                if(this.verbose)
+                if(verbose)
                     Module.setStatus(' | stdout: ' + text);
             },
 
@@ -96,7 +96,7 @@ export class Busybox
             }
             catch(e)
             {
-                //fflush(NULL);
+                fflush(NULL);
                 if(this.verbose)
                     Module.setStatus(`Exit code: [${e.status}], message: [${e.message}]`);
                 return e.status;

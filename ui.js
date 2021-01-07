@@ -273,9 +273,9 @@ export class Shell
         }
     }
 
-    async wget(url, _O = '-O', output_path = null)
+    async wget(url, _OP = '-O', output_path = null)
     {
-        output_path = output_path || this.PATH.basename(url);
+        output_path = _OP == '-P' ? this.PATH.join2(output_path, this.PATH.basename(url)) : (output_path || this.PATH.basename(url));
         const proxy_path = this.cors_proxy_fmt.replace('${url}', url);
         const resp = await fetch(proxy_path, {headers : {'X-Requested-With': 'XMLHttpRequest'}});
         console.assert(this.HTTP_OK == resp.status);
@@ -304,7 +304,7 @@ export class Shell
         return project_dir;
     }
 
-    async init(route, github_https_path)
+    async init(github_https_path, route0, route1)
     {
         let project_dir = null;
 
@@ -314,21 +314,20 @@ export class Shell
             project_dir = this.github.parse_url(github_https_path).reponame;
             await this.commands(this.cmd('git', 'clone', github_https_path));
         }
-        else if(route[0] == 'arxiv')
+        else if(route0 == 'arxiv')
         {
             this.terminal_prompt();
-            project_dir = this.PATH.basename(route[1]);
-            const arxiv_https_path = route[1].replace('/abs/', '/e-print/');
+            project_dir = this.PATH.basename(route1);
+            const arxiv_https_path = route1.replace('/abs/', '/e-print/');
             
             await this.commands(this.chain(this.cmd('wget', arxiv_https_path, '-O', this.arxiv_path), this.cmd('mkdir', project_dir), this.cmd('tar', '-xf', this.arxiv_path, '-C', project_dir)));
         }
-        else if(route[0] == 'file')
+        else if(route0 == 'archive')
         {
             this.terminal_prompt();
-            const file_https_path = route[1];
+            const file_https_path = route1;
             const basename = this.PATH.basename(file_https_path);
             const file_path = this.PATH.join2(this.tmp_dir, basename);
-
             project_dir = this.PATH.join2('~', basename.slice(0, basename.indexOf('.')));
             
             let cmds = [this.cmd('wget', file_https_path, '-O', file_path), this.cmd('mkdir', project_dir)];
@@ -339,9 +338,19 @@ export class Shell
             
             await this.commands(this.chain(...cmds));
         }
-        else if(route[0] == 'inline')
+        else if(route0 == 'file')
         {
-            project_dir = this.inline_clone(route[1]);
+            this.terminal_prompt();
+            const file_https_path = route1;
+            const basename = this.PATH.basename(file_https_path);
+            const file_path = this.PATH.join2(this.tmp_dir, basename);
+            project_dir = this.PATH.join2('~', basename.slice(0, basename.indexOf('.')));
+            await this.commands(this.chain(this.cmd('mkdir', project_dir), this.cmd('wget', file_https_path, '-P', project_dir)));
+        }
+        else if(route0 == 'inline')
+        {
+            // base64 -d $URLARG -o /tmp/project.zip; unzip /tmp/project.zip
+            project_dir = this.inline_clone(route1);
         }
         if(project_dir != null)
         {
@@ -369,12 +378,10 @@ export class Shell
         await this.cache_load();
         
         if(route.length > 1 && route[0] == 'github')
-        {
             this.ui.github_https_path.value = route[1];
-        }
        
         if(this.ui.github_https_path.value.length > 0 || route.length > 1)
-            await this.init(route, this.ui.github_https_path.value);
+            await this.init(this.ui.github_https_path.value, ...route);
         else
             await this.commands('man');
 

@@ -34,7 +34,7 @@ export class Shell
         this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'share', 'upload', 'wget', 'archive_clone'];
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status'];
-        this.shell_commands = this.shell_builtins.concat(this.busybox_applets).concat(this.git_applets.map(cmd => 'git ' + cmd)).sort();
+        this.shell_commands = this.shell_builtins.concat(this.busybox_applets).concat(this.git_applets.map(cmd => 'git ' + cmd)).concat(this.cache_applets.map(cmd => 'cache ' + cmd)).sort();
         this.tic_ = 0;
         this.timer_delay_millisec = 1000;
         this.FS = null;

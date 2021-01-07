@@ -96,7 +96,7 @@ export class Busybox
             }
             catch(e)
             {
-                //fflush(NULL);
+                fflush(NULL);
                 if(this.verbose)
                     Module.setStatus(`Exit code: [${e.status}], message: [${e.message}]`);
                 return e.status;

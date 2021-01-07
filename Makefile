@@ -1,7 +1,7 @@
 BUSYTEX_CORE_ASSETS = busytex.wasm busytex.js texlive-basic.js texlive-basic.data
 BUSYTEX_UBUNTU_ASSETS = ubuntu-texlive-latex-base.data ubuntu-texlive-latex-base.js ubuntu-texlive-latex-extra.data ubuntu-texlive-latex-extra.js ubuntu-texlive-latex-recommended.data ubuntu-texlive-latex-recommended.js
 
-URL_busybox ?= https://busybox.net/downloads/busybox-1.32.0.tar.bz2
+URL_busybox ?= https://busybox.net/downloads/busybox-1.33.0.tar.bz2
 URL_miniz ?= https://github.com/richgel999/miniz/releases/download/2.1.0/miniz-2.1.0.zip
 URL_bsddiff3prog ?= https://raw.githubusercontent.com/openbsd/src/master/usr.bin/diff3/
 URL_bsddiff ?= https://raw.githubusercontent.com/openbsd/src/master/usr.bin/diff/

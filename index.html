@@ -538,7 +538,7 @@ require(['vs/editor/editor.main', 'xterm/xterm',  './dist/busybox_unstripped.js'
     window.onresize = ui.onresize;
     window.onresize();
 
-    await window.busyshell.run(ui.get_route(), busybox_module_constructor, busybox_wasm_module_promise, sha1);
+    await window.busyshell.run(busybox_module_constructor, busybox_wasm_module_promise, sha1);
 });
 
 </script>

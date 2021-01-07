@@ -8,6 +8,7 @@ export class Shell
         this.monaco = monaco;
         this.http_path = http_path;
         this.share_link_log = '/tmp/share_link.log';
+        this.shared_project_zip = '/tmp/shared_project.zip';
         this.home_dir = '/home/web_user';
         this.tmp_dir = '/tmp';
         this.OLDPWD = this.home_dir;
@@ -29,7 +30,7 @@ export class Shell
         this.new_dir_path = 'newfolder';
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
-        this.busybox_applets = ['nanozip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip'];
+        this.busybox_applets = ['nanozip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip', 'base64', 'sha1sum'];
         this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'share', 'upload', 'wget', 'archive_clone'];
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status'];
@@ -78,7 +79,10 @@ export class Shell
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
         this.ui.new_folder.onclick = () => this.commands(chain(cmd('mkdir', this.new_dir_path), cmd('open', this.new_dir_path)));
-        this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
+        
+        //this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));  
+        this.ui.share.onclick = () => this.commands(chain(cmd('nanozip', '-r', '-x', '.git', this.shared_project_zip, this.project_dir()), cmd('echo', '-n', 'https://hello/'), cmd('base64', this.shared_project_zip)));
+
         this.ui.new_file.onclick = () => this.commands(chain(cmd('echo', this.hello_world, '>', this.new_file_path), cmd('open', this.new_file_path)));
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
         this.ui.github_https_path.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
@@ -238,6 +242,10 @@ export class Shell
             
             args = args.map(a => this.expandcollapseuser(a));
             
+            const route = this.ui.get_route();
+            if(route.length > 1)
+                args = args.map(a => a.replace('$URLARG', route[1]));
+            
             try
             {
                 if (cmd == '')
@@ -304,15 +312,16 @@ export class Shell
         return project_dir;
     }
 
-    async init(github_https_path, route0, route1)
+    async init(route0, route1)
     {
         let project_dir = null;
 
-        if(github_https_path.length > 0)
+        if(route0 == 'github')
         {
             this.terminal_prompt();
             project_dir = this.github.parse_url(github_https_path).reponame;
-            await this.commands(this.cmd('git', 'clone', github_https_path));
+            this.ui.github_https_path.value = route1;
+            await this.commands(this.cmd('git', 'clone', this.ui.github_https_path.value));
         }
         else if(route0 == 'arxiv')
         {
@@ -347,9 +356,10 @@ export class Shell
             project_dir = this.PATH.join2('~', basename.slice(0, basename.indexOf('.')));
             await this.commands(this.chain(this.cmd('mkdir', project_dir), this.cmd('wget', file_https_path, '-P', project_dir)));
         }
-        else if(route0 == 'inline')
+        else if(route0 == 'base64zip')
         {
             // base64 -d $URLARG -o /tmp/project.zip; unzip /tmp/project.zip
+            await this.commands(this.chain(this.cmd('base64', '-d', '$URLARG', '-o', this.shared_project_zip), this.cmd('unzip', this.shared_project_zip)));
             project_dir = this.inline_clone(route1);
         }
         if(project_dir != null)
@@ -359,7 +369,7 @@ export class Shell
         }
     }
 
-    async run(route, busybox_module_constructor, busybox_wasm_module_promise, sha1)
+    async run(busybox_module_constructor, busybox_wasm_module_promise, sha1)
     {
         this.compiler.postMessage(this.paths);
         this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, this.log_small.bind(this));
@@ -376,12 +386,11 @@ export class Shell
         this.github = new Github(sha1, this.FS, this.cache_dir, this.merge.bind(this), this.log_big.bind(this));
         
         await this.cache_load();
-        
-        if(route.length > 1 && route[0] == 'github')
-            this.ui.github_https_path.value = route[1];
        
-        if(this.ui.github_https_path.value.length > 0 || route.length > 1)
-            await this.init(this.ui.github_https_path.value, ...route);
+        const route = this.ui.get_route();
+       
+        if(route.length > 1)
+            await this.init(...route);
         else
             await this.commands('man');
 

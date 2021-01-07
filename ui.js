@@ -81,7 +81,7 @@ export class Shell
         this.ui.new_folder.onclick = () => this.commands(chain(cmd('mkdir', this.new_dir_path), cmd('open', this.new_dir_path)));
         
         //this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));  
-        this.ui.share.onclick = () => this.commands(chain(cmd('nanozip', '-r', '-x', '.git', this.shared_project_zip, this.project_dir()), cmd('echo', '-n', 'https://hello/'), cmd('base64', this.shared_project_zip)));
+        this.ui.share.onclick = () => this.commands(chain(cmd('nanozip', '-r', '-x', '.git', this.shared_project_zip, this.project_dir()), cmd('echo', '-n', 'https://busytex.github.io/#base64zip/'), cmd('base64', this.shared_project_zip)));
 
         this.ui.new_file.onclick = () => this.commands(chain(cmd('echo', this.hello_world, '>', this.new_file_path), cmd('open', this.new_file_path)));
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
@@ -359,8 +359,9 @@ export class Shell
         else if(route0 == 'base64zip')
         {
             // base64 -d $URLARG -o /tmp/project.zip; unzip /tmp/project.zip
+            project_dir = '~';
             await this.commands(this.chain(this.cmd('base64', '-d', '$URLARG', '-o', this.shared_project_zip), this.cmd('unzip', this.shared_project_zip)));
-            project_dir = this.inline_clone(route1);
+            //project_dir = this.inline_clone(route1);
         }
         if(project_dir != null)
         {

@@ -454,6 +454,11 @@ const ui =
         return route_parts.length > 1 ? [route_parts[0], route_parts.slice(1).join('/')] : route_parts;
     },
 
+    get_origin()
+    {
+        return window.location.origin;
+    },
+
     toggle_viewer(mode)
     {
         [ui.imgpreview.hidden, ui.pdfpreview.hidden, ui.txtpreview.hidden, ui.gitstatus.hidden, ui.gitpull.hidden] = [mode != 'image', mode != 'pdf', mode != 'text', mode != 'gitstatus', mode != 'gitpull'];

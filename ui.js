@@ -318,14 +318,12 @@ export class Shell
 
         if(route0 == 'github')
         {
-            this.terminal_prompt();
             project_dir = this.github.parse_url(github_https_path).reponame;
             this.ui.github_https_path.value = route1;
             await this.commands(this.cmd('git', 'clone', this.ui.github_https_path.value));
         }
         else if(route0 == 'arxiv')
         {
-            this.terminal_prompt();
             project_dir = this.PATH.basename(route1);
             const arxiv_https_path = route1.replace('/abs/', '/e-print/');
             
@@ -333,7 +331,6 @@ export class Shell
         }
         else if(route0 == 'archive')
         {
-            this.terminal_prompt();
             const file_https_path = route1;
             const basename = this.PATH.basename(file_https_path);
             const file_path = this.PATH.join2(this.tmp_dir, basename);
@@ -349,7 +346,6 @@ export class Shell
         }
         else if(route0 == 'file')
         {
-            this.terminal_prompt();
             const file_https_path = route1;
             const basename = this.PATH.basename(file_https_path);
             const file_path = this.PATH.join2(this.tmp_dir, basename);
@@ -390,6 +386,7 @@ export class Shell
        
         const route = this.ui.get_route();
        
+        this.terminal_prompt();
         if(route.length > 1)
             await this.init(...route);
         else

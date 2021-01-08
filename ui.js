@@ -227,7 +227,7 @@ export class Shell
 
         for(let cmdline of current_terminal_line.split('&&'))
         {
-            let print_or_dump = (arg, ...args) => arg && this.terminal_print(toString(arg).replace('\n', '\r\n'), ...args);
+            let print_or_dump = (arg, ...args) => arg && this.terminal_print(toString(arg), ...args);
             let redirect = null;
 
             if(cmdline.includes('>>'))

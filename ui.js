@@ -217,7 +217,7 @@ export class Shell
                 return 'ok!';
             else if(arg === false)
                 return 'error!';
-            else if(typeof(arg) == 'string')
+            else if(typeof(arg) == 'string' || arg.constructor == Uint8Array)
                 return arg;
             else if(typeof(arg) == 'number')
                 return arg.toString();
@@ -255,7 +255,7 @@ export class Shell
                 {
                 }
                 else if(this.busybox_applets.includes(cmd))
-                    print_or_dump(this.busybox.run([cmd, ...args]).stdout, '');
+                    print_or_dump(this.busybox.run([cmd, ...args]).stdout_binary, '');
                 else if(cmd == 'tabs')
                     print_or_dump(Object.keys(this.tabs).sort());
                 else if(cmd == 'dirty')

@@ -22,6 +22,7 @@ export class Busybox
             totalDependencies: 0,
             output_stdout : '',
             output_stderr : '',
+            output_stdout_binary : [],
             prefix : '',
             input_stdin : '',
             newline : '\n',
@@ -42,8 +43,8 @@ export class Busybox
 
             stdout(ord)
             {
-                const text = String.fromCharCode(ord);
-                Module.output_stdout += text;
+                Module.output_stdout += String.fromCharCode(ord);
+                Module.output_stdout_binary.push(ord);
                 //if(verbose && print)
                 //    print(Module.thisProgram + ': ' + Module.prefix + ' | stdout: ' + text);
             },
@@ -120,6 +121,7 @@ export class Busybox
 
         this.Module.output_stdout = '';
         this.Module.output_stderr = '';
+        this.Module.output_stdout_binary = [];
         this.Module.input_stdin = stdin;
         
         this.Module.prefix = cmd[0];
@@ -128,6 +130,14 @@ export class Busybox
         this.Module.HEAPU8.fill(0);
         this.Module.HEAPU8.set(mem_header);
 
-        return {exit_code : exit_code, stdout_ : (this.Module.output_stdout || ''), stdout: (this.Module.output_stdout || '').replace('\n', '\r\n'),  stderr_ : (this.Module.output_stderr || ''), stderr : (this.Module.output_stderr || '').replace('\n', '\r\n')};
+        return 
+        {
+            exit_code : exit_code, 
+            stdout_ : (this.Module.output_stdout || ''), 
+            stderr_ : (this.Module.output_stderr || ''), 
+            stdout_binary : Uint8Array.from(this.Module.output_stdout_binary),
+            stdout: (this.Module.output_stdout || '').replace('\n', '\r\n'),
+            stderr : (this.Module.output_stderr || '').replace('\n', '\r\n')
+        };
     }
 }

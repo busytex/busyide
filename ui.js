@@ -79,7 +79,7 @@ export class Shell
         this.ui.man.onclick = () => this.commands('man');
         this.ui.new_folder.onclick = () => this.commands(chain(cmd('mkdir', this.new_dir_path), cmd('open', this.new_dir_path)));
         //this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
-        this.ui.share.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.shared_project_zip, this.project_dir()), cmd('cd', '-'), cmd('echo', '-n', this.ui.get_origin() + '/#base64zip/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_zip, '>>', this.share_link_log)));
+        this.ui.share.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.shared_project_zip, this.project_dir()), cmd('cd', '-'), cmd('echo', '-n', this.ui.get_origin() + '/#base64zip/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_zip, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
 
         this.ui.new_file.onclick = () => this.commands(chain(cmd('echo', this.hello_world, '>', this.new_file_path), cmd('open', this.new_file_path)));
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));

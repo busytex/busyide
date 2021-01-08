@@ -3,10 +3,9 @@ import { Busybox } from '/busybox.js'
 
 export class Shell
 {
-    constructor(ui, paths, readme, terminal, editor, monaco, http_path, cors_proxy_fmt = 'https://cors-anywhere.herokuapp.com/${url}')
+    constructor(ui, paths, readme, terminal, editor, monaco, cors_proxy_fmt = 'https://cors-anywhere.herokuapp.com/${url}')
     {
         this.monaco = monaco;
-        this.http_path = http_path;
         this.share_link_log = '/tmp/share_link.log';
         this.shared_project_zip = '/tmp/shared_project.zip';
         this.home_dir = '/home/web_user';
@@ -80,7 +79,7 @@ export class Shell
         this.ui.man.onclick = () => this.commands('man');
         this.ui.new_folder.onclick = () => this.commands(chain(cmd('mkdir', this.new_dir_path), cmd('open', this.new_dir_path)));
         //this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
-        this.ui.share.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.shared_project_zip, this.project_dir()), cmd('cd', '-'), cmd('echo', '-n', this.ui.get_origin() + '/#base64zip/'), cmd('base64', '-w', '0', this.shared_project_zip)));
+        this.ui.share.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.shared_project_zip, this.project_dir()), cmd('cd', '-'), cmd('echo', '-n', this.ui.get_origin() + '/#base64zip/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_zip), cmd('echo', '>>', this.share_link_log)));
 
         this.ui.new_file.onclick = () => this.commands(chain(cmd('echo', this.hello_world, '>', this.new_file_path), cmd('open', this.new_file_path)));
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
@@ -229,12 +228,17 @@ export class Shell
         for(let cmdline of current_terminal_line.split('&&'))
         {
             let print_or_dump = (arg, ...args) => arg && this.terminal_print(toString(arg).replace('\n', '\r\n'), ...args);
-            let redirect_or_output = null;
+            let redirect = null;
 
-            if(cmdline.includes('>'))
+            if(cmdline.includes('>>'))
             {
-                [cmdline, redirect_or_output] = cmdline.split('>');
-                print_or_dump = arg => this.FS.writeFile(redirect_or_output.trim(), toString(arg));
+                [cmdline, redirect] = cmdline.split('>>');
+                print_or_dump = arg => this.FS.writeFile(redirect.trim(), this.FS.readFile(redirect.trim(), {encoding: 'utf8'}) + toString(arg));
+            }
+            else if(cmdline.includes('>'))
+            {
+                [cmdline, redirect] = cmdline.split('>');
+                print_or_dump = arg => this.FS.writeFile(redirect.trim(), toString(arg));
             }
 
             let [cmd, ...args] = cmdline.trim().split(' ');

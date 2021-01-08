@@ -539,7 +539,7 @@ require(['vs/editor/editor.main', 'xterm/xterm',  './dist/busybox_unstripped.js'
     const editor = init_editor(Monaco, ui.editor, ...(await Promise.all(monarch_promises)));
     const terminal = init_terminal(Terminal, ui.terminal, FitAddon);
     
-    window.busyshell = new Shell(ui, paths, await readme_tex_promise, terminal, editor, monaco, window.location.origin);
+    window.busyshell = new Shell(ui, paths, await readme_tex_promise, terminal, editor, monaco);
     window.onresize = ui.onresize;
     window.onresize();
 

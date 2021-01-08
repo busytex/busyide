@@ -76,8 +76,8 @@ export class Busybox
     {
         const NOCLEANUP_callMain = (Module, args) =>
         {
-            const main = Module['_main'], fflush = Module['_fflush'], NULL = 0;
-            const argc = args.length+1;
+            const main = Module._main, fflush = Module._fflush, putchar = Module._putchar, NULL = 0;
+            const argc = args.length + 1;
             const argv = Module.stackAlloc((argc + 1) * 4);
             
             // allocating arugments in an address-increasing way to work around OpenBSD's diff bug:
@@ -96,6 +96,7 @@ export class Busybox
             }
             catch(e)
             {
+                putchar('\n'.charCodeAt());
                 fflush(NULL);
                 if(this.verbose)
                     Module.setStatus(`Exit code: [${e.status}], message: [${e.message}]`);

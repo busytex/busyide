@@ -1,11 +1,12 @@
 export class Busybox
 {
-    constructor(busybox_module_constructor, busybox_wasm_module_promise, print, verbose = false)
+    constructor(busybox_module_constructor, busybox_wasm_module_promise, printErr = null, print = null, verbose = false)
     {
         this.mem_header_size = 2 ** 25;
         this.wasm_module_promise = busybox_wasm_module_promise;
         this.busybox_module_constructor = busybox_module_constructor;
         this.print = print;
+        this.printErr = printErr;
         this.Module = null;
         this.verbose = verbose;
     }
@@ -13,7 +14,7 @@ export class Busybox
     async load() 
     {
         const wasm_module = await this.wasm_module_promise;
-        const {print, verbose} = this;
+        const {print, printErr, verbose} = this;
         const Module =
         {
             thisProgram : '/bin/busybox',
@@ -42,8 +43,8 @@ export class Busybox
             {
                 text = (arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text) || '';
                 Module.output_stdout += text + '\n';
-                if(verbose)
-                    Module.setStatus(' | stdout: ' + text);
+                if(verbose && print)
+                    print(Module.thisProgram + ': ' + Module.prefix + ' | stdout: ' + text);
             },
 
             printErr(text)
@@ -55,13 +56,15 @@ export class Busybox
             
             setStatus(text)
             {
-                print(Module.thisProgram + ': ' + Module.prefix + text);
+                if(printErr)
+                    printErr(Module.thisProgram + ': ' + Module.prefix + ' setStatus ' + text);
             },
             
             monitorRunDependencies(left)
             {
                 this.totalDependencies = Math.max(this.totalDependencies, left);
-                Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+                if(printErr)
+                    Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
             },
         };
        

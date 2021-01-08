@@ -368,7 +368,7 @@ export class Shell
     async run(busybox_module_constructor, busybox_wasm_module_promise, sha1)
     {
         this.compiler.postMessage(this.paths);
-        this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, null, this.log_small.bind(this));
+        this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, this.log_small.bind(this));
         
         await this.busybox.load()
         

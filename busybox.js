@@ -97,6 +97,7 @@ export class Busybox
             }
             catch(e)
             {
+                // workaround for https://github.com/emscripten-core/emscripten/issues/5290#issuecomment-753370693
                 Module.newline = '';
                 putchar('\n'.charCodeAt());
                 fflush(NULL);

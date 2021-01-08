@@ -357,9 +357,8 @@ export class Shell
         }
         else if(route0 == 'base64zip')
         {
-            // base64 -d $URLARG -o /tmp/project.zip; unzip /tmp/project.zip
             project_dir = '~';
-            await this.commands(this.chain(this.cmd('base64', '-d', '$URLARG', '-o', this.shared_project_zip), this.cmd('unzip', this.shared_project_zip)));
+            await this.commands(this.chain(this.cmd('echo', '$URLARG', '>', this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_zip), this.cmd('unzip', this.shared_project_zip)));
             //project_dir = this.inline_clone(route1);
         }
         if(project_dir != null)

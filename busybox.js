@@ -130,13 +130,12 @@ export class Busybox
         this.Module.HEAPU8.fill(0);
         this.Module.HEAPU8.set(mem_header);
 
-        return 
-        {
+        return {
             exit_code : exit_code, 
             stdout_ : (this.Module.output_stdout || ''), 
             stderr_ : (this.Module.output_stderr || ''), 
             stdout_binary : Uint8Array.from(this.Module.output_stdout_binary),
-            stdout: (this.Module.output_stdout || '').replace('\n', '\r\n'),
+            stdout : (this.Module.output_stdout || '').replace('\n', '\r\n'),
             stderr : (this.Module.output_stderr || '').replace('\n', '\r\n')
         };
     }

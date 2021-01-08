@@ -39,14 +39,22 @@ export class Busybox
                 Module.input_stdin = Module.input_stdin.slice(1);
                 return ord;
             },
+
+            stdout(ord)
+            {
+                const text = String.fromCharCode(ord);
+                Module.output_stdout += text;
+                //if(verbose && print)
+                //    print(Module.thisProgram + ': ' + Module.prefix + ' | stdout: ' + text);
+            },
             
-            print(text) 
+            /*print(text) 
             {
                 text = (arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text) || '';
                 Module.output_stdout += text + Module.newline;
                 if(verbose && print)
                     print(Module.thisProgram + ': ' + Module.prefix + ' | stdout: ' + text);
-            },
+            },*/
 
             printErr(text)
             {

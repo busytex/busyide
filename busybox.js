@@ -24,6 +24,7 @@ export class Busybox
             output_stderr : '',
             prefix : '',
             input_stdin : '',
+            newline : '\n',
 
             instantiateWasm(imports, successCallback)
             {
@@ -42,7 +43,7 @@ export class Busybox
             print(text) 
             {
                 text = (arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text) || '';
-                Module.output_stdout += text + '\n';
+                Module.output_stdout += text + Module.newline;
                 if(verbose && print)
                     print(Module.thisProgram + ': ' + Module.prefix + ' | stdout: ' + text);
             },
@@ -50,7 +51,7 @@ export class Busybox
             printErr(text)
             {
                 text = (arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text) || '';
-                Module.output_stderr += text + '\n';
+                Module.output_stderr += text + Module.newline;
                 Module.setStatus(' | stderr: ' + text);
             },
             
@@ -96,8 +97,10 @@ export class Busybox
             }
             catch(e)
             {
+                Module.newline = '';
                 putchar('\n'.charCodeAt());
                 fflush(NULL);
+                Module.newline = '\n';
                 if(this.verbose)
                     Module.setStatus(`Exit code: [${e.status}], message: [${e.message}]`);
                 return e.status;

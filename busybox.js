@@ -109,6 +109,12 @@ export class Busybox
             }
             catch(e)
             {
+                if(e.status === undefined)
+                {
+                    console.log('Unknown error', e);
+                    return -1;
+                }
+
                 // workaround for https://github.com/emscripten-core/emscripten/issues/5290#issuecomment-753370693
                 Module.newline = '';
                 putchar('\n'.charCodeAt());

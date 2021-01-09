@@ -111,7 +111,7 @@ export class Busybox
             {
                 if(e.status === undefined)
                 {
-                    console.log('Unknown error', e);
+                    Module.printErr(`Unknown error: ${e}`);
                     return -1;
                 }
 

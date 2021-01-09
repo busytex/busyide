@@ -26,8 +26,9 @@ export class Shell
         this.tex_path = '';
         this.zip_path = '/tmp/archive.zip';
         this.arxiv_path = '/tmp/arxiv.tar';
-        this.new_file_path = 'newfile.tex';
-        this.new_dir_path = 'newfolder';
+        this.new_file_name = 'newfile';
+        this.new_file_ext = '.tex';
+        this.new_dir_name = 'newfolder';
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['nanozip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip', 'base64', 'sha1sum'];
@@ -78,12 +79,21 @@ export class Shell
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
-        this.ui.new_folder.onclick = () => this.commands(chain(cmd('mkdir', this.new_dir_path), cmd('open', this.new_dir_path)));
         //this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
         this.ui.share.onclick = () => this.commands(chain('cd', cmd('tar',  '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir()), ), cmd('cd', '-'), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
         // '--exclude', this.PATH.join2(this.PATH.basename(this.project_dir()), '.git')
 
-        this.ui.new_file.onclick = () => this.commands(chain(cmd('echo', this.hello_world, '>', this.new_file_path), cmd('open', this.new_file_path)));
+        this.ui.new_file.onclick = () =>
+        {
+            const new_path = this.new_file_path(this.new_file_name, this.new_file_ext);
+            this.commands(chain(cmd('echo', this.hello_world, '>', new_path), cmd('open', new_path)));
+        }
+        this.ui.new_folder.onclick = () => 
+        {
+            const new_path = this.new_file_path(this.new_dir_name);
+            this.commands(chain(cmd('mkdir', new_path), cmd('open', new_path)));
+        }
+
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
         this.ui.github_https_path.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
         this.ui.filetree.onchange = ev => {
@@ -119,6 +129,17 @@ export class Shell
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value) || this.ui.toggle_current_file_rename()) : ev.key == 'Escape' ? (this.ui.set_current_file(this.ui.get_current_file()) || this.ui.toggle_current_file_rename()) : null;
 		
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyCode.Enter, this.ui.compile.onclick);
+    }
+
+    new_file_path(prefix, ext = '', max_attempts = 1000)
+    {
+        for(let i = 0; i < max_attempts; i++)
+        {
+            const path = prefix + (i == 0 ? '' : i.toString()) + ext;
+            if(!this.exists(path))
+                return path;
+        }
+        throw new Error(`Cannot create new [${prefix}{ext}]`);
     }
 
     exists(path)

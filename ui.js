@@ -32,7 +32,7 @@ export class Shell
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['nanozip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip', 'base64', 'sha1sum'];
-        this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'share', 'upload', 'wget', 'archive_clone'];
+        this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'share', 'upload', 'wget', 'init'];
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status'];
         this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
@@ -75,7 +75,7 @@ export class Shell
         this.ui.view_pdf.onclick = () => this.pdf_path && this.commands(cmd('open', arg(this.pdf_path)));
         this.ui.download.onclick = () => this.edit_path && this.commands(cmd('download', arg(this.edit_path)));
         this.ui.upload.onclick = async () => await this.commands('upload');
-        this.ui.archive_clone.onclick = async () => await this.commands('archive_clone');
+        this.ui.import_archive.onclick = async () => await this.commands('import_archive');
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
@@ -100,11 +100,11 @@ export class Shell
             const option = this.ui.filetree.options[this.ui.filetree.selectedIndex];
             if(option.className == 'filetreedirectory')
             {
-                this.open(option.value);
                 if(option.text == '.git')
                     this.ui.filetree.ondblclick();
                 else
                 {
+                    this.open(option.value);
                     this.log_big_header('$ ls -la ' + option.value);
                     this.log_big(this.busybox.run(['ls', '-la', this.expandcollapseuser(option.value)]).stdout);
                 }
@@ -116,12 +116,12 @@ export class Shell
             const option = this.ui.filetree.options[this.ui.filetree.selectedIndex];
             if(option.className == 'filetreedirectory')
             {
-                if(option.text == '.git')
-                    this.commands(cmd('git', 'status'));
-                else if(option.text == '.')
+                if(option.text == '.')
                     this.refresh();
+                else if(option.text == '.git')
+                    this.commands(cmd('git', 'status'));
                 else
-                    this.cd(option.value, true);
+                    this.commands(cmd('cd', option.value));
             }
         };
         this.ui.filetree.onkeydown = ev => ev.key == 'Enter' || ev.key == ' ' ? this.ui.filetree.ondblclick() : null;
@@ -363,13 +363,13 @@ export class Shell
         {
             this.ui.github_https_path.value = route1;
             project_dir = this.github.parse_url(this.ui.github_https_path.value).reponame;
-            cmds = [this.cmd('git', 'clone', this.ui.github_https_path.value), this.cmd('cd', project_dir), this.cmd('open', '.')];
+            cmds = [this.cmd('git', 'clone', this.ui.github_https_path.value), this.cmd('cd', project_dir), this.cmd('open', '.', '--locate')];
         }
         else if(route0 == 'arxiv')
         {
             const arxiv_https_path = route1.replace('/abs/', '/e-print/');
             project_dir = this.PATH.join2('~', this.PATH.basename(arxiv_https_path));
-            cmds = [this.cmd('wget', arxiv_https_path, '-O', this.arxiv_path), this.cmd('mkdir', project_dir), this.cmd('tar', '-xf', this.arxiv_path, '-C', project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')];
+            cmds = [this.cmd('wget', arxiv_https_path, '-O', this.arxiv_path), this.cmd('mkdir', project_dir), this.cmd('tar', '-xf', this.arxiv_path, '-C', project_dir), this.cmd('cd', project_dir), this.cmd('open', '.', '--locate')];
         }
         else if(route0 == 'archive')
         {
@@ -378,9 +378,14 @@ export class Shell
             const file_path = this.PATH.join2(this.tmp_dir, basename);
             project_dir = this.PATH.join2('~', basename.slice(0, basename.indexOf('.')));
             
-            const decompress_cmds = file_https_path.endsWith('.tar.gz') ? [this.cmd('gzip', '-d', file_path), this.cmd('tar', '-xf', file_path.replace('.gz', ''), '-C', project_dir)] : file_https_path.endsWith('.zip') ? [this.cmd('unzip', file_path, '-d', project_dir)] : [] 
-            
-            cmds = [this.cmd('wget', file_https_path, '-O', file_path), this.cmd('mkdir', project_dir), ...decompress_cmds, this.cmd('cd', project_dir), this.cmd('open', '.')];
+            let download_cmds = [];
+            if(this.exists(file_https_path))
+                file_path = file_https_path;
+            else
+                download_cmds = [this.cmd('wget', file_https_path, '-O', file_path)]
+            const decompress_cmds = file_https_path.endsWith('.tar.gz') ? [this.cmd('gzip', '-d', file_path), this.cmd('tar', '-xf', file_path.replace('.gz', ''), '-C', project_dir)] : file_https_path.endsWith('.zip') ? [this.cmd('unzip', file_path, '-d', project_dir)] : []; 
+
+            cmds = [...download_cmds, this.cmd('mkdir', project_dir), ...decompress_cmds, this.cmd('cd', project_dir), this.cmd('open', '.', '--locate')];
         }
         else if(route0 == 'file')
         {
@@ -663,7 +668,7 @@ export class Shell
             file_path = this.expandcollapseuser(file_path);
             if(file_path != null && this.isdir(file_path))
             {
-                const default_path = this.open_find_default_path(file_path);
+                const default_path = contents == '--locate' ? this.open_find_default_path(file_path) : null;
                 if(default_path == null)
                 {
                     this.ui.set_current_file(this.PATH.basename(file_path));
@@ -771,38 +776,16 @@ export class Shell
         this.compiler.postMessage({files : files, main_tex_path : main_tex_path, verbose : verbose});
     }
 
-    async archive_clone(archive_path)
+    async import_archive()
     {
-        if(archive_path == null)
-        {
-            this.FS.chdir(this.tmp_dir);
-            const paths = await this.upload(null, ['.tar', '.tar.gz', '.zip']);
-            if(paths.length == 0)
-                return;
-            archive_path = paths[0];
-        }
+        const OLDPWD = this.FS.cwd();
+        this.FS.chdir(this.tmp_dir);
+        const paths = await this.upload(null, ['.tar', '.tar.gz', '.zip']);
+        this.FS.chdir(OLDPWD);
+        if(paths.length == 0)
+            return;
 
-        archive_path = this.abspath(archive_path);
-        const basename = this.PATH.basename(archive_path);
-        const project_dir = this.PATH.join2(this.home_dir, basename.slice(0, basename.indexOf('.')));
-        this.FS.mkdir(project_dir);
-        
-        if(archive_path.endsWith('.gz'))
-        {
-            console.assert(this.EXIT_SUCCESS == this.busybox.run(['gzip', '-d', archive_path]).exit_code);
-            archive_path = archive_path.replace('.gz', '');
-        }
-
-        if(archive_path.endsWith('.tar'))
-            console.assert(this.EXIT_SUCCESS == this.busybox.run(['tar', '-xf', archive_path, '-C', project_dir]).exit_code);
-        
-        if(archive_path.endsWith('.zip'))
-            console.assert(this.EXIT_SUCCESS == this.busybox.run(['unzip', archive_path, '-d', project_dir]).exit_code);
-
-        this.FS.unlink(archive_path);
-        
-        this.open(project_dir);
-        this.cd(project_dir, true, 1);
+        await this.commands(this.cmd('init', 'archive', ...paths));
     }
 
     async upload(file_path = null, ext = [])

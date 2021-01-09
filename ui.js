@@ -7,7 +7,8 @@ export class Shell
     {
         this.monaco = monaco;
         this.share_link_log = '/tmp/share_link.log';
-        this.shared_project_zip = '/tmp/shared_project.zip';
+        this.shared_project_tar = '/tmp/shared_project.tar';
+        this.shared_project_targz = this.shared_project_tar + '.gz';
         this.home_dir = '/home/web_user';
         this.tmp_dir = '/tmp';
         this.OLDPWD = this.home_dir;
@@ -79,7 +80,7 @@ export class Shell
         this.ui.man.onclick = () => this.commands('man');
         this.ui.new_folder.onclick = () => this.commands(chain(cmd('mkdir', this.new_dir_path), cmd('open', this.new_dir_path)));
         //this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
-        this.ui.share.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.shared_project_zip, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('echo', '-n', this.ui.get_origin() + '/#base64zip/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_zip, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
+        this.ui.share.onclick = () => this.commands(chain('cd', cmd('tar', '-cf', '--exclude', '.git', this.shared_project_tarball, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('gzip', this.shared_project_tarball), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
 
         this.ui.new_file.onclick = () => this.commands(chain(cmd('echo', this.hello_world, '>', this.new_file_path), cmd('open', this.new_file_path)));
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
@@ -217,12 +218,14 @@ export class Shell
                 return 'ok!';
             else if(arg === false)
                 return 'error!';
-            else if(typeof(arg) == 'string' || arg.constructor == Uint8Array)
+            else if(typeof(arg) == 'string')
                 return arg;
             else if(typeof(arg) == 'number')
                 return arg.toString();
             else if(Array.isArray(arg))
                 return arg.map(toString).join('\t');
+            else
+                return arg.stdout.replace('\n', '\r\n');
         };
 
         for(let cmdline of current_terminal_line.split('&&'))
@@ -233,12 +236,16 @@ export class Shell
             if(cmdline.includes('>>'))
             {
                 [cmdline, redirect] = cmdline.split('>>');
-                print_or_dump = arg => this.FS.writeFile(redirect.trim(), this.FS.readFile(redirect.trim(), {encoding: 'utf8'}) + toString(arg));
+                print_or_dump = arg => {
+                    const f = this.FS.open(redirect.trim(), 'a');
+                    this.FS.write(f, arg.stdout_binary, 0, arg.stdout_binary.length);
+                    this.FS.close(f);
+                }
             }
             else if(cmdline.includes('>'))
             {
                 [cmdline, redirect] = cmdline.split('>');
-                print_or_dump = arg => this.FS.writeFile(redirect.trim(), toString(arg));
+                print_or_dump = arg => this.FS.writeFile(redirect.trim(), arg.stdout_binary);
             }
 
             let [cmd, ...args] = cmdline.trim().split(' ');
@@ -355,10 +362,10 @@ export class Shell
             project_dir = this.PATH.join2('~', basename.slice(0, basename.indexOf('.')));
             await this.commands(this.chain(this.cmd('mkdir', project_dir), this.cmd('wget', file_https_path, '-P', project_dir)));
         }
-        else if(route0 == 'base64zip')
+        else if(route0 == 'base64targz')
         {
             project_dir = '~';
-            await this.commands(this.chain(this.cmd('echo', '$URLARG', '>', this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_zip), this.cmd('unzip', this.shared_project_zip)));
+            await this.commands(this.chain(this.cmd('echo', '$URLARG', '>', this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_targz), this.cmd('gzip', this.shared_project_targz), 'cd', this.cmd('tar', '-xf', this.share_project_tar)));
             //project_dir = this.inline_clone(route1);
         }
         if(project_dir != null)

@@ -43,8 +43,11 @@ export class Busybox
 
             stdout(ord)
             {
-                Module.output_stdout += String.fromCharCode(ord);
-                Module.output_stdout_binary.push(ord);
+                if(Module.newline != '' || ord != 0x0A)
+                {
+                    Module.output_stdout += String.fromCharCode(ord);
+                    Module.output_stdout_binary.push(ord);
+                }
                 //if(verbose && print)
                 //    print(Module.thisProgram + ': ' + Module.prefix + ' | stdout: ' + text);
             },
@@ -132,11 +135,9 @@ export class Busybox
 
         return {
             exit_code : exit_code, 
-            stdout_ : (this.Module.output_stdout || ''), 
-            stderr_ : (this.Module.output_stderr || ''), 
+            stdout : (this.Module.output_stdout || ''), 
+            stderr : (this.Module.output_stderr || ''), 
             stdout_binary : Uint8Array.from(this.Module.output_stdout_binary),
-            stdout : (this.Module.output_stdout || '').replace('\n', '\r\n'),
-            stderr : (this.Module.output_stderr || '').replace('\n', '\r\n')
         };
     }
 }

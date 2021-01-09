@@ -336,7 +336,7 @@ export class Shell
         {
             project_dir = this.github.parse_url(github_https_path).reponame;
             this.ui.github_https_path.value = route1;
-            await this.commands(this.cmd('git', 'clone', this.ui.github_https_path.value));
+            await this.commands(this.chain(this.cmd('git', 'clone', this.ui.github_https_path.value), this.cmd('cd', project_dir), this.cmd('open', '.')));
         }
         else if(route0 == 'arxiv')
         {
@@ -352,13 +352,9 @@ export class Shell
             const file_path = this.PATH.join2(this.tmp_dir, basename);
             project_dir = this.PATH.join2('~', basename.slice(0, basename.indexOf('.')));
             
-            let cmds = [this.cmd('wget', file_https_path, '-O', file_path), this.cmd('mkdir', project_dir)];
-            if(file_https_path.endsWith('.tar.gz'))
-                cmds.push(this.cmd('gzip', '-d', file_path), this.cmd('tar', '-xf', file_path.replace('.gz', ''), '-C', project_dir));
-            else if(file_https_path.endsWith('.zip'))
-                cmds.push(this.cmd('unzip', file_path, '-d', project_dir));
+            const decompress_cmds = file_https_path.endsWith('.tar.gz') ? [this.cmd('gzip', '-d', file_path), this.cmd('tar', '-xf', file_path.replace('.gz', ''), '-C', project_dir)] : file_https_path.endsWith('.zip') ? [this.cmd('unzip', file_path, '-d', project_dir)] : [] 
             
-            await this.commands(this.chain(...cmds));
+            await this.commands(this.chain(this.cmd('wget', file_https_path, '-O', file_path), this.cmd('mkdir', project_dir), ...decompress_cmds, this.cmd('cd', project_dir), this.cmd('open', '.')));
         }
         else if(route0 == 'file')
         {
@@ -366,18 +362,13 @@ export class Shell
             const basename = this.PATH.basename(file_https_path);
             const file_path = this.PATH.join2(this.tmp_dir, basename);
             project_dir = this.PATH.join2('~', basename.slice(0, basename.indexOf('.')));
-            await this.commands(this.chain(this.cmd('mkdir', project_dir), this.cmd('wget', file_https_path, '-P', project_dir)));
+            await this.commands(this.chain(this.cmd('mkdir', project_dir), this.cmd('wget', file_https_path, '-P', project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')));
         }
         else if(route0 == 'base64targz')
         {
             project_dir = '~';
             await this.commands(this.chain(this.cmd('echo', '$URLARG', '>', this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_targz), this.cmd('gzip', this.shared_project_targz), 'cd', this.cmd('tar', '-xf', this.share_project_tar)));
             //project_dir = this.inline_clone(route1);
-        }
-        if(project_dir != null)
-        {
-            //this.cd(project_dir, true, 1);
-            //this.open('.');
         }
     }
 

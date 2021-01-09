@@ -106,7 +106,7 @@ export class Shell
                 else
                 {
                     this.log_big_header('[ls -la]');
-                    this.open('', this.busybox.run(['ls', '-la']).stdout);
+                    this.log_big(this.busybox.run(['ls', '-la']).stdout);
                 }
             }
             else

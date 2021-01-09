@@ -669,6 +669,7 @@ export class Shell
             if(file_path != null && this.isdir(file_path))
             {
                 const default_path = contents == '--locate' ? this.open_find_default_path(file_path) : null;
+                contents = null;
                 if(default_path == null)
                 {
                     this.ui.set_current_file(this.PATH.basename(file_path));

@@ -93,6 +93,11 @@ export class Shell
                 this.open(option.value);
                 if(option.text == '.git')
                     this.ui.filetree.ondblclick();
+                else
+                {
+                    this.log_big_header('[ls -la]');
+                    this.open('', this.busybox.run(['ls', '-la']).stdout);
+                }
             }
             else
                 this.open(option.value);

@@ -80,7 +80,7 @@ export class Shell
         this.ui.man.onclick = () => this.commands('man');
         this.ui.new_folder.onclick = () => this.commands(chain(cmd('mkdir', this.new_dir_path), cmd('open', this.new_dir_path)));
         //this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
-        this.ui.share.onclick = () => this.commands(chain('cd', cmd('tar', '--exclude', this.PATH.join2(this.PATH.basename(this.project_dir())), '.bit'), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
+        this.ui.share.onclick = () => this.commands(chain('cd', cmd('tar', '--exclude', this.PATH.join2(this.PATH.basename(this.project_dir()), '.git'), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
 
         this.ui.new_file.onclick = () => this.commands(chain(cmd('echo', this.hello_world, '>', this.new_file_path), cmd('open', this.new_file_path)));
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));

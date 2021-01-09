@@ -226,7 +226,12 @@ export class Shell
             else if(Array.isArray(arg))
                 return arg.map(toString).join('\t');
             else
-                return arg.stdout.replace('\n', '\r\n');
+            {
+                const res = arg.stdout.replace('\n', '\r\n');
+                if(res.length > 0 && res[res.length - 1] != '\n')
+                    res += '\r\n'
+                return res;
+            };
         };
 
         for(let cmdline of current_terminal_line.split('&&'))

@@ -340,10 +340,10 @@ export class Shell
         }
         else if(route0 == 'arxiv')
         {
-            project_dir = this.PATH.basename(route1);
+            project_dir = this.PATH.join2('~', this.PATH.basename(route1));
             const arxiv_https_path = route1.replace('/abs/', '/e-print/');
             
-            await this.commands(this.chain(this.cmd('wget', arxiv_https_path, '-O', this.arxiv_path), this.cmd('mkdir', project_dir), this.cmd('tar', '-xf', this.arxiv_path, '-C', project_dir)));
+            await this.commands(this.chain(this.cmd('wget', arxiv_https_path, '-O', this.arxiv_path), this.cmd('mkdir', project_dir), this.cmd('tar', '-xf', this.arxiv_path, '-C', project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')));
         }
         else if(route0 == 'archive')
         {
@@ -376,8 +376,8 @@ export class Shell
         }
         if(project_dir != null)
         {
-            this.open(project_dir);
-            this.cd(project_dir, true, 1);
+            //this.cd(project_dir, true, 1);
+            //this.open('.');
         }
     }
 

@@ -34,7 +34,7 @@ export class Shell
         this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'share', 'upload', 'wget', 'archive_clone'];
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status'];
-        this.shell_commands = this.shell_builtins.concat(this.busybox_applets).concat(this.git_applets.map(cmd => 'git ' + cmd)).concat(this.cache_applets.map(cmd => 'cache ' + cmd)).sort();
+        this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
         this.tic_ = 0;
         this.timer_delay_millisec = 1000;
         this.FS = null;
@@ -331,19 +331,19 @@ export class Shell
     async init(route0, route1)
     {
         let project_dir = null;
-
+        let cmds = [];
+        
         if(route0 == 'github')
         {
-            project_dir = this.github.parse_url(github_https_path).reponame;
             this.ui.github_https_path.value = route1;
-            await this.commands(this.chain(this.cmd('git', 'clone', this.ui.github_https_path.value), this.cmd('cd', project_dir), this.cmd('open', '.')));
+            project_dir = this.github.parse_url(this.ui.github_https_path.value).reponame;
+            cmds = [this.cmd('git', 'clone', this.ui.github_https_path.value), this.cmd('cd', project_dir), this.cmd('open', '.')];
         }
         else if(route0 == 'arxiv')
         {
-            project_dir = this.PATH.join2('~', this.PATH.basename(route1));
             const arxiv_https_path = route1.replace('/abs/', '/e-print/');
-            
-            await this.commands(this.chain(this.cmd('wget', arxiv_https_path, '-O', this.arxiv_path), this.cmd('mkdir', project_dir), this.cmd('tar', '-xf', this.arxiv_path, '-C', project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')));
+            project_dir = this.PATH.join2('~', this.PATH.basename(arxiv_https_path));
+            cmds = [this.cmd('wget', arxiv_https_path, '-O', this.arxiv_path), this.cmd('mkdir', project_dir), this.cmd('tar', '-xf', this.arxiv_path, '-C', project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')];
         }
         else if(route0 == 'archive')
         {
@@ -354,7 +354,7 @@ export class Shell
             
             const decompress_cmds = file_https_path.endsWith('.tar.gz') ? [this.cmd('gzip', '-d', file_path), this.cmd('tar', '-xf', file_path.replace('.gz', ''), '-C', project_dir)] : file_https_path.endsWith('.zip') ? [this.cmd('unzip', file_path, '-d', project_dir)] : [] 
             
-            await this.commands(this.chain(this.cmd('wget', file_https_path, '-O', file_path), this.cmd('mkdir', project_dir), ...decompress_cmds, this.cmd('cd', project_dir), this.cmd('open', '.')));
+            cmds = [this.cmd('wget', file_https_path, '-O', file_path), this.cmd('mkdir', project_dir), ...decompress_cmds, this.cmd('cd', project_dir), this.cmd('open', '.')];
         }
         else if(route0 == 'file')
         {
@@ -362,14 +362,16 @@ export class Shell
             const basename = this.PATH.basename(file_https_path);
             const file_path = this.PATH.join2(this.tmp_dir, basename);
             project_dir = this.PATH.join2('~', basename.slice(0, basename.indexOf('.')));
-            await this.commands(this.chain(this.cmd('mkdir', project_dir), this.cmd('wget', file_https_path, '-P', project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')));
+            cmds = [this.cmd('mkdir', project_dir), this.cmd('wget', file_https_path, '-P', project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')];
         }
         else if(route0 == 'base64targz')
         {
             project_dir = '~';
-            await this.commands(this.chain(this.cmd('echo', '$URLARG', '>', this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_targz), this.cmd('gzip', this.shared_project_targz), 'cd', this.cmd('tar', '-xf', this.share_project_tar)));
+            cmds = [this.cmd('echo', '$URLARG', '>', this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_targz), this.cmd('gzip', this.shared_project_targz), 'cd', this.cmd('tar', '-xf', this.share_project_tar)];
             //project_dir = this.inline_clone(route1);
         }
+        if(cmds)
+            await this.commands(this.chain(...cmds));
     }
 
     async run(busybox_module_constructor, busybox_wasm_module_promise, sha1)

@@ -229,7 +229,7 @@ export class Shell
             {
                 const res = arg.stdout.replace('\n', '\r\n');
                 if(res.length > 0 && res[res.length - 1] != '\n')
-                    res += '\r\n'
+                    res += '\r'
                 return res;
             };
         };

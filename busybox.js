@@ -70,7 +70,7 @@ export class Busybox
             setStatus(text)
             {
                 if(printErr)
-                    printErr(Module.thisProgram + ': ' + Module.prefix + ' setStatus ' + text);
+                    printErr(Module.thisProgram + ': ' + Module.prefix + ' ||| ' + text);
             },
             
             monitorRunDependencies(left)

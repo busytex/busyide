@@ -105,7 +105,7 @@ export class Shell
                     this.ui.filetree.ondblclick();
                 else
                 {
-                    this.log_big_header('[ls -la]');
+                    this.log_big_header('$ ls -la ' + option.value);
                     this.log_big(this.busybox.run(['ls', '-la', this.expandcollapseuser(option.value)]).stdout);
                 }
             }
@@ -439,7 +439,7 @@ export class Shell
 
     async git_clone(https_path)
     {
-        this.log_big_header('[git clone]'); 
+        this.log_big_header('$ git clone'); 
         const route = https_path.split('/');
         let repo_path = route.pop();
         this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
@@ -494,7 +494,7 @@ export class Shell
     
     async git_push(...args)
     {
-        this.log_big_header('[git push]');
+        this.log_big_header('$ git push');
         return await this.github.push_gist(...args);
     }
 

@@ -262,7 +262,7 @@ export class Shell
                 {
                 }
                 else if(this.busybox_applets.includes(cmd))
-                    print_or_dump(this.busybox.run([cmd, ...args]).stdout_binary, '');
+                    print_or_dump(this.busybox.run([cmd, ...args]), '');
                 else if(cmd == 'tabs')
                     print_or_dump(Object.keys(this.tabs).sort());
                 else if(cmd == 'dirty')

@@ -80,7 +80,7 @@ export class Shell
         this.ui.man.onclick = () => this.commands('man');
         this.ui.new_folder.onclick = () => this.commands(chain(cmd('mkdir', this.new_dir_path), cmd('open', this.new_dir_path)));
         //this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
-        this.ui.share.onclick = () => this.commands(chain('cd', cmd('tar', '-cf', '--exclude', '.git', this.shared_project_tarball, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('gzip', this.shared_project_tarball), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
+        this.ui.share.onclick = () => this.commands(chain('cd', cmd('tar', '-cf', '--exclude', '.git', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
 
         this.ui.new_file.onclick = () => this.commands(chain(cmd('echo', this.hello_world, '>', this.new_file_path), cmd('open', this.new_file_path)));
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
@@ -831,11 +831,10 @@ export class Shell
     merge(ours_path, theirs_path, parent_path, df13_diff = '/tmp/df13.diff', df23_diff = '/tmp/df23.diff', conflict_left = '<<<<<<<', conflict_right = '>>>>>>>')
     {
         const [f1, f2, f3] = [ours_path, parent_path, theirs_path];
-        this.FS.writeFile(df13_diff, this.busybox.run(['bsddiff', f1, f3]).stdout_);
-        this.FS.writeFile(df23_diff, this.busybox.run(['bsddiff', f2, f3]).stdout_);
-        const edscript = this.busybox.run(['bsddiff3prog', '-E', df13_diff, df23_diff, f1, f2, f3]).stdout_ + 'w';
+        this.FS.writeFile(df13_diff, this.busybox.run(['bsddiff', f1, f3]).stdout_binary);
+        this.FS.writeFile(df23_diff, this.busybox.run(['bsddiff', f2, f3]).stdout_binary);
+        const edscript = this.busybox.run(['bsddiff3prog', '-E', df13_diff, df23_diff, f1, f2, f3]).stdout + 'w';
         this.busybox.run(['ed', ours_path], edscript);
-        //const merged = FS.readFile(ours_path, {encoding : 'utf8'});
         return edscript.includes(conflict_left) && edscript.includes(conflict_right);
     }
 

@@ -429,7 +429,7 @@ export class Shell
 
     async git_clone(https_path)
     {
-        this.log_big_header('$ git clone'); 
+        this.log_big_header('$ git clone ' + https_path); 
         const route = https_path.split('/');
         let repo_path = route.pop();
         this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
@@ -662,7 +662,7 @@ export class Shell
                     open_editor_tab('', '');
                     //this.commands(cmd('git', 'status'));
                     if(basename == '.git')
-                        git_status();
+                        this.git_status();
                     else
                     {
                         this.log_big_header('$ ls -la ' + this.expandcollapseuser(file_path, false));

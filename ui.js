@@ -432,17 +432,17 @@ export class Shell
         this.log_big_header('$ git clone ' + https_path); 
         const route = https_path.split('/');
         let repo_path = route.pop();
-        this.terminal_print(`Cloning from '${https_path}' into '${repo_path}'...`);
+        this.log_big(`Cloning from '${https_path}' into '${repo_path}'...`);
         
         let token_cached = false;
         let token = this.ui.github_token.value;
         if(token == '')
         {
-            this.terminal_print(`Searching token cache for '${https_path}'...`);
+            this.log_big(`Searching token cache for '${https_path}'...`);
             token = await this.cache_token('get', this.ui.github_https_path.value);
             this.ui.github_token.value = token;
             token_cached = token != '';
-            this.terminal_print(token_cached ? `Token found [${token}] in cache...` : 'Token not found in cache...');
+            this.log_big(token_cached ? `Token found [${token}] in cache...` : 'Token not found in cache...');
         }
 
         token = token || this.ui.github_token.value;

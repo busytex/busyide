@@ -105,6 +105,7 @@
         <button id="man">Help</button>
         <button id="import_archive">Import</button>
         <button id="compile">Compile</button>
+        <span id="verb"></span>
         <span id="current_file" title="Click to rename"></span>
         <input hidden type="text" id="current_file_rename" title="Press [Enter] to complete renaming"></input>
         <span id="dirty" hidden title="file is changed. wait for autosave">*</span>
@@ -141,7 +142,7 @@
         <img hidden id="imgpreview"></img>
         <textarea hidden id="txtpreview"></textarea>
         <figure hidden id="gitstatus">
-            <figcaption>[git status]</figcaption>
+            <figcaption>$ git status</figcaption>
             <table id="gitstatusmodified">
                 <thead><tr><th>path</th><th>status</th></tr></thead>
                 <tbody></tbody>
@@ -163,7 +164,7 @@
             <details>
                 <summary>Not modified</summary>
                 <table>
-                    <thead><tr><th>path</th><th>status</th></tr></thead>
+                   <thead><tr><th>path</th><th>status</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </details>
@@ -289,6 +290,7 @@ const ui =
     github_release : document.getElementById('github_release'),
     man : document.getElementById('man'),
     share : document.getElementById('share'),
+    verb : document.getElementById('verb'),
     current_file : document.getElementById('current_file'),
     current_file_rename: document.getElementById('current_file_rename'),
     filetree : document.getElementById('filetree'),
@@ -305,10 +307,12 @@ const ui =
         return ui.current_file.textContent;
     },
 
-    set_current_file(file_path)
+    set_current_file(file_path, verb = '')
     {
         let span = ui.current_file, input = ui.current_file_rename;
         span.textContent = input.value = file_path;
+        span = ui.verb;
+        span.textContent = verb;
     },
 
     toggle_current_file_rename()
@@ -533,8 +537,7 @@ const monarch_promises = [paths.lang_monarch_json, paths.latex_monarch_json, pat
 const readme_tex_promise = fetch(paths.readme_tex).then(x => x.text());
 const busybox_wasm_module_promise = fetch(paths.busybox_wasm).then(WebAssembly.compileStreaming);
 
-//'xterm/addons/fit/fit',
-require(['vs/editor/editor.main', 'xterm/xterm',  './dist/busybox_unstripped.js', 'sha1'], async (Monaco, Terminal, busybox_module_constructor, sha1) =>
+require(['vs/editor/editor.main', 'xterm/xterm', './dist/busybox_unstripped.js', 'sha1'], async (Monaco, Terminal, busybox_module_constructor, sha1) =>
 {
     const editor = init_editor(Monaco, ui.editor, ...(await Promise.all(monarch_promises)));
     const terminal = init_terminal(Terminal, ui.terminal, FitAddon);

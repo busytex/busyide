@@ -96,22 +96,7 @@ export class Shell
 
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
         this.ui.github_https_path.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
-        this.ui.filetree.onchange = ev => {
-            const option = this.ui.filetree.options[this.ui.filetree.selectedIndex];
-            if(option.className == 'filetreedirectory')
-            {
-                if(option.text == '.git')
-                    this.ui.filetree.ondblclick();
-                else
-                {
-                    this.open(option.value);
-                    //this.log_big_header('$ ls -la ' + option.value);
-                    //this.log_big(this.busybox.run(['ls', '-la', this.expandcollapseuser(option.value)]).stdout);
-                }
-            }
-            else
-                this.open(option.value);
-        }
+        this.ui.filetree.onchange = ev => this.open(this.ui.filetree.options[this.ui.filetree.selectedIndex].value);
         this.ui.filetree.ondblclick = ev => {
             const option = this.ui.filetree.options[this.ui.filetree.selectedIndex];
             if(option.className == 'filetreedirectory')
@@ -363,13 +348,13 @@ export class Shell
         {
             this.ui.github_https_path.value = route1;
             project_dir = this.github.parse_url(this.ui.github_https_path.value).reponame;
-            cmds = [this.cmd('git', 'clone', this.ui.github_https_path.value), this.cmd('cd', project_dir), this.cmd('open', '.', '--locate')];
+            cmds = [this.cmd('git', 'clone', this.ui.github_https_path.value), this.cmd('cd', project_dir), this.cmd('open', '.')];
         }
         else if(route0 == 'arxiv')
         {
             const arxiv_https_path = route1.replace('/abs/', '/e-print/');
             project_dir = this.PATH.join2('~', this.PATH.basename(arxiv_https_path));
-            cmds = [this.cmd('wget', arxiv_https_path, '-O', this.arxiv_path), this.cmd('mkdir', project_dir), this.cmd('tar', '-xf', this.arxiv_path, '-C', project_dir), this.cmd('cd', project_dir), this.cmd('open', '.', '--locate')];
+            cmds = [this.cmd('wget', arxiv_https_path, '-O', this.arxiv_path), this.cmd('mkdir', project_dir), this.cmd('tar', '-xf', this.arxiv_path, '-C', project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')];
         }
         else if(route0 == 'archive')
         {
@@ -385,7 +370,7 @@ export class Shell
                 download_cmds = [this.cmd('wget', file_https_path, '-O', file_path)]
             const decompress_cmds = file_https_path.endsWith('.tar.gz') ? [this.cmd('gzip', '-d', file_path), this.cmd('tar', '-xf', file_path.replace('.gz', ''), '-C', project_dir)] : file_https_path.endsWith('.zip') ? [this.cmd('unzip', file_path, '-d', project_dir)] : []; 
 
-            cmds = [...download_cmds, this.cmd('mkdir', project_dir), ...decompress_cmds, this.cmd('cd', project_dir), this.cmd('open', '.', '--locate')];
+            cmds = [...download_cmds, this.cmd('mkdir', project_dir), ...decompress_cmds, this.cmd('cd', project_dir), this.cmd('open', '.')];
         }
         else if(route0 == 'file')
         {
@@ -668,15 +653,21 @@ export class Shell
             file_path = this.expandcollapseuser(file_path);
             if(file_path != null && this.isdir(file_path))
             {
-                const default_path = contents == '--locate' ? this.open_find_default_path(file_path) : null;
+                const default_path = file_path == '.' ? this.open_find_default_path(file_path) : null;
                 contents = null;
                 if(default_path == null)
                 {
-                    this.ui.set_current_file(this.PATH.basename(file_path));
+                    const basename = this.PATH.basename(file_path);
+                    this.ui.set_current_file(basename);
                     open_editor_tab('', '');
                     //this.commands(cmd('git', 'status'));
-                    this.log_big_header('$ ls -la ' + file_path);
-                    this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
+                    if(basename == '.git')
+                        git_status();
+                    else
+                    {
+                        this.log_big_header('$ ls -la ' + this.expandcollapseuser(file_path, false));
+                        this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
+                    }
                     
                     file_path = null;
                     return;

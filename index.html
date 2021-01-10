@@ -105,10 +105,10 @@
         <button id="man">Help</button>
         <button id="import_archive">Import</button>
         <button id="compile">Compile</button>
-        <span id="verb"></span>
         <span id="current_file" title="Click to rename"></span>
         <input hidden type="text" id="current_file_rename" title="Press [Enter] to complete renaming"></input>
         <span id="dirty" hidden title="file is changed. wait for autosave">*</span>
+        <span id="verb"></span>
         <button hidden id="remove">Delete</button>
         <div style="display: flex; margin-left:auto">
             <input type="text" style="width: 250px" id="github_https_path" placeholder="GitHub https link"></input>
@@ -312,7 +312,7 @@ const ui =
         let span = ui.current_file, input = ui.current_file_rename;
         span.textContent = input.value = file_path;
         span = ui.verb;
-        span.textContent = verb;
+        span.textContent = `(${verb})`;
     },
 
     toggle_current_file_rename()

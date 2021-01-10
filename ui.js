@@ -684,7 +684,7 @@ export class Shell
                 if(default_path == null)
                 {
                     const basename = this.PATH.basename(file_path);
-                    this.ui.set_current_file(basename, 'Viewing');
+                    this.ui.set_current_file(basename, 'viewing');
                     open_editor_tab('', '');
                     //this.commands(cmd('git', 'status'));
                     if(basename == '.git')
@@ -713,13 +713,13 @@ export class Shell
         {
             contents = contents || (file_path.endsWith('.log') ? this.FS.readFile(file_path, {encoding: 'utf8'}) : this.FS.readFile(file_path, {encoding : 'binary'}));
             open_viewer_tab(file_path, contents);
-            this.ui.set_current_file(this.PATH.basename(file_path), 'Viewing');
+            this.ui.set_current_file(this.PATH.basename(file_path), 'viewing');
         }
         else
         {
             contents = contents || this.FS.readFile(file_path, {encoding : 'utf8'});
             open_editor_tab(file_path, contents);
-            this.ui.set_current_file(this.PATH.basename(file_path), 'Editing');
+            this.ui.set_current_file(this.PATH.basename(file_path), 'editing');
         }
     }
 

@@ -105,8 +105,8 @@ export class Shell
                 else
                 {
                     this.open(option.value);
-                    this.log_big_header('$ ls -la ' + option.value);
-                    this.log_big(this.busybox.run(['ls', '-la', this.expandcollapseuser(option.value)]).stdout);
+                    //this.log_big_header('$ ls -la ' + option.value);
+                    //this.log_big(this.busybox.run(['ls', '-la', this.expandcollapseuser(option.value)]).stdout);
                 }
             }
             else
@@ -674,7 +674,12 @@ export class Shell
                 {
                     this.ui.set_current_file(this.PATH.basename(file_path));
                     open_editor_tab('', '');
+                    //this.commands(cmd('git', 'status'));
+                    this.log_big_header('$ ls -la ' + file_path);
+                    this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
+                    
                     file_path = null;
+                    return;
                 }
                 else
                     file_path = this.PATH.join2(file_path, default_path); 

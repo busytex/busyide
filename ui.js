@@ -881,11 +881,11 @@ export class Shell
         return entries;
     }
 
-    refresh(selected_file_name = null)
+    refresh(selected_file_path = null)
     {
-        selected_file_name = selected_file_name || (this.FS.cwd() == this.refresh_cwd ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : null;
+        selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd && this.ui.filetree.selectedIndex >= 0 ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : null);
 
-        this.ui.update_file_tree(this.ls_R('.', this.pwd(true), false, true, true, true, []), selected_file_name);
+        this.ui.update_file_tree(this.ls_R('.', this.pwd(true), false, true, true, true, []), selected_file_path);
 
         for(const abspath in this.tabs)
         {

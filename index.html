@@ -379,7 +379,7 @@ const ui =
             this.update_tbody(tbody_notmodified, notmodified);
     },
 
-    update_file_tree(files, selected_option_value = null)
+    update_file_tree(files, selected_file_path = null)
     {
         const select = ui.filetree;
         let i = 0, j = select.length - 1;
@@ -393,7 +393,7 @@ const ui =
             }
             option.text = files[i].name || files[i].path;
             option.value = option.title = files[i].path;
-            option.selected = selected_option_value == option.value;
+            option.selected = selected_file_path == option.value;
             option.dataset.type = files[i].contents == null ? 'd' : 'f';
             option.className = files[i].contents == null ? 'filetreedirectory' : '';
         }

@@ -60,6 +60,8 @@ export class Shell
         this.cmd = (...parts) => parts.join(' ');
         this.arg = path => this.expandcollapseuser(path, false);
         this.chain = (...cmds) => cmds.join(' && ');
+        this.clear_viewer = false;
+        this.clear_editor = false;
     }
 
     bind()
@@ -421,10 +423,10 @@ export class Shell
         this.dirty_timer(true);
     }
    
-    log_big_header(text)
+    log_big_header(text = '')
     {
-        this.ui.toggle_viewer('text');
         this.log_big(this.ui.log_reset_sequence);
+        this.ui.toggle_viewer('text');
         this.log_big(text);
     }
 
@@ -460,7 +462,7 @@ export class Shell
         
         if(!token_cached && token != '')
         {
-            this.terminal_print(`Caching for '${https_path}' token [${token}]...`);
+            this.log_big(`Caching for '${https_path}' token [${token}]...`);
             await this.cache_token('add', https_path, token);
         }
         
@@ -469,17 +471,19 @@ export class Shell
         return repo_path;
     }
 
-    git_status()
+    git_status(not_modified = 'not modified')
     {
         const status = this.github.status(this.ls_R('.', '', true, true, false, false));
-        this.ui.update_git_status(status.filter(f => f.status != 'not modified'), status.filter(f => f.status == 'not modified'));
+        this.ui.update_git_status(status.filter(f => f.status != not_modified), status.filter(f => f.status == not_modified));
+        this.clear_viewer = false;
         this.ui.toggle_viewer('gitstatus');
     }
 
-    async git_pull()
+    async git_pull(not_modified = 'not modified')
     {
         const status = await this.github.pull();
-        this.ui.update_git_pull(status.filter(f => f.status != 'not modified'), status.filter(f => f.status == 'not modified'));
+        this.ui.update_git_pull(status.filter(f => f.status != not_modified), status.filter(f => f.status == not_modified));
+        this.clear_viewer = false;
         this.ui.toggle_viewer('gitpull');
     }
     
@@ -635,6 +639,13 @@ export class Shell
             const editor_model = this.tabs[abspath];
             editor_model.setValue(contents);
             this.editor.setModel(editor_model);
+
+            if(this.clear_viewer)
+            {
+                this.toggle_viewer('text');
+                this.log_big_header('');
+            }
+            this.clear_editor = false;
             //var currentState = this.editor.saveViewState();
             //this.editor.restoreViewState(data[desiredModelId].state);
             //this.editor.focus();
@@ -687,13 +698,13 @@ export class Shell
                     const basename = this.PATH.basename(file_path);
                     this.ui.set_current_file(basename, 'viewing');
                     open_editor_tab('', '');
-                    //this.commands(cmd('git', 'status'));
                     if(basename == '.git')
                         this.git_status();
                     else
                     {
                         this.log_big_header('$ ls -la ' + this.expandcollapseuser(file_path, false));
                         this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
+                        this.clear_viewer = true;
                     }
                     
                     file_path = null;
@@ -714,12 +725,18 @@ export class Shell
         {
             contents = contents || (file_path.endsWith('.log') ? this.FS.readFile(file_path, {encoding: 'utf8'}) : this.FS.readFile(file_path, {encoding : 'binary'}));
             open_viewer_tab(file_path, contents);
+            
+            if(this.clear_editor)
+                this.open_editor_tab('', '');
+            this.clear_viewer = false;
+
             this.ui.set_current_file(this.PATH.basename(file_path), 'viewing');
         }
         else
         {
             contents = contents || this.FS.readFile(file_path, {encoding : 'utf8'});
             open_editor_tab(file_path, contents);
+            this.clear_editor = true;
             this.ui.set_current_file(this.PATH.basename(file_path), 'editing');
         }
     }

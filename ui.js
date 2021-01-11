@@ -50,6 +50,7 @@ export class Shell
         this.log_big = this.ui.log_big;
         this.readme = readme;
         this.busybox = null;
+        this.refresh_cwd = null;
         this.terminal_reset_sequence = '\x1bc';
         this.EXIT_SUCCESS = 0;
         this.tabs = {};
@@ -882,6 +883,8 @@ export class Shell
 
     refresh(selected_file_name = null)
     {
+        selected_file_name = selected_file_name || (this.FS.cwd() == this.refresh_cwd ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : null;
+
         this.ui.update_file_tree(this.ls_R('.', this.pwd(true), false, true, true, true, []), selected_file_name);
 
         for(const abspath in this.tabs)
@@ -892,6 +895,8 @@ export class Shell
                 delete this.tabs[abspath];
             }
         }
+
+        this.refresh_cwd = this.FS.cwd();
     }
 
     cd(path, refresh = true, strip_components = 0)

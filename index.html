@@ -307,12 +307,14 @@ const ui =
         return ui.current_file.textContent;
     },
 
-    set_current_file(file_path, verb = '')
+    set_current_file(file_name, verb = '')
     {
         let span = ui.current_file, input = ui.current_file_rename;
-        span.textContent = input.value = file_path;
+        span.textContent = input.value = file_name;
         span = ui.verb;
         span.textContent = `(${verb})`;
+        
+        ui.filetree.selectedIndex = Array.from(ui.filetree.options).findIndex(option => option.text == file_name);
     },
 
     toggle_current_file_rename()

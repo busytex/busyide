@@ -642,7 +642,7 @@ export class Shell
 
             if(this.clear_viewer)
             {
-                this.toggle_viewer('text');
+                this.ui.toggle_viewer('text');
                 this.log_big_header('');
             }
             this.clear_editor = false;

@@ -119,8 +119,8 @@ export class Shell
 		
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyCode.Enter, this.ui.compile.onclick);
         this.editor.onDidFocusEditorText(ev => console.log('editor',  ev));
-        this.ui.pdfpreview.onfocus = ev => console.log('pdfpreview', ev);
-        this.ui.imgpreview.onfocus = ev => console.log('imgpreview', ev);
+        this.ui.pdfpreview.onclick = ev => console.log('pdfpreview', ev);
+        this.ui.imgpreview.onclick = ev => console.log('imgpreview', ev);
         this.ui.txtpreview.onfocus = ev => console.log('txtpreview', ev);
     }
 

@@ -468,6 +468,11 @@ const ui =
 
     toggle_viewer(mode)
     {
+        if(mode == 'empty')
+        {
+            ui.txtpreview.value = '';
+            mode = 'text';
+        }
         [ui.imgpreview.hidden, ui.pdfpreview.hidden, ui.txtpreview.hidden, ui.gitstatus.hidden, ui.gitpull.hidden] = [mode != 'image', mode != 'pdf', mode != 'text', mode != 'gitstatus', mode != 'gitpull'];
     }
 };

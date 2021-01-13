@@ -117,6 +117,10 @@ export class Shell
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value) || this.ui.toggle_current_file_rename()) : ev.key == 'Escape' ? (this.ui.set_current_file(this.ui.get_current_file()) || this.ui.toggle_current_file_rename()) : null;
 		
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyCode.Enter, this.ui.compile.onclick);
+        this.editor.onDidBlurEditorText(ev => console.log('editor',  ev));
+        this.ui.pdfpreview.onfocus = ev => console.log('pdfpreview', ev);
+        this.ui.imgpreview.onfocus = ev => console.log('imgpreview', ev);
+        this.ui.txtpreview.onfocus = ev => console.log('txtpreview', ev);
     }
 
     new_file_path(prefix, ext = '', max_attempts = 1000)
@@ -142,7 +146,7 @@ export class Shell
 
     isdir(path)
     {
-        return this.FS.analyzePath(path).exists && this.FS.isDir(this.FS.lookupPath(path).node.mode);
+        return this.exists(path) && this.FS.isDir(this.FS.lookupPath(path).node.mode);
     }
 
     dirty_timer(mode)
@@ -183,9 +187,9 @@ export class Shell
         this.terminal.write((line || '') + newline);
     }
 
-    terminal_prompt()
+    terminal_prompt(red_start_sequence = '\x1B[1;3;31m', red_end_sequence = '\x1B[0m')
     {
-        return this.terminal.write('\x1B[1;3;31mbusytex\x1B[0m:' + this.pwd(true) + '$ ');
+        return this.terminal.write(`${red_start_sequence}busytex${red_end_sequence}:` + this.pwd(true) + '$ ');
     }
     
     async onkey({key, domEvent})
@@ -629,7 +633,9 @@ export class Shell
 
     open(file_path, contents)
     {
-        const open_editor_tab = (file_path, contents) =>
+        const pin = this.isdir(this.file_path) == false;
+
+        const open_editor_tab = (file_path, contents = '') =>
         {
             let abspath = file_path == '' ? '' : this.abspath(file_path);
             this.edit_path = abspath;
@@ -639,16 +645,13 @@ export class Shell
             const editor_model = this.tabs[abspath];
             editor_model.setValue(contents);
             this.editor.setModel(editor_model);
-
-            if(this.clear_viewer)
-            {
-                this.ui.toggle_viewer('text');
-                this.log_big_header('');
-            }
-            this.clear_editor = false;
             //var currentState = this.editor.saveViewState();
             //this.editor.restoreViewState(data[desiredModelId].state);
             //this.editor.focus();
+
+            if(this.clear_viewer)
+                this.ui.toggle_viewer('empty');
+            this.clear_editor = !pin;
         };
 
         const open_viewer_tab = (file_path, contents) =>
@@ -682,7 +685,7 @@ export class Shell
             this.tex_path = '';
             this.ui.txtpreview.value = '';
             this.ui.set_current_file('');
-            open_editor_tab('', '');
+            open_editor_tab('');
             this.ui.toggle_viewer('text');
             return;
         }
@@ -697,7 +700,7 @@ export class Shell
                 {
                     const basename = this.PATH.basename(file_path);
                     this.ui.set_current_file(basename, 'viewing');
-                    open_editor_tab('', '');
+                    open_editor_tab('');
                     if(basename == '.git')
                         this.git_status();
                     else
@@ -727,8 +730,8 @@ export class Shell
             open_viewer_tab(file_path, contents);
             
             if(this.clear_editor)
-                this.open_editor_tab('', '');
-            this.clear_viewer = false;
+                this.open_editor_tab('');
+            this.clear_viewer = !pin;
 
             this.ui.set_current_file(this.PATH.basename(file_path), 'viewing');
         }
@@ -799,13 +802,9 @@ export class Shell
 
     async import_archive()
     {
-        const OLDPWD = this.FS.cwd();
-        this.FS.chdir(this.tmp_dir);
-        const paths = await this.upload(null, ['.tar', '.tar.gz', '.zip']);
-        this.FS.chdir(OLDPWD);
+        const paths = await this.upload(this.tmp_dir, ['.tar', '.tar.gz', '.zip']);
         if(paths.length == 0)
             return;
-
         await this.commands(this.cmd('init', 'archive', ...paths));
     }
 
@@ -814,7 +813,7 @@ export class Shell
         const upload_file = file =>
         {
             const src_name = file.name;
-            const dst_path = file_path || src_name;
+            const dst_path = this.isdir(file_path) ? this.PATH.join2(file_path, src_name) : (file_path || src_name);
             return new Promise((resolve, reject) => 
             {
                 const reader = new FileReader();

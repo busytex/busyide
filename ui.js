@@ -732,7 +732,7 @@ export class Shell
             open_viewer_tab(file_path, contents);
             
             if(this.clear_editor)
-                this.open_editor_tab('');
+                open_editor_tab('');
             this.clear_viewer = !pin;
 
             this.ui.set_current_file(this.PATH.basename(file_path), 'viewing');

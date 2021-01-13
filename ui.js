@@ -23,6 +23,7 @@ export class Shell
         this.pdf_path = null;
         this.log_path = null;
         this.edit_path = null;
+        this.view_path = null;
         this.tex_path = '';
         this.zip_path = '/tmp/archive.zip';
         this.arxiv_path = '/tmp/arxiv.tar';
@@ -117,7 +118,7 @@ export class Shell
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value) || this.ui.toggle_current_file_rename()) : ev.key == 'Escape' ? (this.ui.set_current_file(this.ui.get_current_file()) || this.ui.toggle_current_file_rename()) : null;
 		
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyCode.Enter, this.ui.compile.onclick);
-        this.editor.onDidBlurEditorText(ev => console.log('editor',  ev));
+        this.editor.onDidFocusEditorText(ev => console.log('editor',  ev));
         this.ui.pdfpreview.onfocus = ev => console.log('pdfpreview', ev);
         this.ui.imgpreview.onfocus = ev => console.log('imgpreview', ev);
         this.ui.txtpreview.onfocus = ev => console.log('txtpreview', ev);
@@ -656,6 +657,7 @@ export class Shell
 
         const open_viewer_tab = (file_path, contents) =>
         {
+            this.view_path = file_path == '' ? '' : this.abspath(file_path);
             const b64encode = uint8array => btoa(uint8array.reduce((acc, i) => acc += String.fromCharCode.apply(null, [i]), ''));
             if(file_path.endsWith('.log'))
             {

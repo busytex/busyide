@@ -481,11 +481,11 @@ const ui =
         else if(mode == 'pdf')
             ui.pdfpreview.src = URL.createObjectURL(new Blob([contents], {type: 'application/pdf'}));
         else if(mode == 'svg')
-            this.ui.imgpreview.src = 'data:image/svg+xml;base64,' + b64encode(contents);
+            ui.imgpreview.src = 'data:image/svg+xml;base64,' + b64encode(contents);
         else if(mode == 'png')
-            this.ui.imgpreview.src = 'data:image/png;base64,` + b64encode(contents);
+            ui.imgpreview.src = 'data:image/png;base64,' + b64encode(contents);
         else if(mode == 'jpg')
-            this.ui.imgpreview.src = 'data:image/jpg;base64,` + b64encode(contents);
+            ui.imgpreview.src = 'data:image/jpg;base64,' + b64encode(contents);
     }
 };
   

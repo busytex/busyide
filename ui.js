@@ -118,8 +118,8 @@ export class Shell
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value) || this.ui.toggle_current_file_rename()) : ev.key == 'Escape' ? (this.ui.set_current_file(this.ui.get_current_file()) || this.ui.toggle_current_file_rename()) : null;
 		
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyCode.Enter, this.ui.compile.onclick);
-        this.editor.onDidFocusEditorText(ev => this.ui.set_current_file(this.edit_path, 'editing'));
-        this.ui.txtpreview.onfocus = this.ui.imgpreview.onclick = () => this.ui.set_current_file(this.view_path, 'viewing');
+        this.editor.onDidFocusEditorText(ev => this.ui.set_current_file(this.PATH.basename(this.edit_path), 'editing'));
+        this.ui.txtpreview.onfocus = this.ui.imgpreview.onclick = () => this.ui.set_current_file(this.PATH.basename(this.view_path), 'viewing');
         //this.ui.pdfpreview.onclick = ev => console.log('pdfpreview', ev);
     }
 

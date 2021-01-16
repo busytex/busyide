@@ -137,7 +137,7 @@ export class Busybox
         const mem_header = Uint8Array.from(this.Module.HEAPU8.slice(0, this.mem_header_size));
         const OLDPWD = this.Module.FS.cwd();
         const exit_code = NOCLEANUP_callMain(this.Module, cmd, this.print);
-        this.FS.chdir(OLDPWD);
+        this.Module.FS.chdir(OLDPWD);
         this.Module.HEAPU8.fill(0);
         this.Module.HEAPU8.set(mem_header);
 

@@ -391,8 +391,11 @@ export class Shell
         else if(route0 == 'base64targz')
         {
             project_dir = '~';
-            cmds = [this.cmd('echo', '$URLARG', '>', this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_targz), this.cmd('gzip', this.shared_project_targz), 'cd', this.cmd('tar', '-xf', this.share_project_tar)];
+            cmds = [this.cmd('echo', '$URLARG', '>', this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_targz), this.cmd('gzip', this.shared_project_targz), 'cd', this.cmd('tar', '-xf', this.share_project_tar), this.cmd('open', '.')];
             //project_dir = this.inline_clone(route1);
+
+            //return btoa(JSON.stringify(this.ls_R(project_dir)));
+            //return JSON.parse(atob(project_str));
         }
         if(cmds)
             await this.commands(this.chain(...cmds));
@@ -438,8 +441,9 @@ export class Shell
     async git_clone(https_path)
     {
         this.log_big_header('$ git clone ' + https_path); 
-        const route = https_path.split('/');
-        let repo_path = route.pop();
+        const parsed = this.github.parse_url(https_path);
+        
+        let repo_path = parsed.reponame;
         this.log_big(`Cloning from '${https_path}' into '${repo_path}'...`);
         
         let token_cached = false;
@@ -447,7 +451,7 @@ export class Shell
         if(token == '')
         {
             this.log_big(`Searching token cache for '${https_path}'...`);
-            token = await this.cache_token('get', this.ui.github_https_path.value);
+            token = await this.cache_token('get', https_path);
             this.ui.github_token.value = token;
             token_cached = token != '';
             this.log_big(token_cached ? `Token found [${token}] in cache...` : 'Token not found in cache...');
@@ -455,10 +459,9 @@ export class Shell
 
         token = token || this.ui.github_token.value;
         
-        if(https_path.includes('gist.github.com'))
+        if(parsed.gist)
         {
-            const gistname = repo_path;
-            await this.github.clone_gist(token, gistname, repo_path);
+            await this.github.clone_gist(token, parsed.reponame, repo_path);
         }
         else
         {
@@ -496,17 +499,6 @@ export class Shell
     {
         this.log_big_header('$ git push');
         return await this.github.push_gist(...args);
-    }
-
-    serialize_project(project_dir)
-    {
-        //TODO: filter out artefacts
-        return btoa(JSON.stringify(this.ls_R(project_dir)));
-    }
-
-    deserialize_project(project_str)
-    {
-        return JSON.parse(atob(project_str));
     }
 
     async cache_load()
@@ -741,7 +733,7 @@ export class Shell
         {
             contents = contents || this.FS.readFile(file_path, {encoding : 'utf8'});
             open_editor_tab(file_path, contents);
-            this.clear_editor = true;
+            this.clear_editor = !pin;
             this.ui.set_current_file(this.PATH.basename(file_path), 'editing');
         }
     }

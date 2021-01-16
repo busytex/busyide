@@ -103,6 +103,7 @@ export class Shell
         this.ui.filetree.onchange = ev => this.open(this.ui.filetree.options[this.ui.filetree.selectedIndex].value);
         this.ui.filetree.ondblclick = ev => {
             const option = this.ui.filetree.options[this.ui.filetree.selectedIndex];
+            console.log(option, ev);
             if(option.className == 'filetreedirectory')
             {
                 if(option.text == '.')

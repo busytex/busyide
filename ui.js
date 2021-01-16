@@ -118,10 +118,9 @@ export class Shell
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value) || this.ui.toggle_current_file_rename()) : ev.key == 'Escape' ? (this.ui.set_current_file(this.ui.get_current_file()) || this.ui.toggle_current_file_rename()) : null;
 		
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyCode.Enter, this.ui.compile.onclick);
-        this.editor.onDidFocusEditorText(ev => console.log('editor',  ev));
-        this.ui.pdfpreview.onclick = ev => console.log('pdfpreview', ev);
-        this.ui.imgpreview.onclick = ev => console.log('imgpreview', ev);
-        this.ui.txtpreview.onfocus = ev => console.log('txtpreview', ev);
+        this.editor.onDidFocusEditorText(ev => this.ui.set_current_file(this.edit_path, 'editing'));
+        this.ui.txtpreview.onfocus = this.ui.imgpreview.onclick = () => this.ui.set_current_file(this.view_path, 'viewing');
+        //this.ui.pdfpreview.onclick = ev => console.log('pdfpreview', ev);
     }
 
     new_file_path(prefix, ext = '', max_attempts = 1000)
@@ -649,29 +648,11 @@ export class Shell
 
         const open_viewer_tab = (file_path, contents) =>
         {
-            this.view_path = file_path == '' ? '' : this.abspath(file_path);
-            const b64encode = uint8array => btoa(uint8array.reduce((acc, i) => acc += String.fromCharCode.apply(null, [i]), ''));
-            if(file_path.endsWith('.log'))
-            {
-                this.ui.txtpreview.value = contents;
-                this.ui.toggle_viewer('text');
-            }
-            else if(file_path.endsWith('.svg'))
-            {
-                this.ui.imgpreview.src = 'data:image/svg+xml;base64,' + b64encode(contents);
-                this.ui.toggle_viewer('image');
-            }
-            else if(file_path.endsWith('.png') || file_path.endsWith('.jpg'))
-            {
-                const ext = file_path.endsWith('.png') ? 'png' : 'jpg';
-                this.ui.imgpreview.src = `data:image/${ext};base64,` + b64encode(contents);
-                this.ui.toggle_viewer('image');
-            }
-            else if(file_path.endsWith('.pdf'))
-            {
-                this.ui.pdfpreview.src = URL.createObjectURL(new Blob([contents], {type: 'application/pdf'}));
-                this.ui.toggle_viewer('pdf');
-            }
+            const abspath = file_path == '' ? '' : this.abspath(file_path);
+            this.view_path = abspath;
+            
+            if(file_path.endsWith('.log') || file_path.endsWith('.svg') || file_path.endsWith('.png') || file_path.endsWith('.jpg') || file_path.endsWith('.pdf'))
+                this.ui.toggle_viewer(file_path.slice(file_path.length - 'ext'.length), contents);
         };
 
         if(file_path == '')

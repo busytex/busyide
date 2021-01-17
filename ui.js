@@ -107,8 +107,6 @@ export class Shell
             {
                 if(option.text == '.')
                     this.refresh();
-                else if(option.text == '.git')
-                    this.commands(cmd('git', 'status'));
                 else
                     this.commands(cmd('cd', option.value));
             }

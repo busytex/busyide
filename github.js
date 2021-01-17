@@ -236,9 +236,9 @@ export class Github
         this.FS.mkdir(repo_path);
         this.FS.mkdir(repo_path + '/.git');
         this.FS.mkdir(repo_path + '/.git/objects');
-        this.FS.writeFile(repo_path + '/.git/refs');
-        this.FS.writeFile(repo_path + '/.git/refs/remotes');
-        this.FS.writeFile(repo_path + '/.git/refs/remotes/origin');
+        this.FS.mkdir(repo_path + '/.git/refs');
+        this.FS.mkdir(repo_path + '/.git/refs/remotes');
+        this.FS.mkdir(repo_path + '/.git/refs/remotes/origin');
         this.FS.writeFile(repo_path + '/.git/config', '[remote "origin"]\nurl = ' + https_path);
         this.FS.writeFile(repo_path + '/.git/refs/remotes/origin/HEAD', 'ref: refs/remotes/origin/' + branch); 
         this.FS.writeFile(repo_path + '/.git/refs/remotes/origin/' + branch, sha);

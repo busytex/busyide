@@ -102,8 +102,7 @@ export class Shell
         this.ui.github_https_path.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
         this.ui.filetree.onchange = ev => this.open(this.ui.filetree.options[this.ui.filetree.selectedIndex].value);
         this.ui.filetree.ondblclick = ev => {
-            const option = this.ui.filetree.options[this.ui.filetree.selectedIndex];
-            console.log(option, ev);
+            const option = ev.target;
             if(option.className == 'filetreedirectory')
             {
                 if(option.text == '.')

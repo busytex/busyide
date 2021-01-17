@@ -208,10 +208,8 @@ export class Github
         const resp = await this.api_request('gists', https_path);
         const repo = await resp.json();
 
-        this.FS.mkdir(repo_path);
-        this.FS.mkdir(repo_path + '/.git');
-        this.FS.mkdir(repo_path + '/.git/objects');
-        this.FS.writeFile(repo_path + '/.git/config', '[remote "origin"]\nurl = ' + https_path);
+        this.PATH_.mkdir_p(this.PATH.join2(repo_path, '.git/objects'));
+        this.FS.writeFile(this.PATH.join2(repo_path, '.git/config'), '[remote "origin"]\nurl = ' + https_path);
 
         for(const file_name in repo.files)
         {
@@ -235,12 +233,8 @@ export class Github
         const resp = await this.api_request('repos', https_path, '/contents');
         const repo = await resp.json();
 
-        this.FS.mkdir(repo_path);
-        this.FS.mkdir(repo_path + '/.git');
-        this.FS.mkdir(repo_path + '/.git/objects');
-        this.FS.mkdir(repo_path + '/.git/refs');
-        this.FS.mkdir(repo_path + '/.git/refs/remotes');
-        this.FS.mkdir(repo_path + '/.git/refs/remotes/origin');
+        this.PATH_.mkdir_p(this.PATH.join2(repo_path, '.git/refs/remotes/origin'));
+        this.PATH_.mkdir_p(this.PATH.join2(repo_path, '.git/objects'));
         this.FS.writeFile(repo_path + '/.git/config', '[remote "origin"]\nurl = ' + https_path);
         this.FS.writeFile(repo_path + '/.git/refs/remotes/origin/HEAD', 'ref: refs/remotes/origin/' + branch); 
         this.FS.writeFile(repo_path + '/.git/refs/remotes/origin/' + branch, sha);

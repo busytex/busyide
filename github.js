@@ -227,7 +227,7 @@ export class Github
         this.auth_token = auth_token;
 
         branch = branch || (await this.api_request('repos', https_path).then(r => r.json())).default_branch;
-        const tree = await this.api_request('repos', https_path, `/git/trees/${branch}?recursive=1`);
+        const tree = await this.api_request('repos', https_path, `/git/trees/${branch}?recursive=1`).then(r => r.json());
         const sha = tree.sha;
 
         const resp = await this.api_request('repos', https_path, '/contents');

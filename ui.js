@@ -432,7 +432,7 @@ export class Shell
     log_big_header(text = '')
     {
         this.log_big(this.ui.log_reset_sequence);
-        this.ui.toggle_viewer('log', text);
+        this.ui.toggle_viewer('log', text + '\n');
     }
 
     async git_clone(https_path)

@@ -108,7 +108,7 @@ export class Shell
                 if(option.text == '.')
                     this.refresh();
                 else
-                    this.commands(cmd('cd', option.value));
+                    this.commands(cmd('cd', option.text == '..' ? option.text : option.value));
             }
         };
         this.ui.filetree.onkeydown = ev => ev.key == 'Enter' || ev.key == ' ' ? this.ui.filetree.ondblclick() : null;
@@ -432,8 +432,7 @@ export class Shell
     log_big_header(text = '')
     {
         this.log_big(this.ui.log_reset_sequence);
-        this.ui.toggle_viewer('text');
-        this.log_big(text);
+        this.ui.toggle_viewer('log', text);
     }
 
     async git_clone(https_path)
@@ -657,10 +656,9 @@ export class Shell
         if(file_path == '')
         {
             this.tex_path = '';
-            this.ui.txtpreview.value = '';
             this.ui.set_current_file('');
             open_editor_tab('');
-            this.ui.toggle_viewer('text');
+            this.ui.toggle_viewer('log', '');
             return;
         }
         else if(file_path != null)

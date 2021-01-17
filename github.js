@@ -6,16 +6,18 @@
 //
 export class Github
 {
-    constructor(sha1, FS, cache_dir, merge, print)
+    constructor(cache_dir, merge, print, sha1, FS, PATH, PATH_)
     {
         this.retry_delay_seconds = 2;
         this.auth_token = '';
         this.print = print || (line => null);
-        this.FS = FS;
         this.cache_dir = cache_dir;
         this.github_contents = '.git/githubapicontents.json';
         this.merge = merge;
         this.sha1 = sha1;
+        this.FS = FS;
+        this.PATH = PATH;
+        this.PATH_ = PATH_;
     }
 
     parse_url(https_path)

@@ -143,6 +143,8 @@
         <textarea hidden id="txtpreview"></textarea>
         <figure hidden id="gitstatus">
             <figcaption>$ git status</figcaption>
+            <strong>Remote branch:</strong><span class="remotebranch"></span>
+            <strong>Remote commit:</strong><span class="remotecommit"></span>
             <table id="gitstatusmodified">
                 <thead><tr><th>path</th><th>status</th></tr></thead>
                 <tbody></tbody>
@@ -156,7 +158,7 @@
             </details>
         </figure>
         <figure hidden id="gitpull">
-            <figcaption>[git pull]</figcaption>
+            <figcaption>$ git pull</figcaption>
             <table id="gitpullmodified">
                 <thead><tr><th>path</th><th>status</th></tr></thead>
                 <tbody></tbody>
@@ -344,7 +346,7 @@ const ui =
         }
     },
 
-    update_git_status(modified, notmodified)
+    update_git_status(modified, notmodified, remotebranch, remotecommit)
     {
         const table_modified = ui.gitstatus.querySelector('#gitstatusmodified');
         const details_notmodified = ui.gitstatus.querySelector('details');

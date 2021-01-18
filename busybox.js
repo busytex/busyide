@@ -131,9 +131,7 @@ export class Busybox
         this.Module.output_stdout = '';
         this.Module.output_stderr = '';
         this.Module.output_stdout_binary = [];
-        this.Module.input_stdin = stdin;
                 
-        const ord = Module.input_stdin.charCodeAt(0);
         if(stdin != null)
             Module.input_stdin_binary = stdin.constructor === Uint8Array ? stdin : Uint8Array.from(Array.from(stdin).map(c => c.charCodeAt()));
         

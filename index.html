@@ -346,7 +346,7 @@ const ui =
         }
     },
 
-    update_git_status(status)
+    update_git_status(status, format_url)
     {
         const modified = status.files.filter(f => f.status == 'modified');
         const notmodified = status.files.filter(f => f.status == 'not modified');
@@ -358,10 +358,11 @@ const ui =
         const a_branch = ui.gitstatus.querySelector('.remotebranch');
         const a_commit = ui.gitstatus.querySelector('.remotecommit');
 
-        a_branch.href = 'https://github.com';
+        const [gist, username, reponame] = [false, 'vadimkantorov', 'cv'];
+        a_branch.href = format_url(username, reponame, gist, status.remote_branch);
         a_branch.innerText = status.remote_branch;
         
-        a_commit.href = 'https://github.com';
+        a_commit.href = format_url(username, reponame, gist, status.remote_branch, status.remote_commit);
         a_commit.innerText = status.remote_commit;
 
         table_modified.hidden = modified.length == 0;

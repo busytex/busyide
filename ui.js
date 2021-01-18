@@ -477,18 +477,18 @@ export class Shell
         return repo_path;
     }
 
-    git_status(not_modified = 'not modified')
+    git_status()
     {
         const status = this.github.status();
-        this.ui.update_git_status(status);
+        this.ui.update_git_status(status, this.github.format_url);
         this.clear_viewer = false;
         this.ui.toggle_viewer('gitstatus');
     }
 
-    async git_pull(not_modified = 'not modified')
+    async git_pull()
     {
-        const status = await this.github.pull();
-        this.ui.update_git_pull(status.filter(f => f.status != not_modified), status.filter(f => f.status == not_modified));
+        //const status = await this.github.pull();
+        //this.ui.update_git_pull(status.filter(f => f.status != not_modified), status.filter(f => f.status == not_modified));
         this.clear_viewer = false;
         this.ui.toggle_viewer('gitpull');
     }

@@ -30,6 +30,18 @@ export class Github
         return {reponame : reponame, username : username, gist: gist, path : https_path};
     }
 
+    format_url(username, reponame, gist, branch, commit)
+    {
+        if(gist)
+            return `https://gist.github.com/${username}/${reponame}/${commit}`;
+        else if(!gist && branch && commit)
+            return `https://github.com/${username}/${reponame}/commit/${commit}`
+        else if(!gist && branch)
+            return `https://github.com/${username}/${reponame}/tree/${branch}`
+        else
+            return `https://github.com/${username}/${reponame}`;
+    }
+
     api_request(realm, https_path, relative_url = '', method = 'get', body = null)
     {
         const api = https_path.replace('github.com', 'api.github.com/' + realm);
@@ -192,7 +204,7 @@ export class Github
         files.push(...Object.keys(prev).map(file_path => ({path : file_path, status : 'deleted'}))); 
 
         const remote_branch = this.PATH.basename(this.FS.readFile('.git/refs/remotes/origin/HEAD', {encoding : 'utf8'}).split(': ').pop()); 
-        const remote_commit = this.FS.readFile(this.PATH.join2('.git/refs/remotes/origin', remote_branch));
+        const remote_commit = this.FS.readFile(this.PATH.join2('.git/refs/remotes/origin', remote_branch), {encoding: 'utf8'});
         return {files : files, remote_branch : remote_branch, remote_commit : remote_commit};
     }
 

@@ -186,9 +186,9 @@ export class Shell
         this.terminal.write((line || '') + newline);
     }
 
-    terminal_prompt(red_start_sequence = '\x1B[1;3;31m', red_end_sequence = '\x1B[0m')
+    terminal_prompt(red_begin_sequence = '\x1B[1;3;31m', red_end_sequence = '\x1B[0m')
     {
-        return this.terminal.write(`${red_start_sequence}busytex${red_end_sequence}:` + this.pwd(true) + '$ ');
+        return this.terminal.write(`${red_begin_sequence}busytex${red_end_sequence}:` + this.pwd(true) + '$ ');
     }
     
     async onkey({key, domEvent})
@@ -479,7 +479,7 @@ export class Shell
 
     git_status(not_modified = 'not modified')
     {
-        const status = this.github.status(this.ls_R('.', '', true, true, false, false));
+        const status = this.github.status().files;
         this.ui.update_git_status(status.filter(f => f.status != not_modified), status.filter(f => f.status == not_modified));
         this.clear_viewer = false;
         this.ui.toggle_viewer('gitstatus');

@@ -160,9 +160,10 @@ export class Github
         return this.sha1(byte_array);
     }
 
-    status(ls_R)
+    status()
     {
-        let res = [];
+        const ls_R = this.PATH_.ls_R('.', '', true, true, false, false);
+        let files = [];
 
         const prev = this.read_githubcontents(true);
         for(const file of ls_R)
@@ -176,22 +177,23 @@ export class Github
             const sha = prev[file.path];
             
             if(!sha)
-                res.push({path : file.path, status : 'new'});
+                files.push({path : file.path, status : 'new'});
             else
             {
                 if(sha != this.blob_sha(file.contents))
-                    res.push({path : file.path, status : 'modified'});
+                    files.push({path : file.path, status : 'modified'});
                 else
-                    res.push({path : file.path, status : 'not modified'});
+                    files.push({path : file.path, status : 'not modified'});
 
                 delete prev[file.path];
             }
         }
         
-        for(const file_path in prev)
-            res.push({path : file_path, status : 'deleted'});
+        files.push(...Object.keys(prev).map(file_path => ({path : file_path, status : 'deleted'}))); 
 
-        return res;
+        const remote_branch = this.PATH.basename(this.FS.readFile('.git/refs/remotes/origin/HEAD', {encoding : 'utf8'}).split()[1]); 
+        const remote_commit = this.FS.readFile(this.PATH.join2('.git/refs/remotes/origin', remote_branch));
+        return {files : files, remote_branch : remote_branch, remote_commit : remote_commit};
     }
 
     async push_gist(file_path)

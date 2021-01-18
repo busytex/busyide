@@ -191,7 +191,7 @@ export class Github
         
         files.push(...Object.keys(prev).map(file_path => ({path : file_path, status : 'deleted'}))); 
 
-        const remote_branch = this.PATH.basename(this.FS.readFile('.git/refs/remotes/origin/HEAD', {encoding : 'utf8'}).split()[1]); 
+        const remote_branch = this.PATH.basename(this.FS.readFile('.git/refs/remotes/origin/HEAD', {encoding : 'utf8'}).split(': ').pop()); 
         const remote_commit = this.FS.readFile(this.PATH.join2('.git/refs/remotes/origin', remote_branch));
         return {files : files, remote_branch : remote_branch, remote_commit : remote_commit};
     }

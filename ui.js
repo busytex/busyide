@@ -479,8 +479,8 @@ export class Shell
 
     git_status(not_modified = 'not modified')
     {
-        const status = this.github.status().files;
-        this.ui.update_git_status(status.filter(f => f.status != not_modified), status.filter(f => f.status == not_modified));
+        const status = this.github.status();
+        this.ui.update_git_status(status);
         this.clear_viewer = false;
         this.ui.toggle_viewer('gitstatus');
     }

@@ -554,11 +554,9 @@ function init_editor(monaco, editor_element, lang_monarch, latex_monarch, bibtex
 
 function init_terminal(Terminal, terminal_element, FitAddon)
 {
-    //Terminal.applyAddon(addon);
     const terminal = new Terminal.Terminal();
-    const fit_addon = new FitAddon();
-    terminal.loadAddon(fit_addon);
-    terminal.fit_addon = fit_addon;
+    terminal.fit_addon = new FitAddon();
+    terminal.loadAddon(terminal.fit_addon);
 
     terminal.open(ui.terminal);
     return terminal;

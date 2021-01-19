@@ -42,6 +42,17 @@ export class Github
             return `https://github.com/${username}/${reponame}`;
     }
 
+    git_dir()
+    {
+        for(let cwd = this.FS.cwd(); cwd != '/'; cwd = this.PATH.normalize(this.PATH.join2(cwd, '..')))
+        {
+            const dotgit = this.PATH.join2(cwd, '.git');
+            if(this.PATH_.exists(dotgit))
+                return dotgit;
+        }
+        return null;
+    }
+    
     api_request(realm, https_path, relative_url = '', method = 'get', body = null)
     {
         const api = https_path.replace('github.com', 'api.github.com/' + realm);
@@ -174,7 +185,7 @@ export class Github
 
     status()
     {
-        const ls_R = this.PATH_.ls_R('.', '', true, true, false, false);
+        const ls_R = this.PATH_.ls_R(this.PATH.normalize(this.PATH.join2(this.git_dir(), '..')), '', true, true, false, false);
         let files = [];
 
         const prev = this.read_githubcontents(true);
@@ -192,11 +203,7 @@ export class Github
                 files.push({path : file.path, status : 'new'});
             else
             {
-                if(sha != this.blob_sha(file.contents))
-                    files.push({path : file.path, status : 'modified'});
-                else
-                    files.push({path : file.path, status : 'not modified'});
-
+                files.push({path : file.path, status : sha != this.blob_sha(file.contents) ? 'modified' : 'not modified'});
                 delete prev[file.path];
             }
         }

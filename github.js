@@ -205,7 +205,7 @@ export class Github
 
         const remote_branch = this.PATH.basename(this.FS.readFile('.git/refs/remotes/origin/HEAD', {encoding : 'utf8'}).split(': ').pop()); 
         const remote_commit = this.FS.readFile(this.PATH.join2('.git/refs/remotes/origin', remote_branch), {encoding: 'utf8'});
-        return {files : files, remote_branch : remote_branch, remote_commit : remote_commit};
+        return {...this.parse_url(this.read_https_path()), files : files, remote_branch : remote_branch, remote_commit : remote_commit};
     }
 
     async push_gist(file_path)

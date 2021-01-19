@@ -133,7 +133,7 @@ export class Busybox
         this.Module.output_stdout_binary = [];
                 
         if(stdin != null)
-            Module.input_stdin_binary = stdin.constructor === Uint8Array ? stdin : Uint8Array.from(Array.from(stdin).map(c => c.charCodeAt()));
+            this.Module.input_stdin_binary = stdin.constructor === Uint8Array ? stdin : Uint8Array.from(Array.from(stdin).map(c => c.charCodeAt()));
         
         this.Module.prefix = cmd[0];
         const mem_header = Uint8Array.from(this.Module.HEAPU8.slice(0, this.mem_header_size));

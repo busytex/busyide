@@ -143,8 +143,7 @@
         <textarea hidden id="txtpreview"></textarea>
         <figure hidden id="gitstatus">
             <figcaption>$ git status</figcaption>
-            <strong>Remote branch:</strong><a class="remotebranch"></a><br/>
-            <strong>Remote commit:</strong><a class="remotecommit"></a>
+            <strong>Remote branch:</strong><a class="remotebranch"></a>, <strong>commit:</strong><a class="remotecommit"></a>
             <table id="gitstatusmodified">
                 <thead><tr><th>path</th><th>status</th></tr></thead>
                 <tbody></tbody>
@@ -565,9 +564,9 @@ function init_terminal(Terminal, terminal_element, FitAddon)
     return terminal;
 }
 
-const monarch_promises = [paths.lang_monarch_json, paths.latex_monarch_json, paths.bibtex_monarch_json].map(x => fetch(x).then(x => x.json()));
+const monarch_promises = [paths.lang_monarch_json, paths.latex_monarch_json, paths.bibtex_monarch_json].map(x => fetch(x).then(r => r.json()));
 
-const readme_tex_promise = fetch(paths.readme_tex).then(x => x.text());
+const readme_tex_promise = fetch(paths.readme_tex).then(r => r.text());
 const busybox_wasm_module_promise = fetch(paths.busybox_wasm).then(WebAssembly.compileStreaming);
 
 require(['vs/editor/editor.main', 'xterm/xterm', './dist/busybox_unstripped.js', 'sha1'], async (Monaco, Terminal, busybox_module_constructor, sha1) =>

@@ -18,6 +18,7 @@ export class Github
         this.FS = FS;
         this.PATH = PATH;
         this.PATH_ = PATH_;
+        this.api_endpoint = 'api.github.com';
     }
 
     parse_url(https_path)
@@ -55,7 +56,7 @@ export class Github
     
     api_request(realm, https_path, relative_url = '', method = 'get', body = null)
     {
-        const api = https_path.replace('github.com', 'api.github.com/' + realm);
+        const api = realm != 'gists' ? https_path.replace('github.com', this.PATH.join2(this.api.endpoint, realm)) : ('https://' + this.PATH.join(this.api_endpoint, 'gists', this.parse_url(https_path).reponame));
         const headers = Object.assign({Authorization : 'Basic ' + btoa(this.auth_token), 'If-None-Match' : ''}, body != null ? {'Content-Type' : 'application/json'} : {});
         return fetch(api + relative_url, Object.assign({method : method || 'get', headers : headers}, body != null ? {body : JSON.stringify(body)} : {}));
     }
@@ -75,12 +76,12 @@ export class Github
 
     save_githubcontents(repo_path, repo)
     {
-        this.FS.writeFile(repo_path + '/' + this.github_contents, JSON.stringify(repo));
+        this.FS.writeFile(this.PATH.join2(repo_path, this.github_contents), JSON.stringify(repo));
     }
 
     object_path(file)
     {
-        return '.git/objects/' + file.sha.slice(0, 2) + '/' + file.sha.slice(2);
+        return this.PATH.join('.git/objects', file.sha.slice(0, 2), file.sha.slice(2));
     }
 
     save_object(obj_path, contents)
@@ -136,7 +137,7 @@ export class Github
             }
             else if(file.type == 'dir')
             {
-                const dir_path = repo_path + '/' + file.path;
+                const dir_path = this.PATH.join2(repo_path, file.path);
                 if(!this.FS.analyzePath(dir_path).exists)
                     this.FS.mkdir(dir_path);
                 const resp = await this.api_request('repos', https_path, '/contents/' + file.path);
@@ -153,7 +154,7 @@ export class Github
     {
         opts = opts || {encoding: 'binary'};
         let contents = null;
-        const cached_file_path = this.cache_dir + '/' + file.sha;
+        const cached_file_path = this.PATH.join2(this.cache_dir, file.sha);
         if(this.FS.analyzePath(cached_file_path).exists)
         {
             this.print(`Loading [${file_path}] from cached [${cached_file_path}]`);
@@ -222,12 +223,11 @@ export class Github
         return resp.status == 200 ? true : false;
     }
 
-    async clone_gist(auth_token, gistname, repo_path)
+    async clone_gist(auth_token, https_path, repo_path)
     {
         this.auth_token = auth_token;
-        const https_path = 'https://github.com/' + gistname;
-        const resp = await this.api_request('gists', https_path);
-        const repo = await resp.json();
+
+        const repo = await this.api_request('gists', https_path).then(r => r.json());
 
         this.PATH_.mkdir_p(this.PATH.join2(repo_path, '.git/objects'));
         this.FS.writeFile(this.PATH.join2(repo_path, '.git/config'), '[remote "origin"]\nurl = ' + https_path);
@@ -236,11 +236,16 @@ export class Github
         {
             this.print(`Creating [${file_name}]`);
             const file = repo.files[file_name];
-            const file_path = repo_path + '/' + file_name;
+            const file_path = this.PATH.join2(repo_path, file_name);
             const contents = file.truncated ? (await fetch(file.raw_url).then(x => x.text())) : file.content;
             this.FS.writeFile(file_path, contents);
         }
         this.save_githubcontents(repo_path, repo);
+    }
+
+    async pull_gist(auth_token)
+    {
+
     }
 
     async clone_repo(auth_token, https_path, repo_path, branch = null)

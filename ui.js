@@ -459,7 +459,7 @@ export class Shell
         
         if(parsed.gist)
         {
-            await this.github.clone_gist(token, parsed.reponame, repo_path);
+            await this.github.clone_gist(token, https_path, repo_path);
         }
         else
         {

@@ -94,24 +94,20 @@ export class Github
 
     async pull(repo_path = '.')
     {
-        let res = [];
-
         const https_path = this.read_https_path();
-        
         const prev = this.read_githubcontents();
-        console.log('prev', prev);
+        const repo = await this.api_request('repos', https_path, '/contents').then(r => r.json());
         
-        const resp = await this.api_request('repos', https_path, '/contents');
-        const repo = await resp.json();
         let Q = [...repo];
 
+        let res = [];
         while(Q.length > 0)
         {
             const file = Q.pop();
             if(file.type == 'file')
             {
                 const prev_files = prev.filter(f => f.path == file.path);
-                if(!this.FS.analyzePath(file.path).exists)
+                if(!this.PATH_.exists(file.path))
                 {
                     const contents = await this.load_file(file.path, file);
                     this.FS.writeFile(file_path, contents);
@@ -137,11 +133,9 @@ export class Github
             }
             else if(file.type == 'dir')
             {
-                const dir_path = this.PATH.join2(repo_path, file.path);
-                if(!this.FS.analyzePath(dir_path).exists)
-                    this.FS.mkdir(dir_path);
-                const resp = await this.api_request('repos', https_path, '/contents/' + file.path);
-                const dir = await resp.json();
+                this.PATH_.mkdir_p(this.PATH.join2(repo_path, file.path));
+                
+                const dir = await this.api_request('repos', https_path, '/contents/' + file.path).then(r => r.json());
                 repo.push(...dir);
                 Q.push(...dir);
             }
@@ -155,7 +149,7 @@ export class Github
         opts = opts || {encoding: 'binary'};
         let contents = null;
         const cached_file_path = this.PATH.join2(this.cache_dir, file.sha);
-        if(this.FS.analyzePath(cached_file_path).exists)
+        if(this.PATH_.exists(cached_file_path))
         {
             this.print(`Loading [${file_path}] from cached [${cached_file_path}]`);
             contents = this.FS.readFile(cached_file_path, opts);
@@ -226,11 +220,10 @@ export class Github
     async clone_gist(auth_token, https_path, repo_path)
     {
         this.auth_token = auth_token;
-
         const repo = await this.api_request('gists', https_path).then(r => r.json());
 
-        this.PATH_.mkdir_p(this.PATH.join2(repo_path, '.git/objects'));
-        this.FS.writeFile(this.PATH.join2(repo_path, '.git/config'), '[remote "origin"]\nurl = ' + https_path);
+        this.PATH_.mkdir_p(this.PATH.join(repo_path, '.git', 'objects'));
+        this.FS.writeFile(this.PATH.join(repo_path, '.git', 'config'), '[remote "origin"]\nurl = ' + https_path);
 
         for(const file_name in repo.files)
         {
@@ -245,7 +238,15 @@ export class Github
 
     async pull_gist(auth_token)
     {
+        this.auth_token = auth_token;
+        const repo = await this.api_request('gists', https_path).then(r => r.json());
 
+        let res = [];
+        for(const file of repo)
+        {
+
+        }
+        return res;
     }
 
     async clone_repo(auth_token, https_path, repo_path, branch = null)
@@ -259,25 +260,25 @@ export class Github
         const resp = await this.api_request('repos', https_path, '/contents');
         const repo = await resp.json();
 
-        this.PATH_.mkdir_p(this.PATH.join2(repo_path, '.git/refs/remotes/origin'));
-        this.PATH_.mkdir_p(this.PATH.join2(repo_path, '.git/objects'));
-        this.FS.writeFile(repo_path + '/.git/config', '[remote "origin"]\nurl = ' + https_path);
-        this.FS.writeFile(repo_path + '/.git/refs/remotes/origin/HEAD', 'ref: refs/remotes/origin/' + branch); 
-        this.FS.writeFile(repo_path + '/.git/refs/remotes/origin/' + branch, sha);
+        this.PATH_.mkdir_p(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin'));
+        this.PATH_.mkdir_p(this.PATH.join(repo_path, '.git', 'objects'));
+        this.FS.writeFile(this.PATH.join(repo_path, '.git', 'config'), '[remote "origin"]\nurl = ' + https_path);
+        this.FS.writeFile(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin', 'HEAD'), 'ref: refs/remotes/origin/' + branch); 
+        this.FS.writeFile(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin', branch), sha);
         let Q = [...repo];
         while(Q.length > 0)
         {
             const file = Q.pop();
             if(file.type == 'file')
             {
-                const file_path = repo_path + '/' + file.path;
+                const file_path = this.PATH.join2(repo_path, file.path);
                 const contents = await this.load_file(file_path, file);
                 this.FS.writeFile(file_path, contents);
-                this.save_object(repo_path + '/' + this.object_path(file), contents);
+                this.save_object(this.PATH.join2(repo_path, this.object_path(file)), contents);
             }
             else if(file.type == 'dir')
             {
-                this.FS.mkdir(repo_path + '/' + file.path);
+                this.FS.mkdir(this.PATH.join2(repo_path, file.path));
                 const resp = await this.api_request('repos', https_path, '/contents/' + file.path);
                 const dir = await resp.json();
                 repo.push(...dir);

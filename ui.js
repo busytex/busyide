@@ -486,7 +486,7 @@ export class Shell
         this.ui.toggle_viewer('gitstatus');
     }
 
-    git_difftool(file_path)
+    git_difftool(branch, file_path)
     {
         var originalModel = this.monaco.editor.createModel("This line is removed on the right.\njust some text\nabcd\nefgh\nSome more text", "text/plain");
         var modifiedModel = this.monaco.editor.createModel("just some text\nabcz\nzzzzefgh\nSome more text.\nThis line is removed on the left.", "text/plain");

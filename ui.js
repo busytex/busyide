@@ -488,6 +488,9 @@ export class Shell
 
     git_difftool(file_path)
     {
+        var originalModel = this.monaco.editor.createModel("This line is removed on the right.\njust some text\nabcd\nefgh\nSome more text", "text/plain");
+        var modifiedModel = this.monaco.editor.createModel("just some text\nabcz\nzzzzefgh\nSome more text.\nThis line is removed on the left.", "text/plain");
+
         this.difftool.setModel({
             original: originalModel,
             modified: modifiedModel
@@ -650,9 +653,11 @@ export class Shell
             //this.editor.restoreViewState(data[desiredModelId].state);
             //this.editor.focus();
 
+            this.clear_editor = !pin;
+            
             if(this.clear_viewer)
                 this.ui.toggle_viewer('empty');
-            this.clear_editor = !pin;
+            this.ui.toggle_editor('editor');
         };
 
         const open_viewer_tab = (file_path, contents) =>
@@ -661,7 +666,10 @@ export class Shell
             this.view_path = abspath;
             
             if(file_path.endsWith('.log') || file_path.endsWith('.svg') || file_path.endsWith('.png') || file_path.endsWith('.jpg') || file_path.endsWith('.pdf'))
+            {
                 this.ui.toggle_viewer(file_path.slice(file_path.length - 'ext'.length), contents);
+                console.log(this.PATH.extname(file_path));
+            }
         };
 
         if(file_path == '')

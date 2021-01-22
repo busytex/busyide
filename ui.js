@@ -3,7 +3,7 @@ import { Busybox } from '/busybox.js'
 
 export class Shell
 {
-    constructor(ui, paths, readme, terminal, editor, monaco, cors_proxy_fmt = 'https://cors-anywhere.herokuapp.com/${url}')
+    constructor(monaco, ui, paths, readme, terminal, editor, difftool, cors_proxy_fmt = 'https://cors-anywhere.herokuapp.com/${url}')
     {
         this.monaco = monaco;
         this.share_link_log = '/tmp/share_link.log';
@@ -35,7 +35,7 @@ export class Shell
         this.busybox_applets = ['nanozip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip', 'base64', 'sha1sum'];
         this.shell_builtins =  ['man', 'help', 'open', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'share', 'upload', 'wget', 'init'];
         this.cache_applets = ['object', 'token'];
-        this.git_applets = ['clone', 'pull', 'push', 'status'];
+        this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool'];
         this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
         this.tic_ = 0;
         this.timer_delay_millisec = 1000;
@@ -44,6 +44,7 @@ export class Shell
         this.github = null;
         this.terminal = terminal;
         this.editor = editor;
+        this.difftool = difftool;
         this.ui = ui;
         this.paths = paths;
         this.compiler = new Worker(paths.busytex_worker_js);
@@ -483,6 +484,15 @@ export class Shell
         this.ui.update_git_status(status, this.github.format_url);
         this.clear_viewer = false;
         this.ui.toggle_viewer('gitstatus');
+    }
+
+    git_difftool(file_path)
+    {
+        this.difftool.setModel({
+            original: originalModel,
+            modified: modifiedModel
+        });
+        this.ui.toggle_editor('difftool');
     }
 
     async git_pull()

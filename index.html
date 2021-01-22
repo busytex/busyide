@@ -137,6 +137,7 @@
     <div style="display: flex; height: 80%">
       <select id="filetree" size="100"></select>
       <div id="editor"></div>
+      <div id="difftool" hidden></div>
       <div id="viewer">
         <iframe id="pdfpreview"></iframe>
         <img hidden id="imgpreview"></img>
@@ -268,6 +269,7 @@ const ui =
     gitpull : document.getElementById('gitpull'),
     fileupload : document.getElementById('fileupload'),
     editor : document.getElementById('editor'),
+    difftool : document.getElementById('difftool'),
     terminal : document.getElementById('terminal'),
     status : document.getElementById('status'),
     import_archive : document.getElementById('import_archive'),
@@ -477,6 +479,11 @@ const ui =
     {
         return window.location.origin;
     },
+    
+    toggle_editor(mode)
+    {
+        [ui.editor.hidden, ui.difftool.hidden] = [mode != 'editor', mode != 'difftool'];
+    },
 
     toggle_viewer(mode, contents = '')
     {
@@ -534,7 +541,7 @@ window.MonacoEnvironment =
     }
 };
 
-function init_editor(monaco, editor_element, lang_monarch, latex_monarch, bibtex_monarch)
+function init_editor(monaco, editor_element, difftool_element, lang_monarch, latex_monarch, bibtex_monarch)
 {
     // https://microsoft.github.io/monaco-editor/monarch.html
     // https://github.com/microsoft/monaco-languages/blob/master/src/python/python.ts
@@ -549,7 +556,7 @@ function init_editor(monaco, editor_element, lang_monarch, latex_monarch, bibtex
 	monaco.languages.setMonarchTokensProvider(bibtex_monarch.name, bibtex_monarch);
     monaco.languages.setLanguageConfiguration(bibtex_monarch.name, lang_monarch);
 
-    return monaco.editor.create(editor_element, { theme: 'vs-dark', minimap: {enabled: false } });
+    return {editor: monaco.editor.create(editor_element, { theme: 'vs-dark', minimap: {enabled: false } }), difftool: monaco.editor.createDiffEditor(difftool_element)};
 }
 
 function init_terminal(Terminal, terminal_element, FitAddon)
@@ -569,10 +576,10 @@ const busybox_wasm_module_promise = fetch(paths.busybox_wasm).then(WebAssembly.c
 
 require(['vs/editor/editor.main', 'xterm/xterm', './dist/busybox_unstripped.js', 'sha1'], async (Monaco, Terminal, busybox_module_constructor, sha1) =>
 {
-    const editor = init_editor(Monaco, ui.editor, ...(await Promise.all(monarch_promises)));
+    const {editor, difftool} = init_editor(Monaco, ui.editor, ui.difftool, ...(await Promise.all(monarch_promises)));
     const terminal = init_terminal(Terminal, ui.terminal, FitAddon);
     
-    window.busyshell = new Shell(ui, paths, await readme_tex_promise, terminal, editor, monaco);
+    window.busyshell = new Shell(monaco, ui, paths, await readme_tex_promise, terminal, editor, difftool);
     window.onresize = ui.onresize;
     window.onresize();
 

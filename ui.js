@@ -84,6 +84,7 @@ export class Shell
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
+        
         //this.ui.share.onclick = () => this.commands(chain(cmd('share', arg(this.project_dir()), '>', this.share_link_log), cmd('open', arg(this.share_link_log))));
         this.ui.share.onclick = () => this.commands(chain('cd', cmd('tar',  '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir()), ), cmd('cd', '-'), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
         // '--exclude', this.PATH.join2(this.PATH.basename(this.project_dir()), '.git')
@@ -115,6 +116,7 @@ export class Shell
         this.ui.filetree.onkeydown = ev => ev.key == 'Enter' || ev.key == ' ' ? this.ui.filetree.ondblclick() : null;
         this.ui.current_file.onclick = () => this.ui.toggle_current_file_rename() || this.ui.current_file_rename.focus();
         this.ui.current_file_rename.onblur = () => this.ui.set_current_file(this.ui.get_current_file()) || this.ui.toggle_current_file_rename();
+        this.ui.remove.onclick = () => this.get_current_file() && this.commands(chain(cmd('rm', '-rf', this.ui.get_current_file()), cmd('open', '.'))); 
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value) || this.ui.toggle_current_file_rename()) : ev.key == 'Escape' ? ev.target.onblur() : null;
 		
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyCode.Enter, this.ui.compile.onclick);
@@ -488,12 +490,9 @@ export class Shell
 
     git_difftool(branch, file_path)
     {
-        var originalModel = this.monaco.editor.createModel("This line is removed on the right.\njust some text\nabcd\nefgh\nSome more text", "text/plain");
-        var modifiedModel = this.monaco.editor.createModel("just some text\nabcz\nzzzzefgh\nSome more text.\nThis line is removed on the left.", "text/plain");
-
         this.difftool.setModel({
-            original: originalModel,
-            modified: modifiedModel
+            original: this.monaco.editor.createModel("This line is removed on the right.\njust some text\nabcd\nefgh\nSome more text", "text/plain"),
+            modified: this.monaco.editor.createModel("just some text\nabcz\nzzzzefgh\nSome more text.\nThis line is removed on the left.", "text/plain")
         });
         this.ui.toggle_editor('difftool');
     }

@@ -286,7 +286,7 @@ const ui =
     new_folder : document.getElementById('new_folder'),
     download : document.getElementById('download'),
     upload : document.getElementById('upload'),
-    //remove : document.getElementById('remove'),
+    remove : document.getElementById('remove'),
     verbose : document.getElementById('verbose'),
     github_https_path : document.getElementById('github_https_path'),
     github_token : document.getElementById('github_token'),
@@ -578,6 +578,11 @@ require(['vs/editor/editor.main', 'xterm/xterm', './dist/busybox_unstripped.js',
 {
     const {editor, difftool} = init_editor(Monaco, ui.editor, ui.difftool, ...(await Promise.all(monarch_promises)));
     const terminal = init_terminal(Terminal, ui.terminal, FitAddon);
+        
+    difftool.setModel({
+        original: this.monaco.editor.createModel("This line is removed on the right.\njust some text\nabcd\nefgh\nSome more text", "text/plain"),
+        modified: this.monaco.editor.createModel("just some text\nabcz\nzzzzefgh\nSome more text.\nThis line is removed on the left.", "text/plain")
+    });
     
     window.busyshell = new Shell(monaco, ui, paths, await readme_tex_promise, terminal, editor, difftool);
     window.onresize = ui.onresize;

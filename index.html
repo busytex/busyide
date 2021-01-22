@@ -580,8 +580,8 @@ require(['vs/editor/editor.main', 'xterm/xterm', './dist/busybox_unstripped.js',
     const terminal = init_terminal(Terminal, ui.terminal, FitAddon);
         
     difftool.setModel({
-        original: this.monaco.editor.createModel("This line is removed on the right.\njust some text\nabcd\nefgh\nSome more text", "text/plain"),
-        modified: this.monaco.editor.createModel("just some text\nabcz\nzzzzefgh\nSome more text.\nThis line is removed on the left.", "text/plain")
+        original: monaco.editor.createModel("This line is removed on the right.\njust some text\nabcd\nefgh\nSome more text", "text/plain"),
+        modified: monaco.editor.createModel("just some text\nabcz\nzzzzefgh\nSome more text.\nThis line is removed on the left.", "text/plain")
     });
     
     window.busyshell = new Shell(monaco, ui, paths, await readme_tex_promise, terminal, editor, difftool);

@@ -579,16 +579,11 @@ require(['vs/editor/editor.main', 'xterm/xterm', './dist/busybox_unstripped.js',
     const {editor, difftool} = init_editor(Monaco, ui.editor, ui.difftool, ...(await Promise.all(monarch_promises)));
     const terminal = init_terminal(Terminal, ui.terminal, FitAddon);
         
-    difftool.setModel({
-        original: monaco.editor.createModel("This line is removed on the right.\njust some text\nabcd\nefgh\nSome more text", "text/plain"),
-        modified: monaco.editor.createModel("just some text\nabcz\nzzzzefgh\nSome more text.\nThis line is removed on the left.", "text/plain")
-    });
-    
     window.busyshell = new Shell(monaco, ui, paths, await readme_tex_promise, terminal, editor, difftool);
     window.onresize = ui.onresize;
     window.onresize();
 
-    //await window.busyshell.run(busybox_module_constructor, busybox_wasm_module_promise, sha1);
+    await window.busyshell.run(busybox_module_constructor, busybox_wasm_module_promise, sha1);
 });
 
 </script>

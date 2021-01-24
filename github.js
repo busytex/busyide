@@ -53,6 +53,13 @@ export class Github
         }
         return null;
     }
+
+    rev_parse(ref, file_path)
+    {
+        const prev = this.read_githubcontents();
+        const files = prev.filter(f => f.path == file_path);
+        return files[0].sha;
+    }
     
     api_request(realm, https_path, relative_url = '', method = 'get', body = null)
     {
@@ -86,9 +93,7 @@ export class Github
 
     save_object(obj_path, contents)
     {
-        const obj_dir = obj_path.slice(0, obj_path.lastIndexOf('/'));
-        if(!this.FS.analyzePath(obj_dir).exists)
-            this.FS.mkdir(obj_dir);
+        this.PATH_.mkdir_p(this.PATH.dirname(obj_path));
         this.FS.writeFile(obj_path, contents);
     }
 

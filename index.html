@@ -556,7 +556,7 @@ function init_editor(monaco, editor_element, difftool_element, lang_monarch, lat
 	monaco.languages.setMonarchTokensProvider(bibtex_monarch.name, bibtex_monarch);
     monaco.languages.setLanguageConfiguration(bibtex_monarch.name, lang_monarch);
 
-    return {editor: monaco.editor.create(editor_element, { theme: 'vs-dark', minimap: {enabled: false } }), difftool: monaco.editor.createDiffEditor(difftool_element)};
+    return {editor: monaco.editor.create(editor_element, { automaticLayout: true, theme: 'vs-dark', minimap: {enabled: false } }), difftool: monaco.editor.createDiffEditor(difftool_element), {automaticLayout: true} };
 }
 
 function init_terminal(Terminal, terminal_element, FitAddon)

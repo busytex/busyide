@@ -326,10 +326,10 @@ const ui =
         [span.hidden, input.hidden] = [!span.hidden, !input.hidden];
     },
 
-    update_tbody(tbody, st)
+    update_tbody(tbody, st, onclick)
     {
         tbody.innerHTML = '';
-        for(const {path, status, onclick} of st)
+        for(const {path, status} of st)
         {
             const tr = tbody.insertRow();
             let tc = tr.insertCell();
@@ -366,8 +366,9 @@ const ui =
         a_commit.innerText = status.remote_commit;
 
         table_modified.hidden = modified.length == 0;
+        const onclick = evt => console.log(evt.target.innerText);
         if(!table_modified.hidden)
-            this.update_tbody(tbody_modified, modified); 
+            this.update_tbody(tbody_modified, modified, onclick); 
 
         details_notmodified.hidden = notmodified.length == 0;
         if(!details_notmodified.hidden)

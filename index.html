@@ -340,6 +340,7 @@ const ui =
             {
                 const a = document.createElement('a');
                 a.href = "#";
+                a.dataset.file_path = path;
                 a.onclick = onclick;
                 tc = a;
             }
@@ -366,7 +367,7 @@ const ui =
         a_commit.innerText = status.remote_commit;
 
         table_modified.hidden = modified.length == 0;
-        const onclick = evt => console.log(evt.target.innerText);
+        const onclick = evt => console.log(evt.target.dataset);
         if(!table_modified.hidden)
             this.update_tbody(tbody_modified, modified, onclick); 
 

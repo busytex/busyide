@@ -54,11 +54,14 @@ export class Github
         return null;
     }
 
-    rev_parse(ref, file_path)
+    cat_file(file_path)
     {
         const prev = this.read_githubcontents();
         const files = prev.filter(f => f.path == file_path);
-        return files[0].sha;
+        console.assert(files.length > 0);
+        const file = files[0];
+        const path = this.object_path(file);
+        return this.FS.readFile(path, {encoding: 'utf8'});
     }
     
     api_request(realm, https_path, relative_url = '', method = 'get', body = null)

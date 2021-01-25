@@ -143,7 +143,7 @@ export class Shell
 
     abspath(path)
     {
-        return path.startsWith('/') ? path : this.PATH.join2(this.FS.cwd(), path);
+        return path.startsWith('/') ? path : this.PATH.normalize(this.PATH.join2(this.FS.cwd(), path));
     }
 
     isdir(path)
@@ -488,11 +488,11 @@ export class Shell
         this.ui.toggle_viewer('gitstatus');
     }
 
-    git_difftool(branch, file_path)
+    git_difftool(file_path)
     {
         this.difftool.setModel({
-            original: this.monaco.editor.createModel("This line is removed on the right.\njust some text\nabcd\nefgh\nSome more text", "text/plain"),
-            modified: this.monaco.editor.createModel("just some text\nabcz\nzzzzefgh\nSome more text.\nThis line is removed on the left.", "text/plain")
+            original: this.monaco.editor.createModel(this.github.cat_file(file_path), 'text/plain'),
+            modified: this.monaco.editor.createModel(this.FS.readFile(file_path, {encoding: 'utf8'}), 'text/plain')
         });
         this.ui.toggle_editor('difftool');
     }

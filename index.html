@@ -101,7 +101,7 @@
             <option value="info">Verbosity - Info</option>
             <option value="debug">Verbosity - Debug</option>
         </select>
-        <button id="man">Help</button>
+        <button id="man" class="busyui">Help</button>
         <button id="import_archive">Import</button>
         <button id="compile">Compile</button>
         <span id="current_file" title="Click to rename"></span>
@@ -258,6 +258,9 @@ class FitAddon{
   }
 }
 
+
+const ui_ = Object.fromEntries(Array.from(document.querySelectorAll('.busyui')).map(el => (el.id, el)));
+consoel.log(ui_);
 
 const ui =
 {

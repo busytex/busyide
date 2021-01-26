@@ -348,7 +348,7 @@ const ui =
         }
     },
 
-    update_git_status(status, format_url)
+    update_git_status(status, format_url, git_difftool)
     {
         const modified = status.files.filter(f => f.status == 'modified');
         const notmodified = status.files.filter(f => f.status == 'not modified');
@@ -367,7 +367,7 @@ const ui =
         a_commit.innerText = status.remote_commit;
 
         table_modified.hidden = modified.length == 0;
-        const onclick = evt => console.log(evt.target.dataset) || false;
+        const onclick = evt => {git_difftool(evt.target.dataset.file_path); return false; };
         if(!table_modified.hidden)
             this.update_tbody(tbody_modified, modified, onclick); 
 

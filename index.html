@@ -6,7 +6,6 @@
     <title>busytex</title>
     <link rel="stylesheet" href="https://unpkg.com/xterm@4.9.0/css/xterm.css" />
     <link rel="icon" type="image/png" href="logo.png" />
-    <!--A-->
     <!--<link rel="preload" href="https://unpkg.com/monaco-editor@latest/min/vs/loader.js" as="script" />
     <link rel="preload" href="https://unpkg.com/monaco-editor@latest/min/vs/editor/editor.main.js" as="script" />
     <link rel="preload" href="https://unpkg.com/monaco-editor@latest/min/vs/base/worker/workerMain.js" as="script" />
@@ -339,6 +338,7 @@ const ui =
             if(onclick)
             {
                 const a = document.createElement('a');
+                tc.appendChild(a);
                 a.href = "#";
                 a.dataset.file_path = path;
                 a.onclick = onclick;
@@ -367,7 +367,7 @@ const ui =
         a_commit.innerText = status.remote_commit;
 
         table_modified.hidden = modified.length == 0;
-        const onclick = evt => console.log(evt.target.dataset);
+        const onclick = evt => console.log(evt.target.dataset) || false;
         if(!table_modified.hidden)
             this.update_tbody(tbody_modified, modified, onclick); 
 

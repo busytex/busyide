@@ -267,8 +267,8 @@ class FitAddon{
 }
 
 
-const ui_ = Object.fromEntries(Array.from(document.querySelectorAll('.busyui')).map(el => (el.id, el)));
-console.log(ui_);
+const ui_ = Object.fromEntries(Array.from(document.querySelectorAll('.busyui')).map(el => [el.id, el] ));
+console.log('ui_', ui_);
 
 const ui =
 {

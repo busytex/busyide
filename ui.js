@@ -495,8 +495,8 @@ export class Shell
             original: this.monaco.editor.createModel(this.github.cat_file(file_path), 'text/plain'),
             modified: this.monaco.editor.createModel(this.FS.readFile(file_path, {encoding: 'utf8'}), 'text/plain')
         });
+        this.difftool.focus();
         this.ui.toggle_editor('difftool');
-        this.ui.difftool.focus();
     }
 
     async git_pull()
@@ -716,10 +716,10 @@ export class Shell
         if(file_path.endsWith('.tex'))
             this.tex_path = file_path.startsWith('/') ? file_path : (this.FS.cwd() + '/' + file_path);
 
-        console.log('extname', this.PATH.extname(file_path));
-        if(file_path.endsWith('.pdf') || file_path.endsWith('.jpg') || file_path.endsWith('.png') || file_path.endsWith('.svg') || file_path.endsWith('.log'))
+        const extname = this.PATH.extname(file_path);
+        if(['.pdf', '.jpg', '.png', '.svg', '.log'].includes(extname))
         {
-            contents = contents || (file_path.endsWith('.log') ? this.FS.readFile(file_path, {encoding: 'utf8'}) : this.FS.readFile(file_path, {encoding : 'binary'}));
+            contents = contents || (extname == '.log' ? this.FS.readFile(file_path, {encoding: 'utf8'}) : this.FS.readFile(file_path, {encoding : 'binary'}));
             open_viewer_tab(file_path, contents);
             
             if(this.clear_editor)

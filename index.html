@@ -148,7 +148,7 @@
       <div id="difftool" hidden></div>
       <div id="viewer">
         <iframe id="pdfpreview"></iframe>
-        <img hidden id="imgpreview"></img>
+        <img hidden id="imgpreview" class="busyui"></img>
         <textarea hidden id="txtpreview"></textarea>
         <figure hidden id="gitstatus">
             <figcaption>$ git status</figcaption>
@@ -271,7 +271,6 @@ const ui =
 {
     ...Object.fromEntries(Array.from(document.querySelectorAll('.busyui')).map(el => [el.id, el] )),
     
-    imgpreview : document.getElementById('imgpreview'),
     pdfpreview : document.getElementById('pdfpreview'),
     txtpreview : document.getElementById('txtpreview'),
     gitstatus : document.getElementById('gitstatus'),
@@ -378,12 +377,12 @@ const ui =
         table_modified.hidden = modified.length == 0;
         const onclick_diff = evt => {git_difftool(evt.target.dataset.file_path); return false; };
         if(!table_modified.hidden)
-            this.update_tbody(tbody_modified, modified, onclick); 
+            this.update_tbody(tbody_modified, modified, onclick_diff); 
 
         const onclick_open = evt => {open(evt.target.dataset.file_path); return false; };
         details_notmodified.hidden = notmodified.length == 0;
         if(!details_notmodified.hidden)
-            this.update_tbody(tbody_notmodified, notmodified, onclick); 
+            this.update_tbody(tbody_notmodified, notmodified, onclick_open); 
     },
     
     update_git_pull(modified, notmodified)

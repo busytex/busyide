@@ -29,6 +29,7 @@
 29. Unify ok/error + initial promp
 30. pstoedit
 31. dot and dotdot get unselected, because dirname does not match . or .. in the select
+32. Do not close edited file when viewing directory or git
 
 ```shell
 # https://github.com/xloem/emterm

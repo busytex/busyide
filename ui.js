@@ -484,7 +484,7 @@ export class Shell
     git_status()
     {
         const status = this.github.status();
-        this.ui.update_git_status(status, this.github.format_url, this.git_difftool.bind(this));
+        this.ui.update_git_status(status, this.github.format_url, this.git_difftool.bind(this), this.open.bind(this));
         this.clear_viewer = false;
         this.ui.toggle_viewer('gitstatus');
     }

@@ -144,13 +144,13 @@
     </div>
     <div style="display: flex; height: 80%">
       <select id="filetree" size="100"></select>
-      <div id="editor"></div>
-      <div id="difftool" hidden></div>
+      <div id="editor" class="busyui"></div>
+      <div id="difftool" class="busyui" hidden></div>
       <div id="viewer">
-        <iframe id="pdfpreview"></iframe>
+        <iframe id="pdfpreview" class="busyui"></iframe>
         <img hidden id="imgpreview" class="busyui"></img>
-        <textarea hidden id="txtpreview"></textarea>
-        <figure hidden id="gitstatus">
+        <textarea hidden id="txtpreview" class="busyui"></textarea>
+        <figure hidden id="gitstatus" class="busyui">
             <figcaption>$ git status</figcaption>
             <strong>Remote branch:</strong><a class="remotebranch"></a>, <strong>commit:</strong><a class="remotecommit"></a>
             <table id="gitstatusmodified">
@@ -165,7 +165,7 @@
                 </table>
             </details>
         </figure>
-        <figure hidden id="gitpull">
+        <figure hidden id="gitpull" class="busyui">
             <figcaption>$ git pull</figcaption>
             <table id="gitpullmodified">
                 <thead><tr><th>path</th><th>status</th></tr></thead>
@@ -189,7 +189,7 @@
         cols="1"
         rows="1"
       ></textarea>
-      <input type="file" id="fileupload" multiple>
+      <input type="file" id="fileupload" class="busyui" multiple>
     </div>
 
 
@@ -271,13 +271,6 @@ const ui =
 {
     ...Object.fromEntries(Array.from(document.querySelectorAll('.busyui')).map(el => [el.id, el] )),
     
-    pdfpreview : document.getElementById('pdfpreview'),
-    txtpreview : document.getElementById('txtpreview'),
-    gitstatus : document.getElementById('gitstatus'),
-    gitpull : document.getElementById('gitpull'),
-    fileupload : document.getElementById('fileupload'),
-    editor : document.getElementById('editor'),
-    difftool : document.getElementById('difftool'),
     terminal : document.getElementById('terminal'),
     status : document.getElementById('status'),
     import_archive : document.getElementById('import_archive'),

@@ -123,7 +123,7 @@ export class Shell
         this.ui.txtpreview.onfocus = this.ui.imgpreview.onclick = () => this.ui.set_current_file(this.PATH.basename(this.view_path), 'viewing');
         //this.ui.pdfpreview.onclick = ev => console.log('pdfpreview', ev);
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyCode.Enter, this.ui.compile.onclick);
-		this.difftool.addCommand(this.monaco.KeyCode.Escape, () => console.log('Escape!'), '!findWidgetVisible && !inReferenceSearchEditor && !editorHasSelection') 
+		this.difftool.addCommand(this.monaco.KeyCode.Escape, () => this.ui.toggle_editor('editor'), '!findWidgetVisible && !inReferenceSearchEditor && !editorHasSelection'); 
     }
 
     new_file_path(prefix, ext = '', max_attempts = 1000)

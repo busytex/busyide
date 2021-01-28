@@ -11,6 +11,7 @@ export class Shell
         this.shared_project_targz = this.shared_project_tar + '.gz';
         this.home_dir = '/home/web_user';
         this.tmp_dir = '/tmp';
+        this.tmp_file = this.tmp_dir + '/tmpfile.bin';
         this.OLDPWD = this.home_dir;
         this.cache_dir = '/cache';
         this.cached_tokens_jsonl = this.cache_dir + '/cached_tokens.jsonl';
@@ -417,7 +418,7 @@ export class Shell
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        //const sha1_ = uint8array => this.busybox.run(['sha1sum'], uint8array).stdout;
+        const sha1_ = uint8array => this.FS.writeFile(this.tmp_file, uint8array) || this.busybox.run(['sha1sum', this.tmp_file]).stdout;
         this.github = new Github(this.cache_dir, this.merge.bind(this), this.log_big.bind(this), sha1, this.FS, this.PATH, this);
         
         await this.cache_load();

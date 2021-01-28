@@ -121,20 +121,20 @@
         <div style="display: flex; margin-left:auto">
             <input type="text" style="width: 250px" id="github_https_path" placeholder="GitHub https link"></input>
             <input type="text" style="width: 100px" id="github_token" placeholder="GitHub token" title="for private clone/push"></input>
-            <button id="clone">Clone</button>
-            <button id="pull">Pull</button>
-            <button id="push">Commit &amp; Force Push</button>
+            <button id="clone" class="busyui">Clone</button>
+            <button id="pull" class="busyui">Pull</button>
+            <button id="push" class="busyui">Commit &amp; Force Push</button>
             <button id="cache_tokenpurge">Purge Token Cache</button>
             <button id="publish" hidden>Publish PDF</button>
             <input hidden type="text" style="width: 100px" id="github_release" placeholder="Publish Release Name" title="for publishing a PDF into a release"></input>
         </div>
     </div>
     <div style="display: flex; flex-direction: row; height: 5%">
-        <button id="new_file">New File</button>
-        <button id="new_folder">New Folder</button>
-        <button id="upload">Upload</button>
-        <button id="download">Download Current File</button>
-        <button id="download_zip">Download ZIP</button>
+        <button id="new_file" class="busyui">New File</button>
+        <button id="new_folder" class="busyui">New Folder</button>
+        <button id="upload" class="busyui">Upload</button>
+        <button id="download" class="busyui">Download Current File</button>
+        <button id="download_zip" class="busyui">Download ZIP</button>
         <div style="display: flex; margin-left:auto">
             <button id="download_pdf">Download PDF</button>
             <button id="view_pdf">View PDF</button>
@@ -273,19 +273,11 @@ const ui =
     ...Object.fromEntries(Array.from(document.querySelectorAll('.busyui')).map(el => [el.id, el] )),
     
     import_archive : document.getElementById('import_archive'),
-    clone : document.getElementById('clone'),
-    pull : document.getElementById('pull'),
-    push : document.getElementById('push'),
     compile : document.getElementById('compile'),
     download_pdf : document.getElementById('download_pdf'),
     view_log : document.getElementById('view_log'),
     view_pdf : document.getElementById('view_pdf'),
     cache_tokenpurge : document.getElementById('cache_tokenpurge'),
-    download_zip : document.getElementById('download_zip'),
-    new_file : document.getElementById('new_file'),
-    new_folder : document.getElementById('new_folder'),
-    download : document.getElementById('download'),
-    upload : document.getElementById('upload'),
     remove : document.getElementById('remove'),
     verbose : document.getElementById('verbose'),
     github_https_path : document.getElementById('github_https_path'),

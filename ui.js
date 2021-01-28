@@ -495,8 +495,8 @@ export class Shell
             original: this.monaco.editor.createModel(this.github.cat_file(file_path), 'text/plain'),
             modified: this.monaco.editor.createModel(this.FS.readFile(file_path, {encoding: 'utf8'}), 'text/plain')
         });
-        this.difftool.focus();
         this.ui.toggle_editor('difftool');
+        this.difftool.focus();
     }
 
     async git_pull()

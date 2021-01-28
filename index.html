@@ -267,12 +267,10 @@ class FitAddon{
   }
 }
 
-
-const ui_ = Object.fromEntries(Array.from(document.querySelectorAll('.busyui')).map(el => [el.id, el] ));
-console.log('ui_', ui_);
-
 const ui =
 {
+    ...Object.fromEntries(Array.from(document.querySelectorAll('.busyui')).map(el => [el.id, el] )),
+    
     imgpreview : document.getElementById('imgpreview'),
     pdfpreview : document.getElementById('pdfpreview'),
     txtpreview : document.getElementById('txtpreview'),
@@ -302,7 +300,6 @@ const ui =
     github_https_path : document.getElementById('github_https_path'),
     github_token : document.getElementById('github_token'),
     github_release : document.getElementById('github_release'),
-    man : document.getElementById('man'),
     share : document.getElementById('share'),
     verb : document.getElementById('verb'),
     current_file : document.getElementById('current_file'),

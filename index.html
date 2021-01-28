@@ -105,28 +105,28 @@
         <a style="display: contents" href="https://github.com/busytex/busytex">
             <img src="logo.svg" style="height:100%"></img>
         </a>
-        <select id="verbose" hidden>
+        <select id="verbose" class="busyui" hidden>
             <option value="silent" selected="selected">Verbosity - Silent</option>
             <option value="info">Verbosity - Info</option>
             <option value="debug">Verbosity - Debug</option>
         </select>
         <button id="man" class="busyui">Help</button>
-        <button id="import_archive">Import</button>
-        <button id="compile">Compile</button>
-        <span id="current_file" title="Click to rename"></span>
-        <input hidden type="text" id="current_file_rename" title="Press [Enter] to complete renaming"></input>
-        <span id="dirty" hidden title="file is changed. wait for autosave">*</span>
-        <span id="verb"></span>
-        <button hidden id="remove">Delete</button>
+        <button id="import_archive" class="busyui">Import</button>
+        <button id="compile" class="busyui">Compile</button>
+        <span id="current_file" class="busyui" title="Click to rename"></span>
+        <input hidden type="text" class="busyui" id="current_file_rename" title="Press [Enter] to complete renaming"></input>
+        <span id="dirty" class="busyui" hidden title="file is changed. wait for autosave">*</span>
+        <span id="verb" class="busyui"></span>
+        <button hidden id="remove" class="busyui">Delete</button>
         <div style="display: flex; margin-left:auto">
-            <input type="text" style="width: 250px" id="github_https_path" placeholder="GitHub https link"></input>
-            <input type="text" style="width: 100px" id="github_token" placeholder="GitHub token" title="for private clone/push"></input>
+            <input type="text" style="width: 250px" id="github_https_path" class="busyui" placeholder="GitHub https link"></input>
+            <input type="text" style="width: 100px" id="github_token" class="busyui" placeholder="GitHub token" title="for private clone/push"></input>
             <button id="clone" class="busyui">Clone</button>
             <button id="pull" class="busyui">Pull</button>
             <button id="push" class="busyui">Commit &amp; Force Push</button>
-            <button id="cache_tokenpurge">Purge Token Cache</button>
-            <button id="publish" hidden>Publish PDF</button>
-            <input hidden type="text" style="width: 100px" id="github_release" placeholder="Publish Release Name" title="for publishing a PDF into a release"></input>
+            <button id="cache_tokenpurge" class="busyui">Purge Token Cache</button>
+            <button id="publish" hidden class="busyui">Publish PDF</button>
+            <input hidden type="text" style="width: 100px" id="github_release" class="busyui" placeholder="Publish Release Name" title="for publishing a PDF into a release"></input>
         </div>
     </div>
     <div style="display: flex; flex-direction: row; height: 5%">
@@ -136,14 +136,14 @@
         <button id="download" class="busyui">Download Current File</button>
         <button id="download_zip" class="busyui">Download ZIP</button>
         <div style="display: flex; margin-left:auto">
-            <button id="download_pdf">Download PDF</button>
-            <button id="view_pdf">View PDF</button>
-            <button id="view_log">View LOG</button>
-            <button id="share">Share Link</button>
+            <button id="download_pdf" class="busyui">Download PDF</button>
+            <button id="view_pdf" class="busyui">View PDF</button>
+            <button id="view_log" class="busyui">View LOG</button>
+            <button id="share" class="busyui">Share Link</button>
         </div>
     </div>
     <div style="display: flex; height: 80%">
-      <select id="filetree" size="100"></select>
+      <select id="filetree" class="busyui" size="100"></select>
       <div id="editor" class="busyui"></div>
       <div id="difftool" class="busyui" hidden></div>
       <div id="viewer">
@@ -272,23 +272,6 @@ const ui =
 {
     ...Object.fromEntries(Array.from(document.querySelectorAll('.busyui')).map(el => [el.id, el] )),
     
-    import_archive : document.getElementById('import_archive'),
-    compile : document.getElementById('compile'),
-    download_pdf : document.getElementById('download_pdf'),
-    view_log : document.getElementById('view_log'),
-    view_pdf : document.getElementById('view_pdf'),
-    cache_tokenpurge : document.getElementById('cache_tokenpurge'),
-    remove : document.getElementById('remove'),
-    verbose : document.getElementById('verbose'),
-    github_https_path : document.getElementById('github_https_path'),
-    github_token : document.getElementById('github_token'),
-    github_release : document.getElementById('github_release'),
-    share : document.getElementById('share'),
-    verb : document.getElementById('verb'),
-    current_file : document.getElementById('current_file'),
-    current_file_rename: document.getElementById('current_file_rename'),
-    filetree : document.getElementById('filetree'),
-    dirty : document.getElementById('dirty'),
     log_reset_sequence : '\x1bc',
 
     set_dirty(dirty)

@@ -182,10 +182,11 @@
       </div>
     </div>
     <div style="display: flex; flex-direction: row; height: 10%">
-      <div id="terminal" style="height:100%; width: 50%"></div>
+      <div id="terminal" class="busyui" style="height:100%; width: 50%"></div>
       <textarea style="height:100%; width: 50%"
         name="status"
         id="status"
+        class="busyui"
         cols="1"
         rows="1"
       ></textarea>
@@ -271,8 +272,6 @@ const ui =
 {
     ...Object.fromEntries(Array.from(document.querySelectorAll('.busyui')).map(el => [el.id, el] )),
     
-    terminal : document.getElementById('terminal'),
-    status : document.getElementById('status'),
     import_archive : document.getElementById('import_archive'),
     clone : document.getElementById('clone'),
     pull : document.getElementById('pull'),

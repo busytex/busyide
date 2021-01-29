@@ -103,7 +103,7 @@ export class Shell
 
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
         this.ui.github_https_path.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
-        this.ui.filetree.onchange = ev => this.open(this.ui.filetree.options[this.ui.filetree.selectedIndex].value);
+        this.ui.filetree.onchange = ev => this.open(this.expandcollapseuser(this.ui.filetree.options[this.ui.filetree.selectedIndex].value, false));
         this.ui.filetree.ondblclick = ev => {
             const option = ev.target;
             if(option.className == 'filetreedirectory')
@@ -111,7 +111,7 @@ export class Shell
                 if(option.text == '.')
                     this.refresh();
                 else
-                    this.commands(cmd('cd', option.text == '..' ? option.text : option.value));
+                    this.commands(cmd('cd', option.text == '..' ? option.text : this.expandcollapseuser(option.value, false)));
             }
         };
         this.ui.filetree.onkeydown = ev => ev.key == 'Enter' || ev.key == ' ' ? this.ui.filetree.ondblclick() : null;
@@ -895,7 +895,7 @@ export class Shell
     {
         selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd && this.ui.filetree.selectedIndex >= 0 ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : null);
 
-        this.ui.update_file_tree(this.ls_R('.', this.pwd(true), false, true, true, true, []), selected_file_path);
+        this.ui.update_file_tree(this.ls_R('.', this.pwd(), false, true, true, true, []), selected_file_path);
 
         for(const abspath in this.tabs)
         {

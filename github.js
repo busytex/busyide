@@ -56,9 +56,17 @@ export class Github
 
     cat_file(file_path)
     {
+        file_path = this.PATH_.abspath(file_path);
+        const git_dir = this.git_dir();
+        if(!file_path.startsWith(git_dir))
+            return '';
+
+        file_path = file_path.slice(git_dir.length);
         const prev = this.read_githubcontents();
         const files = prev.filter(f => f.path == file_path);
-        console.assert(files.length > 0);
+        if(files.length == 0)
+            return '';
+
         const file = files[0];
         const path = this.object_path(file);
         return this.FS.readFile(path, {encoding: 'utf8'});

@@ -57,11 +57,12 @@ export class Github
     cat_file(file_path)
     {
         file_path = this.PATH_.abspath(file_path);
-        const git_dir = this.git_dir();
-        if(!file_path.startsWith(git_dir))
+        const project_dir = this.PATH.normalize(this.PATH.join2(this.git_dir(), '..'));
+
+        if(!file_path.startsWith(project_dir))
             return '';
 
-        file_path = file_path.slice(git_dir.length);
+        file_path = file_path.slice(project_dir.length);
         const prev = this.read_githubcontents();
         const files = prev.filter(f => f.path == file_path);
         if(files.length == 0)
@@ -196,7 +197,8 @@ export class Github
 
     status()
     {
-        const ls_R = this.PATH_.ls_R(this.PATH.normalize(this.PATH.join2(this.git_dir(), '..')), '', true, true, false, false);
+        const project_dir = this.PATH.normalize(this.PATH.join2(this.git_dir(), '..'));
+        const ls_R = this.PATH_.ls_R(project_dir, '', true, true, false, false);
         let files = [];
 
         const prev = this.read_githubcontents(true);
@@ -211,10 +213,10 @@ export class Github
             const sha = prev[file.path];
             
             if(!sha)
-                files.push({path : file.path, status : 'new'});
+                files.push({path : file.path, abspath : this.PATH.join2(project_dir, file.path), status : 'new'});
             else
             {
-                files.push({path : file.path, status : sha != this.blob_sha(file.contents) ? 'modified' : 'not modified'});
+                files.push({path : file.path, abspath : this.PATH.join2(project_dir, file.path), status : sha != this.blob_sha(file.contents) ? 'modified' : 'not modified'});
                 delete prev[file.path];
             }
         }

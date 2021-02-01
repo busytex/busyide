@@ -304,7 +304,7 @@ const ui =
     update_tbody(tbody, st, onclick)
     {
         tbody.innerHTML = '';
-        for(const {path, status} of st)
+        for(const {path, status, abspath} of st)
         {
             const tr = tbody.insertRow();
             let tc = tr.insertCell();
@@ -316,7 +316,7 @@ const ui =
                 const a = document.createElement('a');
                 tc.appendChild(a);
                 a.href = "#";
-                a.dataset.file_path = path;
+                a.dataset.abspath = abspath;
                 a.onclick = onclick;
                 tc = a;
             }
@@ -343,7 +343,7 @@ const ui =
         a_commit.innerText = status.remote_commit;
 
         table_modified.hidden = modified.length == 0;
-        const onclick_diff = evt => {git_difftool(evt.target.dataset.file_path); return false; };
+        const onclick_diff = evt => {git_difftool(evt.target.dataset.abspath); return false; };
         if(!table_modified.hidden)
             this.update_tbody(tbody_modified, modified, onclick_diff); 
 

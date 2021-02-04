@@ -103,8 +103,9 @@ export class Shell
 
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
         this.ui.github_https_path.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
-        this.ui.filetree.onchange = ev => this.open(this.expandcollapseuser(this.ui.filetree.options[this.ui.filetree.selectedIndex].value, false));
-        this.ui.filetree.ondblclick = ev => {
+        this.ui.filetree.onchange = ev => {console.log('onchange', ev, this.ui.filetree.options[this.ui.filetree.selectedIndex].value); this.open(this.expandcollapseuser(this.ui.filetree.options[this.ui.filetree.selectedIndex].value, false))};
+        this.ui.filetree.ondblclick = ev =>
+        {
             const option = ev.target;
             if(option.className == 'filetreedirectory')
             {
@@ -264,7 +265,8 @@ export class Shell
             if(cmdline.includes('>>'))
             {
                 [cmdline, redirect] = cmdline.split('>>');
-                print_or_dump = arg => {
+                print_or_dump = arg => 
+                {
                     const f = this.FS.open(redirect.trim(), 'a');
                     this.FS.write(f, arg.stdout_binary, 0, arg.stdout_binary.length);
                     this.FS.close(f);
@@ -639,6 +641,7 @@ export class Shell
 
     open(file_path, contents)
     {
+        console.log('open', file_path);
         const pin = this.isdir(this.file_path) == false;
 
         const open_editor_tab = (file_path, contents = '') =>

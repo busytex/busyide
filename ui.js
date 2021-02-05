@@ -27,6 +27,7 @@ export class Shell
         this.view_path = null;
         this.tex_path = '';
         this.zip_path = '/tmp/archive.zip';
+        this.tar_path = '/tmp/archive.tar';
         this.targz_path = '/tmp/archive.tar.gz';
         this.arxiv_path = '/tmp/arxiv.tar';
         this.new_file_name = 'newfile';
@@ -84,7 +85,7 @@ export class Shell
         this.ui.upload.onclick = async () => await this.commands('upload');
         this.ui.import_archive.onclick = async () => await this.commands('import_archive');
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
-        this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-cf', this.targz_path, arg(this.project_dir()), '-X', '.git'), cmd('download', arg(this.targz_path))));
+        this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-cf', this.tar_path, arg(this.project_dir()), '-X', '.git'), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path))));
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
         

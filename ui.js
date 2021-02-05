@@ -106,7 +106,7 @@ export class Shell
 
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
         this.ui.github_https_path.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
-        this.ui.filetree.onchange = ev => {console.log('onchange', ev, this.ui.filetree.options[this.ui.filetree.selectedIndex].value); this.open(this.expandcollapseuser(this.ui.filetree.options[this.ui.filetree.selectedIndex].value, false))};
+        this.ui.filetree.onchange = ev => this.open(this.expandcollapseuser(this.ui.filetree.options[this.ui.filetree.selectedIndex].value, false));
         this.ui.filetree.ondblclick = ev =>
         {
             const option = ev.target;
@@ -644,7 +644,6 @@ export class Shell
 
     open(file_path, contents)
     {
-        console.log('open', file_path);
         const pin = this.isdir(this.file_path) == false;
 
         const open_editor_tab = (file_path, contents = '') =>
@@ -700,6 +699,7 @@ export class Shell
                     const basename = this.PATH.basename(file_path);
                     this.ui.set_current_file(basename, file_path, 'viewing');
                     open_editor_tab('');
+
                     if(basename == '.git')
                         this.git_status();
                     else
@@ -733,6 +733,8 @@ export class Shell
                 open_editor_tab('');
             this.clear_viewer = !pin;
 
+            console.log('open', 'open_viewer', this.clear_viewer);
+
             this.ui.set_current_file(this.PATH.basename(file_path), file_path, 'viewing');
         }
         else
@@ -740,6 +742,9 @@ export class Shell
             contents = contents || this.FS.readFile(file_path, {encoding : 'utf8'});
             open_editor_tab(file_path, contents);
             this.clear_editor = !pin;
+            
+            console.log('open', 'open_editor_tab', this.clear_editor);
+            
             this.ui.set_current_file(this.PATH.basename(file_path), file_path, 'editing');
         }
     }

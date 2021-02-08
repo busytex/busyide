@@ -110,12 +110,13 @@ export class Shell
         this.ui.filetree.ondblclick = ev =>
         {
             const option = ev.target;
-            if(option.className == 'filetreedirectory')
+            if(this.ui.isdir(option))
             {
-                if(option.text == '.')
+                const samedir = option.text == '.', parentdir = option.text == '..';
+                if(samedir)
                     this.refresh();
                 else
-                    this.commands(cmd('cd', option.text == '..' ? option.text : this.expandcollapseuser(option.value, false)));
+                    this.commands(parentdir ? cmd('cd', '..') : chain(cmd('cd', arg(option.value)), cmd('open', '.')));
             }
         };
         this.ui.filetree.onkeydown = ev => ev.key == 'Enter' || ev.key == ' ' ? this.ui.filetree.ondblclick() : null;

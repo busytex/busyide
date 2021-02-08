@@ -280,11 +280,11 @@ const ui =
         ui.dirty.hidden = !dirty;
     },
 
-    get_current_file = () => ui.current_file.textContent,
+    get_current_file : () => ui.current_file.textContent,
 
-    isdir = option => option.className == 'filetreedirectory',
+    isdir : option => option.className == 'filetreedirectory',
     
-    get_origin = () => window.location.origin,
+    get_origin : () => window.location.origin,
     
     set_current_file(file_name, file_path, verb = '')
     {

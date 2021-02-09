@@ -699,7 +699,7 @@ export class Shell
                 {
                     const basename = this.PATH.basename(file_path);
                     this.ui.set_current_file(basename, file_path, 'viewing');
-                    open_editor_tab('');
+                    //open_editor_tab('');
 
                     if(basename == '.git')
                         this.git_status();

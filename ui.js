@@ -490,7 +490,6 @@ export class Shell
     {
         const status = this.github.status();
         this.ui.update_git_status(status, this.github.format_url, this.git_difftool.bind(this), this.open.bind(this));
-        this.clear_viewer = false;
         this.ui.toggle_viewer('gitstatus');
     }
 
@@ -508,7 +507,6 @@ export class Shell
     {
         //const status = await this.github.pull();
         //this.ui.update_git_pull(status.filter(f => f.status != not_modified), status.filter(f => f.status == not_modified));
-        this.clear_viewer = false;
         this.ui.toggle_viewer('gitpull');
     }
     
@@ -699,7 +697,6 @@ export class Shell
                     {
                         this.log_big_header('$ ls -la ' + this.expandcollapseuser(file_path, false));
                         this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
-                        this.clear_viewer = true;
                     }
                     
                     file_path = null;

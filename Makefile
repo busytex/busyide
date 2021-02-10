@@ -28,7 +28,7 @@ build/wasm/busybox_unstripped.js: source/busybox.tar.bz2 source/miniz.zip source
 	cp .config build/wasm 
 	echo 'cmd_busybox__ = $$(CC) -o $$@.js -Wl,--start-group $(CFLAGS_wasm_busyide) $(CURDIR)/em-shell.c -include $(CURDIR)/em-shell.h --js-library $(CURDIR)/em-shell.js $$(CFLAGS) $$(CFLAGS_busybox) $$(LDFLAGS) $$(EM_LDFLAGS) $$(EXTRA_LDFLAGS) $$(core-y) $$(libs-y) $$(patsubst %,-l%,$$(subst :, ,$$(LDLIBS))) -Wl,--end-group && cp $$@.js $$@' > build/wasm/arch/em/Makefile
 	ln -s $(shell which emcc.py) build/wasm/emgcc || true
-	PATH=$(CURDIR)/build/wasm:$$PATH $(MAKE) -C build/wasm ARCH=em CROSS_COMPILE=em SKIP_STRIP=y
+	PATH=$(CURDIR)/build/wasm:$$PATH $(MAKE) -C build/wasm ARCH=em CROSS_COMPILE=em SKIP_STRIP=y USE_SYSTEM_PWD_GRP=false
 
 source/busybox.tar.bz2:
 	mkdir -p source

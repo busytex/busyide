@@ -83,7 +83,7 @@ export class Shell
         this.ui.upload.onclick = async () => await this.commands('upload');
         this.ui.import_archive.onclick = async () => await this.commands('import_archive');
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
-        this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-cf', this.tar_path, arg(this.project_dir()), '-X', '.git'), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path))));
+        this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-X', '.git', '-cf', this.tar_path, arg(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path))));
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
         
@@ -422,8 +422,8 @@ export class Shell
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        const sha1_ = uint8array => this.FS.writeFile(this.tmp_file, uint8array) || this.busybox.run(['sha1sum', this.tmp_file]).stdout;
-        this.github = new Github(this.cache_dir, this.merge.bind(this), this.log_big.bind(this), sha1, this.FS, this.PATH, this);
+        const sha1_ = uint8array => { console.log(this.busybox.run(['sha1sum'], uint8array).stdout); return sha1(uint8array); }; //this.FS.writeFile(this.tmp_file, uint8array) || this.busybox.run(['sha1sum', this.tmp_file]).stdout;
+        this.github = new Github(this.cache_dir, this.merge.bind(this), this.log_big.bind(this), sha1_, this.FS, this.PATH, this);
         
         await this.cache_load();
        

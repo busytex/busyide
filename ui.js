@@ -408,7 +408,7 @@ export class Shell
             await this.commands(this.chain(...cmds));
     }
 
-    async run(busybox_module_constructor, busybox_wasm_module_promise, sha1)
+    async run(busybox_module_constructor, busybox_wasm_module_promise)
     {
         this.compiler.postMessage(this.paths);
         this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, this.log_small.bind(this));
@@ -425,7 +425,6 @@ export class Shell
         const sha1_ = uint8array => {
             const hash_slower = this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40);
             //const hash_slow = this.FS.writeFile(this.tmp_file, uint8array) || this.busybox.run(['sha1sum', this.tmp_file]).stdout.substring(0, 40);
-            //const hash_fast = sha1(uint8array);
             return hash_slower;
         };
         this.github = new Github(this.cache_dir, this.merge.bind(this), this.log_big.bind(this), sha1_, this.FS, this.PATH, this);

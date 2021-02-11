@@ -13,7 +13,6 @@
     <link rel="preload" href="https://unpkg.com/monaco-editor@latest/min/vs/editor/editor.main.css" as="style" />
     <link rel="preload" href="https://unpkg.com/xterm@3.8.0/dist/xterm.css" as="style" />
     <link rel="preload" href="https://unpkg.com/xterm@3.8.0/dist/xterm.js" as="script" />
-    <link rel="preload" href="/sha1.js" as="script" />
     <link rel="preload" href="/ui.js" as="script" />
     <link rel="preload" href="/guthub.js" as="script" />
     <link rel="preload" href="/busybox.js" as="script" />
@@ -553,7 +552,7 @@ const monarch_promises = [paths.lang_monarch_json, paths.latex_monarch_json, pat
 const readme_tex_promise = fetch(paths.readme_tex).then(r => r.text());
 const busybox_wasm_module_promise = fetch(paths.busybox_wasm).then(WebAssembly.compileStreaming);
 
-require(['vs/editor/editor.main', 'xterm/xterm', './dist/busybox_unstripped.js', 'sha1'], async (Monaco, Terminal, busybox_module_constructor, sha1) =>
+require(['vs/editor/editor.main', 'xterm/xterm', './dist/busybox_unstripped.js'], async (Monaco, Terminal, busybox_module_constructor) =>
 {
     const {editor, difftool} = init_editor(Monaco, ui.editor, ui.difftool, ...(await Promise.all(monarch_promises)));
     const terminal = init_terminal(Terminal, ui.terminal, FitAddon);
@@ -562,7 +561,7 @@ require(['vs/editor/editor.main', 'xterm/xterm', './dist/busybox_unstripped.js',
     window.onresize = ui.onresize;
     window.onresize();
 
-    await window.busyshell.run(busybox_module_constructor, busybox_wasm_module_promise, sha1);
+    await window.busyshell.run(busybox_module_constructor, busybox_wasm_module_promise);
 });
 
 </script>

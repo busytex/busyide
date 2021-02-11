@@ -302,7 +302,7 @@ const ui =
         [span.hidden, input.hidden] = [!span.hidden, !input.hidden];
     },
 
-    update_tbody(tbody, st, onclick, format_path)
+    update_tbody(tbody, st, format_path, onclick_open, onclick_diff)
     {
         tbody.innerHTML = '';
         for(const {path, status, abspath} of st)
@@ -310,7 +310,16 @@ const ui =
             const tr = tbody.insertRow();
             
             let tc = tr.insertCell();
-            tc.appendChild(document.createTextNode(path));
+            if(onclick_open)
+            {
+                const a = document.createElement('a');
+                tc.appendChild(a);
+                a.href = "#";
+                a.dataset.abspath = abspath;
+                a.onclick = onclick_open;
+                tc = a;
+            }
+            tc.innerText = path;
 
             tc = tr.insertCell();
             if(status != 'new')
@@ -322,13 +331,13 @@ const ui =
             }
             
             tc = tr.insertCell();
-            if(onclick)
+            if(onclick_diff)
             {
                 const a = document.createElement('a');
                 tc.appendChild(a);
                 a.href = "#";
                 a.dataset.abspath = abspath;
-                a.onclick = onclick;
+                a.onclick = onclick_diff;
                 tc = a;
             }
             tc.innerText = status;
@@ -358,12 +367,12 @@ const ui =
         table_modified.hidden = modified.length == 0;
         const onclick_diff = evt => { git_difftool(evt.target.dataset.abspath); return false; };
         if(!table_modified.hidden)
-            this.update_tbody(tbody_modified, modified, onclick_diff, format_path); 
+            this.update_tbody(tbody_modified, modified, format_path, onclick_open, onclick_diff); 
 
         const onclick_open = evt => { open(evt.target.dataset.file_path); return false; };
         details_notmodified.hidden = notmodified.length == 0;
         if(!details_notmodified.hidden)
-            this.update_tbody(tbody_notmodified, notmodified, onclick_open, format_path);
+            this.update_tbody(tbody_notmodified, notmodified, format_path, onclick_open);
     },
     
     update_git_pull(modified, notmodified)

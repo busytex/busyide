@@ -302,7 +302,7 @@ const ui =
         [span.hidden, input.hidden] = [!span.hidden, !input.hidden];
     },
 
-    update_tbody(tbody, st, onclick)
+    update_tbody(tbody, st, onclick, format_path)
     {
         tbody.innerHTML = '';
         for(const {path, status, abspath} of st)
@@ -316,13 +316,12 @@ const ui =
             if(status != 'new')
             {
                 let a = document.createElement('a');
-                a.appendChild(document.createTextNode(path));
-                a.href = 'https://github.com';
+                a.innerText = 'github';
+                a.href = format_path(path);
                 tc.appendChild(a);
             }
             
             tc = tr.insertCell();
-            const text = document.createTextNode(status);
             if(onclick)
             {
                 a = document.createElement('a');
@@ -332,7 +331,7 @@ const ui =
                 a.onclick = onclick;
                 tc = a;
             }
-            tc.appendChild(text);
+            tc.innerText = status;
         }
     },
 
@@ -354,15 +353,17 @@ const ui =
         a_commit.href = format_url(status.username, status.reponame, status.gist, status.remote_branch, status.remote_commit);
         a_commit.innerText = status.remote_commit;
 
-        table_modified.hidden = modified.length == 0;
-        const onclick_diff = evt => {git_difftool(evt.target.dataset.abspath); return false; };
-        if(!table_modified.hidden)
-            this.update_tbody(tbody_modified, modified, onclick_diff); 
+        const format_path = path => format_url(status.username, status.reponame, status.gist, status.remote_branch, status.remote_commit, path);
 
-        const onclick_open = evt => {open(evt.target.dataset.file_path); return false; };
+        table_modified.hidden = modified.length == 0;
+        const onclick_diff = evt => { git_difftool(evt.target.dataset.abspath); return false; };
+        if(!table_modified.hidden)
+            this.update_tbody(tbody_modified, modified, onclick_diff, format_path); 
+
+        const onclick_open = evt => { open(evt.target.dataset.file_path); return false; };
         details_notmodified.hidden = notmodified.length == 0;
         if(!details_notmodified.hidden)
-            this.update_tbody(tbody_notmodified, notmodified, onclick_open); 
+            this.update_tbody(tbody_notmodified, notmodified, onclick_open, format_path);
     },
     
     update_git_pull(modified, notmodified)

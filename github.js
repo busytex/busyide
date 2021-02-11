@@ -31,7 +31,7 @@ export class Github
         return {reponame : reponame, username : username, gist: gist, path : https_path};
     }
 
-    format_url(username, reponame, gist, branch, commit)
+    format_url(username, reponame, gist, branch, commit, path)
     {
         if(gist)
             return `https://gist.github.com/${username}/${reponame}/${commit}`;
@@ -39,6 +39,8 @@ export class Github
             return `https://github.com/${username}/${reponame}/commit/${commit}`
         else if(!gist && branch)
             return `https://github.com/${username}/${reponame}/tree/${branch}`
+        else if(!gist && (branch || commit) && path)
+            return `https://github.com/${username}/${reponame}/blob/${commit||branch}/${path}`;
         else
             return `https://github.com/${username}/${reponame}`;
     }

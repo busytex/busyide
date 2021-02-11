@@ -422,7 +422,15 @@ export class Shell
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        const sha1_ = uint8array => { console.log(this.busybox.run(['sha1sum'], uint8array).stdout); return sha1(uint8array); }; //this.FS.writeFile(this.tmp_file, uint8array) || this.busybox.run(['sha1sum', this.tmp_file]).stdout;
+        const sha1_ = uint8array => {
+            const hash_slower = this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40));
+            console.log('slower:', hash_slower);
+            const hash_slow = this.FS.writeFile(this.tmp_file, uint8array) || this.busybox.run(['sha1sum', this.tmp_file]).stdout.substring(0, 40);
+            console.log('slow:', hash_slow);
+            const hash_fast = sha1(uint8array);
+            console.log('fast:', hash_fast);
+            return hash_fast;
+        };
         this.github = new Github(this.cache_dir, this.merge.bind(this), this.log_big.bind(this), sha1_, this.FS, this.PATH, this);
         
         await this.cache_load();

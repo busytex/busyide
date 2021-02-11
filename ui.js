@@ -423,7 +423,7 @@ export class Shell
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
         const sha1_ = uint8array => {
-            const hash_slower = this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40));
+            const hash_slower = this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40);
             console.log('slower:', hash_slower);
             const hash_slow = this.FS.writeFile(this.tmp_file, uint8array) || this.busybox.run(['sha1sum', this.tmp_file]).stdout.substring(0, 40);
             console.log('slow:', hash_slow);

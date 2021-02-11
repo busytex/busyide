@@ -82,6 +82,8 @@ export class Busybox
         };
        
         this.Module = await this.busybox_module_constructor(Module);
+        this.Module.FS.mkdir('/etc');
+        this.Module.FS.writeFile('/etc/passwd', 'web_user:x:0:0:emscripten:/home/web_user:/bin/false');
         console.assert(this.mem_header_size % 4 == 0 && this.Module.HEAP32.slice(this.mem_header_size / 4).every(x => x == 0));
     }
 
@@ -140,7 +142,7 @@ export class Busybox
         const OLDPWD = this.Module.FS.cwd();
         const exit_code = NOCLEANUP_callMain(this.Module, cmd, this.print);
         this.Module.FS.chdir(OLDPWD);
-        this.Module.HEAPU8.fill(0);
+        this.Module.HEAP32.fill(0);
         this.Module.HEAPU8.set(mem_header);
 
         return {

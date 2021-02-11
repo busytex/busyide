@@ -561,7 +561,7 @@ export class Shell
         else if(cmd == 'add')
         {
             const parsed = {token: token, ...this.github.parse_url(github_https_path)};
-            this.FS.writeFile(this.cached_tokens_jsonl, (await this.cache_token('ls')) + JSON.stringify(record) + '\n');
+            this.FS.writeFile(this.cached_tokens_jsonl, (await this.cache_token('ls')) + JSON.stringify(parsed) + '\n');
             await this.cache_save();
         }
         else if(cmd == 'get')

@@ -315,7 +315,7 @@ const ui =
             tc = tr.insertCell();
             if(status != 'new')
             {
-                let a = document.createElement('a');
+                const a = document.createElement('a');
                 a.innerText = 'github';
                 a.href = format_path(path);
                 tc.appendChild(a);
@@ -324,7 +324,7 @@ const ui =
             tc = tr.insertCell();
             if(onclick)
             {
-                a = document.createElement('a');
+                const a = document.createElement('a');
                 tc.appendChild(a);
                 a.href = "#";
                 a.dataset.abspath = abspath;

@@ -35,12 +35,12 @@ export class Github
     {
         if(gist)
             return `https://gist.github.com/${username}/${reponame}/${commit}`;
+        else if(!gist && (branch || commit) && path)
+            return `https://github.com/${username}/${reponame}/blob/${commit||branch}/${path}`;
         else if(!gist && branch && commit)
             return `https://github.com/${username}/${reponame}/commit/${commit}`
         else if(!gist && branch)
             return `https://github.com/${username}/${reponame}/tree/${branch}`
-        else if(!gist && (branch || commit) && path)
-            return `https://github.com/${username}/${reponame}/blob/${commit||branch}/${path}`;
         else
             return `https://github.com/${username}/${reponame}`;
     }

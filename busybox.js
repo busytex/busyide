@@ -25,6 +25,7 @@ export class Busybox
             output_stdout_binary : [],
             prefix : '',
             input_stdin_binary : [],
+            input_stdin_binary_iterator : 0,
             newline : '\n',
 
             instantiateWasm(imports, successCallback)
@@ -34,11 +35,9 @@ export class Busybox
             
             stdin()
             {
-                if(Module.input_stdin_binary.length == 0)
-                    return null;
-                const ord = Module.input_stdin_binary[0];
-                Module.input_stdin_binary = Module.input_stdin_binary.slice(1);
-                return ord;
+                //if(Module.input_stdin_binary_iterator >= Module.input_stdin_binary.length)
+                //    return null;
+                return Module.input_stdin_binary[Module.input_stdin_binary_iterator++];
             },
 
             stdout(ord)
@@ -134,6 +133,7 @@ export class Busybox
         this.Module.output_stderr = '';
         this.Module.output_stdout_binary = [];
                 
+        this.Module.input_stdin_binary_iterator = 0;
         if(stdin != null)
             this.Module.input_stdin_binary = stdin.constructor === Uint8Array ? stdin : Uint8Array.from(Array.from(stdin).map(c => c.charCodeAt()));
         

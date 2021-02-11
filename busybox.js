@@ -35,8 +35,8 @@ export class Busybox
             
             stdin()
             {
-                //if(Module.input_stdin_binary_iterator >= Module.input_stdin_binary.length)
-                //    return null;
+                if(Module.input_stdin_binary_iterator >= Module.input_stdin_binary.length)
+                    return null;
                 return Module.input_stdin_binary[Module.input_stdin_binary_iterator++];
             },
 

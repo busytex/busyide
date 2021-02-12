@@ -43,21 +43,22 @@ export class Busybox
 
             stdout(ord)
             {
-                if(Module.newline != '' || ord != 0x0A)
+                const CR = 0x0D, LF = 0x0A;
+
+                if(Module.newline != '' || ord != LF)
                 {
                     Module.output_stdout += String.fromCharCode(ord);
                     Module.output_stdout_binary.push(ord);
                 }
-                //if(verbose && print)
-                //    print(Module.thisProgram + ': ' + Module.prefix + ' | stdout: ' + text);
+
+                //if(verbose && print) print(Module.thisProgram + ': ' + Module.prefix + ' | stdout: ' + text);
             },
             
             /*print(text) 
             {
-                text = (arguments.length > 1 ?  Array.prototype.slice.call(arguments).join(' ') : text) || '';
+                text = (arguments.length > 1 ? Array.prototype.slice.call(arguments).join(' ') : text) || '';
                 Module.output_stdout += text + Module.newline;
-                if(verbose && print)
-                    print(Module.thisProgram + ': ' + Module.prefix + ' | stdout: ' + text);
+                if(verbose && print) print(Module.thisProgram + ': ' + Module.prefix + ' | stdout: ' + text);
             },*/
 
             printErr(text)
@@ -69,15 +70,13 @@ export class Busybox
             
             setStatus(text)
             {
-                if(printErr)
-                    printErr(Module.thisProgram + ': ' + Module.prefix + ' ||| ' + text);
+                if(printErr) printErr(Module.thisProgram + ': ' + Module.prefix + ' ||| ' + text);
             },
             
             monitorRunDependencies(left)
             {
                 this.totalDependencies = Math.max(this.totalDependencies, left);
-                if(printErr)
-                    Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+                if(printErr) Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
             },
         };
        

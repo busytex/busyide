@@ -59,7 +59,7 @@ export class Github
     cat_file(file_path)
     {
         file_path = this.PATH_.abspath(file_path);
-        const project_dir = this.PATH.normalize(this.PATH.join2(this.git_dir(), '..'));
+        const project_dir = this.PATH.normalize(this.PATH.join2(this.git_dir(), '..')) + '/';
 
         if(!file_path.startsWith(project_dir))
             return '';

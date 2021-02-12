@@ -502,12 +502,9 @@ export class Shell
         const original = this.github.cat_file(file_path);
         const modified = this.FS.readFile(file_path, {encoding: 'utf8'});
 
-        console.log('difftool', file_path);
-        console.log('original', original);
-        console.log('modified', modified);
         this.difftool.setModel({
-            original: this.monaco.editor.createModel(original, 'text/plain'),
-            modified: this.monaco.editor.createModel(modified, 'text/plain')
+            original: this.monaco.editor.createModel(original, undefined, this.monaco.Uri.file(file_path)),
+            modified: this.monaco.editor.createModel(modified, undefined, this.monaco.Uri.file(file_path))
         });
         this.ui.toggle_editor('difftool');
         this.difftool.focus();

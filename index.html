@@ -365,12 +365,13 @@ const ui =
 
         const format_path = path => format_url(status.username, status.reponame, status.gist, status.remote_branch, status.remote_commit, path);
 
-        table_modified.hidden = modified.length == 0;
         const onclick_diff = evt => { git_difftool(evt.target.dataset.abspath); return false; };
+        const onclick_open = evt => { open(evt.target.dataset.abspath); return false; };
+        
+        table_modified.hidden = modified.length == 0;
         if(!table_modified.hidden)
             this.update_tbody(tbody_modified, modified, format_path, onclick_open, onclick_diff); 
 
-        const onclick_open = evt => { open(evt.target.dataset.abspath); return false; };
         details_notmodified.hidden = notmodified.length == 0;
         if(!details_notmodified.hidden)
             this.update_tbody(tbody_notmodified, notmodified, format_path, onclick_open);

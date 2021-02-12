@@ -369,7 +369,7 @@ const ui =
         if(!table_modified.hidden)
             this.update_tbody(tbody_modified, modified, format_path, onclick_open, onclick_diff); 
 
-        const onclick_open = evt => { open(evt.target.dataset.file_path); return false; };
+        const onclick_open = evt => { open(evt.target.dataset.abspath); return false; };
         details_notmodified.hidden = notmodified.length == 0;
         if(!details_notmodified.hidden)
             this.update_tbody(tbody_notmodified, notmodified, format_path, onclick_open);

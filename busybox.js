@@ -140,12 +140,14 @@ export class Busybox
         this.Module.prefix = cmd[0];
         const mem_header = Uint8Array.from(this.Module.HEAPU8.slice(0, this.mem_header_size));
         const OLDPWD = this.Module.FS.cwd();
-        const [OLDSTDIN, OLDSTDOUT, OLDSTDERR] = this.Module.FS.streams.slice(0, 3);
         const exit_code = NOCLEANUP_callMain(this.Module, cmd, this.print);
         this.Module.FS.chdir(OLDPWD);
-        this.Module.FS.streams[0] = OLDSTDIN;
-        this.Module.FS.streams[1] = OLDSTDOUT;
-        this.Module.FS.streams[2] = OLDSTDERR;
+        for(const dev_path of ['/dev/stdin', '/dev/stdout', '/dev/stderr'])
+            this.Module.FS.unlink(dev_path);
+        this.Module.FS.createStandardStreams();
+        //this.Module.FS.streams[0] = OLDSTDIN;
+        //this.Module.FS.streams[1] = OLDSTDOUT;
+        //this.Module.FS.streams[2] = OLDSTDERR;
         this.Module.HEAPU8.fill(0);
         this.Module.HEAPU8.set(mem_header);
 

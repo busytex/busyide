@@ -143,12 +143,12 @@ export class Busybox
         const exit_code = NOCLEANUP_callMain(this.Module, cmd, this.print);
         this.Module.FS.chdir(OLDPWD);
         this.Module.FS.quit();
-        //for(const dev_path of ['/dev/stdin', '/dev/stdout', '/dev/stderr'])
-        //    this.Module.FS.unlink(dev_path);
-        //this.Module.FS.createStandardStreams();
-        this.Module.FS.streams[0] = this.Module.FS.open('/dev/stdin', 'r');
-        this.Module.FS.streams[1] = this.Module.FS.open('/dev/stdout', 'w');
-        this.Module.FS.streams[2] = this.Module.FS.open('/dev/stderr', 'w');
+        for(const dev_path of ['/dev/stdin', '/dev/stdout', '/dev/stderr'])
+            this.Module.FS.unlink(dev_path);
+        this.Module.FS.createStandardStreams();
+        //this.Module.FS.streams[0] = this.Module.FS.open('/dev/stdin', 'r');
+        //this.Module.FS.streams[1] = this.Module.FS.open('/dev/stdout', 'w');
+        //this.Module.FS.streams[2] = this.Module.FS.open('/dev/stderr', 'w');
         this.Module.HEAPU8.fill(0);
         this.Module.HEAPU8.set(mem_header);
 

@@ -142,8 +142,9 @@ export class Busybox
         const OLDPWD = this.Module.FS.cwd();
         const exit_code = NOCLEANUP_callMain(this.Module, cmd, this.print);
         this.Module.FS.chdir(OLDPWD);
-        for(const dev_path of ['/dev/stdin', '/dev/stdout', '/dev/stderr'])
-            this.Module.FS.unlink(dev_path);
+        this.Module.FS.quit();
+        //for(const dev_path of ['/dev/stdin', '/dev/stdout', '/dev/stderr'])
+        //    this.Module.FS.unlink(dev_path);
         this.Module.FS.createStandardStreams();
         //this.Module.FS.streams[0] = OLDSTDIN;
         //this.Module.FS.streams[1] = OLDSTDOUT;

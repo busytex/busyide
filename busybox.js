@@ -142,7 +142,7 @@ export class Busybox
         const OLDPWD = this.Module.FS.cwd();
         const exit_code = NOCLEANUP_callMain(this.Module, cmd, this.print);
         this.Module.FS.chdir(OLDPWD);
-        this.Module.HEAP32.fill(0);
+        this.Module.HEAPU8.fill(0);
         this.Module.HEAPU8.set(mem_header);
 
         return {

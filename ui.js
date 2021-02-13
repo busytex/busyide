@@ -670,10 +670,7 @@ export class Shell
             this.view_path = abspath;
             
             if(file_path.endsWith('.log') || file_path.endsWith('.svg') || file_path.endsWith('.png') || file_path.endsWith('.jpg') || file_path.endsWith('.pdf'))
-            {
-                this.ui.toggle_viewer(file_path.slice(file_path.length - 'ext'.length), contents);
-                console.log(this.PATH.extname(file_path));
-            }
+                this.ui.toggle_viewer(this.PATH.extname(file_path).slice(1), contents);
         };
 
         if(file_path == '')

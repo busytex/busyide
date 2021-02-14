@@ -112,7 +112,8 @@ export class Shell
                 if(samedir)
                     this.refresh();
                 else
-                    this.commands(parentdir ? cmd('cd', '..') : chain(cmd('cd', arg(option.value)), cmd('open', '.')));
+                    this.commands(parentdir ? chain(cmd('open', '..'), cmd('cd', '..')) : chain(cmd('cd', arg(option.value)), cmd('open', '.')));
+                    //this.commands(parentdir ? cmd('cd', '..') : chain(cmd('cd', arg(option.value)), cmd('open', '.')));
             }
         };
         this.ui.filetree.onkeydown = ev => ev.key == 'Enter' || ev.key == ' ' ? this.ui.filetree.ondblclick() : null;

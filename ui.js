@@ -685,13 +685,14 @@ export class Shell
             file_path = this.expandcollapseuser(file_path);
             if(file_path != null && this.isdir(file_path))
             {
+                const basename = this.PATH.basename(file_path);
                 const default_path = file_path == '.' ? this.open_find_default_path(file_path) : null;
+                
                 contents = null;
+                
                 if(default_path == null)
                 {
-                    const basename = this.PATH.basename(file_path);
                     this.ui.set_current_file(basename, file_path, 'viewing');
-                    //open_editor_tab('');
 
                     if(basename == '.git')
                         this.git_status();
@@ -705,7 +706,12 @@ export class Shell
                     return;
                 }
                 else
-                    file_path = this.PATH.join2(file_path, default_path); 
+                {
+                    this.log_big_header('$ ls -la ' + this.expandcollapseuser(file_path, false));
+                    this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
+
+                    file_path = this.PATH.join2(file_path, default_path);
+                }
             }
         }
 

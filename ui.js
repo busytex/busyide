@@ -928,8 +928,8 @@ export class Shell
                 break;
         }
 
-        if(this.OLDPWD != this.FS.cwd())
-            this.open('');
+        //if(this.OLDPWD != this.FS.cwd())
+        //    this.open('');
 
         if(refresh)
             this.refresh();

@@ -684,9 +684,11 @@ export class Shell
         else if(file_path != null)
         {
             file_path = this.expandcollapseuser(file_path);
+
             if(file_path != null && this.isdir(file_path))
             {
                 const basename = this.PATH.basename(file_path);
+                const abspath = this.abspath(file_path);
                 const default_path = file_path == '.' ? this.open_find_default_path(file_path) : null;
                 
                 contents = null;
@@ -699,7 +701,7 @@ export class Shell
                         this.git_status();
                     else
                     {
-                        this.log_big_header('$ ls -la ' + this.expandcollapseuser(file_path, false));
+                        this.log_big_header('$ ls -la ' + this.arg(abspath));
                         this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
                     }
                     
@@ -708,7 +710,7 @@ export class Shell
                 }
                 else
                 {
-                    this.log_big_header('$ ls -la ' + this.expandcollapseuser(file_path, false));
+                    this.log_big_header('$ ls -la ' + this.arg(abspath));
                     this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
 
                     file_path = this.PATH.join2(file_path, default_path);
@@ -911,7 +913,7 @@ export class Shell
         this.refresh_cwd = this.FS.cwd();
     }
 
-    cd(path, refresh = true, strip_components = 0)
+    cd(path, refresh = true)
     {
         if(path == '-')
             path = this.OLDPWD;
@@ -919,17 +921,6 @@ export class Shell
         this.OLDPWD = this.FS.cwd();
         path = this.expandcollapseuser(path || '~');
         this.FS.chdir(path);
-        for(let i = 0; i < strip_components; i++)
-        {
-            const dir = this.ls_R('.', '', false, true);
-            if(dir.length == 1 && dir[0].contents == null)
-                this.FS.chdir(dir[0].path);
-            else
-                break;
-        }
-
-        //if(this.OLDPWD != this.FS.cwd())
-        //    this.open('');
 
         if(refresh)
             this.refresh();

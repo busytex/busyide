@@ -794,7 +794,8 @@ export class Shell
     man()
     {
         this.cd(this.readme_dir, true);
-        this.open(this.readme_tex, this.readme);
+        //this.open(this.readme_tex, this.readme);
+        this.open('.');
     }
     
     share(project_dir)

@@ -258,31 +258,45 @@ export class Shell
             };
         };
 
-        for(let cmdline of current_terminal_line.split('&&'))
+        const parse_cmdline = current_terminal_line =>
+        {
+            let cmds = [];
+            for(let cmdline of current_terminal_line.split('&&'))
+            {
+                let stdout_redirect = null, stdout_redirect_append = null;
+                if(cmdline.includes('>>'))
+                    [cmdline, stdout_redirect_append] = cmdline.split('>>');
+                else if(cmdline.includes('>'))
+                    [cmdline, stdout_redirect] = cmdline.split('>');
+
+                let [cmd, ...args] = cmdline.trim().split(' ');
+                args = args.map(a => this.expandcollapseuser(a));
+
+                cmds.push({cmd : cmd, args : args, stdout_redirect : stdout_redirect, stdout_redirect_append : stdout_redirect_append});
+            }
+            return cmds;
+        };
+
+        const chained_commands = parse_cmdline(current_terminal_line);
+
+        for(let {cmd, args, stdout_redirect, stdout_redirect_append} of chained_commands)
         {
             let print_or_dump = (arg, ...args) => arg && this.terminal_print(toString(arg), ...args);
-            let redirect = null;
 
-            if(cmdline.includes('>>'))
+            if(stdout_redirect_append)
             {
-                [cmdline, redirect] = cmdline.split('>>');
                 print_or_dump = arg => 
                 {
-                    const f = this.FS.open(redirect.trim(), 'a');
+                    const f = this.FS.open(stdout_redirect_append.trim(), 'a');
                     this.FS.write(f, arg.stdout_binary, 0, arg.stdout_binary.length);
                     this.FS.close(f);
                 }
             }
-            else if(cmdline.includes('>'))
+            else if(stdout_redirect)
             {
-                [cmdline, redirect] = cmdline.split('>');
-                print_or_dump = arg => this.FS.writeFile(redirect.trim(), arg.stdout_binary);
+                print_or_dump = arg => this.FS.writeFile(stdout_redirect.trim(), arg.stdout_binary);
             }
 
-            let [cmd, ...args] = cmdline.trim().split(' ');
-            
-            args = args.map(a => this.expandcollapseuser(a));
-            
             const route = this.ui.get_route();
             if(route.length > 1)
                 args = args.map(a => a.replace('$URLARG', route[1]));

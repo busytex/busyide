@@ -86,7 +86,7 @@ export class Shell
         this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
         const qq = (x = '') => '"' + x + '"', qx = (x = '') => '`' + x + '`';
         //this.ui.strip_comments.onclick = () => this.commands(cmd(  'sed', '-i' + qq(), '-e', qq('s/\([^\\]\|^\)\(\(\\\\\)*\)%.*/\1\2%/g'), qx('find ' + arg(this.project_dir()) + ' -name ' + qq('*.tex')) ));
-        this.ui.strip_comments.onclick = () => this.commands(cmd(  'sed', '-i' + qq(), '-e', qq('s/\\([^\\\\]\\|^\\)\\(\\(\\\\\\\\\\)*\\)%.*/\\1\\2%/g'), qq('README.tex') ));
+        this.ui.strip_comments.onclick = () => this.commands(cmd(  'sed', '-i', '-e', qq('s/\\([^\\\\]\\|^\\)\\(\\(\\\\\\\\\\)*\\)%.*/\\1\\2%/g'), q'README.tex' ));
         // 's/\([^\\]\|^\)\(\(\\\\\)*\)%.*/\1\2%/g'
         // 's/  \(  [^\\]   \|^   \)        \(   \(    \\\\   \)*    \)         %.*/\1\2%/g'
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
@@ -277,6 +277,7 @@ export class Shell
 
                 let [cmd, ...args] = cmdline.trim().split(' ');
                 args = args.map(a => this.expandcollapseuser(a));
+                args = args.map(a => a.startsWith('"') ? a.slice(1) : a).map(a => a.endsWith('"') ? a.slice(0, a.length - 1) : a);
 
                 cmds.push({cmd : cmd, args : args, stdout_redirect : stdout_redirect, stdout_redirect_append : stdout_redirect_append});
             }

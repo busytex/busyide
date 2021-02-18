@@ -665,9 +665,13 @@ export class Shell
 
     close(file_path)
     {
-        let abspath = file_path == '' ? '' : this.abspath(file_path);
-        if(file_path == '')
+        if(!file_path)
+            file_path = this.edit_path;
+
+        if(!file_path)
             return;
+
+        const abspath = this.abspath(file_path);
         
         if(this.edit_path == abspath)
             this.open('');

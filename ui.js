@@ -254,6 +254,7 @@ export class Shell
                 return arg.map(toString).join('\t');
             else
             {
+                console.log('Exit code:', arg.exit_code);
                 let res = arg.stdout.replaceAll('\r\n', '\n').replaceAll('\n', '\r\n');
                 if(res.length > 0 && res[res.length - 1] != '\n')
                     res += '\r\n';

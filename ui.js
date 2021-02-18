@@ -87,6 +87,8 @@ export class Shell
         const qq = (x = '') => '"' + x + '"', qx = (x = '') => '`' + x + '`';
         //this.ui.strip_comments.onclick = () => this.commands(cmd(  'sed', '-i' + qq(), '-e', qq('s/\([^\\]\|^\)\(\(\\\\\)*\)%.*/\1\2%/g'), qx('find ' + arg(this.project_dir()) + ' -name ' + qq('*.tex')) ));
         this.ui.strip_comments.onclick = () => this.commands(cmd(  'sed', '-i' + qq(), '-e', qq('s/\\([^\\\\]\\|^\\)\\(\\(\\\\\\\\\\)*\\)%.*/\\1\\2%/g'), qq('README.tex') ));
+        // 's/\([^\\]\|^\)\(\(\\\\\)*\)%.*/\1\2%/g'
+        // 's/  \(  [^\\]   \|^   \)        \(   \(    \\\\   \)*    \)         %.*/\1\2%/g'
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
         this.ui.share.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));

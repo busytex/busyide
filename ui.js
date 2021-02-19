@@ -267,7 +267,8 @@ export class Shell
         const parse_cmdline = current_terminal_line =>
         {
             let cmds = [];
-            for(let cmdline of current_terminal_line.replaceAll("\\\\", "\\").split('&&'))
+            // .replaceAll("\\\\", "\\")
+            for(let cmdline of current_terminal_line.split('&&'))
             {
                 let stdout_redirect = null, stdout_redirect_append = null;
                 if(cmdline.includes('>>'))

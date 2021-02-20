@@ -86,7 +86,7 @@ export class Shell
         this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
         const qq = (x = '') => '"' + x + '"', qx = (x = '') => '`' + x + '`';
         //this.ui.strip_comments.onclick = () => this.commands(cmd(  'sed', '-i' + qq(), '-e', qq('s/\([^\\]\|^\)\(\(\\\\\)*\)%.*/\1\2%/g'), qx('find ' + arg(this.project_dir()) + ' -name ' + qq('*.tex')) ));
-        this.ui.strip_comments.onclick = () => this.commands(cmd( 'sed', '-i', '-e', qq('s/\\([^\\]\\)\\(\\(\\\\\\\\\\)*\\)%.*/\\1\\2%/g'), 'README.tex'));
+        this.ui.strip_comments.onclick = () => this.commands(cmd( 'sed', '-i', '-e', qq('s/\\(^\\|[^\\]\\)\\(\\(\\\\\\\\\\)*\\)%.*/\\1\\2%/g'), 'README.tex'));
         // 's/\([^\\]\|^\)\(\(\\\\\)*\)%.*/\1\2%/g'
         // 's/  \(  [^\\]   \|^   \)        \(   \(    \\\\   \)*    \)         %.*/\1\2%/g'
         this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));

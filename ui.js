@@ -86,7 +86,7 @@ export class Shell
         this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
         const qq = (x = '') => '"' + x + '"', qx = (x = '') => '`' + x + '`';
         this.ui.strip_comments.onclick = () => this.commands(cmd( 'sed', '-i', '-e', qq('s/^\\([^\\]*\\)\\(\\(\\\\\\\\\\)*\\)%.*/\\1\\2%/g'), qx('find ' + arg(this.project_dir()) + ' -name ' + qq('*.tex') )));
-        his.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
+        this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
         this.ui.share.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
         // '--exclude', this.PATH.join2(this.PATH.basename(this.project_dir()), '.git')
@@ -278,7 +278,22 @@ export class Shell
 
                 cmds.push({cmd : cmd, args : args, stdout_redirect : stdout_redirect, stdout_redirect_append : stdout_redirect_append, subcommand : false});
             }
-            console.log(cmds);
+
+            for(const c of cmds)
+            {
+                let argsqx = [], join = false;
+                for(const a of c.args)
+                {
+                    if(join)
+                        argsqx[cmdsqx.length - 1] += a;
+                    else
+                        argsqx.push(a);
+
+                    if(a.includes('`'))
+                        join = !join;
+                }
+                c.args = argsqx;
+            }
             return cmds;
         };
 

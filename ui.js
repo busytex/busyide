@@ -264,7 +264,6 @@ export class Shell
         const parse_cmdline = current_terminal_line =>
         {
             let cmds = [];
-            // .replaceAll("\\\\", "\\")
             for(let cmdline of current_terminal_line.split('&&'))
             {
                 let stdout_redirect = null, stdout_redirect_append = null;
@@ -277,8 +276,9 @@ export class Shell
                 args = args.map(a => this.expandcollapseuser(a));
                 args = args.map(a => a.startsWith('"') ? a.slice(1) : a).map(a => a.endsWith('"') ? a.slice(0, a.length - 1) : a);
 
-                cmds.push({cmd : cmd, args : args, stdout_redirect : stdout_redirect, stdout_redirect_append : stdout_redirect_append});
+                cmds.push({cmd : cmd, args : args, stdout_redirect : stdout_redirect, stdout_redirect_append : stdout_redirect_append, subcommand : false});
             }
+            console.log(cmds);
             return cmds;
         };
 

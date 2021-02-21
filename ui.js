@@ -85,11 +85,8 @@ export class Shell
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
         const qq = (x = '') => '"' + x + '"', qx = (x = '') => '`' + x + '`';
-        //this.ui.strip_comments.onclick = () => this.commands(cmd(  'sed', '-i' + qq(), '-e', qq('s/\([^\\]\|^\)\(\(\\\\\)*\)%.*/\1\2%/g'), qx('find ' + arg(this.project_dir()) + ' -name ' + qq('*.tex')) ));
-        this.ui.strip_comments.onclick = () => this.commands(cmd( 'sed', '-i', '-e', qq('s/^\\([^\\]*\\)\\(\\(\\\\\\\\\\)*\\)%.*/\\1\\2%/g'), 'README.tex'));
-        // 's/\([^\\]\|^\)\(\(\\\\\)*\)%.*/\1\2%/g'
-        // 's/  \(  [^\\]   \|^   \)        \(   \(    \\\\   \)*    \)         %.*/\1\2%/g'
-        this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
+        this.ui.strip_comments.onclick = () => this.commands(cmd( 'sed', '-i', '-e', qq('s/^\\([^\\]*\\)\\(\\(\\\\\\\\\\)*\\)%.*/\\1\\2%/g'), qx('find ' + arg(this.project_dir()) + ' -name ' + qq('*.tex') )));
+        his.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.tex_path)));
         this.ui.man.onclick = () => this.commands('man');
         this.ui.share.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
         // '--exclude', this.PATH.join2(this.PATH.basename(this.project_dir()), '.git')
@@ -715,7 +712,10 @@ export class Shell
                 this.ui.toggle_viewer(this.PATH.extname(file_path).slice(1), contents);
         };
 
-        if(file_path == '')
+        if(file_path === null)
+            file_path = '.';
+        
+        if(file_path === '')
         {
             this.tex_path = '';
             this.ui.set_current_file('');

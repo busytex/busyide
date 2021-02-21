@@ -285,7 +285,7 @@ export class Shell
                 for(const a of c.args)
                 {
                     if(join)
-                        argsqx[cmdsqx.length - 1] += a;
+                        argsqx[argsqx.length - 1] += ' ' + a;
                     else
                         argsqx.push(a);
 

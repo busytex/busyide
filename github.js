@@ -72,7 +72,7 @@ export class Github
 
         const file = files[0];
         const path = this.object_path(file);
-        return {path : path, contents : this.FS.readFile(path, {encoding: 'utf8'})};
+        return this.FS.readFile(path, {encoding: 'utf8'});
     }
     
     api_request(realm, https_path, relative_url = '', method = 'get', body = null)

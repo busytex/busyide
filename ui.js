@@ -539,7 +539,7 @@ export class Shell
     {
         this.close();
         
-        const {path, contents} = this.github.cat_file(file_path).contents;
+        const {path, contents} = this.github.cat_file(file_path);
         const modified = this.FS.readFile(file_path, {encoding: 'utf8'});
 
         const original_model = this.monaco.editor.createModel(contents, undefined, this.monaco.Uri.file(file_path));

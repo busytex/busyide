@@ -112,11 +112,14 @@
         <button id="man" class="busyui">Help</button>
         <button id="import_archive" class="busyui">Import</button>
         <button id="compile" class="busyui">Compile</button>
+        <select id="tex_path" class="busyui">
+            <option value="" selected>Choose TeX file:</option>
+        </select>
         <span id="current_file" class="busyui" title="Click to rename"></span>
         <input hidden type="text" class="busyui" id="current_file_rename" title="Press [Enter] to complete renaming"></input>
         <span id="dirty" class="busyui" hidden title="file is changed. wait for autosave">*</span>
         <span id="verb" class="busyui"></span>
-        <button hidden id="remove" class="busyui">Delete</button>
+        <button id="remove" class="busyui">Delete</button>
         <div style="display: flex; margin-left:auto">
             <input type="text" style="width: 250px" id="github_https_path" class="busyui" placeholder="GitHub https link"></input>
             <input type="text" style="width: 100px" id="github_token" class="busyui" placeholder="GitHub token" title="for private clone/push"></input>

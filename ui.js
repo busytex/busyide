@@ -81,7 +81,7 @@ export class Shell
         this.ui.view_pdf.onclick = () => this.pdf_path && this.commands(cmd('open', arg(this.pdf_path)));
         this.ui.download.onclick = () => this.edit_path && this.commands(cmd('download', arg(this.edit_path)));
         this.ui.upload.onclick = async () => await this.commands('upload');
-        this.ui.import_archive.onclick = this.import_archive.bind(this);
+        this.ui.import_project.onclick = this.import_project.bind(this);
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
         const qq = (x = '') => '"' + x + '"', qx = (x = '') => '`' + x + '`';
@@ -869,13 +869,16 @@ export class Shell
         this.compiler.postMessage({files : files, main_tex_path : main_tex_path, verbose : verbose});
     }
 
-    async import_archive()
+    async import_project()
     {
-        const paths = await this.upload(this.tmp_dir, ['.tar', '.tar.gz', '.zip']);
+        const extname_archive = ['.tar', '.tar.gz', '.zip'], extname_file = ['.tex', '.bib'];
+        const paths = await this.upload(this.tmp_dir, [...extname_archive, ...extname_file]);
         if(paths.length == 0)
             return;
 
-        await this.commands(this.cmd('init', 'archive', ...paths));
+        const path = paths[0];
+        const extname = this.PATH.extname(path);
+        await this.commands(this.cmd('init', extname_archive.includes(extname) ? 'archive' : 'file', path));
     }
 
     async upload(file_path = null, ext = [])

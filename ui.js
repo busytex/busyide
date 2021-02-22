@@ -303,7 +303,7 @@ export class Shell
                     else
                         argsqq.push(a);
 
-                    if((!this.includes('`')) && (a.startsWith('"') ^ a.endsWith('"')))
+                    if((!a.includes('`')) && (a.startsWith('"') ^ a.endsWith('"')))
                         join = !join;
                 }
                 join = false;

@@ -81,7 +81,7 @@ export class Shell
         this.ui.view_pdf.onclick = () => this.pdf_path && this.commands(cmd('open', arg(this.pdf_path)));
         this.ui.download.onclick = () => this.edit_path && this.commands(cmd('download', arg(this.edit_path)));
         this.ui.upload.onclick = async () => await this.commands('upload');
-        this.ui.import_archive.onclick = async () => await this.commands('import_archive');
+        this.ui.import_archive.onclick = this.import_archive;
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
         const qq = (x = '') => '"' + x + '"', qx = (x = '') => '`' + x + '`';
@@ -874,6 +874,7 @@ export class Shell
         const paths = await this.upload(this.tmp_dir, ['.tar', '.tar.gz', '.zip']);
         if(paths.length == 0)
             return;
+
         await this.commands(this.cmd('init', 'archive', ...paths));
     }
 

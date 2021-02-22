@@ -113,7 +113,7 @@
         <button id="import_archive" class="busyui">Import</button>
         <button id="compile" class="busyui">Compile</button>
         <select id="tex_path" class="busyui">
-            <option value="" selected>Choose TeX file:</option>
+            <option value="" selected>Choose TeX file: (none selected)</option>
         </select>
         <span id="current_file" class="busyui" title="Click to rename"></span>
         <input hidden type="text" class="busyui" id="current_file_rename" title="Press [Enter] to complete renaming"></input>
@@ -424,6 +424,11 @@ const ui =
             select.options.remove(j);
     },
 
+    update_tex_paths(files, selected_file_path = null)
+    {
+        
+    },
+
     create_and_click_download_link(file_path, content, mime)
     {
         const a = document.createElement('a');
@@ -446,29 +451,20 @@ const ui =
         window.busyshell.terminal.fit_addon.fit()
     },
 
-    log_big(text)
+    log(text, textarea)
     {
         if(text == ui.log_reset_sequence)
-            ui.txtpreview.value = '';
+            textarea.value = '';
         else
         {
-            ui.txtpreview.value += text;
-            ui.txtpreview.value += '\n';
-            ui.txtpreview.scrollTop = ui.txtpreview.scrollHeight;
+            textarea.value += text + '\n';
+            textarea.scrollTop = textarea.scrollHeight;
         }
     },
+
+    log_big : text => ui.log(text, ui.txtpreview),
     
-    log_small(text)
-    {
-        if(text == ui.log_reset_sequence)
-            ui.status.value = '';
-        else
-        {
-            ui.status.value += text;
-            ui.status.value += '\n';
-            ui.status.scrollTop = ui.status.scrollHeight;
-        }
-    },
+    log_small : text => ui.log(text, ui.status),
 
     set_route(...route_parts)
     {

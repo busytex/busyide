@@ -94,7 +94,7 @@ export class Shell
         this.ui.new_file.onclick = () =>
         {
             const new_path = this.new_file_path(this.new_file_name, this.new_file_ext);
-            this.commands(chain(cmd('echo', '-e', qq(this.hello_world.replaceAll('\n', '\\n')), '>', new_path), cmd('open', new_path)));
+            this.commands(chain(cmd('echo', '-e', qq(this.hello_world.replaceAll('\\', '\\\\').replaceAll('\n', '\\n')), '>', new_path), cmd('open', new_path)));
         }
         this.ui.new_folder.onclick = () => 
         {

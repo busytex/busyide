@@ -94,7 +94,7 @@ export class Shell
         this.ui.new_file.onclick = () =>
         {
             const new_path = this.new_file_path(this.new_file_name, this.new_file_ext);
-            this.commands(chain(cmd('echo', this.hello_world, '>', new_path), cmd('open', new_path)));
+            this.commands(chain(cmd('echo', '-e', qq(this.hello_world.replaceAll('\n', '\\n')), '>', new_path), cmd('open', new_path)));
         }
         this.ui.new_folder.onclick = () => 
         {
@@ -281,7 +281,8 @@ export class Shell
 
             for(const c of cmds)
             {
-                let argsqx = [], join = false;
+                let argsqx = [], argsqq = [], join = false;
+
                 for(const a of c.args)
                 {
                     if(join)
@@ -292,7 +293,21 @@ export class Shell
                     if(a.includes('`'))
                         join = !join;
                 }
+                join = false;
                 c.args = argsqx;
+
+                for(const a of c.args)
+                {
+                    if(join)
+                        argsqq[argsqq.length - 1] += ' ' + a;
+                    else
+                        argsqq.push(a);
+
+                    if((!this.includes('`')) && (a.startsWith('"') ^ a.endsWith('"')))
+                        join = !join;
+                }
+                join = false;
+                c.args = argsqq;
             }
             return cmds;
         };

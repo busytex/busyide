@@ -539,13 +539,14 @@ export class Shell
     {
         this.close();
         
-        const {original_path, original} = this.github.cat_file(file_path).contents;
+        const {path, contents} = this.github.cat_file(file_path).contents;
         const modified = this.FS.readFile(file_path, {encoding: 'utf8'});
 
-        const original_model = this.monaco.editor.createModel(original, undefined, this.monaco.Uri.file(file_path));
+        const original_model = this.monaco.editor.createModel(contents, undefined, this.monaco.Uri.file(file_path));
         console.log('original_model', original_model);
 
-        const modified_model = this.monaco.editor.createModel(modified, undefined, this.monaco.Uri.file(original_path));
+        const modified_model = this.monaco.editor.createModel(modified, undefined, this.monaco.Uri.file(path));
+        console.log('modified_model', modified_model);
 
         this.difftool.setModel({original: original_model, modified: modified_model});
 

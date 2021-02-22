@@ -537,13 +537,18 @@ export class Shell
 
     git_difftool(file_path)
     {
-        const original = this.github.cat_file(file_path);
+        this.close();
+        
+        const {original_path, original} = this.github.cat_file(file_path).contents;
         const modified = this.FS.readFile(file_path, {encoding: 'utf8'});
 
-        this.difftool.setModel({
-            original: this.monaco.editor.createModel(original, undefined, this.monaco.Uri.file(file_path)),
-            modified: this.monaco.editor.createModel(modified, undefined, this.monaco.Uri.file(file_path))
-        });
+        const original_model = this.monaco.editor.createModel(original, undefined, this.monaco.Uri.file(file_path));
+        console.log('original_model', original_model);
+
+        const modified_model = this.monaco.editor.createModel(modified, undefined, this.monaco.Uri.file(original_path));
+
+        this.difftool.setModel({original: original_model, modified: modified_model});
+
         this.ui.toggle_editor('difftool');
         this.difftool.focus();
     }

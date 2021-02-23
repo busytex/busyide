@@ -108,21 +108,11 @@
         <a style="display: contents" href="https://github.com/busytex/busytex">
             <img src="logo.svg" style="height:100%"></img>
         </a>
-        <select id="verbose" class="busyui" hidden>
-            <option value="silent" selected="selected">Verbosity - Silent</option>
-            <option value="info">Verbosity - Info</option>
-            <option value="debug">Verbosity - Debug</option>
-        </select>
         <button id="man" class="busyui">Help</button>
         <button id="import_project" class="busyui">Import Project</button>
-        <button id="compile" class="busyui">Compile Project</button>
-        <select id="tex_path" class="busyui">
-            <option value="" selected>Choose TeX file: (none selected)</option>
-        </select>
-        <span id="verb" class="busyui"></span>
-        <span id="current_file" class="busyui" title="Click to rename"></span>
-        <input hidden type="text" class="busyui" id="current_file_rename" title="Press [Enter] to complete renaming"></input>
-        <span id="dirty" class="busyui" hidden title="file is changed. wait for autosave">*</span>
+        <button id="upload" class="busyui">Upload</button>
+        <button id="new_file" class="busyui">New File</button>
+        <button id="new_folder" class="busyui">New Folder</button>
         <div style="display: flex; margin-left:auto">
             <input type="text" id="github_https_path" class="busyui" placeholder="GitHub https link"></input>
             <input type="text" id="github_token" class="busyui" placeholder="GitHub token" title="for private clone/push"></input>
@@ -136,9 +126,6 @@
     </div>
     <div style="display: flex; flex-direction: row; height: 5%">
         <button id="remove" class="busyui">Delete</button>
-        <button id="new_file" class="busyui">New File</button>
-        <button id="new_folder" class="busyui">New Folder</button>
-        <button id="upload" class="busyui">Upload</button>
         <button id="download" class="busyui">Download Current File</button>
         <button id="download_zip" class="busyui">Download ZIP</button>
         <button id="download_targz" class="busyui">Download TAR.GZ</button>
@@ -150,7 +137,28 @@
             <button id="share" class="busyui">Share Link</button>
         </div>
     </div>
-    <div style="display: flex; height: 80%">
+    <div style="display: flex; flex-direction: row; height: 5%">
+        <button id="compile" class="busyui">Compile Project</button>
+        <select id="tex_path" class="busyui">
+            <option value="" selected>Choose TeX file: (none selected)</option>
+        </select>
+        <select id="tex_driver" class="busyui">
+            <option value="" disabled>TeX pipeline:</option>
+            <option value="xetex_bibtex8_dvipdfmx" selected>XeTeX + bibtex8 + dvipdfmx</option>
+            <option value="pdftex_bibtex8">PdfTeX + bibtex8</option>
+            <option value="luatex_bibtex8">LuaTeX + bibtex8</option>
+        </select>
+        <span id="verb" class="busyui"></span>
+        <span id="current_file" class="busyui" title="Click to rename"></span>
+        <input hidden type="text" class="busyui" id="current_file_rename" title="Press [Enter] to complete renaming"></input>
+        <span id="dirty" class="busyui" hidden title="file is changed. wait for autosave">*</span>
+        <select id="verbose" class="busyui" hidden>
+            <option value="silent" selected="selected">Verbosity - Silent</option>
+            <option value="info">Verbosity - Info</option>
+            <option value="debug">Verbosity - Debug</option>
+        </select>
+    </div>
+    <div style="display: flex; height: 70%">
       <select id="filetree" class="busyui" size="100"></select>
       <div id="editor" class="busyui"></div>
       <div id="difftool" class="busyui" hidden></div>

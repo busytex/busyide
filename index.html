@@ -429,8 +429,8 @@ const ui =
                 option = document.createElement('option');
                 select.options.add(option);
             }
-            option.text = files[i].name || files[i].path;
-            option.value = option.title = files[i].path;
+            option.text = files[i].name;
+            option.value = option.title = files[i].abspath;
             option.selected = selected_file_path == option.value;
             option.dataset.type = files[i].contents == null ? 'd' : 'f';
             option.className = files[i].contents == null ? 'filetreedirectory' : '';

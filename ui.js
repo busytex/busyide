@@ -972,14 +972,14 @@ export class Shell
                 if(!exclude.includes(name))
                 {
                     if(preserve_directories)
-                        entries.push({path : relative_path, name : name});
+                        entries.push({path : relative_path, abspath : absolute_path, name : name});
                     if(recurse)
                         entries.push(...this.ls_R(root, relative_path, recurse, preserve_directories, include_dot_directories, read_contents_as_string, exclude));
                 }
             }
             else if(absolute_path != this.log_path && absolute_path != this.pdf_path)
             {
-                entries.push({path : relative_path, name : name, contents : this.FS.readFile(absolute_path, {encoding : read_contents_as_string && this.text_extensions.map(ext => absolute_path.endsWith(ext)).includes(true) ? 'utf8' : 'binary'})});
+                entries.push({path : relative_path, abspath : absolute_path, name : name, contents : this.FS.readFile(absolute_path, {encoding : read_contents_as_string && this.text_extensions.map(ext => absolute_path.endsWith(ext)).includes(true) ? 'utf8' : 'binary'})});
             }
         }
         return entries;
@@ -990,7 +990,7 @@ export class Shell
         selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd && this.ui.filetree.selectedIndex >= 0 ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : null);
 
         //this.ui.update_file_tree(this.ls_R(this.pwd(), '', false, true, true, true, []), selected_file_path);
-        this.ui.update_file_tree(this.ls_R(this.pwd(), this.pwd(), false, true, true, true, []), selected_file_path);
+        this.ui.update_file_tree(this.ls_R(this.pwd(), '', false, true, true, true, []), selected_file_path);
 
         for(const abspath in this.tabs)
         {

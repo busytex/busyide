@@ -120,9 +120,9 @@
             <option value="" selected>Choose TeX file: (none selected)</option>
         </select>
         <span id="current_file" class="busyui" title="Click to rename"></span>
+        <span id="verb" class="busyui"></span>
         <input hidden type="text" class="busyui" id="current_file_rename" title="Press [Enter] to complete renaming"></input>
         <span id="dirty" class="busyui" hidden title="file is changed. wait for autosave">*</span>
-        <span id="verb" class="busyui"></span>
         <div style="display: flex; margin-left:auto">
             <input type="text" id="github_https_path" class="busyui" placeholder="GitHub https link"></input>
             <input type="text" id="github_token" class="busyui" placeholder="GitHub token" title="for private clone/push"></input>
@@ -293,15 +293,15 @@ const ui =
     
     get_origin : () => window.location.origin,
     
-    set_current_file(file_name, file_path, verb = '')
+    set_current_file(basename, abspath, verb = '')
     {
-        console.log('set_current_file', 'name: [', file_name, ']', 'path: [', file_path, ']', 'verb: [', verb, ']');
+        console.log('set_current_file', 'name: [', basename, ']', 'path: [', abspath, ']', 'verb: [', verb, ']');
         let span = ui.current_file, input = ui.current_file_rename;
-        span.textContent = input.value = file_name;
+        span.textContent = input.value = basename;
         span = ui.verb;
-        span.textContent = `(${verb})`;
+        span.textContent = verb + ' ';
         
-        ui.filetree.selectedIndex = Array.from(ui.filetree.options).findIndex(option => option.text == file_name || option.value == file_path);
+        ui.filetree.selectedIndex = Array.from(ui.filetree.options).findIndex(option => option.text == basename || option.value == abspath);
     },
 
     toggle_current_file_rename()

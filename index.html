@@ -119,8 +119,8 @@
         <select id="tex_path" class="busyui">
             <option value="" selected>Choose TeX file: (none selected)</option>
         </select>
-        <span id="current_file" class="busyui" title="Click to rename"></span>
         <span id="verb" class="busyui"></span>
+        <span id="current_file" class="busyui" title="Click to rename"></span>
         <input hidden type="text" class="busyui" id="current_file_rename" title="Press [Enter] to complete renaming"></input>
         <span id="dirty" class="busyui" hidden title="file is changed. wait for autosave">*</span>
         <div style="display: flex; margin-left:auto">
@@ -299,7 +299,7 @@ const ui =
         let span = ui.current_file, input = ui.current_file_rename;
         span.textContent = input.value = basename;
         span = ui.verb;
-        span.textContent = verb + ' ';
+        span.textContent = verb;
         
         ui.filetree.selectedIndex = Array.from(ui.filetree.options).findIndex(option => option.text == basename || option.value == abspath);
     },

@@ -109,8 +109,8 @@
             <img src="logo.svg" style="height:100%"></img>
         </a>
         <button id="man" class="busyui">Help</button>
-        <button id="import_project" class="busyui">Import Project</button>
-        <button id="upload" class="busyui">Upload</button>
+        <button id="import_project" class="busyui">Open</button>
+        <button id="upload" class="busyui">Upload File</button>
         <button id="new_file" class="busyui">New File</button>
         <button id="new_folder" class="busyui">New Folder</button>
         <div style="display: flex; margin-left:auto">
@@ -138,7 +138,7 @@
         </div>
     </div>
     <div style="display: flex; flex-direction: row; height: 5%">
-        <button id="compile" class="busyui">Compile Project</button>
+        <button id="compile" class="busyui">Compile</button>
         <select id="tex_path" class="busyui">
             <option value="" selected>Choose TeX file: (none selected)</option>
         </select>
@@ -149,9 +149,10 @@
             <option value="luatex_bibtex8">LuaTeX + bibtex8</option>
         </select>
         <select id="verbose" class="busyui">
-            <option value="silent" selected="selected">Verbosity - Silent</option>
-            <option value="info">Verbosity - Info</option>
-            <option value="debug">Verbosity - Debug</option>
+            <option value="" disabled>Verbosity:</option>
+            <option value="silent" selected="selected">Silent</option>
+            <option value="info">Info</option>
+            <option value="debug">Debug</option>
         </select>
 
         <span id="verb" class="busyui"></span>

@@ -76,10 +76,6 @@
             box-sizing: border-box;
         }
 
-        #current_file, #current_file_rename {
-            margin-left: auto
-        }
-
         #pdfpreview, #txtpreview {
             width: 99%;
             height: 100%;
@@ -308,8 +304,9 @@ const ui =
         console.log('set_current_file', 'name: [', basename, ']', 'path: [', abspath, ']', 'verb: [', verb, ']');
         let span = ui.current_file, input = ui.current_file_rename;
         span.textContent = input.value = basename;
+        
         span = ui.verb;
-        span.textContent = verb;
+        span.textContent = f`[${verb}]: `;
         
         ui.filetree.selectedIndex = Array.from(ui.filetree.options).findIndex(option => option.text == basename || option.value == abspath);
     },

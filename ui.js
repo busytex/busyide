@@ -442,20 +442,16 @@ export class Shell
         }
         else if(route0 == 'file')
         {
-            const file_https_path = route1;
-            const basename = this.PATH.basename(file_https_path);
+            const path = route1;
+            const basename = this.PATH.basename(path);
             const file_path = this.PATH.join2(this.tmp_dir, basename);
             project_dir = this.PATH.join2('~', basename.slice(0, basename.indexOf('.')));
-            cmds = [this.cmd('mkdir', project_dir), this.cmd('wget', file_https_path, '-P', project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')];
+            cmds = [this.cmd('mkdir', project_dir), path.startsWith('http://') || path.startsWith('https://') ? this.cmd('wget', path, '-P', project_dir) : this.cmd('cp', path, project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')];
         }
         else if(route0 == 'base64targz')
         {
             project_dir = '~';
             cmds = [this.cmd('echo', '$URLARG', '>', this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_targz), this.cmd('gzip', this.shared_project_targz), 'cd', this.cmd('tar', '-xf', this.share_project_tar), this.cmd('open', '.')];
-            //project_dir = this.inline_clone(route1);
-
-            //return btoa(JSON.stringify(this.ls_R(project_dir)));
-            //return JSON.parse(atob(project_str));
         }
         if(cmds)
             await this.commands(this.chain(...cmds));

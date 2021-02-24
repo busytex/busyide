@@ -442,10 +442,10 @@ const ui =
         console.log('update_tex_paths', files);
         const select = ui.tex_path;
 
-        let i = 1, j = select.length - 1;
+        let i = 0; 
         for(; i < files.length; i++)
         {
-            let option = select.options[i];
+            let option = select.options[1 + i];
             if(option == null)
             {
                 option = document.createElement('option');
@@ -455,7 +455,7 @@ const ui =
             option.value = option.title = files[i].abspath;
             option.selected = selected_file_path == option.value;
         }
-        for(; j >= i; j--)
+        for(let j = select.length - 1; j >= 1 + i; j--)
             select.options.remove(j);
     },
 

@@ -140,7 +140,7 @@
     <div style="display: flex; flex-direction: row; height: 5%">
         <button id="compile" class="busyui">Compile</button>
         <select id="tex_path" class="busyui">
-            <option value="" selected>Choose TeX file: (none selected)</option>
+            <option value="" disabled selected>TeX file:</option>
         </select>
         <select id="tex_driver" class="busyui">
             <option value="" disabled>TeX pipeline:</option>
@@ -445,7 +445,7 @@ const ui =
         console.log('update_tex_paths', files);
         const select = ui.tex_path;
 
-        let i = 0, j = select.length - 1;
+        let i = 1, j = select.length - 1;
         for(; i < files.length; i++)
         {
             let option = select.options[i];

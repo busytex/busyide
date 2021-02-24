@@ -959,8 +959,8 @@ export class Shell
         let entries = [];
         if(include_dot_directories)
         {
-            entries.push({path : relative_dir_path || root, name : '.'});
-            entries.push({path : this.PATH.dirname(relative_dir_path || root), name : '..'});
+            entries.push({ path : relative_dir_path || root, name : '.', abspath : this.abspath(root) });
+            entries.push({ path : this.PATH.dirname(relative_dir_path || root), name : '..', abspath : this.PATH.normalize(this.PATH.join2(root, '..')) });
         }
         const absolute_dir_path = this.expandcollapseuser(this.PATH.join2(root, relative_dir_path))
         for(const [name, entry] of Object.entries(this.FS.lookupPath(absolute_dir_path, {parent : false}).node.contents))

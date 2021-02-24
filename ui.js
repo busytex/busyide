@@ -773,6 +773,7 @@ export class Shell
                 const basename = this.PATH.basename(file_path);
                 const abspath = this.abspath(file_path);
                 const default_path = file_path == '.' ? this.open_find_default_path(file_path) : null;
+                console.log('open default_path', default_path);
                 
                 contents = null;
                 
@@ -786,6 +787,9 @@ export class Shell
                     {
                         this.log_big_header('$ ls -la ' + this.arg(abspath));
                         this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
+                        
+                        if(file_path != '.')
+                            open_editor_tab('');
                     }
                     
                     file_path = null;
@@ -988,9 +992,9 @@ export class Shell
     refresh(selected_file_path = null)
     {
         selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd && this.ui.filetree.selectedIndex >= 0 ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : null);
-
-        //this.ui.update_file_tree(this.ls_R(this.pwd(), '', false, true, true, true, []), selected_file_path);
         this.ui.update_file_tree(this.ls_R(this.pwd(), '', false, true, true, true, []), selected_file_path);
+
+        this.ui.update_tex_paths(this.ls_R(this.project_dir(), '', false, true, true, true, []).filter(f => f.path.endsWith('.tex')));
 
         for(const abspath in this.tabs)
         {

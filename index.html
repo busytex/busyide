@@ -298,6 +298,8 @@ const ui =
     isdir : option => option.className == 'filetreedirectory',
     
     get_origin : () => window.location.origin,
+
+    get_current_tex_path : () => ui.tex_paths.value,
     
     set_current_file(basename, abspath, verb = '')
     {
@@ -380,8 +382,10 @@ const ui =
 
         const format_path = path => format_url(status.username, status.reponame, status.gist, status.remote_branch, status.remote_commit, path);
 
-        const onclick_diff = evt => { git_difftool(evt.target.dataset.abspath); return false; };
-        const onclick_open = evt => { open(evt.target.dataset.abspath); return false; };
+        const ignore = f => (x => {f(); return false;});
+        
+        const onclick_diff = ignore(evt => git_difftool(evt.target.dataset.abspath)); 
+        const onclick_open = ignore(evt => open(evt.target.dataset.abspath));
         
         table_modified.hidden = modified.length == 0;
         if(!table_modified.hidden)

@@ -1,3 +1,5 @@
+// tex_path: latexmk, open, project_dir
+
 import { Github } from '/github.js'
 import { Busybox } from '/busybox.js'
 
@@ -36,7 +38,7 @@ export class Shell
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['nanozip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed'];
-        this.shell_builtins =  ['man', 'help', 'open', 'close', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'share', 'upload', 'wget', 'init'];
+        this.shell_builtins =  ['man', 'help', 'open', 'close', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'upload', 'wget', 'init'];
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool'];
         this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
@@ -86,7 +88,7 @@ export class Shell
         this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
         const qq = (x = '') => '"' + x + '"', qx = (x = '') => '`' + x + '`';
         this.ui.strip_comments.onclick = () => this.commands(cmd( 'sed', '-i', '-e', qq('s/^\\([^\\]*\\)\\(\\(\\\\\\\\\\)*\\)%.*/\\1\\2%/g'), qx('find ' + arg(this.project_dir()) + ' -name ' + qq('*.tex') )));
-        this.ui.compile.onclick = () => console.log('get_current_tex_path', this.ui.get_current_tex_path()) || this.commands(cmd('latexmk', arg(this.tex_path)));
+        this.ui.compile.onclick = () => this.commands(cmd('latexmk', arg(this.ui.get_current_tex_path()));
         this.ui.man.onclick = () => this.commands('man');
         this.ui.share.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
         // '--exclude', this.PATH.join2(this.PATH.basename(this.project_dir()), '.git')
@@ -471,12 +473,8 @@ export class Shell
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.chdir(this.home_dir);
-        const sha1_ = uint8array => {
-            const hash_slower = this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40);
-            //const hash_slow = this.FS.writeFile(this.tmp_file, uint8array) || this.busybox.run(['sha1sum', this.tmp_file]).stdout.substring(0, 40);
-            return hash_slower;
-        };
-        this.github = new Github(this.cache_dir, this.merge.bind(this), this.log_big.bind(this), sha1_, this.FS, this.PATH, this);
+        const sha1 = uint8array => this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40);
+        this.github = new Github(this.cache_dir, this.merge.bind(this), this.log_big.bind(this), sha1, this.FS, this.PATH, this);
         
         await this.cache_load();
        
@@ -664,10 +662,10 @@ export class Shell
         }
     }
 
-    project_dir(four = '/home/web_user/proj'.split('/').length)
+    project_dir()
     {
-        const cwd = this.PATH.dirname(this.tex_path)
-        const project_dir = cwd.split('/').slice(0, four).join('/');
+        const cwd = this.get_current_tex_path() ? this.PATH.dirname(this.get_current_tex_path()) : this.FS.cwd();
+        const project_dir = cwd.split('/').slice(0, 4).join('/');
         return project_dir;
     }
 
@@ -805,7 +803,7 @@ export class Shell
             return;
 
         if(file_path.endsWith('.tex'))
-            this.tex_path = file_path.startsWith('/') ? file_path : (this.FS.cwd() + '/' + file_path);
+            this.tex_path = this.abspath(file_path); // file_path.startsWith('/') ? file_path : (this.FS.cwd() + '/' + file_path);
 
         const extname = this.PATH.extname(file_path);
         if(['.pdf', '.jpg', '.png', '.svg', '.log'].includes(extname))
@@ -842,12 +840,6 @@ export class Shell
         this.open(this.readme_tex);
     }
     
-    share(project_dir)
-    {
-        const serialized_project_str = this.serialize_project(project_dir);
-        return `${this.http_path}/#inline/${serialized_project_str}`;
-    }
-
     clear_(ansi_clear_sequence = '\x1b[H\x1b[J')
     {
         this.terminal.write(this.terminal_reset_sequence);
@@ -856,19 +848,18 @@ export class Shell
     async latexmk(tex_path)
     {
         let cwd = this.FS.cwd();
-
-        if(!tex_path)
-        {
-            const basename = this.tex_path.lastIndexOf('/');
-            [cwd, tex_path] = [this.tex_path.slice(0, basename), this.tex_path.slice(1 + basename)];
-        }
+        //if(!tex_path)
+        //{
+        //    const basename = this.tex_path.lastIndexOf('/');
+        //    [cwd, tex_path] = [this.tex_path.slice(0, basename), this.tex_path.slice(1 + basename)];
+        //}
         
         if(tex_path.length == 0)
             return;
         
         const verbose = this.ui.verbose.value;
 
-        this.terminal_print('Running in background...');
+        this.terminal_print(`Running in background (verbosity = ${verbose})...`);
         this.tic();
         this.pdf_path = tex_path.replace('.tex', '.pdf').replace(this.project_dir(), this.project_tmp_dir());
         this.log_path = tex_path.replace('.tex', '.log').replace(this.project_dir(), this.project_tmp_dir());
@@ -877,11 +868,10 @@ export class Shell
         console.assert(cwd.startsWith(this.home_dir));
         
         const project_dir = cwd.split('/').slice(0, 4).join('/');
-        const source_path = tex_path.startsWith('/') ? tex_path : `${cwd}/${tex_path}`;
+        const source_path = tex_path.startsWith('/') ? tex_path : this.PATH.join2(cwd, tex_path);
         const main_tex_path = source_path.slice(project_dir.length + 1);
 
-        const files = this.ls_R(project_dir);
-        this.compiler.postMessage({files : files, main_tex_path : main_tex_path, verbose : verbose});
+        this.compiler.postMessage({files : this.ls_R(project_dir), main_tex_path : main_tex_path, verbose : verbose});
     }
 
     async import_project()

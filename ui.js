@@ -108,7 +108,7 @@ export class Shell
 
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
         this.ui.github_https_path.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
-        this.ui.filetree.onchange = ev => this.open(this.expandcollapseuser(this.ui.filetree.options[this.ui.filetree.selectedIndex].value, false));
+        this.ui.filetree.onchange = ev => this.open(this.expandcollapseuser(this.ui.get_selected_file_path(), false));
         this.ui.filetree.ondblclick = ev =>
         {
             const option = ev.target;

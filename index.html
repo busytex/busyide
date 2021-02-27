@@ -301,10 +301,15 @@ const ui =
     get_origin : () => window.location.origin,
 
     get_current_tex_path : () => ui.tex_path.value,
+
+    get_selected_file_path : () => ui.filetree.selectedIndex >= 0 ? ui.filetree.options[ui.filetree.selectedIndex].value : null,
     
     set_current_file(basename, abspath, verb = '')
     {
         console.log('set_current_file', 'name: [', basename, ']', 'path: [', abspath, ']', 'verb: [', verb, ']');
+        if(!abspath.startsWith('/'))
+            throw 'set_current_file';
+
         let span = ui.current_file, input = ui.current_file_rename;
         span.textContent = input.value = basename;
         

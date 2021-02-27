@@ -456,6 +456,7 @@ export class Shell
             project_dir = '~';
             cmds = [this.cmd('echo', '$URLARG', '>', this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_targz), this.cmd('gzip', this.shared_project_targz), 'cd', this.cmd('tar', '-xf', this.share_project_tar), this.cmd('open', '.')];
         }
+
         if(cmds)
             await this.commands(this.chain(...cmds));
     }
@@ -798,6 +799,7 @@ export class Shell
                     this.ls_la(abspath, file_path);
 
                     file_path = this.PATH.join2(file_path, default_path);
+                    this.refresh(file_path);
                 }
             }
         }
@@ -983,7 +985,7 @@ export class Shell
         selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd && this.ui.filetree.selectedIndex >= 0 ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : null);
         this.ui.update_file_tree(this.ls_R(this.pwd(), '', false, true, true, true, []), selected_file_path);
 
-        this.ui.update_tex_paths(this.ls_R(this.project_dir(), '', false, true, true, true, []).filter(f => f.path.endsWith('.tex')));
+        this.ui.update_tex_paths(this.ls_R(this.project_dir(), '', false, true, true, true, []).filter(f => f.path.endsWith('.tex')), selected_file_path);
 
         for(const abspath in this.tabs)
         {

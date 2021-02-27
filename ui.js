@@ -668,9 +668,11 @@ export class Shell
         }
     }
 
-    project_dir()
+    project_dir(cwd = null)
     {
-        const cwd = this.ui.get_current_tex_path() ? this.PATH.dirname(this.ui.get_current_tex_path()) : this.FS.cwd();
+        if(!cwd)
+            cwd = this.ui.get_current_tex_path() ? this.PATH.dirname(this.ui.get_current_tex_path()) : this.FS.cwd();
+
         const project_dir = cwd.split('/').slice(0, 4).join('/');
         return project_dir;
     }
@@ -867,9 +869,9 @@ export class Shell
         if(tex_path.length == 0)
             return;
         
-        const verbose = this.ui.verbose.value;
+        const verbose = this.ui.verbose.value, tex_driver = this.ui.tex_driver.value;
 
-        this.terminal_print(`Running in background (verbosity = ${verbose})...`);
+        this.terminal_print(`Running in background (verbosity = [${verbose}], TeX driver = [${tex_driver}])...`);
         this.tic();
         this.pdf_path = tex_path.replace('.tex', '.pdf').replace(this.project_dir(), this.project_tmp_dir());
         this.log_path = tex_path.replace('.tex', '.log').replace(this.project_dir(), this.project_tmp_dir());
@@ -877,11 +879,11 @@ export class Shell
         console.assert(tex_path.endsWith('.tex'));
         console.assert(cwd.startsWith(this.home_dir));
         
-        const project_dir = cwd.split('/').slice(0, 4).join('/');
+        const project_dir = this.project_dir(cwd);
         const source_path = tex_path.startsWith('/') ? tex_path : this.PATH.join2(cwd, tex_path);
         const main_tex_path = source_path.slice(project_dir.length + 1);
 
-        this.compiler.postMessage({files : this.ls_R(project_dir), main_tex_path : main_tex_path, verbose : verbose});
+        this.compiler.postMessage({files : this.ls_R(project_dir), main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver});
     }
 
     async import_project()

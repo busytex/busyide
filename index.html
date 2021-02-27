@@ -307,7 +307,7 @@ const ui =
     set_current_file(basename, abspath, verb = '')
     {
         console.log('set_current_file', 'name: [', basename, ']', 'path: [', abspath, ']', 'verb: [', verb, ']');
-        if(!abspath.startsWith('/'))
+        if((!abspath) || (!abspath.startsWith('/')))
             throw 'set_current_file';
 
         let span = ui.current_file, input = ui.current_file_rename;

@@ -106,7 +106,7 @@
         </a>
         <button id="man" class="busyui">Help</button>
         <button id="import_project" class="busyui">Open</button>
-        <button id="upload" class="busyui">Upload File</button>
+        <button id="upload" class="busyui">Upload Files</button>
         <button id="new_file" class="busyui">New File</button>
         <button id="new_folder" class="busyui">New Folder</button>
         <div style="display: flex; margin-left:auto">
@@ -121,11 +121,11 @@
         </div>
     </div>
     <div style="display: flex; flex-direction: row; height: 5%">
-        <button id="remove" class="busyui">Delete</button>
         <button id="download" class="busyui">Download Current File</button>
         <button id="download_zip" class="busyui">Download ZIP</button>
         <button id="download_targz" class="busyui">Download TAR.GZ</button>
         <button id="strip_comments" class="busyui">Strip Comments Recursively</button>
+        <button id="remove" class="busyui">Delete</button>
         <div style="display: flex; margin-left:auto">
             <button id="download_pdf" class="busyui">Download PDF</button>
             <button id="view_pdf" class="busyui">View PDF</button>
@@ -134,11 +134,11 @@
         </div>
     </div>
     <div style="display: flex; flex-direction: row; height: 5%">
+        <button id="compile_current_file" class="busyui">Compile Current File</button>
         <button id="compile_project" class="busyui">Compile Project</button>
         <select id="tex_path" class="busyui">
             <option value="" disabled selected>TeX file:</option>
         </select>
-        <button id="compile_current_file" class="busyui">Compile Current File</button>
         <select id="tex_driver" class="busyui">
             <option value="" disabled>TeX pipeline:</option>
             <option value="xetex_bibtex8_dvipdfmx" selected>XeTeX + bibtex8 + dvipdfmx</option>

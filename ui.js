@@ -666,7 +666,7 @@ export class Shell
 
     project_dir()
     {
-        const cwd = this.get_current_tex_path() ? this.PATH.dirname(this.get_current_tex_path()) : this.FS.cwd();
+        const cwd = this.ui.get_current_tex_path() ? this.PATH.dirname(this.ui.get_current_tex_path()) : this.FS.cwd();
         const project_dir = cwd.split('/').slice(0, 4).join('/');
         return project_dir;
     }
@@ -843,6 +843,7 @@ export class Shell
 
         this.cd(this.readme_dir, true);
         this.open(this.readme_tex);
+        this.refresh(this.readme_tex);
     }
     
     clear_(ansi_clear_sequence = '\x1b[H\x1b[J')

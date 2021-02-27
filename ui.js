@@ -41,6 +41,7 @@ export class Shell
         this.shell_builtins =  ['man', 'help', 'open', 'close', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'upload', 'wget', 'init'];
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool'];
+        this.viewer_extensions = ['.log', '.svg', '.png', '.jpg', '.pdf'];
         this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
         this.tic_ = 0;
         this.timer_delay_millisec = 1000;
@@ -719,6 +720,12 @@ export class Shell
         }
     }
 
+    ls_la(abspath, file_path)
+    {
+        this.log_big_header('$ ls -la ' + this.arg(abspath));
+        this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
+    }
+
     open(file_path, contents)
     {
         const open_editor_tab = (file_path, contents = '') =>
@@ -742,9 +749,7 @@ export class Shell
         {
             const abspath = file_path == '' ? '' : this.abspath(file_path);
             this.view_path = abspath;
-            
-            if(file_path.endsWith('.log') || file_path.endsWith('.svg') || file_path.endsWith('.png') || file_path.endsWith('.jpg') || file_path.endsWith('.pdf'))
-                this.ui.toggle_viewer(this.PATH.extname(file_path).slice(1), contents);
+            this.ui.toggle_viewer(this.PATH.extname(file_path).slice(1), contents);
         };
 
         if(file_path === null)
@@ -779,8 +784,7 @@ export class Shell
                         this.git_status();
                     else
                     {
-                        this.log_big_header('$ ls -la ' + this.arg(abspath));
-                        this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
+                        this.ls_la(abspath, file_path);
                         
                         if(file_path != '.')
                             open_editor_tab('');
@@ -791,8 +795,7 @@ export class Shell
                 }
                 else
                 {
-                    this.log_big_header('$ ls -la ' + this.arg(abspath));
-                    this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
+                    this.ls_la(abspath, file_path);
 
                     file_path = this.PATH.join2(file_path, default_path);
                 }
@@ -806,7 +809,7 @@ export class Shell
             this.tex_path = this.abspath(file_path); // file_path.startsWith('/') ? file_path : (this.FS.cwd() + '/' + file_path);
 
         const extname = this.PATH.extname(file_path);
-        if(['.pdf', '.jpg', '.png', '.svg', '.log'].includes(extname))
+        if(this.viewer_extensions.includes(extname))
         {
             contents = contents || (extname == '.log' ? this.FS.readFile(file_path, {encoding: 'utf8'}) : this.FS.readFile(file_path, {encoding : 'binary'}));
             open_viewer_tab(file_path, contents);

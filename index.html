@@ -311,7 +311,7 @@ const ui =
         span = ui.verb;
         span.textContent = `[${verb}]: `;
         
-        ui.filetree.selectedIndex = Array.from(ui.filetree.options).findIndex(option => option.text == basename || option.value == abspath);
+        ui.filetree.selectedIndex = Array.from(ui.filetree.options).findIndex(option => option.value == abspath);
     },
 
     toggle_current_file_rename()

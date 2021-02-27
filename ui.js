@@ -108,7 +108,7 @@ export class Shell
 
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
         this.ui.github_https_path.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
-        this.ui.filetree.onchange = ev => this.open(this.expandcollapseuser(this.ui.get_selected_file_path(), false));
+        this.ui.filetree.onchange = ev => console.log('onchange', this.ui.get_selected_file_path()) || this.open(this.expandcollapseuser(this.ui.get_selected_file_path() || '', false));
         this.ui.filetree.ondblclick = ev =>
         {
             const option = ev.target;
@@ -989,6 +989,7 @@ export class Shell
 
     refresh(selected_file_path = null)
     {
+        console.log('refresh', '[', selected_file_path, ']');
         selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd && this.ui.filetree.selectedIndex >= 0 ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : null);
         this.ui.update_file_tree(this.ls_R(this.pwd(), '', false, true, true, true, []), selected_file_path);
 

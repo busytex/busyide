@@ -785,6 +785,7 @@ export class Shell
                 
                 if(default_path == null)
                 {
+                    console.log('open', 'default_path', default_path, 'basename', basename, 'file_path', file_path);
                     this.ui.set_current_file(basename, file_path, 'viewing');
 
                     if(basename == '.git')
@@ -991,6 +992,7 @@ export class Shell
     {
         console.log('refresh', '[', selected_file_path, ']');
         selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd && this.ui.filetree.selectedIndex >= 0 ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : null);
+        console.log('refresh', '(', selected_file_path, ')');
         this.ui.update_file_tree(this.ls_R(this.pwd(), '', false, true, true, true, []), selected_file_path);
 
         this.ui.update_tex_paths(this.ls_R(this.project_dir(), '', false, true, true, true, []).filter(f => f.path.endsWith('.tex')), selected_file_path);
@@ -1017,7 +1019,7 @@ export class Shell
         this.FS.chdir(path);
 
         if(refresh)
-            this.refresh();
+            this.refresh(this.FS.cwd() != this.OLDPWD ? this.FS.cwd() : null);
     }
 
     pwd(replace_home)

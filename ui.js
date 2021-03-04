@@ -38,7 +38,7 @@ export class Shell
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['nanozip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed'];
-        this.shell_builtins =  ['man', 'help', 'open', 'close', 'download', 'cd', 'purge', 'latexmk', 'git', 'clear_', 'upload', 'wget', 'init'];
+        this.shell_builtins =  ['man', 'help', 'open', 'close', 'download', 'cd', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init'];
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool'];
         this.viewer_extensions = ['.log', '.svg', '.png', '.jpg', '.pdf'];
@@ -263,9 +263,9 @@ export class Shell
                 console.log('Exit code:', arg.exit_code);
                 console.log('Stdout orig:', arg.stdout.length, '[', arg.stdout, ']');
                 let res = arg.stdout.replaceAll('\r\n', '\n').replaceAll('\n', '\r\n');
-                if(res.length > 0 && res[res.length - 1] != '\n')
-                    res += '\r\n';
-                console.log('Stdout repl:', res.length, '[', res.stdout, ']');
+                //if(res.length > 0 && res[res.length - 1] != '\n')
+                //    res += '\r\n';
+                console.log('Stdout repl:', res.length, '[', res, ']');
                 return res;
             };
         };
@@ -855,11 +855,6 @@ export class Shell
         this.refresh(this.readme_tex);
     }
     
-    clear_(ansi_clear_sequence = '\x1b[H\x1b[J')
-    {
-        this.terminal.write(this.terminal_reset_sequence);
-    }
-
     async latexmk(tex_path)
     {
         let cwd = this.FS.cwd();

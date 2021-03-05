@@ -787,8 +787,8 @@ export class Shell
                 
                 if(default_path == null)
                 {
-                    console.log('open', 'default_path', default_path, 'basename', basename, 'file_path', file_path);
-                    this.ui.set_current_file(basename, file_path, 'viewing');
+                    console.log('open', 'default_path', default_path, 'basename', basename, 'file_path', abspath);
+                    this.ui.set_current_file(basename, abspath, 'viewing');
 
                     if(basename == '.git')
                         this.git_status();

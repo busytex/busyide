@@ -778,8 +778,8 @@ export class Shell
 
             if(file_path != null && this.isdir(file_path))
             {
-                const basename = this.PATH.basename(file_path);
                 const abspath = this.abspath(file_path);
+                const basename = this.PATH.basename(abspath);
                 const default_path = file_path == '.' ? this.open_find_default_path(file_path) : null;
                 console.log('open default_path', default_path);
                 

@@ -686,23 +686,23 @@ export class Shell
 
     open_find_default_path(file_path)
     {
-        const tex_files = this.ls_R(file_path, '', false).filter(f => f.contents != null && f.path.endsWith(this.tex_ext));
+        const tex_files = this.find(file_path, '', false).filter(f => f.contents != null && f.path.endsWith(this.tex_ext));
         let default_path = null;
         if(tex_files.length == 1)
             default_path = tex_files[0].path;
         else if(tex_files.length > 1)
         {
-            const main_tex_files = this.ls_R(file_path, '', false).filter(f => f.contents != null && f.path.endsWith(this.tex_ext) && f.path.includes('main'));
+            const main_tex_files = this.find(file_path, '', false).filter(f => f.contents != null && f.path.endsWith(this.tex_ext) && f.path.includes('main'));
             default_path = main_tex_files.length > 0 ? main_tex_files[0].path : tex_files[0].path;
         }
         if(default_path == null)
         {
-            const text_files = this.ls_R(file_path, '', false).filter(f => f.contents != null && this.text_extensions.map(ext => f.path.endsWith(ext)).includes(true));
+            const text_files = this.find(file_path, '', false).filter(f => f.contents != null && this.text_extensions.map(ext => f.path.endsWith(ext)).includes(true));
             if(text_files.length == 1)
                 default_path = text_files[0].path;
             else if(text_files.length > 1)
             {
-                const main_text_files = this.ls_R(file_path, '', false).filter(f => f.contents != null && f.path.toUpperCase().includes('README'));
+                const main_text_files = this.find(file_path, '', false).filter(f => f.contents != null && f.path.toUpperCase().includes('README'));
                 default_path = main_text_files.length > 0 ? main_text_files[0].path : text_files[0].path;
             }
         }
@@ -881,7 +881,7 @@ export class Shell
         const source_path = tex_path.startsWith('/') ? tex_path : this.PATH.join2(cwd, tex_path);
         const main_tex_path = source_path.slice(project_dir.length + 1);
 
-        this.compiler.postMessage({files : this.ls_R(project_dir), main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver});
+        this.compiler.postMessage({files : this.find(project_dir), main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver});
     }
 
     async import_project()
@@ -954,13 +954,16 @@ export class Shell
         return edscript.includes(conflict_left) && edscript.includes(conflict_right);
     }
 
-    ls_R(root = '.', relative_dir_path = '', recurse = true, preserve_directories = false, include_dot_directories = false, read_contents_as_string = true, exclude = ['.git'])
+    find(root = '.', relative_dir_path = '', recurse = true, preserve_directories = false, include_dot_directories = false, read_contents_as_string = true, exclude = ['.git'])
     {
         let entries = [];
         if(include_dot_directories)
         {
-            entries.push({ path : relative_dir_path || root, name : '.', abspath : this.abspath(root) });
-            entries.push({ path : this.PATH.dirname(relative_dir_path || root), name : '..', abspath : this.PATH.normalize(this.PATH.join2(root, '..')) });
+            const abspath = this.abspath(root);
+            entries.push({ path : relative_dir_path || root, name : '.', abspath : abspath });
+
+            if(abspath != '/')
+                entries.push({ path : this.PATH.dirname(relative_dir_path || root), name : '..', abspath : this.PATH.normalize(this.PATH.join2(root, '..')) });
         }
         const absolute_dir_path = this.expandcollapseuser(this.PATH.join2(root, relative_dir_path))
         for(const [name, entry] of Object.entries(this.FS.lookupPath(absolute_dir_path, {parent : false}).node.contents))
@@ -974,7 +977,7 @@ export class Shell
                     if(preserve_directories)
                         entries.push({path : relative_path, abspath : absolute_path, name : name});
                     if(recurse)
-                        entries.push(...this.ls_R(root, relative_path, recurse, preserve_directories, include_dot_directories, read_contents_as_string, exclude));
+                        entries.push(...this.find(root, relative_path, recurse, preserve_directories, include_dot_directories, read_contents_as_string, exclude));
                 }
             }
             else if(absolute_path != this.log_path && absolute_path != this.pdf_path)
@@ -990,9 +993,9 @@ export class Shell
         console.log('refresh', '[', selected_file_path, ']');
         selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd && this.ui.filetree.selectedIndex >= 0 ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : null);
         console.log('refresh', '(', selected_file_path, ')');
-        this.ui.update_file_tree(this.ls_R(this.pwd(), '', false, true, true, true, []), selected_file_path);
+        this.ui.update_file_tree(this.find(this.pwd(), '', false, true, true, true, []), selected_file_path);
 
-        this.ui.update_tex_paths(this.ls_R(this.project_dir(), '', false, true, true, true, []).filter(f => f.path.endsWith('.tex')), selected_file_path);
+        this.ui.update_tex_paths(this.find(this.project_dir(), '', false, true, true, true, []).filter(f => f.path.endsWith('.tex')), selected_file_path);
 
         for(const abspath in this.tabs)
         {

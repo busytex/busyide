@@ -200,7 +200,7 @@ export class Github
     status()
     {
         const project_dir = this.PATH.normalize(this.PATH.join2(this.git_dir(), '..'));
-        const ls_R = this.PATH_.ls_R(project_dir, '', true, true, false, false);
+        const ls_R = this.PATH_.find(project_dir, '', true, true, false, false);
         let files = [];
 
         const prev = this.read_githubcontents(true);

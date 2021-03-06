@@ -169,13 +169,13 @@
             <figcaption>$ git status</figcaption>
             <strong>Remote branch:</strong><a class="remotebranch"></a>, <strong>commit:</strong><a class="remotecommit"></a>
             <table id="gitstatusmodified">
-                <thead><tr><th>path</th><th>remote</th><th>diff</th></tr></thead>
+                <thead><tr><th>path</th><th>remote</th><th>github</th><th>diff</th></tr></thead>
                 <tbody></tbody>
             </table>
             <details>
                 <summary>Not modified</summary>
                 <table>
-                    <thead><tr><th>path</th><th>remote</th><th>diff</th></tr></thead>
+                    <thead><tr><th>path</th><th>remote</th><th>github</th><th>diff</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </details>
@@ -328,7 +328,7 @@ const ui =
     update_tbody(tbody, st, format_path, onclick_open, onclick_diff)
     {
         tbody.innerHTML = '';
-        for(const {path, status, abspath} of st)
+        for(const {path, status, abspath, abspath_remote} of st)
         {
             const tr = tbody.insertRow();
             
@@ -343,6 +343,18 @@ const ui =
                 tc = a;
             }
             tc.innerText = path;
+            
+            tc = tr.insertCell();
+            if(onclick_open && abspath_remote)
+            {
+                const a = document.createElement('a');
+                tc.appendChild(a);
+                a.href = "#";
+                a.dataset.abspath = abspath_remote;
+                a.onclick = onclick_open;
+                tc = a;
+            }
+            tc.innerText = 'remote';
 
             tc = tr.insertCell();
             if(status != 'new')

@@ -735,8 +735,9 @@ export class Shell
         this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
     }
 
-    open(file_path, contents)
+    open(file_path, contents, readonly)
     {
+        // readonly https://github.com/microsoft/monaco-editor/issues/54
         const open_editor_tab = (file_path, contents = '') =>
         {
             let abspath = file_path == '' ? '' : this.abspath(file_path);

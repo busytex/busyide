@@ -817,25 +817,37 @@ export class Shell
         if(file_path == null && contents == null)
             return;
 
-        if(file_path.endsWith('.tex'))
-            this.tex_path = this.abspath(file_path); // file_path.startsWith('/') ? file_path : (this.FS.cwd() + '/' + file_path);
+        const abspath = this.abspath(file_path);
+        const basename = this.PATH.basename(abspath);
+        const extname = this.PATH.extname(abspath);
+        
+        if(extname == '.tex')
+            this.tex_path = abspath; // file_path.startsWith('/') ? file_path : (this.FS.cwd() + '/' + file_path);
 
-        const extname = this.PATH.extname(file_path);
         if(this.viewer_extensions.includes(extname))
         {
-            contents = contents || (extname == '.log' ? this.FS.readFile(file_path, {encoding: 'utf8'}) : this.FS.readFile(file_path, {encoding : 'binary'}));
-            open_viewer_tab(file_path, contents);
+            contents = contents || (extname == '.log' ? this.read_all_text(abspath) : this.read_all_bytes(abspath));
+            open_viewer_tab(abspath, contents);
             
-            this.ui.set_current_file(this.PATH.basename(file_path), file_path, 'viewing');
+            this.ui.set_current_file(basename, abspath, 'viewing');
         }
         else
         {
-            contents = contents || this.FS.readFile(file_path, {encoding : 'utf8'});
-            open_editor_tab(file_path, contents);
+            contents = contents || this.read_all_text(abspath);
+            open_editor_tab(abspath, contents);
             
-            
-            this.ui.set_current_file(this.PATH.basename(file_path), file_path, 'editing');
+            this.ui.set_current_file(basename, abspath, 'editing');
         }
+    }
+
+    read_all_text(path)
+    {
+        return this.FS.readFile(path, {encoding : 'utf8'});
+    }
+
+    read_all_bytes(path)
+    {
+        return this.FS.readFile(path, {encoding : 'binary'});
     }
 
     save(busyshell)

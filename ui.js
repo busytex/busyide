@@ -45,7 +45,7 @@ export class Shell
         this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
         this.tic_ = 0;
         this.timer_delay_millisec = 1000;
-        this.dirty_mode = 'off';
+        this.dirty_mode = 'true';
         this.FS = null;
         this.PATH = null;
         this.github = null;
@@ -165,15 +165,21 @@ export class Shell
         return this.exists(path) && this.FS.isDir(this.FS.lookupPath(path).node.mode);
     }
 
-    dirty_timer(mode)
+    dirty(mode)
     {
-        if(mode)
-            this.interval_id = self.setInterval(this.save, this.timer_delay_millisec, this);
-        else
+        if(mode == 'true')
+        {
+            this.interval_id = self.setInterval(this.tabs_save, this.timer_delay_millisec, this);
+            this.dirty_mode = mode;
+        }
+        else if(mode == 'false')
         {
             self.clearInterval(this.interval_id);
             this.interval_id = 0;
+            this.dirty_mode = mode;
         }
+
+        return this.dirty_mode;
     }
 
     tic()
@@ -492,7 +498,7 @@ export class Shell
             await this.commands('man');
 
         this.bind();
-        this.dirty_timer(true);
+        this.dirty('true');
     }
    
     log_big_header(text = '')
@@ -847,7 +853,7 @@ export class Shell
         return this.FS.readFile(path, {encoding : 'binary'});
     }
 
-    save(busyshell)
+    tabs_save(busyshell)
     {
         for(const abspath in busyshell.tabs)
             if(abspath != '')
@@ -864,24 +870,7 @@ export class Shell
         this.open(this.readme_tex);
         this.refresh(this.readme_tex);
     }
-
-    dirty(mode)
-    {
-        if(mode == 'on')
-        {
-            this.ui.set_dirty(true);
-            this.dirty_mode = mode;
-        }
-        
-        else if(mode == 'off')
-        {
-            this.ui.dirty_timer(false);
-            this.dirty_mode = mode;
-        }
-        
-        return this.dirty_mode;
-    }
-    
+   
     async latexmk(tex_path)
     {
         let cwd = this.FS.cwd();
@@ -1076,14 +1065,14 @@ export class Shell
         if(src_abspath == dst_abspath)
             return;
 
-        this.dirty_timer(false);
+        this.dirty('false');
         this.FS.rename(src_file_path, dst_file_path);
         if(this.tabs[dst_abspath])
             this.tabs[dst_abspath].dispose();
         this.tabs[dst_abspath] = this.tabs[src_abspath];
         delete this.tabs[src_abspath];
         this.refresh();
-        this.dirty_timer(true);
+        this.dirty('true');
     }
 }
 

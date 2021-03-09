@@ -860,6 +860,21 @@ export class Shell
                 busyshell.FS.writeFile(abspath, busyshell.tabs[abspath].getValue());
         busyshell.ui.set_dirty(false);
     }
+    
+    tabs_load(busyshell)
+    {
+        for(const abspath in busyshell.tabs)
+        {
+            if(abspath != '')
+            {
+                const value = busyshell.tabs[abspath].getValue();
+                const read = busyshell.read_all_text(abspath);
+                if(value != read)
+                    busyshell.tabs[abspath].setValue(value);
+            }
+        }
+        busyshell.ui.set_dirty(false);
+    }
 
     man()
     {

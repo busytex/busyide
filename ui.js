@@ -45,6 +45,7 @@ export class Shell
         this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
         this.tic_ = 0;
         this.timer_delay_millisec = 1000;
+        this.dirty_mode = 'off';
         this.FS = null;
         this.PATH = null;
         this.github = null;
@@ -867,9 +868,18 @@ export class Shell
     dirty(mode)
     {
         if(mode == 'on')
+        {
             this.ui.set_dirty(true);
+            this.dirty_mode = mode;
+        }
+        
         else if(mode == 'off')
+        {
             this.ui.dirty_timer(false);
+            this.dirty_mode = mode;
+        }
+        
+        return this.dirty_mode;
     }
     
     async latexmk(tex_path)

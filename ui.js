@@ -874,10 +874,15 @@ export class Shell
         {
             if(abspath != '')
             {
-                const value = busyshell.tabs[abspath].getValue();
+                const editor_model = busyshell.tabs[abspath];
+                const value = editor_model.getValue();
                 const read = busyshell.read_all_text(abspath);
+
                 if(value != read)
-                    busyshell.tabs[abspath].setValue(value);
+                {
+                    editor_model.setValue(read);
+                    this.editor.setModel(editor_model);
+                }
             }
         }
         busyshell.ui.set_dirty(false);

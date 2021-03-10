@@ -28,6 +28,7 @@ export class Shell
         this.edit_path = null;
         this.view_path = null;
         this.tex_path = '';
+        this.exclude_path = '/tmp/exclude.txt';
         this.zip_path = '/tmp/archive.zip';
         this.tar_path = '/tmp/archive.tar';
         this.targz_path = '/tmp/archive.tar.gz';
@@ -89,7 +90,7 @@ export class Shell
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         //this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
         
-        this.ui.download_targz.onclick = () => this.commands(chain('cd', cmd('tar', ...(this.exists(this.PATH.join2(this.project_dir(), '.git')) ? ['-X',  'cv/.git'] : []), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
+        this.ui.download_targz.onclick = () => this.commands(chain(cmd('echo', '.git', '>', arg(this.exclude_path)), cmd('tar', '-X', arg(this.exclude_path), '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, arg(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
         //this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-X', this.PATH.join2(this.PATH.basename(this.project_dir()), '.git') , '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
        
         const qq = (x = '') => '"' + x + '"', qx = (x = '') => '`' + x + '`';

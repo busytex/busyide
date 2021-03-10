@@ -164,7 +164,7 @@
       <div id="viewer">
         <iframe id="pdfpreview" class="busyui"></iframe>
         <img hidden id="imgpreview" class="busyui"></img>
-        <textarea hidden id="txtpreview" class="busyui"></textarea>
+        <textarea readonly hidden id="txtpreview" class="busyui"></textarea>
         <figure hidden id="gitstatus" class="busyui">
             <figcaption>$ git status</figcaption>
             <strong>Remote branch:</strong><a class="remotebranch"></a>, <strong>commit:</strong><a class="remotecommit"></a>
@@ -191,7 +191,7 @@
     </div>
     <div style="display: flex; flex-direction: row; height: 10%">
       <div id="terminal" class="busyui" style="height:100%; width: 50%"></div>
-      <textarea style="height:100%; width: 50%"
+      <textarea readonly style="height:100%; width: 50%"
         name="status"
         id="status"
         class="busyui"

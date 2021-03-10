@@ -9,6 +9,9 @@
 //usage:#define bsddiff_trivial_usage
 //usage:				 "bsddiff ..."
 
+//usage:#define bsddiff_full_usage  "\n\n"
+//usage:         "Only terse usage"
+
 #include <stdio.h>
 #include <string.h>
 #include <time.h>

@@ -9,6 +9,9 @@
 //usage:#define busyzip_trivial_usage
 //usage:				 "busyzip [-r] [[-x EXCLUDED_PATH] ...] OUTPUT_NAME.zip INPUT_PATH [...]"
 
+//usage:#define busyzip_full_usage  "\n\n"
+//usage:         "Only terse usage"
+
 #if defined(__GNUC__)
 	// Ensure we get the 64-bit variants of the CRT's file I/O calls
 	#ifndef _FILE_OFFSET_BITS

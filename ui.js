@@ -89,7 +89,7 @@ export class Shell
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         //this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
         
-        this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-X', '.git' , '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
+        this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', ...(this.exists(this.PATH.join2(this.project_dir(), '.git')) ? ['-X',  arg(this.PATH.join2(this.project_dir(), '.git'))] : []), '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
         //this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-X', this.PATH.join2(this.PATH.basename(this.project_dir()), '.git') , '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
        
         const qq = (x = '') => '"' + x + '"', qx = (x = '') => '`' + x + '`';

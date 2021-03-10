@@ -247,6 +247,9 @@ export class Shell
     
     async commands(...cmds)
     {
+        this.tabs_save(this);
+        this.dirty('timer_off');
+
         this.old_terminal_line = this.current_terminal_line;
         this.current_terminal_line = '';
         this.terminal.write('\b'.repeat(this.old_terminal_line.length));
@@ -254,6 +257,9 @@ export class Shell
             await this.type(cmd);
         this.terminal.write(this.old_terminal_line);
         this.refresh();
+       
+        this.tabs_load(this);
+        this.dirty('timer_save');
     }
 
     async shell(current_terminal_line)

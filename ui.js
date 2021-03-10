@@ -75,6 +75,7 @@ export class Shell
     bind()
     {
         const {cmd, arg, chain} = this;
+        const qq = (x = '') => '"' + x + '"', qx = (x = '') => '`' + x + '`';
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.onKey(this.onkey.bind(this));
@@ -88,12 +89,9 @@ export class Shell
         this.ui.upload.onclick = async () => await this.commands('upload');
         this.ui.import_project.onclick = this.import_project.bind(this);
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('nanozip', '-r', '-x', '.git', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
-        //this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
         
-        this.ui.download_targz.onclick = () => this.commands(chain(cmd('echo', '.git', '>', arg(this.exclude_path)), cmd('tar', '-X', arg(this.exclude_path), '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, arg(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
-        //this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-X', this.PATH.join2(this.PATH.basename(this.project_dir()), '.git') , '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path)))); // '-X', '.git',
+        this.ui.download_targz.onclick = () => this.commands(chain(cmd('echo', '.git', '>', arg(this.exclude_path)), cmd('tar', '-X', arg(this.exclude_path), '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path))));
        
-        const qq = (x = '') => '"' + x + '"', qx = (x = '') => '`' + x + '`';
         this.ui.strip_comments.onclick = () => this.commands(cmd( 'sed', '-i', '-e', qq('s/^\\([^\\]*\\)\\(\\(\\\\\\\\\\)*\\)%.*/\\1\\2%/g'), qx('find ' + arg(this.project_dir()) + ' -name ' + qq('*.tex') )));
         this.ui.compile_project.onclick = () => this.commands(cmd('latexmk', arg(this.ui.get_current_tex_path())));
         this.ui.compile_current_file.onclick = () => (this.ui.get_current_file() || '').endsWith('.tex') && this.commands(cmd('latexmk', arg(this.ui.get_current_file())));

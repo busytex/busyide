@@ -16,7 +16,7 @@ BSDDIFF_SED = s/xmalloc(/bsddiff_xmalloc(/g; s/xcalloc(/bsddiff_xcalloc(/g; s/xr
 build/wasm/busybox_unstripped.js: source/busybox.tar.bz2 source/miniz.zip source/diff3prog.c source/diff.c source/diff.h source/diffdir.c source/diffreg.c source/xmalloc.c source/xmalloc.h
 	mkdir -p build/wasm/arch/em build/wasm/bsd
 	tar -xf source/busybox.tar.bz2 --strip-components=1 --directory=build/wasm
-	cp nanozip.c build/wasm/archival && unzip -d build/wasm/archival -o source/miniz.zip miniz.h miniz.c
+	cp busyzip.c build/wasm/archival && unzip -d build/wasm/archival -o source/miniz.zip miniz.h miniz.c
 	cat bsddiff3prog.h source/diff3prog.c > build/wasm/miscutils/bsddiff3prog.c
 	cp bsddiff.h build/wasm/miscutils/bsddiff.h
 	sed '$(BSDDIFF_SED)' source/xmalloc.h > build/wasm/miscutils/xmalloc.h

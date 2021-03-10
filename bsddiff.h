@@ -3,9 +3,10 @@
 //config:	default y
 //config:	help
 //config:	Returns an indeterminate value.
+
 //kbuild:lib-$(CONFIG_BSDDIFF) += bsddiff.o bsdxmalloc.o bsddiffreg.o bsddiffdir.o
 //applet:IF_BSDDIFF(APPLET(bsddiff, BB_DIR_USR_BIN, BB_SUID_DROP))
-//usage:# define bsddiff_trivial_usage
+//usage:#define bsddiff_trivial_usage
 //usage:				 "bsddiff ..."
 
 #include <stdio.h>

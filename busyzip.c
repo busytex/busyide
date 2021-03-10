@@ -1,12 +1,13 @@
-//config:config NANOZIP
-//config:	bool "NANOZIP"
+//config:config BUSYZIP
+//config:	bool "BUSYZIP"
 //config:	default y
 //config:	help
 //config:	Returns an indeterminate value.
-//kbuild:lib-$(CONFIG_NANOZIP) += nanozip.o
-//applet:IF_NANOZIP(APPLET(nanozip, BB_DIR_USR_BIN, BB_SUID_DROP))
-//usage:# define nanozip_trivial_usage
-//usage:				 "nanozip [-r] [[-x EXCLUDED_PATH] ...] OUTPUT_NAME.zip INPUT_PATH [...]"
+
+//kbuild:lib-$(CONFIG_BUSYZIP) += busyzip.o
+//applet:IF_BUSYZIP(APPLET(busyzip, BB_DIR_USR_BIN, BB_SUID_DROP))
+//usage:#define busyzip_trivial_usage
+//usage:				 "busyzip [-r] [[-x EXCLUDED_PATH] ...] OUTPUT_NAME.zip INPUT_PATH [...]"
 
 #if defined(__GNUC__)
 	// Ensure we get the 64-bit variants of the CRT's file I/O calls
@@ -22,7 +23,7 @@
 #include <libbb.h>
 #include "miniz.c"
 
-int nanozip_main(int argc, char *argv[]);
+int busyzip_main(int argc, char *argv[]);
 int proc_entry(const char *file_path_src, const struct stat *info, const int typeflag, struct FTW *pathinfo);
 
 enum { MAX_FILE_PATH_LENGTH = 1024, MAX_EXCLUDE_PATHS = 16, MAX_INPUT_PATHS = 16, USE_FDS = 15 };
@@ -69,7 +70,7 @@ int proc_entry(const char *file_path_src, const struct stat *info, const int typ
     return 0;
 }
 
-int nanozip_main(int argc, char *argv[])
+int busyzip_main(int argc, char *argv[])
 {
     mz_zip_archive zip;
     struct stat st;

@@ -32,6 +32,7 @@ export class Shell
         this.tar_path = '/tmp/archive.tar';
         this.targz_path = '/tmp/archive.tar.gz';
         this.arxiv_path = '/tmp/arxiv.tar';
+        this.git_log = '/tmp/git.log';
         this.new_file_name = 'newfile';
         this.new_file_ext = '.tex';
         this.new_dir_name = 'newfolder';
@@ -527,6 +528,8 @@ export class Shell
         const parsed = this.github.parse_url(https_path);
         
         let repo_path = parsed.reponame;
+        this.log_path = this.git_log;
+        
         this.log_big(`Cloning from '${https_path}' into '${repo_path}'...`);
         
         let token_cached = false;
@@ -559,6 +562,7 @@ export class Shell
         
         await this.cache_save();
         this.ui.set_route('github', https_path);
+        
         return repo_path;
     }
 

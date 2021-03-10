@@ -168,17 +168,10 @@
         <figure hidden id="gitstatus" class="busyui">
             <figcaption>$ git status</figcaption>
             <strong>Remote branch:</strong><a class="remotebranch"></a>, <strong>commit:</strong><a class="remotecommit"></a>
-            <table id="gitstatusmodified">
+            <table>
                 <thead><tr><th>path</th><th>remote</th><th>github</th><th>diff</th></tr></thead>
                 <tbody></tbody>
             </table>
-            <details>
-                <summary>Not modified</summary>
-                <table>
-                    <thead><tr><th>path</th><th>remote</th><th>github</th><th>diff</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </details>
         </figure>
         <figure hidden id="gitpull" class="busyui">
             <figcaption>$ git pull</figcaption>
@@ -382,13 +375,8 @@ const ui =
 
     update_git_status(status, format_url, git_difftool, open)
     {
-        const modified = status.files.filter(f => f.status == 'modified');
-        const notmodified = status.files.filter(f => f.status == 'not modified');
-
-        const table_modified = ui.gitstatus.querySelector('#gitstatusmodified');
-        const details_notmodified = ui.gitstatus.querySelector('details');
-        const tbody_modified = table_modified.querySelector('tbody');
-        const tbody_notmodified = details_notmodified.querySelector('tbody');
+        const table = ui.gitstatus.querySelector('table');
+        const tbody = table.querySelector('tbody');
         const a_branch = ui.gitstatus.querySelector('.remotebranch');
         const a_commit = ui.gitstatus.querySelector('.remotecommit');
 
@@ -398,20 +386,13 @@ const ui =
         a_commit.href = format_url(status.username, status.reponame, status.gist, status.remote_branch, status.remote_commit);
         a_commit.innerText = status.remote_commit;
 
-        const format_path = path => format_url(status.username, status.reponame, status.gist, status.remote_branch, status.remote_commit, path);
-
         const ignore = f => (x => {f(); return false;});
         
+        const format_path = path => format_url(status.username, status.reponame, status.gist, status.remote_branch, status.remote_commit, path);
         const onclick_diff = ignore(evt => git_difftool(evt.target.dataset.abspath)); 
         const onclick_open = ignore(evt => open(evt.target.dataset.abspath));
         
-        table_modified.hidden = modified.length == 0;
-        if(!table_modified.hidden)
-            this.update_tbody(tbody_modified, modified, format_path, onclick_open, onclick_diff); 
-
-        details_notmodified.hidden = notmodified.length == 0;
-        if(!details_notmodified.hidden)
-            this.update_tbody(tbody_notmodified, notmodified, format_path, onclick_open);
+        this.update_tbody(tbody, status.files, format_path, onclick_open, onclick_diff); 
     },
     
     update_git_pull(modified, notmodified)

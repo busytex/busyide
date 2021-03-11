@@ -90,7 +90,7 @@ export class Shell
         this.ui.import_project.onclick = this.import_project.bind(this);
         this.ui.download_zip.onclick = () => this.commands(chain('cd', cmd('busyzip', '-r', '-x', '.git', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         
-        this.ui.download_targz.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path,  '--exclude', '.git', this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path))));
+        this.ui.download_targz.onclick = () => this.project_dir() && this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path,  '--exclude', '.git', this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path))));
        
         this.ui.strip_comments.onclick = () => this.commands(cmd( 'sed', '-i', '-e', qq('s/^\\([^\\]*\\)\\(\\(\\\\\\\\\\)*\\)%.*/\\1\\2%/g'), qx('find ' + arg(this.project_dir()) + ' -name ' + qq('*.tex') )));
         this.ui.compile_project.onclick = () => this.commands(cmd('latexmk', arg(this.ui.get_current_tex_path())));
@@ -696,8 +696,10 @@ export class Shell
         if(!cwd)
             cwd = this.ui.get_current_tex_path() ? this.PATH.dirname(this.ui.get_current_tex_path()) : this.FS.cwd();
 
-        const project_dir = cwd.split('/').slice(0, 4).join('/');
-        return project_dir;
+        if(!cwd || !cwd.startsWith(this.home_dir))
+            return null;
+
+        return cwd.split('/').slice(0, 4).join('/');
     }
 
     project_tmp_dir()

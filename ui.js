@@ -694,7 +694,7 @@ export class Shell
         const curdir = this.FS.cwd();
 
         if(!cwd)
-            cwd = this.ui.get_current_tex_path() ? this.PATH.dirname(this.ui.get_current_tex_path()) : curdir();
+            cwd = this.ui.get_current_tex_path() ? this.PATH.dirname(this.ui.get_current_tex_path()) : curdir;
 
         console.log('curdir', curdir, 'cwd', cwd, this.home_dir);
 

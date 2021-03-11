@@ -1053,7 +1053,7 @@ export class Shell
         console.log('refresh', '(', selected_file_path, ')');
         this.ui.update_file_tree(this.find(this.pwd(), '', false, true, true, true, []), selected_file_path);
 
-        this.ui.update_tex_paths(this.find(this.project_dir(), '', false, true, true, true, []).filter(f => f.path.endsWith('.tex')), selected_file_path);
+        this.ui.update_tex_paths(this.project_dir() ? this.find(this.project_dir(), '', false, true, true, true, []).filter(f => f.path.endsWith('.tex')) : [], selected_file_path);
 
         for(const abspath in this.tabs)
         {

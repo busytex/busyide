@@ -691,12 +691,14 @@ export class Shell
 
     project_dir(cwd = null)
     {
+        const curdir = this.FS.cwd();
+
         if(!cwd)
-            cwd = this.ui.get_current_tex_path() ? this.PATH.dirname(this.ui.get_current_tex_path()) : this.FS.cwd();
+            cwd = this.ui.get_current_tex_path() ? this.PATH.dirname(this.ui.get_current_tex_path()) : curdir();
 
-        console.log(cwd, this.home_dir);
+        console.log('curdir', curdir, 'cwd', cwd, this.home_dir);
 
-        if(!cwd || !cwd.startsWith(this.home_dir) || cwd == this.home_dir)
+        if(!cwd || !cwd.startsWith(this.home_dir) || cwd == this.home_dir || !cwd.startsWith(curdir))
             return null;
 
         return cwd.split('/').slice(0, 4).join('/');

@@ -698,7 +698,7 @@ export class Shell
 
         console.log('curdir', curdir, 'cwd', cwd, this.home_dir);
 
-        if(!cwd || !cwd.startsWith(this.home_dir) || cwd == this.home_dir || !cwd.startsWith(curdir))
+        if(!cwd || !cwd.startsWith(this.home_dir) || cwd == this.home_dir || !curdir.startsWith(cwd))
             return null;
 
         return cwd.split('/').slice(0, 4).join('/');

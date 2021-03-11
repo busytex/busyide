@@ -448,7 +448,7 @@ const ui =
         if(selected_file_path === null)
             selected_file_path = select.value;
 
-        if(selected_file_path === '')
+        if(selected_file_path === '' || !files)
             select.options[0].selected = true;
 
         let i = 0; 

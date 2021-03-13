@@ -63,7 +63,7 @@ export class Shell
         this.refresh_cwd = null;
         this.terminal_reset_sequence = '\x1bc';
         this.EXIT_SUCCESS = 0;
-        this.tabs = {};
+        this.tab = null;
         this.interval_id = 0;
         this.HTTP_OK = 200;
         this.cors_proxy_fmt = cors_proxy_fmt;
@@ -377,8 +377,6 @@ export class Shell
                 }
                 else if(this.busybox_applets.includes(cmd))
                     print_or_dump(this.busybox.run([cmd, ...args]), '');
-                else if(cmd == 'tabs')
-                    print_or_dump(Object.keys(this.tabs).sort());
                 else if(cmd == 'help')
                     print_or_dump(this.shell_commands);
                 else if(cmd == 'git' && args.length == 0)
@@ -578,15 +576,15 @@ export class Shell
         const abspath = this.abspath(file_path);
 
         const modified = this.FS.readFile(abspath, {encoding: 'utf8'});
-        if(!this.tabs[abspath])
-            this.tabs[abspath] = this.monaco.editor.createModel(modified, undefined, this.monaco.Uri.file(abspath));
-        const modified_model = this.tabs[abspath];
-        
         const original = this.github.cat_file(abspath).contents;
+        
+        this.close();
+        
+        const modified_model = this.monaco.editor.createModel(modified, undefined, this.monaco.Uri.file(abspath));
         const original_model = this.monaco.editor.createModel(original, modified_model.getLanguageIdentifier().language);
-        // TODO: register original_model in tabs
-
+        
         this.difftool.setModel({original: original_model, modified: modified_model});
+        this.difftool.updateOptions({ readOnly: true });
 
         this.ui.toggle_editor('difftool');
         this.difftool.focus();
@@ -749,10 +747,11 @@ export class Shell
         if(this.edit_path == abspath)
             this.open('');
 
-        if(abspath in this.tabs)
+        if(this.tab)
         {
-            this.tabs[abspath].dispose();
-            delete this.tabs[abspath];
+            this.tab.dispose();
+            this.tab = null;
+            this.edit_path = null;
         }
     }
 
@@ -765,16 +764,18 @@ export class Shell
     open(file_path, contents, readonly)
     {
         // readonly https://github.com/microsoft/monaco-editor/issues/54
-        const open_editor_tab = (file_path, contents = '') =>
+        const open_editor_tab = (file_path, contents = '', readonly = false) =>
         {
             let abspath = file_path == '' ? '' : this.abspath(file_path);
-            this.edit_path = abspath;
-            if(!(abspath in this.tabs))
-                this.tabs[abspath] = this.monaco.editor.createModel(contents, undefined, this.monaco.Uri.file(abspath));
+            
+            if(abspath != this.edit_path)
+            {
+                this.edit_path = abspath;
+                this.tab = this.monaco.editor.createModel(contents, undefined, this.monaco.Uri.file(abspath));
+                this.editor.setModel(this.tab);
+            }
+            this.editor.updateOptions({ readOnly: readonly });
 
-            const editor_model = this.tabs[abspath];
-            editor_model.setValue(contents);
-            this.editor.setModel(editor_model);
             //var currentState = this.editor.saveViewState();
             //this.editor.restoreViewState(data[desiredModelId].state);
             //this.editor.focus();
@@ -879,27 +880,24 @@ export class Shell
 
     tabs_save(busyshell)
     {
-        for(const abspath in busyshell.tabs)
-            if(abspath != '')
-                busyshell.FS.writeFile(abspath, busyshell.tabs[abspath].getValue());
+        if(this.edit_path != null) // do not save readonly
+            busyshell.FS.writeFile(this.edit_path, busyshell.tab.getValue());
         busyshell.ui.set_dirty(false);
     }
     
     tabs_load(busyshell)
     {
-        for(const abspath in busyshell.tabs)
+        const abspath = this.edit_path;
+        const editor_model = this.tab;
+        if(abspath && editor_model)
         {
-            if(abspath != '')
-            {
-                const editor_model = busyshell.tabs[abspath];
-                const value = editor_model.getValue();
-                const read = busyshell.read_all_text(abspath);
+            const value = editor_model.getValue();
+            const read = busyshell.read_all_text(abspath);
 
-                if(value != read)
-                {
-                    editor_model.setValue(read);
-                    this.editor.setModel(editor_model);
-                }
+            if(value != read)
+            {
+                editor_model.setValue(read);
+                this.editor.setModel(editor_model);
             }
         }
         busyshell.ui.set_dirty(false);
@@ -1059,13 +1057,12 @@ export class Shell
 
         this.ui.update_tex_paths(this.project_dir() ? this.find(this.project_dir(), '', false, true, true, true, []).filter(f => f.path.endsWith('.tex')) : [], selected_file_path);
 
-        for(const abspath in this.tabs)
+        
+        if(!this.exists(this.edit_path))
         {
-            if(!this.exists(abspath))
-            {
-                this.tabs[abspath].dispose();
-                delete this.tabs[abspath];
-            }
+            this.tab.dispose();
+            this.tab = null;
+            this.edit_path = null;
         }
 
         this.refresh_cwd = this.FS.cwd();
@@ -1113,10 +1110,12 @@ export class Shell
 
         this.dirty('timer_off');
         this.FS.rename(src_file_path, dst_file_path);
-        if(this.tabs[dst_abspath])
-            this.tabs[dst_abspath].dispose();
-        this.tabs[dst_abspath] = this.tabs[src_abspath];
-        delete this.tabs[src_abspath];
+
+        //if(this.tabs[dst_abspath])
+        //    this.tabs[dst_abspath].dispose();
+        //this.tabs[dst_abspath] = this.tabs[src_abspath];
+        //delete this.tabs[src_abspath];
+        
         this.refresh();
         this.dirty('timer_save');
     }

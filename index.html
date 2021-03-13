@@ -326,7 +326,6 @@ const ui =
             const tr = tbody.insertRow();
             
             let tc = tr.insertCell();
-            if(onclick_open)
             {
                 const a = document.createElement('a');
                 tc.appendChild(a);
@@ -338,7 +337,7 @@ const ui =
             tc.innerText = path;
             
             tc = tr.insertCell();
-            if(onclick_open && abspath_remote)
+            if(abspath_remote)
             {
                 const a = document.createElement('a');
                 tc.appendChild(a);
@@ -386,7 +385,7 @@ const ui =
         a_commit.href = format_url(status.username, status.reponame, status.gist, status.remote_branch, status.remote_commit);
         a_commit.innerText = status.remote_commit;
 
-        const ignore = f => (x => {f(); return false;});
+        const ignore = h => (evt => {h(evt); return false;});
         
         const format_path = path => format_url(status.username, status.reponame, status.gist, status.remote_branch, status.remote_commit, path);
         const onclick_diff = ignore(evt => git_difftool(evt.target.dataset.abspath)); 

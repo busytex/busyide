@@ -71,8 +71,8 @@ export class Github
             return '';
 
         const file = files[0];
-        const path = this.object_path(file);
-        return this.FS.readFile(path, {encoding: 'utf8'});
+        const abspath = this.object_path(file);
+        return {abspath : abspath, contents : this.FS.readFile(path, {encoding: 'utf8'})};
     }
     
     api_request(realm, https_path, relative_url = '', method = 'get', body = null)
@@ -227,6 +227,10 @@ export class Github
 
         const remote_branch = this.PATH.basename(this.FS.readFile('.git/refs/remotes/origin/HEAD', {encoding : 'utf8'}).split(': ').pop()); 
         const remote_commit = this.FS.readFile(this.PATH.join2('.git/refs/remotes/origin', remote_branch), {encoding: 'utf8'});
+        
+        for(const f of files)
+            f.abspath_remote = this.cat_file(f.path).abspath;
+        
         return {...this.parse_url(this.read_https_path()), files : files, remote_branch : remote_branch, remote_commit : remote_commit};
     }
 

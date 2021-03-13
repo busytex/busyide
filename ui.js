@@ -580,7 +580,7 @@ export class Shell
             this.tabs[abspath] = this.monaco.editor.createModel(modified, undefined, this.monaco.Uri.file(abspath));
         const modified_model = this.tabs[abspath];
         
-        const original = this.github.cat_file(abspath);
+        const original = this.github.cat_file(abspath).contents;
         const original_model = this.monaco.editor.createModel(original, modified_model.getLanguageIdentifier().language);
         // TODO: register original_model in tabs
 

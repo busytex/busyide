@@ -85,14 +85,14 @@ export class Shell
         this.ui.cache_tokenpurge.onclick = () => this.commands(cmd('cache', 'token', 'purge'));
         this.ui.view_log.onclick = () => this.log_path && this.commands(cmd('open', arg(this.log_path)));
         this.ui.view_pdf.onclick = () => this.pdf_path && this.commands(cmd('open', arg(this.pdf_path)));
-        this.ui.download.onclick = () => this.ui.get_current_file() && this.commands(cmd('download', arg(this.ui.get_current_file())));
+        this.ui.download.onclick = () => this.ui.get_current_file() && !this.isdir(this.ui.get_current_file()) && this.commands(cmd('download', arg(this.ui.get_current_file())));
         this.ui.upload.onclick = async () => await this.commands('upload');
         this.ui.import_project.onclick = this.import_project.bind(this);
         this.ui.download_zip.onclick = () => this.project_dir() && this.commands(chain('cd', cmd('busyzip', '-r', '-x', '.git', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         this.ui.download_targz.onclick = () => this.project_dir() && this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path,  '--exclude', '.git', this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path))));
         this.ui.strip_comments.onclick = () => this.project_dir() && this.commands(cmd( 'sed', '-i', '-e', qq('s/^\\([^\\]*\\)\\(\\(\\\\\\\\\\)*\\)%.*/\\1\\2%/g'), qx('find ' + arg(this.project_dir()) + ' -name ' + qq('*.tex') )));
         this.ui.compile_project.onclick = () => this.project_dir() && this.commands(cmd('latexmk', arg(this.ui.get_current_tex_path())));
-        this.ui.compile_current_file.onclick = () => (this.ui.get_current_file() || '').endsWith('.tex') && this.commands(cmd('latexmk', arg(this.ui.get_current_file())));
+        this.ui.compile_current_file.onclick = () => (this.ui.get_current_file() || '').endsWith('.tex') && !this.isdir(this.ui.get_current_file()) && this.commands(cmd('latexmk', arg(this.ui.get_current_file())));
         this.ui.man.onclick = () => this.commands('man');
         this.ui.share.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
 
@@ -528,6 +528,7 @@ export class Shell
         
         let repo_path = parsed.reponame;
         this.log_path = this.git_log;
+        this.ui.set_current_log(this.log_path);
         
         this.log_big(`Cloning from '${https_path}' into '${repo_path}'...`);
         
@@ -931,7 +932,9 @@ export class Shell
         this.terminal_print(`Running in background (verbosity = [${verbose}], TeX driver = [${tex_driver}])...`);
         this.tic();
         this.pdf_path = tex_path.replace('.tex', '.pdf').replace(this.project_dir(), this.project_tmp_dir());
+        this.ui.set_current_pdf(this.pdf_path);
         this.log_path = tex_path.replace('.tex', '.log').replace(this.project_dir(), this.project_tmp_dir());
+        this.ui.set_current_log(this.log_path);
         
         console.assert(tex_path.endsWith('.tex'));
         console.assert(cwd.startsWith(this.home_dir));

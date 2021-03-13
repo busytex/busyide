@@ -297,6 +297,17 @@ const ui =
 
     get_selected_file_path : () => ui.filetree.selectedIndex >= 0 ? ui.filetree.options[ui.filetree.selectedIndex].value : null,
     
+    set_current_pdf(abspath)
+    {
+        ui.download_pdf.title = abspath;
+        ui.view_pdf.title = abspath;
+    },
+
+    set_current_log(abspath)
+    {
+        ui.view_log.title = abspath;
+    },
+    
     set_current_file(basename, abspath, verb = '')
     {
         console.log('set_current_file', 'name: [', basename, ']', 'path: [', abspath, ']', 'verb: [', verb, ']');
@@ -308,6 +319,7 @@ const ui =
         
         span = ui.verb;
         span.textContent = `[${verb}]: `;
+        span.title = abspath;
         
         ui.filetree.selectedIndex = Array.from(ui.filetree.options).findIndex(option => option.value == abspath);
     },

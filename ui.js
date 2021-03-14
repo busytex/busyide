@@ -862,7 +862,7 @@ export class Shell
         else
         {
             contents = contents || this.read_all_text(abspath);
-            open_editor_tab(abspath, contents);
+            open_editor_tab(abspath, contents, readonly);
             
             this.ui.set_current_file(basename, abspath, 'editing');
         }

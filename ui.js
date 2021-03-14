@@ -1060,8 +1060,12 @@ export class Shell
         
         if(!this.exists(this.edit_path))
         {
-            this.tab.dispose();
-            this.tab = null;
+            console.log('refresh', 'does not exist', this.edit_path);
+            if(this.tab)
+            {
+                this.tab.dispose();
+                this.tab = null;
+            }
             this.edit_path = null;
         }
 

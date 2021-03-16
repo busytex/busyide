@@ -734,7 +734,7 @@ export class Shell
         return default_path;
     }
 
-    close(file_path)
+    close(file_path, open = true)
     {
         if(!file_path)
             file_path = this.edit_path;
@@ -749,7 +749,8 @@ export class Shell
             this.tab.dispose();
             this.tab = null;
             this.edit_path = null;
-            this.open('');
+            if(open)
+                this.open('');
         }
     }
 
@@ -769,6 +770,8 @@ export class Shell
             if(abspath != this.edit_path)
             {
                 this.edit_path = abspath;
+                this.close(null, false);
+                console.log('open_editor_tab models', this.monaco.editor.getModels());
                 this.tab = this.monaco.editor.createModel(contents, undefined, this.monaco.Uri.file(abspath));
                 this.editor.setModel(this.tab);
             }

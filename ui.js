@@ -745,13 +745,11 @@ export class Shell
         const abspath = this.abspath(file_path);
         
         if(this.edit_path == abspath)
-            this.open('');
-
-        if(this.tab)
         {
             this.tab.dispose();
             this.tab = null;
             this.edit_path = null;
+            this.open('');
         }
     }
 

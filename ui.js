@@ -878,15 +878,15 @@ export class Shell
 
     tabs_save(busyshell)
     {
-        if(this.edit_path != null) // do not save readonly
-            busyshell.FS.writeFile(this.edit_path, busyshell.tab.getValue());
+        if(busyshell.edit_path && busyshell.tab) // do not save readonly
+            busyshell.FS.writeFile(busyshell.edit_path, busyshell.tab.getValue());
         busyshell.ui.set_dirty(false);
     }
     
     tabs_load(busyshell)
     {
-        const abspath = this.edit_path;
-        const editor_model = this.tab;
+        const abspath = busyshell.edit_path;
+        const editor_model = busyshell.tab;
         if(abspath && editor_model)
         {
             const value = editor_model.getValue();
@@ -895,7 +895,7 @@ export class Shell
             if(value != read)
             {
                 editor_model.setValue(read);
-                this.editor.setModel(editor_model);
+                busyshell.editor.setModel(editor_model);
             }
         }
         busyshell.ui.set_dirty(false);

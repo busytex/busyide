@@ -590,7 +590,7 @@ window.MonacoEnvironment =
     }
 };
 
-function init_editor(monaco, editor_element, difftool_element, lang_monarch, latex_monarch, bibtex_monarch)
+function init_editor(monaco, editor_element, difftool_element, lang_monarch, latex_monarch, bibtex_monarch, monaco_theme = 'vs-dark')
 {
     // https://microsoft.github.io/monaco-editor/monarch.html
     // https://github.com/microsoft/monaco-languages/blob/master/src/python/python.ts
@@ -606,8 +606,8 @@ function init_editor(monaco, editor_element, difftool_element, lang_monarch, lat
     monaco.languages.setLanguageConfiguration(bibtex_monarch.name, lang_monarch);
 
     return {
-        editor: monaco.editor.create(editor_element, { automaticLayout: true, theme: 'vs-dark', minimap: {enabled: false } }), 
-        difftool: monaco.editor.createDiffEditor(difftool_element, { automaticLayout: true })
+        editor: monaco.editor.create(editor_element, { automaticLayout: true, theme: monaco_theme, minimap: {enabled: false } }), 
+        difftool: monaco.editor.createDiffEditor(difftool_element, { automaticLayout: true, theme: monaco_theme, readOnly: true })
     };
 }
 

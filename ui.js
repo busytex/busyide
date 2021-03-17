@@ -746,7 +746,9 @@ export class Shell
         
         if(this.edit_path == abspath)
         {
-            this.tab.dispose();
+            if(this.tab)
+                this.tab.dispose();
+
             this.tab = null;
             this.edit_path = null;
             if(open)

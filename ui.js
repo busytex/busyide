@@ -36,7 +36,7 @@ export class Shell
         this.new_file_name = 'newfile';
         this.new_file_ext = '.tex';
         this.new_dir_name = 'newfolder';
-        this.sink_log_path = null;
+        this.log_sink_path = null;
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['busyzip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed'];
@@ -523,8 +523,8 @@ export class Shell
     log_big(text)
     {
         this.ui.log_big(text);
-        if(this.sink_log_path)
-            this.FS.writeFile(this.sink_log_path, this.read_all_text(this.sink_log_path) + text + '\n');
+        if(this.log_sink_path)
+            this.FS.writeFile(this.log_sink_path, this.read_all_text(this.log_sink_path) + text + '\n');
     }
 
     async git_clone(https_path)

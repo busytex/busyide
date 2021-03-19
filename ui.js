@@ -787,7 +787,7 @@ export class Shell
                     }
                     else
                     {
-                        sidemodel = this.monaco.editor.createModel(modified, undefined, this.monaco.Uri.file(language_id_path));
+                        sidemodel = this.monaco.editor.createModel('', undefined, this.monaco.Uri.file(language_id_path));
                         lang = sidemodel.getLanguageIdentifier().language;
                     }
 

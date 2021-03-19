@@ -779,7 +779,7 @@ export class Shell
                     this.tab = this.monaco.editor.createModel(contents, undefined, this.monaco.Uri.file(abspath));
                 else
                 {
-                    let sidemodel = null, lang = null;
+                    let lang = null;
 
                     if(this.edit_path == language_id_path)
                     {
@@ -787,14 +787,12 @@ export class Shell
                     }
                     else
                     {
-                        sidemodel = this.monaco.editor.createModel('', undefined, this.monaco.Uri.file(language_id_path));
+                        const sidemodel = this.monaco.editor.createModel('', undefined, this.monaco.Uri.file(language_id_path));
                         lang = sidemodel.getLanguageIdentifier().language;
+                        sidemodel.dispose();
                     }
 
                     this.tab = this.monaco.editor.createModel(contents, lang);
-
-                    if(sidemodel)
-                        sidemodel.dispose();
                 }
                 
                 this.editor.setModel(this.tab);

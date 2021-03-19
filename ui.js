@@ -766,21 +766,43 @@ export class Shell
     open(file_path, contents, readonly)
     {
         // readonly https://github.com/microsoft/monaco-editor/issues/54
-        const open_editor_tab = (file_path, contents = '', readonly = false) =>
+        const open_editor_tab = (file_path, contents = '', readonly = false, language_id_path = null) =>
         {
             let abspath = file_path == '' ? '' : this.abspath(file_path);
             
             if(abspath != this.edit_path)
             {
-                this.edit_path = abspath;
                 const oldtab = this.tab;
                 console.log('open_editor_tab models before', this.monaco.editor.getModels());
 
-                this.tab = this.monaco.editor.createModel(contents, undefined, this.monaco.Uri.file(abspath));
+                if(!language_id_path)
+                    this.tab = this.monaco.editor.createModel(contents, undefined, this.monaco.Uri.file(abspath));
+                else
+                {
+                    let sidemodel = null;
+
+                    if(this.edit_path == language_id_path)
+                    {
+                        lang = this.tab.getLanguageIdentifier().language;
+                    }
+                    else
+                    {
+                        sidemodel = this.monaco.editor.createModel(modified, undefined, this.monaco.Uri.file(language_id_path));
+                        lang = sidemodel.getLanguageIdentifier().language;
+                    }
+
+                    this.tab = this.monaco.editor.createModel(contents, lang);
+
+                    if(sidemodel)
+                        sidemodel.dispose();
+                }
+                
                 this.editor.setModel(this.tab);
+                this.edit_path = abspath;
                 
                 if(oldtab)
                     oldtab.dispose();
+
                 console.log('open_editor_tab models after', this.monaco.editor.getModels());
             }
             this.editor.updateOptions({ readOnly: readonly });

@@ -330,7 +330,7 @@ const ui =
         [span.hidden, input.hidden] = [!span.hidden, !input.hidden];
     },
 
-    update_tbody(tbody, st, format_path, onclick_open, onclick_open_readonly, onclick_diff)
+    update_tbody(tbody, st, format_path, onclick_open, onclick_open_remote, onclick_diff)
     {
         tbody.innerHTML = '';
         for(const {path, status, abspath, abspath_remote} of st)
@@ -354,8 +354,9 @@ const ui =
                 const a = document.createElement('a');
                 tc.appendChild(a);
                 a.href = "#";
-                a.dataset.abspath = abspath_remote;
-                a.onclick = onclick_open_readonly;
+                a.dataset.abspath_remote = abspath_remote;
+                a.dataset.abspath = abspath;
+                a.onclick = onclick_open_remote;
                 tc = a;
             }
             tc.innerText = 'remote';
@@ -402,9 +403,9 @@ const ui =
         const format_path = path => format_url(status.username, status.reponame, status.gist, status.remote_branch, status.remote_commit, path);
         const onclick_diff = ignore(evt => git_difftool(evt.target.dataset.abspath)); 
         const onclick_open = ignore(evt => open(evt.target.dataset.abspath));
-        const onclick_open_readonly = ignore(evt => open(evt.target.dataset.abspath, null, true));
+        const onclick_open_remote = ignore(evt => open(evt.target.dataset.abspath_remote, null, true, evt.target.dataset.abspath));
         
-        this.update_tbody(tbody, status.files, format_path, onclick_open, onclick_open_readonly, onclick_diff); 
+        this.update_tbody(tbody, status.files, format_path, onclick_open, onclick_open_remote, onclick_diff); 
     },
     
     update_git_pull(modified, notmodified)

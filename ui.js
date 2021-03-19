@@ -773,10 +773,14 @@ export class Shell
             if(abspath != this.edit_path)
             {
                 this.edit_path = abspath;
-                this.close(null, false);
-                console.log('open_editor_tab models', this.monaco.editor.getModels());
+                const oldtab = this.tab;
+                console.log('open_editor_tab models before', this.monaco.editor.getModels());
+
                 this.tab = this.monaco.editor.createModel(contents, undefined, this.monaco.Uri.file(abspath));
                 this.editor.setModel(this.tab);
+                
+                oldtab.dispose();
+                console.log('open_editor_tab models after', this.monaco.editor.getModels());
             }
             this.editor.updateOptions({ readOnly: readonly });
 

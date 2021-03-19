@@ -36,6 +36,7 @@ export class Shell
         this.new_file_name = 'newfile';
         this.new_file_ext = '.tex';
         this.new_dir_name = 'newfolder';
+        this.sink_log_path = null;
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['busyzip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed'];
@@ -57,7 +58,6 @@ export class Shell
         this.paths = paths;
         this.compiler = new Worker(paths.busytex_worker_js);
         this.log_small = this.ui.log_small;
-        this.log_big = this.ui.log_big;
         this.readme = readme;
         this.busybox = null;
         this.refresh_cwd = null;
@@ -513,15 +513,23 @@ export class Shell
         this.dirty('timer_save');
     }
    
-    log_big_header(text = '')
+    log_big_header(text = '', log_sink_path = null)
     {
         this.log_big(this.ui.log_reset_sequence);
         this.ui.toggle_viewer('log', text + '\n');
+        this.log_sink_path = log_sink_path;
+    }
+
+    log_big(text)
+    {
+        this.ui.log_big(text);
+        if(this.sink_log_path)
+            this.FS.writeFile(this.sink_log_path, this.read_all_text(this.sink_log_path) + text + '\n');
     }
 
     async git_clone(https_path)
     {
-        this.log_big_header('$ git clone ' + https_path); 
+        this.log_big_header('$ git clone ' + https_path, this.git_log); 
         const parsed = this.github.parse_url(https_path);
         
         let repo_path = parsed.reponame;

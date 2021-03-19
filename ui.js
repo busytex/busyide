@@ -763,7 +763,7 @@ export class Shell
         this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
     }
 
-    open(file_path, contents, readonly)
+    open(file_path, contents, readonly, language_id_path)
     {
         // readonly https://github.com/microsoft/monaco-editor/issues/54
         const open_editor_tab = (file_path, contents = '', readonly = false, language_id_path = null) =>
@@ -885,15 +885,13 @@ export class Shell
 
         if(this.viewer_extensions.includes(extname))
         {
-            contents = contents || (extname == '.log' ? this.read_all_text(abspath) : this.read_all_bytes(abspath));
-            open_viewer_tab(abspath, contents);
+            open_viewer_tab(abspath, contents || (extname == '.log' ? this.read_all_text(abspath) : this.read_all_bytes(abspath)));
             
             this.ui.set_current_file(basename, abspath, 'viewing');
         }
         else
         {
-            contents = contents || this.read_all_text(abspath);
-            open_editor_tab(abspath, contents, readonly);
+            open_editor_tab(abspath, contents || this.read_all_text(abspath), readonly, language_id_path);
             
             this.ui.set_current_file(basename, abspath, 'editing');
         }

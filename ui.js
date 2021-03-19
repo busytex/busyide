@@ -779,7 +779,8 @@ export class Shell
                 this.tab = this.monaco.editor.createModel(contents, undefined, this.monaco.Uri.file(abspath));
                 this.editor.setModel(this.tab);
                 
-                oldtab.dispose();
+                if(oldtab)
+                    oldtab.dispose();
                 console.log('open_editor_tab models after', this.monaco.editor.getModels());
             }
             this.editor.updateOptions({ readOnly: readonly });

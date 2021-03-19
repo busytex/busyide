@@ -779,7 +779,7 @@ export class Shell
                     this.tab = this.monaco.editor.createModel(contents, undefined, this.monaco.Uri.file(abspath));
                 else
                 {
-                    let sidemodel = null;
+                    let sidemodel = null, lang = null;
 
                     if(this.edit_path == language_id_path)
                     {

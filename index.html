@@ -114,7 +114,7 @@
             <input type="text" id="github_token" class="busyui" placeholder="GitHub token" title="for private clone/push"></input>
             <button id="clone" class="busyui">Clone</button>
             <button id="pull" class="busyui">Pull</button>
-            <button id="push" class="busyui">Commit &amp; Force Push</button>
+            <button id="push" class="busyui">Preview &amp; Push</button>
             <button id="cache_tokenpurge" class="busyui">Purge Token Cache</button>
             <button id="publish" hidden class="busyui">Publish PDF</button>
             <input hidden type="text" style="width: 100px" id="github_release" class="busyui" placeholder="Publish Release Name" title="for publishing a PDF into a release"></input>
@@ -175,17 +175,11 @@
         </figure>
         <figure hidden id="gitpull" class="busyui">
             <figcaption>$ git pull</figcaption>
-            <table id="gitpullmodified">
-                <thead><tr><th>path</th><th>status</th></tr></thead>
-                <tbody></tbody>
-            </table>
-            <details>
-                <summary>Not modified</summary>
-                <table>
-                   <thead><tr><th>path</th><th>status</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </details>
+        </figure>
+        <figure hidden id="gitpush" class="busyui">
+            <figcaption>$ git push</figcaption>
+            <textarea id="commit_message" class="busyui">Empty commit message</textarea>
+            <button id="push">Commit &amp; Push</button>
         </figure>
       </div>
     </div>
@@ -410,23 +404,6 @@ const ui =
     
     update_git_pull(modified, notmodified)
     {
-        const table_modified = ui.gitpull.querySelector('#gitpullmodified');
-        const details_notmodified = ui.gitpull.querySelector('details');
-        const tbody_modified = table_modified.querySelector('tbody');
-        const tbody_notmodified = details_notmodified.querySelector('tbody');
-
-        table_modified.hidden = modified.length == 0;
-        const onclick = ev => console.log(ev.target, ev.target.innerHTML) || false;
-        if(!table_modified.hidden)
-        {
-            for(let m of modified)
-                m.onclick = onclick;
-            this.update_tbody(tbody_modified, modified);
-        }
-            
-        details_notmodified.hidden = notmodified.length == 0;
-        if(!details_notmodified.hidden)
-            this.update_tbody(tbody_notmodified, notmodified);
     },
 
     update_file_tree(files, selected_file_path = null)
@@ -542,7 +519,7 @@ const ui =
             ui.txtpreview.value = '';
             mode = 'text';
         }
-        [ui.imgpreview.hidden, ui.pdfpreview.hidden, ui.txtpreview.hidden, ui.gitstatus.hidden, ui.gitpull.hidden] = [mode != 'svg' && mode != 'jpg' && mode != 'png', mode != 'pdf', mode != 'log' && mode != 'text', mode != 'gitstatus', mode != 'gitpull'];
+        [ui.imgpreview.hidden, ui.pdfpreview.hidden, ui.txtpreview.hidden, ui.gitstatus.hidden, ui.gitpull.hidden, ui.gitpush.hidden] = [mode != 'svg' && mode != 'jpg' && mode != 'png', mode != 'pdf', mode != 'log' && mode != 'text', mode != 'gitstatus', mode != 'gitpull', mode != 'gitpush'];
 
         const b64encode = uint8array => btoa(uint8array.reduce((acc, i) => acc += String.fromCharCode.apply(null, [i]), ''));
         if(mode == 'log' || mode == 'text')

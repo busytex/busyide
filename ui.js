@@ -769,6 +769,7 @@ export class Shell
             if(open)
                 this.open('');
         }
+        console.log('close', this.edit_path, this.tab, 'done');
     }
 
     ls_la(abspath, file_path)

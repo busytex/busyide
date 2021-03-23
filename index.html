@@ -395,8 +395,8 @@ const ui =
     {
         const table = container.querySelector('table');
         const tbody = table.querySelector('tbody');
-        const a_branch = ui.gitstatus.querySelector('.remotebranch');
-        const a_commit = ui.gitstatus.querySelector('.remotecommit');
+        const a_branch = container.querySelector('.remotebranch');
+        const a_commit = container.querySelector('.remotecommit');
 
         a_branch.href = format_url(status.username, status.reponame, status.gist, status.remote_branch);
         a_branch.innerText = status.remote_branch;
@@ -413,9 +413,11 @@ const ui =
         
         this.update_tbody(tbody, status.files, format_path, onclick_open, onclick_open_remote, onclick_diff);
         
+        console.log('update_git_status', 'before', container);
         container = container.querySelector('tfoot');
         if(container)
             container.hidden = status.length > 0;
+        console.log('update_git_status', 'after', container);
     },
     
     update_git_pull(modified, notmodified)

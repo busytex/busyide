@@ -609,7 +609,7 @@ export class Shell
     async git_push(...args)
     {
         this.log_big_header('$ git push');
-        this.ui.toggle_viewer('gitlog');
+        this.ui.toggle_viewer('gitpush');
         //return await this.github.push_gist(...args);
     }
 

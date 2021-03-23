@@ -76,6 +76,10 @@
             box-sizing: border-box;
         }
 
+        #commit_message {
+            width: 99%
+        }
+
         #pdfpreview, #txtpreview {
             width: 99%;
             height: 100%;
@@ -178,8 +182,8 @@
         </figure>
         <figure hidden id="gitpush" class="busyui">
             <figcaption>$ git push</figcaption>
-            <textarea id="commit_message" class="busyui">Empty commit message</textarea>
             <button id="push">Commit &amp; Push</button>
+            <textarea id="commit_message" class="busyui">Empty commit message</textarea>
         </figure>
       </div>
     </div>

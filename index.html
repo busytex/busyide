@@ -413,11 +413,9 @@ const ui =
         
         this.update_tbody(tbody, status.files, format_path, onclick_open, onclick_open_remote, onclick_diff);
         
-        console.log('update_git_status', 'before', container);
         container = container.querySelector('tfoot');
         if(container)
-            container.hidden = status.length > 0;
-        console.log('update_git_status', 'after', container);
+            container.hidden = status.files.length > 0;
     },
     
     update_git_pull(modified, notmodified)

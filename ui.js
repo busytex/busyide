@@ -609,7 +609,9 @@ export class Shell
     {
         this.log_big_header('$ git push');
         
-        this.ui.update_git_status(this.ui.push, this.github.status().filter(s => s.status != 'not modified'), this.github.format_url, this.git_difftool.bind(this), this.open.bind(this));
+        const status = this.github.status();
+        status.files = status.files.filter(s => s.status != 'not modified');
+        this.ui.update_git_status(this.ui.push, status, this.github.format_url, this.git_difftool.bind(this), this.open.bind(this));
         
         this.ui.toggle_viewer('gitpush');
         //return await this.github.push_gist(...args);

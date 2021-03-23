@@ -182,8 +182,16 @@
         </figure>
         <figure hidden id="gitpush" class="busyui">
             <figcaption>$ git push</figcaption>
+            
             <button id="push">Commit &amp; Push</button>
             <textarea id="commit_message" class="busyui">Empty commit message</textarea>
+            
+            <strong>Remote branch:</strong><a class="remotebranch"></a>, <strong>commit:</strong><a class="remotecommit"></a>
+            <table>
+                <thead><tr><th>path</th><th>remote</th><th>github</th><th>diff</th></tr></thead>
+                <tbody></tbody>
+                <tfoot hidden><tr><td colspan="4">Nothing to be committed</td></tr></tfoot>
+            </table>
         </figure>
       </div>
     </div>
@@ -383,9 +391,9 @@ const ui =
         }
     },
 
-    update_git_status(status, format_url, git_difftool, open)
+    update_git_status(container, status, format_url, git_difftool, open)
     {
-        const table = ui.gitstatus.querySelector('table');
+        const table = container.querySelector('table');
         const tbody = table.querySelector('tbody');
         const a_branch = ui.gitstatus.querySelector('.remotebranch');
         const a_commit = ui.gitstatus.querySelector('.remotecommit');
@@ -403,7 +411,11 @@ const ui =
         const onclick_open = ignore(evt => open(evt.target.dataset.abspath));
         const onclick_open_remote = ignore(evt => open(evt.target.dataset.abspath_remote, null, true, evt.target.dataset.abspath));
         
-        this.update_tbody(tbody, status.files, format_path, onclick_open, onclick_open_remote, onclick_diff); 
+        this.update_tbody(tbody, status.files, format_path, onclick_open, onclick_open_remote, onclick_diff);
+        
+        container = container.querySelector('tfoot');
+        if(container)
+            container.hidden = status.length > 0;
     },
     
     update_git_pull(modified, notmodified)

@@ -313,28 +313,39 @@ export class Github
         this.print('Done!');
     }
 
-    async push(file_path, message, retry)
+    async push(status, message, retry)
     {
         const base64_encode_utf8 = str => btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {return String.fromCharCode(parseInt(p1, 16)) }));
         const delay = seconds => new Promise(resolve => setTimeout(resolve, seconds * 1000));
         const network_error = resp => new Error(`${resp.status}: ${resp.statusText}`);
         
-        const content = this.FS.readFile(file_path, {encoding : 'utf8'});
-        let sha = this.read_githubcontents().filter(f => f.path == file_path);
-        sha = sha.length > 0 ? sha[0].sha : null;
-        const resp = await this.api_request('repos', this.read_https_path(), '/contents/' + file_path, 'PUT', Object.assign({message : `${file_path}: ${message}`, content : base64_encode_utf8(content)}, sha ? {sha : sha} : {}));
-        if(resp.ok)
+        const tree = this.read_githubcontents();
+        const modified = status.files.filter(s => s.status == 'modified');
+        console.log('git_push', modified); 
+        for(const {path} in modified)
+        {
+            console.log('git_push', path); 
+            const file_path = path;
+            const content = this.FS.readFile(file_path, {encoding : 'utf8'});
+            let sha = tree.filter(f => f.path == file_path);
+            sha = sha.length > 0 ? sha[0].sha : null;
+            const resp = await this.api_request('repos', this.read_https_path(), '/contents/' + file_path, 'PUT', Object.assign({message : `${file_path}: ${message}`, content : base64_encode_utf8(content)}, sha ? {sha : sha} : {}));
+            console.assert(resp.ok);
             sha = (await resp.json()).content.sha;
-        else if(resp.status == 409 && retry != false)
-        {
-            console.log('retry not implemented');
-            //await delay(this.retry_delay_seconds);
-            //await this.put(message, sha ? ((await this.init_doc()) || this.sha) : null, false);
         }
-        else
-        {
-            throw network_error(resp);
-        }
+        console.log('git_push', 'done'); 
+        
+            
+        //else if(resp.status == 409 && retry != false)
+        //{
+        //    console.log('retry not implemented');
+        //    //await delay(this.retry_delay_seconds);
+        //    //await this.put(message, sha ? ((await this.init_doc()) || this.sha) : null, false);
+        //}
+        //else
+        //{
+        //    throw network_error(resp);
+        //}
     }
 
     async upload_asset()

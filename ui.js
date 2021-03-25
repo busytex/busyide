@@ -42,7 +42,7 @@ export class Shell
         this.busybox_applets = ['busyzip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed'];
         this.shell_builtins =  ['man', 'help', 'open', 'close', 'download', 'cd', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty'];
         this.cache_applets = ['object', 'token'];
-        this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool'];
+        this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'logg'];
         this.viewer_extensions = ['.log', '.svg', '.png', '.jpg', '.pdf'];
         this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
         this.tic_ = 0;
@@ -108,7 +108,9 @@ export class Shell
         }
 
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
-        this.ui.push.onclick = () => this.commands(cmd('git', 'push'));
+        this.ui.push.onclick = () => this.commands(cmd('git', 'logg'));
+        this.ui.commit_push.onclick = () => this.commands(cmd('git', 'push'));
+
         this.ui.github_https_path.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
         this.ui.filetree.onchange = ev => console.log('onchange', this.ui.get_selected_file_path()) || this.open(this.expandcollapseuser(this.ui.get_selected_file_path() || '', false));
         this.ui.filetree.ondblclick = ev =>
@@ -605,9 +607,14 @@ export class Shell
         this.ui.toggle_viewer('gitpull');
     }
     
-    async git_push(...args)
+    async git_push()
     {
-        this.log_big_header('$ git push');
+        await this.github.push(this.github.status(), this.ui.commit_message.value);
+    }
+    
+    async git_logg()
+    {
+        this.log_big_header('$ git log');
         
         const status = this.github.status();
         status.files = status.files.filter(s => s.status != 'not modified');

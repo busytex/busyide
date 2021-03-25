@@ -322,7 +322,7 @@ export class Github
         const tree = this.read_githubcontents();
         const modified = status.files.filter(s => s.status == 'modified');
         console.log('git_push', modified); 
-        for(const {path} in modified)
+        for(const {path} of modified)
         {
             console.log('git_push', path); 
             const file_path = path;

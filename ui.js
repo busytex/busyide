@@ -42,7 +42,7 @@ export class Shell
         this.busybox_applets = ['busyzip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed'];
         this.shell_builtins =  ['man', 'help', 'open', 'close', 'download', 'cd', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty'];
         this.cache_applets = ['object', 'token'];
-        this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'logg'];
+        this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool'];
         this.viewer_extensions = ['.log', '.svg', '.png', '.jpg', '.pdf'];
         this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
         this.tic_ = 0;
@@ -108,7 +108,7 @@ export class Shell
         }
 
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
-        this.ui.push.onclick = () => this.commands(cmd('git', 'logg'));
+        this.ui.push.onclick = () => this.git_push_preview();
         this.ui.commit_push.onclick = () => this.commands(cmd('git', 'push'));
 
         this.ui.github_https_path.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
@@ -612,10 +612,8 @@ export class Shell
         await this.github.push(this.github.status(), this.ui.commit_message.value);
     }
     
-    async git_logg()
+    async git_push_preview()
     {
-        this.log_big_header('$ git log');
-        
         const status = this.github.status();
         status.files = status.files.filter(s => s.status != 'not modified');
         this.ui.update_git_status(this.ui.gitpush, status, this.github.format_url, this.git_difftool.bind(this), this.open.bind(this));

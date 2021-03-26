@@ -108,7 +108,7 @@ export class Shell
         }
 
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
-        this.ui.push.onclick = () => this.git_push_preview();
+        this.ui.push.onclick = () => this.commands(cmd('git', 'status'));
         this.ui.commit_push.onclick = () => this.commands(cmd('git', 'push'));
 
         this.ui.github_https_path.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
@@ -612,16 +612,6 @@ export class Shell
         await this.github.push(this.github.status(), this.ui.commit_message.value);
     }
     
-    async git_push_preview()
-    {
-        const status = this.github.status();
-        status.files = status.files.filter(s => s.status != 'not modified');
-        this.ui.update_git_status(this.ui.gitpush, status, this.github.format_url, this.git_difftool.bind(this), this.open.bind(this));
-        
-        this.ui.toggle_viewer('gitpush');
-        //return await this.github.push_gist(...args);
-    }
-
     async cache_load()
     {
         return new Promise((resolve, reject) => this.FS.syncfs(true, x => x == null ? resolve(true) : reject(false)));

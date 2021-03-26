@@ -171,6 +171,9 @@
         <textarea readonly hidden id="txtpreview" class="busyui"></textarea>
         <figure hidden id="gitstatus" class="busyui">
             <figcaption>$ git status</figcaption>
+            <button id="commit_push" class="busyui">Commit &amp; Push</button>
+            <textarea id="commit_message" class="busyui" placeholder="Please add a commit message"></textarea>
+            
             <strong>Remote branch:</strong><a class="remotebranch"></a>, <strong>commit:</strong><a class="remotecommit"></a>
             <table>
                 <thead><tr><th>path</th><th>remote</th><th>github</th><th>diff</th></tr></thead>
@@ -179,19 +182,6 @@
         </figure>
         <figure hidden id="gitpull" class="busyui">
             <figcaption>$ git pull</figcaption>
-        </figure>
-        <figure hidden id="gitpush" class="busyui">
-            <figcaption>$ git push</figcaption>
-            
-            <button id="commit_push" class="busyui">Commit &amp; Push</button>
-            <textarea id="commit_message" class="busyui" placeholder="Please add a commit message"></textarea>
-            
-            <strong>Remote branch:</strong><a class="remotebranch"></a>, <strong>commit:</strong><a class="remotecommit"></a>
-            <table>
-                <thead><tr><th>path</th><th>remote</th><th>github</th><th>diff</th></tr></thead>
-                <tbody></tbody>
-                <tfoot hidden><tr><td colspan="4">Nothing to be committed</td></tr></tfoot>
-            </table>
         </figure>
       </div>
     </div>

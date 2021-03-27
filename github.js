@@ -381,26 +381,15 @@ export class Github
         }
         else if(no_deletes)
         {
-            for(const {path, status, abspath} of status.files.filter(s => s.status == 'modified' || s.status == 'new'))
-            {
-                const blob = {encoding: 'base64', content: base64_encode_uint8array(this.FS.readFile(abspath))};
-                const resp = await this.api_request('repos', https_path, '/git/blobs', 'POST', blob);
-                console.assert(resp.ok);
-            }
-
-            const new_tree = {
-                base_tree : '',
-                // http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
-                tree : [
-                    {
-                        path: "",
-                        mode "",
-                        type: "",
-                        sha: ""
-                    }
-                ]
-            };
-            //const resp = await this.api_request('repos', https_path, '/git/trees', 'POST', new_tree);
+            // http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
+            const mode = { blob : 100644, executable: 100755, tree: 040000, commit: 160000, blobsymlink: 120000 };
+            
+            const blob_promises = modified.map(({path, status, abspath}) => this.api_request('repos', https_path, '/git/blobs', 'POST', {encoding: 'base64', content: base64_encode_uint8array(this.FS.readFile(abspath))}).then(r => r.json()));
+            
+            const blobs = await Promise.all(blob_promises);
+            const new_tree = { base_tree : tree.sha, tree : blobs.map((blob, i) => {path: modified[i].path, type: 'blob', mode : mode['blob'], sha: blob.sha}) };
+            const resp = await this.api_request('repos', https_path, '/git/trees', 'POST', new_tree);
+            console.assert(resp.ok);
         }
 
             

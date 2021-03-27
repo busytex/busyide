@@ -500,7 +500,7 @@ export class Shell
         this.FS.writeFile(this.git_log, '');
         this.FS.chdir(this.home_dir);
         const sha1 = uint8array => this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40);
-        this.github = new Github(this.cache_dir, this.merge.bind(this), this.log_big.bind(this), sha1, this.FS, this.PATH, this);
+        this.github = new Github(this.cache_dir, this.merge.bind(this), sha1, this.FS, this.PATH, this);
         
         await this.cache_load();
        
@@ -554,14 +554,7 @@ export class Shell
 
         token = token || this.ui.github_token.value;
         
-        if(parsed.gist)
-        {
-            await this.github.clone_gist(token, https_path, repo_path);
-        }
-        else
-        {
-            await this.github.clone_repo(token, https_path, repo_path);
-        }
+        await this.github.clone(this.log_big.bind(this), token, https_path, repo_path);
         
         if(!token_cached && token != '')
         {
@@ -610,7 +603,7 @@ export class Shell
     
     async git_push()
     {
-        await this.github.push(this.github.status(), this.ui.commit_message.value);
+        await this.github.push(this.log_small.bind(this), this.github.status(), this.ui.commit_message.value);
     }
     
     async cache_load()

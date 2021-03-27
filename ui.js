@@ -577,6 +577,7 @@ export class Shell
 
     git_status()
     {
+        this.ui.commit_message.value = '';
         this.ui.update_git_status(this.ui.gitstatus, this.github.status(), this.github.format_url, this.git_difftool.bind(this), this.open.bind(this));
         this.ui.toggle_viewer('gitstatus');
     }

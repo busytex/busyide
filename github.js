@@ -246,7 +246,7 @@ export class Github
         const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {filename: s.path, content : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
 
         const resp = await this.api_request('gists', https_path, message, 'PATCH', { files : Object.fromEntries(files) });
-        console.assert(resp.status == 200); 
+        console.assert(resp.ok); 
     }
 
     async clone_gist(auth_token, https_path, repo_path)
@@ -324,25 +324,45 @@ export class Github
     async push(status, message, retry)
     {
         const https_path = this.read_https_path();
-        if(this.parse_url(https_path).gist)
-            return await this.push_gist(status, message, retry);
-        
         const tree = this.read_githubcontents();
-        const modified = status.files.filter(s => s.status == 'modified');
-        console.log('git_push', modified); 
-        for(const {path} of modified)
+        
+        if(status.files.every(s => s == 'not modified'))
+            return;
+        
+        if(this.parse_url(https_path).gist)
+            await this.push_gist(status, message, retry);
+       
+        const modified = status.files.filter(s => s.status == 'modified' || s.status == 'new');
+        const deleted = status.files.filter(s => s == 'deleted');
+        const single_file_upsert = deleted.length == 0 && modified.length == 1;
+        const single_file_delete = deleted.length == ! && modified.length == 0;
+
+        if(single_file_upsert)
         {
-            console.log('git_push', path); 
-            const file_path = path;
+            const file_path = modified[0].path;
             const content = this.FS.readFile(file_path, {encoding : 'utf8'});
             let sha = tree.filter(f => f.path == file_path);
             sha = sha.length > 0 ? sha[0].sha : null;
-            const resp = await this.api_request('repos', this.read_https_path(), '/contents/' + file_path, 'PUT', Object.assign({message : `${file_path}: ${message}`, content : base64_encode_utf8(content)}, sha ? {sha : sha} : {}));
+            
+            const resp = await this.api_request('repos', https_path, '/contents/' + file_path, 'PUT', Object.assign({message : message, content : base64_encode_utf8(content)}, sha ? {sha : sha} : {}));
             console.assert(resp.ok);
-            sha = (await resp.json()).content.sha;
+            //sha = (await resp.json()).content.sha;
         }
-        console.log('git_push', 'done'); 
-        
+        else if(single_file_delete)
+        {
+            const file_path = modified[0].path;
+            let sha = tree.filter(f => f.path == file_path);
+            sha = sha.length > 0 ? sha[0].sha : null;
+            
+            console.assert(sha != null);
+            const resp = await this.api_request('repos', https_path, '/contents/' + file_path, 'DELETE', {message : message, sha : sha});
+            console.assert(resp.ok);
+        }
+        else
+        {
+
+        }
+
             
         //else if(resp.status == 409 && retry != false)
         //{

@@ -349,9 +349,9 @@ export class Github
         if(single_file_upsert)
         {
             const file_path = modified[0].path;
+            const sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
+            
             const content = this.FS.readFile(file_path, {encoding : 'utf8'});
-            let sha = tree.filter(f => f.path == file_path);
-            sha = sha.length > 0 ? sha[0].sha : null;
             
             const resp = await this.api_request('repos', https_path, '/contents/' + file_path, 'PUT', Object.assign({message : message, content : base64_encode_utf8(content)}, sha ? {sha : sha} : {}));
             console.assert(resp.ok);
@@ -360,8 +360,7 @@ export class Github
         else if(single_file_delete)
         {
             const file_path = modified[0].path;
-            let sha = tree.filter(f => f.path == file_path);
-            sha = sha.length > 0 ? sha[0].sha : null;
+            const sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
             
             console.assert(sha != null);
             const resp = await this.api_request('repos', https_path, '/contents/' + file_path, 'DELETE', {message : message, sha : sha});

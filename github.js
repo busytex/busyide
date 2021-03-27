@@ -4,6 +4,10 @@
 //     "documentation_url": "https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"
 //     }
 //
+const base64_encode_utf8 = str => btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {return String.fromCharCode(parseInt(p1, 16)) }));
+const delay = seconds => new Promise(resolve => setTimeout(resolve, seconds * 1000));
+const network_error = resp => new Error(`${resp.status}: ${resp.statusText}`);
+
 export class Github
 {
     constructor(cache_dir, merge, print, sha1, FS, PATH, PATH_)
@@ -234,11 +238,15 @@ export class Github
         return {...this.parse_url(this.read_https_path()), files : files, remote_branch : remote_branch, remote_commit : remote_commit};
     }
 
-    async push_gist(file_path)
+    async push_gist(status, message, retry)
     {
-        const content = this.FS.readFile(file_path, {encoding: 'utf8'});
-        const resp = await this.api_request('gists', this.read_https_path(), '', 'PATCH', {files : {[file_path] : {filename: file_path, content : content}}});
-        return resp.status == 200 ? true : false;
+        const https_path = this.read_https_path();
+
+        // TODO: check last commit+pull? check binary files? 
+        const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {filename: s.path, content : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
+
+        const resp = await this.api_request('gists', https_path, message, 'PATCH', { files : Object.fromEntries(files) });
+        console.assert(resp.status == 200); 
     }
 
     async clone_gist(auth_token, https_path, repo_path)
@@ -315,9 +323,9 @@ export class Github
 
     async push(status, message, retry)
     {
-        const base64_encode_utf8 = str => btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {return String.fromCharCode(parseInt(p1, 16)) }));
-        const delay = seconds => new Promise(resolve => setTimeout(resolve, seconds * 1000));
-        const network_error = resp => new Error(`${resp.status}: ${resp.statusText}`);
+        const https_path = this.read_https_path();
+        if(this.parse_url(https_path).gist)
+            return await this.push_gist(status, message, retry);
         
         const tree = this.read_githubcontents();
         const modified = status.files.filter(s => s.status == 'modified');

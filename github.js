@@ -242,7 +242,7 @@ export class Github
         const https_path = this.read_https_path();
 
         // TODO: check last commit+pull? check binary files? 
-        const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {filename: s.path, content : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
+        const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {content : s.status == 'deleted' ? null : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
 
         const resp = await this.api_request('gists', https_path, message, 'PATCH', { files : Object.fromEntries(files) });
         console.assert(resp.ok); 

@@ -294,12 +294,7 @@ export class Github
 
     clone(print, auth_token, https_path, repo_path, branch = null)
     {
-        const parsed = this.parse_url(https_path);
-
-        if(parsed.gist)
-            return this.clone_gist(print, token, https_path, repo_path);
-        else
-            return this.clone_repo(print, token, https_path, repo_path);
+        return this.parse_url(https_path).gist ? this.clone_gist(print, auth_token, https_path, repo_path) : this.clone_repo(print, auth_token, https_path, repo_path);
     }
 
     async clone_repo(print, auth_token, https_path, repo_path, branch = null)

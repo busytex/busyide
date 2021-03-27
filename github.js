@@ -117,7 +117,7 @@ export class Github
     async pull(print, repo_path = '.')
     {
         const https_path = this.read_https_path();
-        const prev = this.read_githubcontents();
+        const tree = this.read_githubcontents();
         const repo = await this.api_request('repos', https_path, '/contents').then(r => r.json());
         
         let Q = [...repo];
@@ -128,7 +128,7 @@ export class Github
             const file = Q.pop();
             if(file.type == 'file')
             {
-                const prev_files = prev.filter(f => f.path == file.path);
+                const tree_files = tree.filter(f => f.path == file.path);
                 if(!this.PATH_.exists(file.path))
                 {
                     const contents = await this.load_file(print, file.path, file);
@@ -136,10 +136,10 @@ export class Github
                     res.push({path: file_path, status : 'deleted'});
                 }
                 
-                else if(prev_files.length > 0 && prev_files[0].sha == file.sha) 
+                else if(tree_files.length > 0 && tree_files[0].sha == file.sha) 
                     res.push({path: file.path, status : 'not modified'});
                 
-                else if(prev_files.length > 0 && prev_files[0].sha != file.sha) 
+                else if(tree_files.length > 0 && tree_files[0].sha != file.sha) 
                 {
                     const ours_path = file.path;
                     
@@ -147,7 +147,7 @@ export class Github
                     const theirs_path = this.object_path(file);
                     this.save_object(theirs_path, contents);
 
-                    const old_file = prev_files[0];
+                    const old_file = tree_files[0];
                     const old_path = this.object_path(old_file);
                     const conflicted = this.merge(ours_path, theirs_path, old_path);
                     res.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});

@@ -335,7 +335,7 @@ export class Github
         const modified = status.files.filter(s => s.status == 'modified' || s.status == 'new');
         const deleted = status.files.filter(s => s == 'deleted');
         const single_file_upsert = deleted.length == 0 && modified.length == 1;
-        const single_file_delete = deleted.length == ! && modified.length == 0;
+        const single_file_delete = deleted.length == 1 && modified.length == 0;
 
         if(single_file_upsert)
         {

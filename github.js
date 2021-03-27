@@ -5,6 +5,18 @@
 //     }
 //
 const base64_encode_utf8 = str => btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {return String.fromCharCode(parseInt(p1, 16)) }));
+const base64_encode_uint8array = uint8array => btoa(String.fromCharCode.apply(null, uint8array));
+
+/*
+ * function bufferToBase64(buf) {
+ *     var binstr = Array.prototype.map.call(buf, function (ch) {
+ *       return String.fromCharCode(ch);
+*      }).join('');
+*      return btoa(binstr);
+*  }
+*/
+
+
 const delay = seconds => new Promise(resolve => setTimeout(resolve, seconds * 1000));
 const network_error = resp => new Error(`${resp.status}: ${resp.statusText}`);
 
@@ -345,15 +357,16 @@ export class Github
         const deleted = status.files.filter(s => s == 'deleted');
         const single_file_upsert = deleted.length == 0 && modified.length == 1;
         const single_file_delete = deleted.length == 1 && modified.length == 0;
+        const no_deletes = deleted.length == 0;
 
         if(single_file_upsert)
         {
             const file_path = modified[0].path;
             const sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
             
-            const content = this.FS.readFile(file_path, {encoding : 'utf8'});
+            const uint8array = this.FS.readFile(file_path);
             
-            const resp = await this.api_request('repos', https_path, '/contents/' + file_path, 'PUT', Object.assign({message : message, content : base64_encode_utf8(content)}, sha ? {sha : sha} : {}));
+            const resp = await this.api_request('repos', https_path, '/contents/' + file_path, 'PUT', Object.assign({message : message, content : base64_encode_uint8array(uint8array)}, sha ? {sha : sha} : {}));
             console.assert(resp.ok);
             //sha = (await resp.json()).content.sha;
         }
@@ -366,9 +379,28 @@ export class Github
             const resp = await this.api_request('repos', https_path, '/contents/' + file_path, 'DELETE', {message : message, sha : sha});
             console.assert(resp.ok);
         }
-        else
+        else if(no_deletes)
         {
+            for(const {path, status, abspath} of status.files.filter(s => s.status == 'modified' || s.status == 'new'))
+            {
+                const blob = {encoding: 'base64', content: base64_encode_uint8array(this.FS.readFile(abspath))};
+                const resp = await this.api_request('repos', https_path, '/git/blobs', 'POST', blob);
+                console.assert(resp.ok);
+            }
 
+            const new_tree = {
+                base_tree : '',
+                // http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
+                tree : [
+                    {
+                        path: "",
+                        mode "",
+                        type: "",
+                        sha: ""
+                    }
+                ]
+            };
+            //const resp = await this.api_request('repos', https_path, '/git/trees', 'POST', new_tree);
         }
 
             

@@ -68,8 +68,8 @@ export class Github
             return '';
 
         file_path = file_path.slice(project_dir.length);
-        const prev = this.read_githubcontents();
-        const files = prev.filter(f => f.path == file_path);
+        const tree = this.read_githubcontents();
+        const files = tree.filter(f => f.path == file_path);
         if(files.length == 0)
             return '';
 
@@ -206,27 +206,27 @@ export class Github
         const ls_R = this.PATH_.find(project_dir, '', true, true, false, false);
         let files = [];
 
-        const prev = this.read_githubcontents(true);
+        const tree = this.read_githubcontents(true);
         for(const file of ls_R)
         {
             if(!file.contents || file.path.startsWith('.git/'))
             {
-                delete prev[file.path];
+                delete tree[file.path];
                 continue;
             }
 
-            const sha = prev[file.path];
+            const sha = tree[file.path];
             
             if(!sha)
                 files.push({path : file.path, abspath : this.PATH.join2(project_dir, file.path), status : 'new'});
             else
             {
                 files.push({path : file.path, abspath : this.PATH.join2(project_dir, file.path), status : sha != this.blob_sha(file.contents) ? 'modified' : 'not modified'});
-                delete prev[file.path];
+                delete tree[file.path];
             }
         }
         
-        files.push(...Object.keys(prev).map(file_path => ({path : file_path, status : 'deleted'}))); 
+        files.push(...Object.keys(tree).map(file_path => ({path : file_path, status : 'deleted'}))); 
 
         const remote_branch = this.PATH.basename(this.FS.readFile('.git/refs/remotes/origin/HEAD', {encoding : 'utf8'}).split(': ').pop()); 
         const remote_commit = this.FS.readFile(this.PATH.join2('.git/refs/remotes/origin', remote_branch), {encoding: 'utf8'});

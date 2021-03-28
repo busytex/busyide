@@ -71,6 +71,16 @@ export class Github
         return null;
     }
 
+    ls_tree(sha)
+    {
+        return JSON.parse(this.FS.readFile(this.object_path({sha : sha}), {encoding: 'utf8'}));
+    }
+
+    write_tree(tree)
+    {
+        this.FS.writeFile(this.object_path({sha : tree.sha}), JSON.stringify(tree));
+    }
+
     cat_file(file_path)
     {
         file_path = this.PATH_.abspath(file_path);
@@ -305,8 +315,7 @@ export class Github
         const tree = await this.api_request('repos', https_path, `/git/trees/${branch}?recursive=1`).then(r => r.json());
         const sha = tree.sha;
 
-        const resp = await this.api_request('repos', https_path, '/contents');
-        const repo = await resp.json();
+        const resp = await this.api_request('repos', https_path, '/contents').then(r => r.json());
 
         this.PATH_.mkdir_p(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin'));
         this.PATH_.mkdir_p(this.PATH.join(repo_path, '.git', 'objects'));

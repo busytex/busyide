@@ -322,6 +322,8 @@ export class Github
         this.FS.writeFile(this.PATH.join(repo_path, '.git', 'config'), '[remote "origin"]\nurl = ' + https_path);
         this.FS.writeFile(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin', 'HEAD'), 'ref: refs/remotes/origin/' + branch); 
         this.FS.writeFile(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin', branch), sha);
+        this.write_tree(tree);
+
         let Q = [...repo];
         while(Q.length > 0)
         {
@@ -392,8 +394,22 @@ export class Github
             
             const blobs = await Promise.all(blob_promises);
             const new_tree = { base_tree : tree.sha, tree : blobs.map((blob, i) => {path: modified[i].path, type: 'blob', mode : mode['blob'], sha: blob.sha}) };
-            const resp = await this.api_request('repos', https_path, '/git/trees', 'POST', new_tree);
+            let resp = await this.api_request('repos', https_path, '/git/trees', 'POST', new_tree).then(r => r.json());
+            const new_tree_sha = resp.sha;
+
+            //TODO: save tree locally
+
+            const base_commit_sha = null;
+
+            const new_commit = { message : message, parents : [base_commit_sha], tree : new_tree_sha };
+            resp = await this.api_request('repos', https_path, '/git/commits', 'POST', new_commit).then(r => r.json());
+            const new_commit_sha = resp.sha;
+            
+            const new_ref = {sha : new_commit_sha};
+            resp = await this.api_request('repos', https_path, this.PATH.join('/git/refs', remote_branch, 'HEAD'), 'PATCH', new_ref);
             console.assert(resp.ok);
+
+            //TODO: update ref locally
         }
 
             

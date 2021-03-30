@@ -64,29 +64,29 @@ export class Github
 
     git_dir()
     {
-        for(let cwd = this.FS.cwd(); cwd != '/'; cwd = this.PATH.normalize(this.PATH.join2(cwd, '..')))
+        for(let cwd = this.FS.cwd(); cwd != '/'; cwd = this.PATH.normalize(this.PATH.join(cwd, '..')))
         {
-            const dotgit = this.PATH.join2(cwd, '.git');
+            const dotgit = this.PATH.join(cwd, '.git');
             if(this.PATH_.exists(dotgit))
                 return dotgit;
         }
         return null;
     }
 
-    ls_tree(tree_sha)
+    ls_tree(commit_sha)
     {
-        return JSON.parse(this.FS.readFile(this.object_path({sha : tree_sha}), {encoding: 'utf8'}));
+        return JSON.parse(this.FS.readFile(this.object_path({sha : commit_sha}), {encoding: 'utf8'}));
     }
 
-    write_tree(tree)
+    commit_tree(commit, tree)
     {
-        this.FS.writeFile(this.object_path({sha : tree.sha}), JSON.stringify(tree));
+        this.FS.writeFile(this.object_path({sha : commit.sha}), JSON.stringify(tree));
     }
 
     cat_file(file_path)
     {
         file_path = this.PATH_.abspath(file_path);
-        const project_dir = this.PATH.normalize(this.PATH.join2(this.git_dir(), '..')) + '/';
+        const project_dir = this.PATH.normalize(this.PATH.join(this.git_dir(), '..')) + '/';
 
         if(!file_path.startsWith(project_dir))
             return '';
@@ -104,12 +104,12 @@ export class Github
     
     api_request(realm, https_path, relative_url = '', method = 'get', body = null)
     {
-        const api = realm != 'gists' ? https_path.replace('github.com', this.PATH.join2(this.api_endpoint, realm)) : ('https://' + this.PATH.join(this.api_endpoint, 'gists', this.parse_url(https_path).reponame));
+        const api = realm != 'gists' ? https_path.replace('github.com', this.PATH.join(this.api_endpoint, realm)) : ('https://' + this.PATH.join(this.api_endpoint, 'gists', this.parse_url(https_path).reponame));
         const headers = Object.assign({Authorization : 'Basic ' + btoa(this.auth_token), 'If-None-Match' : ''}, body != null ? {'Content-Type' : 'application/json'} : {});
         return fetch(api + relative_url, Object.assign({method : method || 'get', headers : headers}, body != null ? {body : JSON.stringify(body)} : {}));
     }
     
-    read_repo_url()
+    remote_get_url()
     {
         return this.FS.readFile('.git/config', {encoding : 'utf8'}).split('\n')[1].split(' ')[2];
     }
@@ -124,7 +124,7 @@ export class Github
 
     save_githubcontents(repo_path, repo)
     {
-        this.FS.writeFile(this.PATH.join2(repo_path, this.github_contents), JSON.stringify(repo));
+        this.FS.writeFile(this.PATH.join(repo_path, this.github_contents), JSON.stringify(repo));
     }
 
     object_path(file)
@@ -140,7 +140,7 @@ export class Github
 
     async pull(print, repo_path = '.')
     {
-        const https_path = this.read_repo_url();
+        const https_path = this.remote_get_url();
         const tree = this.read_githubcontents();
         const repo = await this.api_request('repos', https_path, '/contents').then(r => r.json());
         
@@ -179,7 +179,7 @@ export class Github
             }
             else if(file.type == 'dir')
             {
-                this.PATH_.mkdir_p(this.PATH.join2(repo_path, file.path));
+                this.PATH_.mkdir_p(this.PATH.join(repo_path, file.path));
                 
                 const dir = await this.api_request('repos', https_path, '/contents/' + file.path).then(r => r.json());
                 repo.push(...dir);
@@ -194,7 +194,7 @@ export class Github
     {
         opts = opts || {encoding: 'binary'};
         let contents = null;
-        const cached_file_path = this.PATH.join2(this.cache_dir, file.sha);
+        const cached_file_path = this.PATH.join(this.cache_dir, file.sha);
         if(this.PATH_.exists(cached_file_path))
         {
             print(`Loading [${file_path}] from cached [${cached_file_path}]`);
@@ -226,7 +226,7 @@ export class Github
 
     status()
     {
-        const project_dir = this.PATH.normalize(this.PATH.join2(this.git_dir(), '..'));
+        const project_dir = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         const ls_R = this.PATH_.find(project_dir, '', true, true, false, false);
         let files = [];
 
@@ -242,10 +242,10 @@ export class Github
             const sha = tree[file.path];
             
             if(!sha)
-                files.push({path : file.path, abspath : this.PATH.join2(project_dir, file.path), status : 'new'});
+                files.push({path : file.path, abspath : this.PATH.join(project_dir, file.path), status : 'new'});
             else
             {
-                files.push({path : file.path, abspath : this.PATH.join2(project_dir, file.path), status : sha != this.blob_sha(file.contents) ? 'modified' : 'not modified'});
+                files.push({path : file.path, abspath : this.PATH.join(project_dir, file.path), status : sha != this.blob_sha(file.contents) ? 'modified' : 'not modified'});
                 delete tree[file.path];
             }
         }
@@ -253,17 +253,17 @@ export class Github
         files.push(...Object.keys(tree).map(file_path => ({path : file_path, status : 'deleted'}))); 
 
         const remote_branch = this.PATH.basename(this.FS.readFile(this.PATH.join(this.dot_git, this.origin_head), {encoding : 'utf8'}).split(': ').pop()); 
-        const remote_commit = this.FS.readFile(this.PATH.join2('.git/refs/remotes/origin', remote_branch), {encoding: 'utf8'});
+        const remote_commit = this.FS.readFile(this.PATH.join('.git/refs/remotes/origin', remote_branch), {encoding: 'utf8'});
         
         for(const f of files)
             f.abspath_remote = this.cat_file(f.path).abspath;
         
-        return {...this.parse_url(this.read_repo_url()), files : files, remote_branch : remote_branch, remote_commit : remote_commit};
+        return {...this.parse_url(this.remote_get_url()), files : files, remote_branch : remote_branch, remote_commit : remote_commit};
     }
 
     async push_gist(status, message, retry)
     {
-        const https_path = this.read_repo_url();
+        const https_path = this.remote_get_url();
 
         // TODO: check last commit+pull? check binary files? 
         const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {content : s.status == 'deleted' ? null : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
@@ -284,7 +284,7 @@ export class Github
         {
             print(`Creating [${file_name}]`);
             const file = repo.files[file_name];
-            const file_path = this.PATH.join2(repo_path, file_name);
+            const file_path = this.PATH.join(repo_path, file_name);
             const contents = file.truncated ? (await fetch(file.raw_url).then(x => x.text())) : file.content;
             this.FS.writeFile(file_path, contents);
         }
@@ -314,7 +314,9 @@ export class Github
         this.auth_token = auth_token;
 
         branch = branch || (await this.api_request('repos', https_path).then(r => r.json())).default_branch;
-        const tree = await this.api_request('repos', https_path, `/git/trees/${branch}?recursive=1`).then(r => r.json());
+        
+        const commit = await this.api_request('repos', https_path, `/commits/${branch}`).then(r => r.json());
+        const tree = await this.api_request('repos', https_path, `/git/trees/${commit.tree.sha}?recursive=1`).then(r => r.json());
         console.assert(tree.truncated == false);
 
         const tree_sha = tree.sha;
@@ -323,10 +325,10 @@ export class Github
 
         this.PATH_.mkdir_p(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin'));
         this.PATH_.mkdir_p(this.PATH.join(repo_path, '.git', 'objects'));
-        this.FS.writeFile(this.PATH.join(repo_path, '.git', 'config'), '[remote "origin"]\nurl = ' + https_path);
-        this.FS.writeFile(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin', 'HEAD'), 'ref: refs/remotes/origin/' + branch); 
-        this.FS.writeFile(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin', branch), tree_sha);
-        this.write_tree(tree);
+        this.FS.writeFile(this.PATH.join(repo_path, '.git', 'config'), `[remote "origin"]\nurl = ${https_path}`);
+        this.FS.writeFile(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin', 'HEAD'), `ref: refs/remotes/origin/${branch}`); 
+        this.FS.writeFile(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin', branch), commit.sha);
+        this.commit_tree(commit, tree);
 
         let Q = [...repo];
         while(Q.length > 0)
@@ -334,14 +336,14 @@ export class Github
             const file = Q.pop();
             if(file.type == 'file')
             {
-                const file_path = this.PATH.join2(repo_path, file.path);
+                const file_path = this.PATH.join(repo_path, file.path);
                 const contents = await this.load_file(print, file_path, file);
                 this.FS.writeFile(file_path, contents);
-                this.save_object(this.PATH.join2(repo_path, this.object_path(file)), contents);
+                this.save_object(this.PATH.join(repo_path, this.object_path(file)), contents);
             }
             else if(file.type == 'dir')
             {
-                this.FS.mkdir(this.PATH.join2(repo_path, file.path));
+                this.FS.mkdir(this.PATH.join(repo_path, file.path));
                 const resp = await this.api_request('repos', https_path, '/contents/' + file.path);
                 const dir = await resp.json();
                 repo.push(...dir);
@@ -359,7 +361,7 @@ export class Github
 
     async push(print, status, message, retry)
     {
-        const https_path = this.read_repo_url();
+        const https_path = this.remote_get_url();
         const base_commit_sha = this.rev_parse(this.origin_head);
         const tree = this.ls_tree(base_commit_sha);
         

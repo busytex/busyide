@@ -33,8 +33,8 @@ export class Github
         this.PATH = PATH;
         this.PATH_ = PATH_;
         this.api_endpoint = 'api.github.com';
-        this.ref_origin_head = 'refs/remotes/origin/HEAD';
         this.ref_origin = 'refs/remotes/origin';
+        this.head = 'HEAD';
         this.dot_git = '.git';
     }
 
@@ -310,6 +310,11 @@ export class Github
         return this.parse_url(repo_url).gist ? this.clone_gist(print, auth_token, repo_url, repo_path) : this.clone_repo(print, auth_token, repo_url, repo_path);
     }
 
+    update_ref(ref, new_value, repo_path = '.')
+    {
+        this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, ref_origin), new_value);
+    }
+
     async clone_repo(print, auth_token, repo_url, repo_path, branch = null)
     {
         this.auth_token = auth_token;
@@ -327,8 +332,10 @@ export class Github
         this.init(repo_path);
         this.remote_set_url(repo_url, repo_path);
         
-        this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, this.ref_origin_head), `ref: refs/remotes/origin/${branch}`); 
-        this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, this.ref_origin, branch), commit.sha);
+        const origin_branch = this.PATH.join(this.ref_origin, branch)
+        
+        this.update_ref(this.PATH.join(this.ref_origin, this.head), 'ref: ' + origin_branch);
+        this.update_ref(origin_branch, commit.sha, repo_path);
         this.commit_tree(commit, tree, repo_path);
 
         for(const file of tree.tree)

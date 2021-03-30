@@ -83,7 +83,7 @@ export class Github
 
     commit_tree(commit, tree, repo_path = '.')
     {
-        this.FS.writeFile(this.object_path(commit, repo_path), JSON.stringify(tree));
+        this.save_object(this.object_path(commit, repo_path), JSON.stringify(tree));
     }
 
     cat_file(file_path)

@@ -318,7 +318,7 @@ export class Github
         
         //TODO: bypass browser cache
         const commit = await this.api_request('repos', repo_url, `/commits/${branch}`).then(r => r.json());
-        const tree = await this.api_request('repos', repo_url, `/git/trees/${commit.tree.sha}?recursive=1`).then(r => r.json());
+        const tree = await this.api_request('repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`).then(r => r.json());
 
         //TODO: process truncated trees recursively
         console.assert(tree.truncated == false);

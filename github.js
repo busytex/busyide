@@ -34,6 +34,8 @@ export class Github
         this.PATH = PATH;
         this.PATH_ = PATH_;
         this.api_endpoint = 'api.github.com';
+        this.origin_head = 'refs/remotes/origin/HEAD';
+        this.dot_git = '.git';
     }
 
     parse_url(https_path)
@@ -71,9 +73,9 @@ export class Github
         return null;
     }
 
-    ls_tree(sha)
+    ls_tree(tree_sha)
     {
-        return JSON.parse(this.FS.readFile(this.object_path({sha : sha}), {encoding: 'utf8'}));
+        return JSON.parse(this.FS.readFile(this.object_path({sha : tree_sha}), {encoding: 'utf8'}));
     }
 
     write_tree(tree)
@@ -107,7 +109,7 @@ export class Github
         return fetch(api + relative_url, Object.assign({method : method || 'get', headers : headers}, body != null ? {body : JSON.stringify(body)} : {}));
     }
     
-    read_https_path()
+    read_repo_url()
     {
         return this.FS.readFile('.git/config', {encoding : 'utf8'}).split('\n')[1].split(' ')[2];
     }
@@ -138,7 +140,7 @@ export class Github
 
     async pull(print, repo_path = '.')
     {
-        const https_path = this.read_https_path();
+        const https_path = this.read_repo_url();
         const tree = this.read_githubcontents();
         const repo = await this.api_request('repos', https_path, '/contents').then(r => r.json());
         
@@ -250,18 +252,18 @@ export class Github
         
         files.push(...Object.keys(tree).map(file_path => ({path : file_path, status : 'deleted'}))); 
 
-        const remote_branch = this.PATH.basename(this.FS.readFile('.git/refs/remotes/origin/HEAD', {encoding : 'utf8'}).split(': ').pop()); 
+        const remote_branch = this.PATH.basename(this.FS.readFile(this.PATH.join(this.dot_git, this.origin_head), {encoding : 'utf8'}).split(': ').pop()); 
         const remote_commit = this.FS.readFile(this.PATH.join2('.git/refs/remotes/origin', remote_branch), {encoding: 'utf8'});
         
         for(const f of files)
             f.abspath_remote = this.cat_file(f.path).abspath;
         
-        return {...this.parse_url(this.read_https_path()), files : files, remote_branch : remote_branch, remote_commit : remote_commit};
+        return {...this.parse_url(this.read_repo_url()), files : files, remote_branch : remote_branch, remote_commit : remote_commit};
     }
 
     async push_gist(status, message, retry)
     {
-        const https_path = this.read_https_path();
+        const https_path = this.read_repo_url();
 
         // TODO: check last commit+pull? check binary files? 
         const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {content : s.status == 'deleted' ? null : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
@@ -348,10 +350,16 @@ export class Github
         print('Done!');
     }
 
+    rev_parse(ref)
+    {
+
+    }
+
     async push(print, status, message, retry)
     {
-        const https_path = this.read_https_path();
-        const tree = this.read_githubcontents();
+        const https_path = this.read_repo_url();
+        const base_commit_sha = this.rev_parse(this.origin_head);
+        const tree = this.ls_tree(base_commit_sha);
         
         if(status.files.every(s => s == 'not modified'))
             return;
@@ -398,8 +406,6 @@ export class Github
             const new_tree_sha = resp.sha;
 
             //TODO: save tree locally
-
-            const base_commit_sha = null;
 
             const new_commit = { message : message, parents : [base_commit_sha], tree : new_tree_sha };
             resp = await this.api_request('repos', https_path, '/git/commits', 'POST', new_commit).then(r => r.json());

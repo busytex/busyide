@@ -393,7 +393,7 @@ export class Github
         else if(no_deletes)
         {
             // http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
-            const mode = { blob : 100644, executable: 100755, tree: 040000, commit: 160000, blobsymlink: 120000 };
+            const mode = { blob : '100644', executable: '100755', tree: '040000', commit: '160000', blobsymlink: '120000' };
             
             const blob_promises = modified.map(({path, status, abspath}) => this.api_request('repos', repo_url, '/git/blobs', 'POST', {encoding: 'base64', content: base64_encode_uint8array(this.FS.readFile(abspath))}).then(r => r.json()));
             

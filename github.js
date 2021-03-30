@@ -27,7 +27,6 @@ export class Github
         this.retry_delay_seconds = 2;
         this.auth_token = '';
         this.cache_dir = cache_dir;
-        this.github_contents = '.git/githubapicontents.json';
         this.merge = merge;
         this.sha1 = sha1;
         this.FS = FS;
@@ -75,7 +74,10 @@ export class Github
 
     ls_tree(commit_sha)
     {
-        return JSON.parse(this.FS.readFile(this.object_path({sha : commit_sha}), {encoding: 'utf8'}));
+        const array = JSON.parse(this.FS.readFile(this.object_path({sha : commit_sha}), {encoding: 'utf8'}));
+        if(dict == true)
+            return Object.fromEntries(array.map(x => [x.path, x.sha]));
+        return array
     }
 
     commit_tree(commit, tree)
@@ -92,7 +94,7 @@ export class Github
             return '';
 
         file_path = file_path.slice(project_dir.length);
-        const tree = this.read_githubcontents();
+        const tree = this.ls_tree();
         const files = tree.filter(f => f.path == file_path);
         if(files.length == 0)
             return '';
@@ -114,19 +116,6 @@ export class Github
         return this.FS.readFile('.git/config', {encoding : 'utf8'}).split('\n')[1].split(' ')[2];
     }
 
-    read_githubcontents(dict)
-    {
-        const array = this.FS.analyzePath(this.github_contents).exists ? JSON.parse(this.FS.readFile(this.github_contents, {encoding : 'utf8'})) : [];
-        if(dict == true)
-            return Object.fromEntries(array.map(x => [x.path, x.sha]));
-        return array;
-    }
-
-    save_githubcontents(repo_path, repo)
-    {
-        this.FS.writeFile(this.PATH.join(repo_path, this.github_contents), JSON.stringify(repo));
-    }
-
     object_path(file)
     {
         return this.PATH.join('.git/objects', file.sha.slice(0, 2), file.sha.slice(2));
@@ -141,7 +130,7 @@ export class Github
     async pull(print, repo_path = '.')
     {
         const https_path = this.remote_get_url();
-        const tree = this.read_githubcontents();
+        const tree = this.ls_tree();
         const repo = await this.api_request('repos', https_path, '/contents').then(r => r.json());
         
         let Q = [...repo];
@@ -169,7 +158,7 @@ export class Github
                     
                     const contents = await this.load_file(print, file.path, file);
                     const theirs_path = this.object_path(file);
-                    this.save_object(theirs_path, contents);
+                    this.ave_object(theirs_path, contents);
 
                     const old_file = tree_files[0];
                     const old_path = this.object_path(old_file);
@@ -230,7 +219,7 @@ export class Github
         const ls_R = this.PATH_.find(project_dir, '', true, true, false, false);
         let files = [];
 
-        const tree = this.read_githubcontents(true);
+        const tree = this.ls_tree(true);
         for(const file of ls_R)
         {
             if(!file.contents || file.path.startsWith('.git/'))
@@ -318,8 +307,6 @@ export class Github
         const commit = await this.api_request('repos', https_path, `/commits/${branch}`).then(r => r.json());
         const tree = await this.api_request('repos', https_path, `/git/trees/${commit.tree.sha}?recursive=1`).then(r => r.json());
         console.assert(tree.truncated == false);
-
-        const tree_sha = tree.sha;
 
         const resp = await this.api_request('repos', https_path, '/contents').then(r => r.json());
 

@@ -80,9 +80,9 @@ export class Github
         return array
     }
 
-    commit_tree(commit, tree)
+    commit_tree(commit, tree, repo_path = '.')
     {
-        this.FS.writeFile(this.object_path({sha : commit.sha}), JSON.stringify(tree));
+        this.FS.writeFile(this.object_path(commit, repo_path), JSON.stringify(tree));
     }
 
     cat_file(file_path)
@@ -121,9 +121,9 @@ export class Github
         this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, 'config'), `[remote "origin"]\nurl = ${repo_url}`);
     }
 
-    object_path(file)
+    object_path(file, repo_path = '.')
     {
-        return this.PATH.join(this.dot_git, 'objects', file.sha.slice(0, 2), file.sha.slice(2));
+        return this.PATH.join(repo_path, this.dot_git, 'objects', file.sha.slice(0, 2), file.sha.slice(2));
     }
 
     save_object(obj_path, contents)
@@ -328,7 +328,7 @@ export class Github
         
         this.FS.writeFile(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin', 'HEAD'), `ref: refs/remotes/origin/${branch}`); 
         this.FS.writeFile(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin', branch), commit.sha);
-        this.commit_tree(commit, tree);
+        this.commit_tree(commit, tree, repo_path);
 
         for(const file of tree.tree)
         {

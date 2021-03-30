@@ -315,7 +315,9 @@ export class Github
 
         branch = branch || (await this.api_request('repos', https_path).then(r => r.json())).default_branch;
         const tree = await this.api_request('repos', https_path, `/git/trees/${branch}?recursive=1`).then(r => r.json());
-        const sha = tree.sha;
+        console.assert(tree.truncated == false);
+
+        const tree_sha = tree.sha;
 
         const resp = await this.api_request('repos', https_path, '/contents').then(r => r.json());
 
@@ -323,7 +325,7 @@ export class Github
         this.PATH_.mkdir_p(this.PATH.join(repo_path, '.git', 'objects'));
         this.FS.writeFile(this.PATH.join(repo_path, '.git', 'config'), '[remote "origin"]\nurl = ' + https_path);
         this.FS.writeFile(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin', 'HEAD'), 'ref: refs/remotes/origin/' + branch); 
-        this.FS.writeFile(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin', branch), sha);
+        this.FS.writeFile(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin', branch), tree_sha);
         this.write_tree(tree);
 
         let Q = [...repo];

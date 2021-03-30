@@ -398,7 +398,7 @@ export class Github
             const blob_promises = modified.map(({path, status, abspath}) => this.api_request('repos', repo_url, '/git/blobs', 'POST', {encoding: 'base64', content: base64_encode_uint8array(this.FS.readFile(abspath))}).then(r => r.json()));
             
             const blobs = await Promise.all(blob_promises);
-            const new_tree = { base_tree : tree.sha, tree : blobs.map((blob, i) => {path: modified[i].path, type: 'blob', mode : mode['blob'], sha: blob.sha}) };
+            const new_tree = { base_tree : tree.sha, tree : blobs.map((blob, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob.sha })) };
             let resp = await this.api_request('repos', repo_url, '/git/trees', 'POST', new_tree).then(r => r.json());
             const new_tree_sha = resp.sha;
 

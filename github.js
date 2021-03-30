@@ -334,7 +334,7 @@ export class Github
         
         const origin_branch = this.PATH.join(this.ref_origin, branch)
         
-        this.update_ref(this.PATH.join(this.ref_origin, this.head), 'ref: ' + origin_branch);
+        this.update_ref(this.PATH.join(this.ref_origin, this.head), 'ref: ' + origin_branch, repo_path);
         this.update_ref(origin_branch, commit.sha, repo_path);
         this.commit_tree(commit, tree, repo_path);
 

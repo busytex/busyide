@@ -312,7 +312,7 @@ export class Github
 
     update_ref(ref, new_value, repo_path = '.')
     {
-        this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, ref_origin), new_value);
+        this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, ref), new_value);
     }
 
     async clone_repo(print, auth_token, repo_url, repo_path, branch = null)

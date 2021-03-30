@@ -349,7 +349,7 @@ export class Github
                 const file_path = this.PATH.join(repo_path, file.path);
                 const contents = await this.load_file(print, file_path, file);
                 this.FS.writeFile(file_path, contents);
-                this.save_object(this.PATH.join(repo_path, this.object_path(file)), contents);
+                this.save_object(this.object_path(file, repo_path), contents);
             }
         }
         print('Done!');

@@ -33,7 +33,8 @@ export class Github
         this.PATH = PATH;
         this.PATH_ = PATH_;
         this.api_endpoint = 'api.github.com';
-        this.origin_head = 'refs/remotes/origin/HEAD';
+        this.ref_origin_head = 'refs/remotes/origin/HEAD';
+        this.ref_origin = 'refs/remotes/origin';
         this.dot_git = '.git';
     }
 
@@ -326,8 +327,8 @@ export class Github
         this.init(repo_path);
         this.remote_set_url(repo_url, repo_path);
         
-        this.FS.writeFile(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin', 'HEAD'), `ref: refs/remotes/origin/${branch}`); 
-        this.FS.writeFile(this.PATH.join(repo_path, '.git', 'refs', 'remotes', 'origin', branch), commit.sha);
+        this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, this.ref_origin_head), `ref: refs/remotes/origin/${branch}`); 
+        this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, this.ref_origin, branch), commit.sha);
         this.commit_tree(commit, tree, repo_path);
 
         for(const file of tree.tree)

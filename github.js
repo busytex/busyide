@@ -35,6 +35,7 @@ export class Github
         this.api_endpoint = 'api.github.com';
         this.ref_origin = 'refs/remotes/origin';
         this.head = 'HEAD';
+        this.ref_origin_head = this.PATH.join(this.ref_origin, this.HEAD);
         this.dot_git = '.git';
     }
 
@@ -95,7 +96,7 @@ export class Github
             return {};
 
         file_path = file_path.slice(project_dir.length);
-        const tree = this.ls_tree(this.rev_parse(this.origin_head));
+        const tree = this.ls_tree(this.rev_parse(this.ref_origin_head));
         const files = tree.filter(f => f.path == file_path);
         if(files.length == 0)
             return {};
@@ -221,11 +222,11 @@ export class Github
 
     status()
     {
-        const project_dir = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
-        const ls_R = this.PATH_.find(project_dir, '', true, true, false, false);
+        const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
+        const ls_R = this.PATH_.find(repo_path, '', true, true, false, false);
         let files = [];
 
-        const tree = this.ls_tree(this.rev_parse(this.origin_head), true);
+        const tree = this.ls_tree(this.rev_parse(this.ref_origin_head, repo_path), true);
         for(const file of ls_R)
         {
             if(!file.contents || file.path.startsWith('.git/'))
@@ -237,17 +238,17 @@ export class Github
             const sha = tree[file.path];
             
             if(!sha)
-                files.push({path : file.path, abspath : this.PATH.join(project_dir, file.path), status : 'new'});
+                files.push({path : file.path, abspath : this.PATH.join(repo_path, file.path), status : 'new'});
             else
             {
-                files.push({path : file.path, abspath : this.PATH.join(project_dir, file.path), status : sha != this.blob_sha(file.contents) ? 'modified' : 'not modified'});
+                files.push({path : file.path, abspath : this.PATH.join(repo_path, file.path), status : sha != this.blob_sha(file.contents) ? 'modified' : 'not modified'});
                 delete tree[file.path];
             }
         }
         
         files.push(...Object.keys(tree).map(file_path => ({path : file_path, status : 'deleted'}))); 
 
-        const remote_branch = this.PATH.basename(this.FS.readFile(this.PATH.join(this.dot_git, this.origin_head), {encoding : 'utf8'}).split(': ').pop()); 
+        const remote_branch = this.PATH.basename(this.FS.readFile(this.PATH.join(this.dot_git, this.ref_origin_head), {encoding : 'utf8'}).split(': ').pop()); 
         const remote_commit = this.FS.readFile(this.PATH.join('.git/refs/remotes/origin', remote_branch), {encoding: 'utf8'});
         
         for(const f of files)
@@ -355,15 +356,15 @@ export class Github
         print('Done!');
     }
 
-    rev_parse(ref)
+    rev_parse(ref, repo_path = '.')
     {
-
+        return this.FS.readFile(this.PATH.join(repo_path, this.dot_git, ref), {encoding: 'utf8'}).split(': ')[1];
     }
 
     async push(print, status, message, retry)
     {
         const repo_url = this.remote_get_url();
-        const base_commit_sha = this.rev_parse(this.origin_head);
+        const base_commit_sha = this.rev_parse(this.ref_origin_head);
         const tree = this.ls_tree(base_commit_sha);
         
         if(status.files.every(s => s == 'not modified'))

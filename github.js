@@ -74,9 +74,9 @@ export class Github
         return null;
     }
 
-    ls_tree(commit_sha)
+    ls_tree(commit_sha, repo_path, dict = false)
     {
-        const array = JSON.parse(this.FS.readFile(this.object_path({sha : commit_sha}), {encoding: 'utf8'})).tree;
+        const array = JSON.parse(this.FS.readFile(this.object_path({sha : commit_sha}, repo_path), {encoding: 'utf8'})).tree;
         if(dict == true)
             return Object.fromEntries(array.map(x => [x.path, x.sha]));
         return array
@@ -223,10 +223,13 @@ export class Github
     status()
     {
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
+        const remote_branch = this.rev_parse(this.ref_origin_head, repo_path); 
+        const base_commit_sha = this.rev_parse(remote_branch, repo_path);
+        const tree = this.ls_tree(this.rev_parse(this.ref_origin_head, repo_path), repo_path, true);
+        
         const ls_R = this.PATH_.find(repo_path, '', true, true, false, false);
         let files = [];
 
-        const tree = this.ls_tree(this.rev_parse(this.ref_origin_head, repo_path), true);
         for(const file of ls_R)
         {
             if(!file.contents || file.path.startsWith('.git/'))
@@ -247,14 +250,11 @@ export class Github
         }
         
         files.push(...Object.keys(tree).map(file_path => ({path : file_path, status : 'deleted'}))); 
-
-        const remote_branch = this.PATH.basename(this.FS.readFile(this.PATH.join(this.dot_git, this.ref_origin_head), {encoding : 'utf8'}).split(': ').pop()); 
-        const remote_commit = this.FS.readFile(this.PATH.join('.git/refs/remotes/origin', remote_branch), {encoding: 'utf8'});
         
         for(const f of files)
-            f.abspath_remote = this.cat_file(f.path).abspath;
+            f.abspath_remote = this.cat_file(f.abspath).abspath;
         
-        return {...this.parse_url(this.remote_get_url()), files : files, remote_branch : remote_branch, remote_commit : remote_commit};
+        return {...this.parse_url(this.remote_get_url()), files : files, remote_branch : remote_branch, remote_commit : base_commit_sha};
     }
 
     async push_gist(status, message, retry)
@@ -335,7 +335,7 @@ export class Github
         
         const origin_branch = this.PATH.join(this.ref_origin, branch)
         
-        this.update_ref(this.PATH.join(this.ref_origin, this.head), 'ref: ' + origin_branch, repo_path);
+        this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
         this.update_ref(origin_branch, commit.sha, repo_path);
         this.commit_tree(commit, tree, repo_path);
 
@@ -358,7 +358,7 @@ export class Github
 
     rev_parse(ref, repo_path = '.')
     {
-        return this.FS.readFile(this.PATH.join(repo_path, this.dot_git, ref), {encoding: 'utf8'}).split(': ')[1];
+        return this.FS.readFile(this.PATH.join(repo_path, this.dot_git, ref), {encoding: 'utf8'}).split(': ').pop();
     }
 
     async push(print, status, message, retry)

@@ -225,7 +225,7 @@ export class Github
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         const remote_branch = this.rev_parse(this.ref_origin_head, repo_path); 
         const base_commit_sha = this.rev_parse(remote_branch, repo_path);
-        const tree = this.ls_tree(this.rev_parse(this.ref_origin_head, repo_path), repo_path, true);
+        const tree = this.ls_tree(base_commit_sha, repo_path, true);
         
         const ls_R = this.PATH_.find(repo_path, '', true, true, false, false);
         let files = [];

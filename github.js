@@ -358,7 +358,10 @@ export class Github
 
     rev_parse(ref, repo_path = '.')
     {
-        return this.FS.readFile(this.PATH.join(repo_path, this.dot_git, ref), {encoding: 'utf8'}).split(': ').pop();
+        ref = this.FS.readFile(this.PATH.join(repo_path, this.dot_git, ref), {encoding: 'utf8'})
+        if(ref.startsWith('ref: '))
+            return ref.split(': ').pop();
+        return ref;
     }
 
     async push(print, status, message, retry)

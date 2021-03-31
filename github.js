@@ -75,7 +75,7 @@ export class Github
 
     ls_tree(commit_sha)
     {
-        const array = JSON.parse(this.FS.readFile(this.object_path({sha : commit_sha}), {encoding: 'utf8'}));
+        const array = JSON.parse(this.FS.readFile(this.object_path({sha : commit_sha}), {encoding: 'utf8'})).tree;
         if(dict == true)
             return Object.fromEntries(array.map(x => [x.path, x.sha]));
         return array
@@ -92,13 +92,13 @@ export class Github
         const project_dir = this.PATH.normalize(this.PATH.join(this.git_dir(), '..')) + '/';
 
         if(!file_path.startsWith(project_dir))
-            return '';
+            return {};
 
         file_path = file_path.slice(project_dir.length);
-        const tree = this.ls_tree();
+        const tree = this.ls_tree(this.rev_parse(this.origin_head));
         const files = tree.filter(f => f.path == file_path);
         if(files.length == 0)
-            return '';
+            return {};
 
         const file = files[0];
         const abspath = this.object_path(file);
@@ -225,7 +225,7 @@ export class Github
         const ls_R = this.PATH_.find(project_dir, '', true, true, false, false);
         let files = [];
 
-        const tree = this.ls_tree(true);
+        const tree = this.ls_tree(this.rev_parse(this.origin_head), true);
         for(const file of ls_R)
         {
             if(!file.contents || file.path.startsWith('.git/'))

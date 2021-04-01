@@ -87,23 +87,23 @@ export class Github
         this.save_object(this.object_path(commit, repo_path), JSON.stringify(tree));
     }
 
-    cat_file(abspath, tree = null)
+    cat_file(abspath, tree_dict = null)
     {
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..')) + '/';
 
         if(!abspath.startsWith(repo_path))
             return {};
         
-        if(tree === null)
-            tree = this.ls_tree(this.rev_parse(this.ref_origin_head));
+        if(tree_dict === null)
+            tree_dict = this.ls_tree(this.rev_parse(this.ref_origin_head), repo_path, true);
 
         const relative_path = abspath.slice(repo_path.length);
-        const files = tree.filter(f => f.path == relative_path);
+        const file = tree[relative_path];
 
-        if(files.length == 0)
+        if(file === null)
             return {};
 
-        abspath = this.object_path(files[0], repo_path);
+        abspath = this.object_path(file, repo_path);
 
         return {abspath : abspath, contents : this.FS.readFile(abspath, {encoding: 'utf8'})};
     }
@@ -227,7 +227,8 @@ export class Github
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         const remote_branch = this.rev_parse(this.ref_origin_head, repo_path); 
         const base_commit_sha = this.rev_parse(remote_branch, repo_path);
-        const tree = this.ls_tree(base_commit_sha, repo_path, true);
+        const tree_dict = this.ls_tree(base_commit_sha, repo_path, true);
+        const tree_dict_copy = {...tree_dict};
         
         const ls_R = this.PATH_.find(repo_path, '', true, true, false, false);
         let files = [];
@@ -254,7 +255,7 @@ export class Github
         files.push(...Object.keys(tree).map(file_path => ({path : file_path, status : 'deleted'}))); 
         
         for(const f of files)
-            f.abspath_remote = this.cat_file(f.abspath, tree).abspath;
+            f.abspath_remote = this.cat_file(f.abspath, tree_dict_copy).abspath;
         
         return {...this.parse_url(this.remote_get_url()), files : files, remote_branch : remote_branch, remote_commit : base_commit_sha};
     }

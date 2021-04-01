@@ -78,7 +78,7 @@ export class Github
     {
         const array = JSON.parse(this.FS.readFile(this.object_path({sha : commit_sha}, repo_path), {encoding: 'utf8'})).tree;
         if(dict == true)
-            return Object.fromEntries(array.map(x => [x.path, x.sha]));
+            return Object.fromEntries(array.map(x => [x.path, x]));
         return array
     }
 

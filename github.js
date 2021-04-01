@@ -225,8 +225,9 @@ export class Github
     status()
     {
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
-        const remote_branch = this.rev_parse(this.ref_origin_head, repo_path); 
-        const base_commit_sha = this.rev_parse(remote_branch, repo_path);
+        const base_branch = this.rev_parse(this.ref_origin_head, repo_path);
+        const remote_branch = this.PATH.basename(base_branch);
+        const base_commit_sha = this.rev_parse(base_branch, repo_path);
         const tree_dict = this.ls_tree(base_commit_sha, repo_path, true);
         const tree_dict_copy = {...tree_dict};
         
@@ -241,7 +242,7 @@ export class Github
                 continue;
             }
 
-            const sha = tree_dict[file.path];
+            const sha = tree_dict[file.path].sha;
             
             if(!sha)
                 files.push({path : file.path, abspath : this.PATH.join(repo_path, file.path), status : 'new'});

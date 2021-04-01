@@ -98,7 +98,7 @@ export class Github
             tree_dict = this.ls_tree(this.rev_parse(this.ref_origin_head), repo_path, true);
 
         const relative_path = abspath.slice(repo_path.length);
-        const file = tree[relative_path];
+        const file = tree_dict[relative_path];
 
         if(file === null)
             return {};

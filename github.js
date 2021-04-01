@@ -237,22 +237,22 @@ export class Github
         {
             if(!file.contents || file.path.startsWith('.git/'))
             {
-                delete tree[file.path];
+                delete tree_dict[file.path];
                 continue;
             }
 
-            const sha = tree[file.path];
+            const sha = tree_dict[file.path];
             
             if(!sha)
                 files.push({path : file.path, abspath : this.PATH.join(repo_path, file.path), status : 'new'});
             else
             {
                 files.push({path : file.path, abspath : this.PATH.join(repo_path, file.path), status : sha != this.blob_sha(file.contents) ? 'modified' : 'not modified'});
-                delete tree[file.path];
+                delete tree_dict[file.path];
             }
         }
         
-        files.push(...Object.keys(tree).map(file_path => ({path : file_path, status : 'deleted'}))); 
+        files.push(...Object.keys(tree_dict).map(file_path => ({path : file_path, status : 'deleted'}))); 
         
         for(const f of files)
             f.abspath_remote = this.cat_file(f.abspath, tree_dict_copy).abspath;

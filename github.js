@@ -200,8 +200,8 @@ export class Github
         }
         else
         {
-            print(`Downloading [${file_path}] from [${file.git_url}] and caching in [${cached_file_path}]`);
-            const resp = await fetch(file.git_url).then(r => r.json());
+            print(`Downloading [${file_path}] from [${file.url}] and caching in [${cached_file_path}]`);
+            const resp = await fetch(file.url).then(r => r.json());
             console.assert(resp.encoding == 'base64');
             contents = Uint8Array.from(atob(resp.content), v => v.charCodeAt());
             //const resp = await fetch(file.download_url).then(r => r.arrayBuffer());

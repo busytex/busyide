@@ -436,7 +436,7 @@ export class Github
             const new_ref = {sha : new_commit_sha};
             resp = await this.api_request('repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
             console.assert(resp.ok);
-            print(`Updated ref [${remote_branch}] on remote`);
+            print(`Updated ref on remote [${remote_branch}]`);
 
             //TODO: update ref locally
         }

@@ -38,6 +38,13 @@ export class Github
         this.ref_origin_head = this.PATH.join(this.ref_origin, this.head);
         this.dot_git = '.git';
     }
+    
+    api_request(realm, repo_url, relative_url = '', method = 'get', body = null)
+    {
+        const api = realm != 'gists' ? repo_url.replace('github.com', this.PATH.join(this.api_endpoint, realm)) : ('https://' + this.PATH.join(this.api_endpoint, 'gists', this.parse_url(repo_url).reponame));
+        const headers = Object.assign({Authorization : 'Basic ' + btoa(this.auth_token), 'If-None-Match' : ''}, body != null ? {'Content-Type' : 'application/json'} : {});
+        return fetch(api + relative_url, Object.assign({method : method || 'get', headers : headers}, body != null ? {body : JSON.stringify(body)} : {}));
+    }
 
     parse_url(repo_url)
     {
@@ -62,7 +69,7 @@ export class Github
         else
             return `https://github.com/${username}/${reponame}`;
     }
-
+    
     git_dir()
     {
         for(let cwd = this.FS.cwd(); cwd != '/'; cwd = this.PATH.normalize(this.PATH.join(cwd, '..')))
@@ -107,12 +114,11 @@ export class Github
 
         return {abspath : abspath, contents : this.FS.readFile(abspath, {encoding: 'utf8'})};
     }
-    
-    api_request(realm, repo_url, relative_url = '', method = 'get', body = null)
+
+    init(repo_path)
     {
-        const api = realm != 'gists' ? repo_url.replace('github.com', this.PATH.join(this.api_endpoint, realm)) : ('https://' + this.PATH.join(this.api_endpoint, 'gists', this.parse_url(repo_url).reponame));
-        const headers = Object.assign({Authorization : 'Basic ' + btoa(this.auth_token), 'If-None-Match' : ''}, body != null ? {'Content-Type' : 'application/json'} : {});
-        return fetch(api + relative_url, Object.assign({method : method || 'get', headers : headers}, body != null ? {body : JSON.stringify(body)} : {}));
+        this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, 'refs', 'remotes', 'origin'));
+        this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, 'objects'));
     }
     
     remote_get_url()
@@ -136,56 +142,37 @@ export class Github
         this.FS.writeFile(obj_path, contents);
     }
 
-    async pull(print, repo_path = '.')
+    blob_sha(contents)
     {
-        const repo_url = this.remote_get_url();
-        const tree = this.ls_tree();
-        const repo = await this.api_request('repos', repo_url, '/contents').then(r => r.json());
-        
-        let Q = [...repo];
+        const header = `blob ${contents.length}\0`
+        const byte_array = new Uint8Array(header.length + contents.length);
+        byte_array.set(Array.from(header).map(c => c.charCodeAt()));
+        byte_array.set(contents, header.length);
+        return this.sha1(byte_array);
+    }
 
-        let res = [];
-        while(Q.length > 0)
-        {
-            const file = Q.pop();
-            if(file.type == 'file')
-            {
-                const tree_files = tree.filter(f => f.path == file.path);
-                if(!this.PATH_.exists(file.path))
-                {
-                    const contents = await this.load_file(print, file.path, file);
-                    this.FS.writeFile(file_path, contents);
-                    res.push({path: file_path, status : 'deleted'});
-                }
-                
-                else if(tree_files.length > 0 && tree_files[0].sha == file.sha) 
-                    res.push({path: file.path, status : 'not modified'});
-                
-                else if(tree_files.length > 0 && tree_files[0].sha != file.sha) 
-                {
-                    const ours_path = file.path;
-                    
-                    const contents = await this.load_file(print, file.path, file);
-                    const theirs_path = this.object_path(file);
-                    this.ave_object(theirs_path, contents);
+    update_ref(ref, new_value, repo_path = '.')
+    {
+        this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, ref), new_value);
+    }
 
-                    const old_file = tree_files[0];
-                    const old_path = this.object_path(old_file);
-                    const conflicted = this.merge(ours_path, theirs_path, old_path);
-                    res.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
-                }
-            }
-            else if(file.type == 'dir')
-            {
-                this.PATH_.mkdir_p(this.PATH.join(repo_path, file.path));
-                
-                const dir = await this.api_request('repos', repo_url, '/contents/' + file.path).then(r => r.json());
-                repo.push(...dir);
-                Q.push(...dir);
-            }
-        }
-        this.save_githubcontents(repo_path, repo);
-        return res;
+    rev_parse(ref, repo_path = '.')
+    {
+        ref = this.FS.readFile(this.PATH.join(repo_path, this.dot_git, ref), {encoding: 'utf8'})
+        if(ref.startsWith('ref: '))
+            return ref.split(': ').pop();
+        return ref;
+    }
+
+
+    clone(print, auth_token, repo_url, repo_path, branch = null)
+    {
+        return this.parse_url(repo_url).gist ? this.clone_gist(print, auth_token, repo_url, repo_path) : this.clone_repo(print, auth_token, repo_url, repo_path);
+    }
+    
+    async push(print, status, message, retry)
+    {
+        return this.parse_url(repo_url).gist ? this.push_gist(print, status, message, retry) : this.push_repo(print, status, message, retry);
     }
     
     async load_file(print, file_path, file, opts)
@@ -211,15 +198,6 @@ export class Github
                 contents = this.FS.readFile(cached_file_path, opts);
         }
         return contents;
-    }
-
-    blob_sha(contents)
-    {
-        const header = `blob ${contents.length}\0`
-        const byte_array = new Uint8Array(header.length + contents.length);
-        byte_array.set(Array.from(header).map(c => c.charCodeAt()));
-        byte_array.set(contents, header.length);
-        return this.sha1(byte_array);
     }
 
     status()
@@ -260,18 +238,7 @@ export class Github
         
         return {...this.parse_url(this.remote_get_url()), files : files, remote_branch : remote_branch, remote_commit : base_commit_sha};
     }
-
-    async push_gist(status, message, retry)
-    {
-        const repo_url = this.remote_get_url();
-
-        // TODO: check last commit+pull? check binary files? 
-        const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {content : s.status == 'deleted' ? null : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
-
-        const resp = await this.api_request('gists', repo_url, message, 'PATCH', { files : Object.fromEntries(files) });
-        console.assert(resp.ok); 
-    }
-
+    
     async clone_gist(print, auth_token, repo_url, repo_path)
     {
         this.auth_token = auth_token;
@@ -289,35 +256,6 @@ export class Github
             this.FS.writeFile(file_path, contents);
         }
         this.save_githubcontents(repo_path, repo);
-    }
-
-    async pull_gist(auth_token)
-    {
-        this.auth_token = auth_token;
-        const repo = await this.api_request('gists', repo_url).then(r => r.json());
-
-        let res = [];
-        for(const file of repo)
-        {
-
-        }
-        return res;
-    }
-
-    init(repo_path)
-    {
-        this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, 'refs', 'remotes', 'origin'));
-        this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, 'objects'));
-    }
-
-    clone(print, auth_token, repo_url, repo_path, branch = null)
-    {
-        return this.parse_url(repo_url).gist ? this.clone_gist(print, auth_token, repo_url, repo_path) : this.clone_repo(print, auth_token, repo_url, repo_path);
-    }
-
-    update_ref(ref, new_value, repo_path = '.')
-    {
-        this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, ref), new_value);
     }
 
     async clone_repo(print, auth_token, repo_url, repo_path, branch = null)
@@ -360,15 +298,19 @@ export class Github
         print('Done!');
     }
 
-    rev_parse(ref, repo_path = '.')
-    {
-        ref = this.FS.readFile(this.PATH.join(repo_path, this.dot_git, ref), {encoding: 'utf8'})
-        if(ref.startsWith('ref: '))
-            return ref.split(': ').pop();
-        return ref;
-    }
 
-    async push(print, status, message, retry)
+    async push_gist(status, message, retry)
+    {
+        const repo_url = this.remote_get_url();
+
+        // TODO: check last commit+pull? check binary files? 
+        const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {content : s.status == 'deleted' ? null : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
+
+        const resp = await this.api_request('gists', repo_url, message, 'PATCH', { files : Object.fromEntries(files) });
+        console.assert(resp.ok); 
+    }
+    
+    async push_repo(print, status, message, retry)
     {
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         const repo_url = this.remote_get_url();
@@ -462,5 +404,70 @@ export class Github
         // https://developer.github.com/v3/repos/releases/#create-a-release
         // https://developer.github.com/v3/repos/releases/#upload-a-release-asset
         // https://developer.github.com/v3/repos/releases/#delete-a-release-asset
+    }
+
+    async pull_repo(print, repo_path = '.')
+    {
+        const repo_url = this.remote_get_url();
+        const tree = this.ls_tree();
+        const repo = await this.api_request('repos', repo_url, '/contents').then(r => r.json());
+        
+        let Q = [...repo];
+
+        let res = [];
+        while(Q.length > 0)
+        {
+            const file = Q.pop();
+            if(file.type == 'file')
+            {
+                const tree_files = tree.filter(f => f.path == file.path);
+                if(!this.PATH_.exists(file.path))
+                {
+                    const contents = await this.load_file(print, file.path, file);
+                    this.FS.writeFile(file_path, contents);
+                    res.push({path: file_path, status : 'deleted'});
+                }
+                
+                else if(tree_files.length > 0 && tree_files[0].sha == file.sha) 
+                    res.push({path: file.path, status : 'not modified'});
+                
+                else if(tree_files.length > 0 && tree_files[0].sha != file.sha) 
+                {
+                    const ours_path = file.path;
+                    
+                    const contents = await this.load_file(print, file.path, file);
+                    const theirs_path = this.object_path(file);
+                    this.ave_object(theirs_path, contents);
+
+                    const old_file = tree_files[0];
+                    const old_path = this.object_path(old_file);
+                    const conflicted = this.merge(ours_path, theirs_path, old_path);
+                    res.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
+                }
+            }
+            else if(file.type == 'dir')
+            {
+                this.PATH_.mkdir_p(this.PATH.join(repo_path, file.path));
+                
+                const dir = await this.api_request('repos', repo_url, '/contents/' + file.path).then(r => r.json());
+                repo.push(...dir);
+                Q.push(...dir);
+            }
+        }
+        this.save_githubcontents(repo_path, repo);
+        return res;
+    }
+
+    async pull_gist(auth_token)
+    {
+        this.auth_token = auth_token;
+        const repo = await this.api_request('gists', repo_url).then(r => r.json());
+
+        let res = [];
+        for(const file of repo)
+        {
+
+        }
+        return res;
     }
 }

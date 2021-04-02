@@ -4,6 +4,10 @@
 //     "documentation_url": "https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"
 //     }
 //
+
+const delay = seconds => new Promise(resolve => setTimeout(resolve, seconds * 1000));
+const network_error = resp => new Error(`${resp.status}: ${resp.statusText}`);
+
 const base64_encode_utf8 = str => btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {return String.fromCharCode(parseInt(p1, 16)) }));
 const base64_encode_uint8array = uint8array => btoa(String.fromCharCode.apply(null, uint8array));
 
@@ -16,9 +20,6 @@ const base64_encode_uint8array = uint8array => btoa(String.fromCharCode.apply(nu
 *  }
 */
 
-
-const delay = seconds => new Promise(resolve => setTimeout(resolve, seconds * 1000));
-const network_error = resp => new Error(`${resp.status}: ${resp.statusText}`);
 
 export class Github
 {
@@ -165,6 +166,8 @@ export class Github
     }
 
 
+
+
     clone(print, auth_token, repo_url, repo_path, branch = null)
     {
         return this.parse_url(repo_url).gist ? this.clone_gist(print, auth_token, repo_url, repo_path) : this.clone_repo(print, auth_token, repo_url, repo_path);
@@ -172,7 +175,7 @@ export class Github
     
     async push(print, status, message, retry)
     {
-        return this.parse_url(repo_url).gist ? this.push_gist(print, status, message, retry) : this.push_repo(print, status, message, retry);
+        return this.parse_url(this.remote_get_url()).gist ? this.push_gist(print, status, message, retry) : this.push_repo(print, status, message, retry);
     }
     
     async load_file(print, file_path, file, opts)

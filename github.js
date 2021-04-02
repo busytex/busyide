@@ -397,7 +397,7 @@ export class Github
             
             const uint8array = this.FS.readFile(file_path);
             
-            const resp = await this.api_request('repos', repo_url, '/contents/' + file_path, 'PUT', Object.assign({message : message, content : base64_encode_uint8array(uint8array)}, sha ? {sha : sha} : {}));
+            const resp = await this.api_request('repos', repo_url, this.PATH.join('/contents', file_path), 'PUT', Object.assign({message : message, content : base64_encode_uint8array(uint8array)}, sha ? {sha : sha} : {}));
             console.assert(resp.ok);
             //sha = (await resp.json()).content.sha;
         }
@@ -408,7 +408,7 @@ export class Github
             const sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
             
             console.assert(sha != null);
-            const resp = await this.api_request('repos', repo_url, '/contents/' + file_path, 'DELETE', {message : message, sha : sha});
+            const resp = await this.api_request('repos', repo_url, this.PATH.join('/contents', file_path), 'DELETE', {message : message, sha : sha});
             console.assert(resp.ok);
         }
         else if(no_deletes)

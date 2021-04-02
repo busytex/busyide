@@ -371,7 +371,8 @@ export class Github
     async push(print, status, message, retry)
     {
         const repo_url = this.remote_get_url();
-        const base_commit_sha = this.rev_parse(this.ref_origin_head);
+        const base_branch = this.rev_parse(this.ref_origin_head, repo_path);
+        const base_commit_sha = this.rev_parse(base_branch, repo_path);
         const tree = this.ls_tree(base_commit_sha);
         
         if(status.files.every(s => s == 'not modified'))

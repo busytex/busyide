@@ -388,6 +388,7 @@ export class Github
 
         if(single_file_upsert)
         {
+            print(`Single file [${modified[0].status}]: [${modified[0].path}]`);
             const file_path = modified[0].path;
             const sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
             
@@ -399,6 +400,7 @@ export class Github
         }
         else if(single_file_delete)
         {
+            print(`Single file [deleted]: [${modified[0].path}]`);
             const file_path = modified[0].path;
             const sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
             
@@ -408,25 +410,30 @@ export class Github
         }
         else if(no_deletes)
         {
+            print(`${modified.length} files modified`);
             // http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
             const mode = { blob : '100644', executable: '100755', tree: '040000', commit: '160000', blobsymlink: '120000' };
             
             const blob_promises = modified.map(({path, status, abspath}) => this.api_request('repos', repo_url, '/git/blobs', 'POST', {encoding: 'base64', content: base64_encode_uint8array(this.FS.readFile(abspath))}).then(r => r.json()));
-            
             const blobs = await Promise.all(blob_promises);
+            print(`Uploaded [${blob_promises.length}] blobs on remote`);
+
             const new_tree = { base_tree : tree.sha, tree : blobs.map((blob, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob.sha })) };
             let resp = await this.api_request('repos', repo_url, '/git/trees', 'POST', new_tree).then(r => r.json());
             const new_tree_sha = resp.sha;
+            print(`Created tree on remote: ${new_tree_sha}`);
 
             //TODO: save tree locally
 
             const new_commit = { message : message, parents : [base_commit_sha], tree : new_tree_sha };
             resp = await this.api_request('repos', repo_url, '/git/commits', 'POST', new_commit).then(r => r.json());
             const new_commit_sha = resp.sha;
+            print(`Created commit on remote: ${new_commit_sha}`);
             
             const new_ref = {sha : new_commit_sha};
             resp = await this.api_request('repos', repo_url, this.PATH.join('/git/refs', remote_branch, 'HEAD'), 'PATCH', new_ref);
             console.assert(resp.ok);
+            print(`Updated ref [remote_branch] on remote`);
 
             //TODO: update ref locally
         }

@@ -434,7 +434,7 @@ export class Github
             print(`Created commit on remote: ${new_commit_sha}`);
             
             const new_ref = {sha : new_commit_sha};
-            resp = await this.api_request('repos', repo_url, this.PATH.join('/git/refs', remote_branch, 'HEAD'), 'PATCH', new_ref);
+            resp = await this.api_request('repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
             console.assert(resp.ok);
             print(`Updated ref [remote_branch] on remote`);
 

@@ -1029,12 +1029,10 @@ export class Shell
 
     download(file_path, mime)
     {
-        if(!this.FS.analyzePath(file_path).exists)
+        if(!this.exists(file_path))
             return;
 
-        mime = mime || 'application/octet-stream';
-        let content = this.FS.readFile(file_path);
-        this.ui.create_and_click_download_link(this.PATH.basename(file_path), content, mime);
+        this.ui.create_and_click_download_link(this.PATH.basename(file_path), this.FS.readFile(file_path), mime || 'application/octet-stream');
     }
     
     merge(ours_path, theirs_path, parent_path, df13_diff = '/tmp/df13.diff', df23_diff = '/tmp/df23.diff', conflict_left = '<<<<<<<', conflict_right = '>>>>>>>')

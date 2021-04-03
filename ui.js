@@ -603,7 +603,8 @@ export class Shell
     
     async git_push()
     {
-        await this.github.push(this.log_small.bind(this), this.github.status(), this.ui.commit_message.value);
+        this.log_big_header('$ git push', this.git_log); 
+        await this.github.push(this.log_big.bind(this), this.github.status(), this.ui.commit_message.value);
     }
     
     async cache_load()

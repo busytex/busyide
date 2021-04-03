@@ -336,7 +336,7 @@ export class Github
 
         if(single_file_upsert)
         {
-            print(`Single file [${modified[0].status}]: [${modified[0].path}]`);
+            print(`Single file [${modified[0].status}], using Contents API: [${modified[0].path}]`);
             const file_path = modified[0].path;
             const sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
             
@@ -348,7 +348,7 @@ export class Github
         }
         else if(single_file_delete)
         {
-            print(`Single file [deleted]: [${modified[0].path}]`);
+            print(`Single file [deleted], using Contents API: [${modified[0].path}]`);
             const file_path = modified[0].path;
             const sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
             
@@ -358,7 +358,7 @@ export class Github
         }
         else if(no_deletes)
         {
-            print(`${modified.length} files modified`);
+            print(`${modified.length} files modified, no deletes, using simplified Tree API`);
             // http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
             const mode = { blob : '100644', executable: '100755', tree: '040000', commit: '160000', blobsymlink: '120000' };
             

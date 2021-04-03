@@ -333,6 +333,8 @@ const ui =
         for(const {path, status, abspath, abspath_remote} of st)
         {
             const tr = tbody.insertRow();
+            tr.hidden = status == 'not modified';
+            tr.className = status.replace(' ', '_');
             
             let tc = tr.insertCell();
             {

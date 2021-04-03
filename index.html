@@ -172,13 +172,14 @@
         <figure hidden id="gitstatus" class="busyui">
             <figcaption>$ git status</figcaption>
             <button id="commit_push" class="busyui">Commit &amp; Push</button>
-            <button id="show_not_modified" class="busyui">Show [not modified] files</button>
+            <button id="toggle_not_modified" class="busyui">Show [not modified]</button>
             <textarea id="commit_message" class="busyui" placeholder="Please add a commit message"></textarea>
             
             <strong>Remote branch:</strong><a class="remotebranch"></a>, <strong>commit:</strong><a class="remotecommit"></a>
             <table>
                 <thead><tr><th>path</th><th>remote</th><th>github</th><th>diff</th></tr></thead>
                 <tbody></tbody>
+                <tfoot hidden><tr><td colspan="4">nothing to commit</td></tr></tfoot>
             </table>
         </figure>
         <figure hidden id="gitpull" class="busyui">
@@ -325,6 +326,12 @@ const ui =
     {
         let span = ui.current_file, input = ui.current_file_rename;
         [span.hidden, input.hidden] = [!span.hidden, !input.hidden];
+    },
+
+    toggle_not_modified()
+    {
+        for(const tr of document.querySelectorAll('.file_not_modified'))
+            tr.hidden = !tr.hidden;
     },
 
     update_tbody(tbody, st, format_path, onclick_open, onclick_open_remote, onclick_diff)

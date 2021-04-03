@@ -20,6 +20,16 @@ const base64_encode_uint8array = uint8array => btoa(String.fromCharCode.apply(nu
 *  }
 */
 
+class ApiResult
+{
+    constructor(resp, type = 'json', ok = 200)
+    {
+        this.status = resp.status;
+        this.statusText = resp.statusText;
+        this.result = type == 'json' ? resp.json() : type == 'text' ? resp.text() : null;
+        this.ok = resp.status == ok;
+    }
+}
 
 export class Github
 {

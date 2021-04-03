@@ -330,7 +330,7 @@ const ui =
 
     toggle_not_modified()
     {
-        for(const tr of document.querySelectorAll('.file_not_modified'))
+        for(const tr of document.querySelectorAll('.notmodified'))
             tr.hidden = !tr.hidden;
     },
 
@@ -341,7 +341,7 @@ const ui =
         {
             const tr = tbody.insertRow();
             tr.hidden = status == 'not modified';
-            tr.className = status.replace(' ', '_');
+            tr.className = status.replace(' ', '');
             
             let tc = tr.insertCell();
             {

@@ -348,23 +348,26 @@ export class Github
         {
             print(`Single file [${modified[0].status}], using Contents API: [${modified[0].path}]`);
             const file_path = modified[0].path;
-            const sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
+            const blob_sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
             
             const uint8array = this.FS.readFile(file_path);
             
-            const resp = await this.api_request('repos', repo_url, this.PATH.join('/contents', file_path), 'PUT', Object.assign({message : message, content : base64_encode_uint8array(uint8array)}, sha ? {sha : sha} : {}));
+            const resp = await this.api_request('repos', repo_url, this.PATH.join('/contents', file_path), 'PUT', Object.assign({message : message, content : base64_encode_uint8array(uint8array)}, blob_sha ? {sha : blob_sha} : {}));
             console.assert(resp.ok);
-            //sha = (await resp.json()).content.sha;
+            const new_commit_sha = (await resp.json()).commit.sha;
+            print(`OK! New commit on remote: ${new_commit_sha}`);
         }
         else if(single_file_delete)
         {
             print(`Single file [deleted], using Contents API: [${modified[0].path}]`);
             const file_path = modified[0].path;
-            const sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
+            const blob_sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
             
             console.assert(sha != null);
-            const resp = await this.api_request('repos', repo_url, this.PATH.join('/contents', file_path), 'DELETE', {message : message, sha : sha});
+            const resp = await this.api_request('repos', repo_url, this.PATH.join('/contents', file_path), 'DELETE', {message : message, sha : blob_sha});
             console.assert(resp.ok);
+            const new_commit_sha = (await resp.json()).commit.sha;
+            print(`OK! New commit on remote: ${new_commit_sha}`);
         }
         else if(no_deletes)
         {
@@ -391,7 +394,7 @@ export class Github
             const new_ref = {sha : new_commit_sha};
             resp = await this.api_request('repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
             console.assert(resp.ok);
-            print(`Updated ref on remote [${remote_branch}]`);
+            print(`OK! Updated ref on remote [${remote_branch}]`);
 
             //TODO: update ref locally
         }

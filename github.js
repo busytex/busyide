@@ -353,6 +353,7 @@ export class Github
             console.assert(resp.ok);
             const new_commit_sha = resp.result.commit.sha;
             print(`OK! New commit on remote: ${new_commit_sha}`);
+            return true;
         }
         else if(single_file_delete)
         {
@@ -365,6 +366,7 @@ export class Github
             console.assert(resp.ok);
             const new_commit_sha = resp.result.commit.sha;
             print(`OK! New commit on remote: ${new_commit_sha}`);
+            return true;
         }
         else if(no_deletes)
         {
@@ -372,9 +374,10 @@ export class Github
             // http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
             const mode = { blob : '100644', executable: '100755', tree: '040000', commit: '160000', blobsymlink: '120000' };
             
+            print(`Uploading [${blob_promises.length}] blobs to remote... If this takes too long, you may be experiencing Internet connectivity issues...`);
             const blob_promises = modified.map(({path, status, abspath}) => this.api('repos', repo_url, '/git/blobs', 'POST', {encoding: 'base64', content: base64_encode_uint8array(this.FS.readFile(abspath))}));
             const blobs = await Promise.all(blob_promises);
-            print(`Uploaded [${blob_promises.length}] blobs on remote`);
+            print(`Uploaded [${blob_promises.length}] blobs to remote`);
 
             const new_tree = { base_tree : tree.sha, tree : blobs.map((blob, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob.result.sha })) };
             let resp = await this.api('repos', repo_url, '/git/trees', 'POST', new_tree);
@@ -392,7 +395,7 @@ export class Github
             resp = await this.api('repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
             console.assert(resp.ok);
             print(`OK! Updated ref on remote [${remote_branch}]`);
-
+            return true;
             //TODO: update ref locally
         }
 

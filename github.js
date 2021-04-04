@@ -51,7 +51,7 @@ export class Github
     {
         const api = realm != 'gists' ? repo_url.replace('github.com', this.PATH.join(this.api_endpoint, realm)) : ('https://' + this.PATH.join(this.api_endpoint, 'gists', this.parse_url(repo_url).reponame));
         const headers = Object.assign({Authorization : 'Basic ' + btoa(this.auth_token), 'If-None-Match' : ''}, body != null ? {'Content-Type' : 'application/json'} : {});
-        return fetch(api + relative_url, Object.assign({method : method || 'get', headers : headers}, body != null ? {body : JSON.stringify(body)} : {})).then(r => Promise.resolve(new ApiResult(r, await r[result]())));
+        return fetch(api + relative_url, Object.assign({method : method || 'get', headers : headers}, body != null ? {body : JSON.stringify(body)} : {})).then(r => Promise.all([Promise.resolve(r), r[result]()])).then(args => Promise.resolve(new ApiResult(...args)));
     }
 
     parse_url(repo_url)

@@ -47,7 +47,7 @@ export class Github
         this.dot_git = '.git';
     }
     
-    api_request(realm, repo_url, relative_url = '', method = 'get', body = null, result = 'json')
+    api(realm, repo_url, relative_url = '', method = 'get', body = null, result = 'json')
     {
         const api = realm != 'gists' ? repo_url.replace('github.com', this.PATH.join(this.api_endpoint, realm)) : ('https://' + this.PATH.join(this.api_endpoint, 'gists', this.parse_url(repo_url).reponame));
         const headers = Object.assign({Authorization : 'Basic ' + btoa(this.auth_token), 'If-None-Match' : ''}, body != null ? {'Content-Type' : 'application/json'} : {});
@@ -252,7 +252,7 @@ export class Github
     async clone_gist(print, auth_token, repo_url, repo_path)
     {
         this.auth_token = auth_token;
-        const repo = await this.api_request('gists', repo_url).then(r => r.json());
+        const repo = await this.api('gists', repo_url).then(r => r.json());
 
         this.PATH_.mkdir_p(this.PATH.join(repo_path, '.git', 'objects'));
         this.FS.writeFile(this.PATH.join(repo_path, '.git', 'config'), `[remote "origin"]\nurl = ${repo_url}`);
@@ -273,11 +273,11 @@ export class Github
         this.auth_token = auth_token;
         
         if(!branch)
-            branch = (await this.api_request('repos', repo_url)).result.default_branch;
+            branch = (await this.api('repos', repo_url)).result.default_branch;
         
         //TODO: bypass browser cache
-        const commit = await this.api_request('repos', repo_url, `/commits/${branch}`).then(r => r.json());
-        const tree = await this.api_request('repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`).then(r => r.json());
+        const commit = (await this.api('repos', repo_url, `/commits/${branch}`)).result;
+        const tree = (await this.api('repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`)).result;
 
         //TODO: process truncated trees recursively
         console.assert(tree.truncated == false);
@@ -316,7 +316,7 @@ export class Github
         // TODO: check last commit+pull? check binary files? 
         const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {content : s.status == 'deleted' ? null : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
 
-        const resp = await this.api_request('gists', repo_url, message, 'PATCH', { files : Object.fromEntries(files) });
+        const resp = await this.api('gists', repo_url, message, 'PATCH', { files : Object.fromEntries(files) });
         console.assert(resp.ok); 
     }
     
@@ -349,9 +349,9 @@ export class Github
             
             const uint8array = this.FS.readFile(file_path);
             
-            const resp = await this.api_request('repos', repo_url, this.PATH.join('/contents', file_path), 'PUT', Object.assign({message : message, content : base64_encode_uint8array(uint8array)}, blob_sha ? {sha : blob_sha} : {}));
+            const resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'PUT', Object.assign({message : message, content : base64_encode_uint8array(uint8array)}, blob_sha ? {sha : blob_sha} : {}));
             console.assert(resp.ok);
-            const new_commit_sha = (await resp.json()).commit.sha;
+            const new_commit_sha = resp.result.commit.sha;
             print(`OK! New commit on remote: ${new_commit_sha}`);
         }
         else if(single_file_delete)
@@ -361,9 +361,9 @@ export class Github
             const blob_sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
             
             console.assert(sha != null);
-            const resp = await this.api_request('repos', repo_url, this.PATH.join('/contents', file_path), 'DELETE', {message : message, sha : blob_sha});
+            const resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'DELETE', {message : message, sha : blob_sha});
             console.assert(resp.ok);
-            const new_commit_sha = (await resp.json()).commit.sha;
+            const new_commit_sha = resp.result.commit.sha;
             print(`OK! New commit on remote: ${new_commit_sha}`);
         }
         else if(no_deletes)
@@ -372,24 +372,24 @@ export class Github
             // http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
             const mode = { blob : '100644', executable: '100755', tree: '040000', commit: '160000', blobsymlink: '120000' };
             
-            const blob_promises = modified.map(({path, status, abspath}) => this.api_request('repos', repo_url, '/git/blobs', 'POST', {encoding: 'base64', content: base64_encode_uint8array(this.FS.readFile(abspath))}).then(r => r.json()));
+            const blob_promises = modified.map(({path, status, abspath}) => this.api('repos', repo_url, '/git/blobs', 'POST', {encoding: 'base64', content: base64_encode_uint8array(this.FS.readFile(abspath))}));
             const blobs = await Promise.all(blob_promises);
             print(`Uploaded [${blob_promises.length}] blobs on remote`);
 
-            const new_tree = { base_tree : tree.sha, tree : blobs.map((blob, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob.sha })) };
-            let resp = await this.api_request('repos', repo_url, '/git/trees', 'POST', new_tree).then(r => r.json());
-            const new_tree_sha = resp.sha;
+            const new_tree = { base_tree : tree.sha, tree : blobs.map((blob, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob.result.sha })) };
+            let resp = await this.api('repos', repo_url, '/git/trees', 'POST', new_tree);
+            const new_tree_sha = resp.result.sha;
             print(`Created tree on remote: ${new_tree_sha}`);
 
             //TODO: save tree locally
 
             const new_commit = { message : message, parents : [base_commit_sha], tree : new_tree_sha };
-            resp = await this.api_request('repos', repo_url, '/git/commits', 'POST', new_commit).then(r => r.json());
-            const new_commit_sha = resp.sha;
+            resp = await this.api('repos', repo_url, '/git/commits', 'POST', new_commit);
+            const new_commit_sha = resp.result.sha;
             print(`Created commit on remote: ${new_commit_sha}`);
             
             const new_ref = {sha : new_commit_sha};
-            resp = await this.api_request('repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
+            resp = await this.api('repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
             console.assert(resp.ok);
             print(`OK! Updated ref on remote [${remote_branch}]`);
 
@@ -423,7 +423,7 @@ export class Github
     {
         const repo_url = this.remote_get_url();
         const tree = this.ls_tree();
-        const repo = await this.api_request('repos', repo_url, '/contents').then(r => r.json());
+        const repo = await this.api('repos', repo_url, '/contents').then(r => r.json());
         
         let Q = [...repo];
 
@@ -462,7 +462,7 @@ export class Github
             {
                 this.PATH_.mkdir_p(this.PATH.join(repo_path, file.path));
                 
-                const dir = await this.api_request('repos', repo_url, '/contents/' + file.path).then(r => r.json());
+                const dir = await this.api('repos', repo_url, '/contents/' + file.path).then(r => r.json());
                 repo.push(...dir);
                 Q.push(...dir);
             }
@@ -474,7 +474,7 @@ export class Github
     async pull_gist(auth_token)
     {
         this.auth_token = auth_token;
-        const repo = await this.api_request('gists', repo_url).then(r => r.json());
+        const repo = await this.api('gists', repo_url).then(r => r.json());
 
         let res = [];
         for(const file of repo)

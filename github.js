@@ -20,15 +20,12 @@ const base64_encode_uint8array = uint8array => btoa(String.fromCharCode.apply(nu
 *  }
 */
 
-class ApiResult
+function ApiResult(resp, result)
 {
-    constructor(resp, type = 'json', ok = 200)
-    {
-        this.status = resp.status;
-        this.statusText = resp.statusText;
-        this.result = type == 'json' ? resp.json() : type == 'text' ? resp.text() : null;
-        this.ok = resp.status == ok;
-    }
+    this.status = resp.status;
+    this.statusText = resp.statusText;
+    this.result = result;
+    this.ok = resp.status == ok;
 }
 
 export class Github
@@ -50,11 +47,11 @@ export class Github
         this.dot_git = '.git';
     }
     
-    api_request(realm, repo_url, relative_url = '', method = 'get', body = null)
+    api_request(realm, repo_url, relative_url = '', method = 'get', body = null, result = 'json')
     {
         const api = realm != 'gists' ? repo_url.replace('github.com', this.PATH.join(this.api_endpoint, realm)) : ('https://' + this.PATH.join(this.api_endpoint, 'gists', this.parse_url(repo_url).reponame));
         const headers = Object.assign({Authorization : 'Basic ' + btoa(this.auth_token), 'If-None-Match' : ''}, body != null ? {'Content-Type' : 'application/json'} : {});
-        return fetch(api + relative_url, Object.assign({method : method || 'get', headers : headers}, body != null ? {body : JSON.stringify(body)} : {}));
+        return fetch(api + relative_url, Object.assign({method : method || 'get', headers : headers}, body != null ? {body : JSON.stringify(body)} : {})).then(r => Promise.resolve(r, await r[result]()));
     }
 
     parse_url(repo_url)
@@ -276,7 +273,7 @@ export class Github
         this.auth_token = auth_token;
         
         if(!branch)
-            branch = (await this.api_request('repos', repo_url).then(r => r.json())).default_branch;
+            branch = (await this.api_request('repos', repo_url)).result.default_branch;
         
         //TODO: bypass browser cache
         const commit = await this.api_request('repos', repo_url, `/commits/${branch}`).then(r => r.json());

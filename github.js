@@ -24,8 +24,8 @@ function ApiResult(resp, result)
 {
     this.status = resp.status;
     this.statusText = resp.statusText;
+    this.ok = resp.ok;
     this.result = result;
-    this.ok = resp.status == ok;
 }
 
 export class Github

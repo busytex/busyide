@@ -271,15 +271,29 @@ export class Github
     async clone_repo(print, auth_token, repo_url, repo_path, branch = null)
     {
         this.auth_token = auth_token;
-        
+        let resp = null;
         if(!branch)
-            branch = (await this.api('repos', repo_url)).result.default_branch;
+        {
+            print('No branch passed. Querying the remote for default branch...')
+            resp = await this.api('repos', repo_url);
+            console.assert(resp.ok);
+            branch = resp.result.default_branch;
+            print(`Obtained default branch: [${branch}]`);
+        }
         
         //TODO: bypass browser cache
-        const commit = (await this.api('repos', repo_url, `/commits/${branch}`)).result;
-        const tree = (await this.api('repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`)).result;
+        print(`Querying commits of branch [${branch}]...`);
+        resp = await this.api('repos', repo_url, `/commits/${branch}`);
+        console.assert(resp.ok);
+        const commit = resp.result;
+        print(`Commit [${commit.sha}] obtained successfully`);
 
-        //TODO: process truncated trees recursively
+        print(`Querying tree of commit [${commit.commit.tree.sha}]...`);
+        resp = await this.api('repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
+        console.assert(resp.ok);
+        const tree = resp.result;
+        print(`Tree [${commit.commit.tree.sha}] obtained successfully`);
+        
         console.assert(tree.truncated == false);
 
         this.init(repo_path);
@@ -307,7 +321,6 @@ export class Github
         }
         print('Done!');
     }
-
 
     async push_gist(status, message, retry)
     {

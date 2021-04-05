@@ -198,7 +198,13 @@ export class Github
         else
         {
             print(`Downloading [${file_path}] from [${file.url}] and caching in [${cached_file_path}]`);
-            const resp = await fetch(file.url).then(r => r.json());
+            const resp = await fetch(file.url);
+            if(!resp.ok)
+            {
+                print(`Dowloading [${file.url}] failed`);
+                return null;
+            }
+            const result = await resp.json();
             console.assert(resp.encoding == 'base64');
             contents = Uint8Array.from(atob(resp.content), v => v.charCodeAt());
             //const resp = await fetch(file.download_url).then(r => r.arrayBuffer());
@@ -281,19 +287,17 @@ export class Github
             print(`Obtained default branch: [${branch}]`);
         }
         
-        //TODO: bypass browser cache
         print(`Querying commits of branch [${branch}]...`);
         resp = await this.api('repos', repo_url, `/commits/${branch}`);
-        console.assert(resp.ok);
+        if(!resp.ok) return false;
         const commit = resp.result;
         print(`Commit [${commit.sha}] obtained successfully`);
 
         print(`Querying tree of commit [${commit.commit.tree.sha}]...`);
         resp = await this.api('repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
-        console.assert(resp.ok);
+        if(!resp.ok) return false;
         const tree = resp.result;
         print(`Tree [${commit.commit.tree.sha}] obtained successfully`);
-        
         console.assert(tree.truncated == false);
 
         this.init(repo_path);
@@ -315,11 +319,14 @@ export class Github
             {
                 const file_path = this.PATH.join(repo_path, file.path);
                 const contents = await this.load_file(print, file_path, file);
+                if(contents === null) return false;
+
                 this.FS.writeFile(file_path, contents);
                 this.save_object(this.object_path(file, repo_path), contents);
             }
         }
         print('Done!');
+        return true;
     }
 
     async push_gist(status, message, retry)
@@ -363,7 +370,11 @@ export class Github
             const uint8array = this.FS.readFile(file_path);
             
             const resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'PUT', Object.assign({message : message, content : base64_encode_uint8array(uint8array)}, blob_sha ? {sha : blob_sha} : {}));
-            console.assert(resp.ok);
+            if(!resp.ok)
+            {
+                print('Update request failed.');
+                return false;
+            }
             const new_commit_sha = resp.result.commit.sha;
             print(`OK! New commit on remote: ${new_commit_sha}`);
             return true;
@@ -376,7 +387,11 @@ export class Github
             
             console.assert(sha != null);
             const resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'DELETE', {message : message, sha : blob_sha});
-            console.assert(resp.ok);
+            if(!resp.ok)
+            {
+                print('Update request failed.');
+                return false;
+            }
             const new_commit_sha = resp.result.commit.sha;
             print(`OK! New commit on remote: ${new_commit_sha}`);
             return true;

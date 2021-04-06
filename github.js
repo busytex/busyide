@@ -185,6 +185,17 @@ export class Github
         return this.parse_url(this.remote_get_url()).gist ? this.push_gist(print, status, message, retry) : this.push_repo(print, status, message, retry);
     }
     
+    cached_path(file)
+    {
+        return this.PATH.join(this.cache_dir, file.sha);
+    }
+
+    add(file, contents, repo_path)
+    {
+        this.FS.writeFile(this.cached_path(file), contents);
+        this.save_object(this.object_path(file, repo_path), contents);
+    }
+
     async load_file(print, file_path, file, opts)
     {
         opts = opts || {encoding: 'binary'};
@@ -403,11 +414,29 @@ export class Github
             const mode = { blob : '100644', executable: '100755', tree: '040000', commit: '160000', blobsymlink: '120000' };
             
             print(`Uploading [${blob_promises.length}] blobs to remote... If this takes too long, you may be experiencing Internet connectivity issues...`);
-            const blob_promises = modified.map(({path, status, abspath}) => this.api('repos', repo_url, '/git/blobs', 'POST', {encoding: 'base64', content: base64_encode_uint8array(this.FS.readFile(abspath))}));
-            const blobs = await Promise.all(blob_promises);
+            const blob_promises = modified.map(({path, status, abspath}) => 
+            {
+                const contents = this.FS.readFile(abspath);
+                print(`Uploading [${path}]`);
+                this.api('repos', repo_url, '/git/blobs', 'POST', {encoding: 'base64', content: base64_encode_uint8array(contents)}).then(resp => 
+                {
+                    if(!resp.ok)
+                    {
+                        print(`Upload of [${path}] failed`);
+                        return null;
+                    }
+                    else
+                    {
+                        print(`Uploading [${path}] succeeded. Caching blob locally.`);
+                        this.add(resp.result, contents, repo_path);
+                        return resp.result.sha;
+                    }
+                }
+            }));
+            const blob_shas = await Promise.all(blob_promises);
             print(`Uploaded [${blob_promises.length}] blobs to remote`);
 
-            const new_tree = { base_tree : tree.sha, tree : blobs.map((blob, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob.result.sha })) };
+            const new_tree = { base_tree : tree.sha, tree : blobs.map((blob_, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob_sha })) };
             let resp = await this.api('repos', repo_url, '/git/trees', 'POST', new_tree);
             const new_tree_sha = resp.result.sha;
             print(`Created tree on remote: ${new_tree_sha}`);

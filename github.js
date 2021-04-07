@@ -389,6 +389,7 @@ export class Github
                 print('Update request failed.');
                 return false;
             }
+            console.log('result', resp.result);
             const new_commit_sha = resp.result.commit.sha;
             print(`OK! New commit on remote: ${new_commit_sha}`);
             return true;
@@ -406,6 +407,7 @@ export class Github
                 print('Update request failed.');
                 return false;
             }
+            console.log('result', resp.result);
             const new_commit_sha = resp.result.commit.sha;
             print(`OK! New commit on remote: ${new_commit_sha}`);
             return true;

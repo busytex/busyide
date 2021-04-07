@@ -316,9 +316,9 @@ export class Github
         
         const origin_branch = this.PATH.join(this.ref_origin, branch)
         
+        this.commit_tree(commit, tree, repo_path);
         this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
         this.update_ref(origin_branch, commit.sha, repo_path);
-        this.commit_tree(commit, tree, repo_path);
 
         for(const file of tree.tree)
         {
@@ -371,6 +371,8 @@ export class Github
         const single_file_upsert = deleted.length == 0 && modified.length == 1;
         const single_file_delete = deleted.length == 1 && modified.length == 0;
         const no_deletes = deleted.length == 0;
+        
+        const mode = { blob : '100644', executable: '100755', tree: '040000', commit: '160000', blobsymlink: '120000' };
 
         if(single_file_upsert)
         {
@@ -409,15 +411,14 @@ export class Github
         }
         else if(no_deletes)
         {
-            print(`${modified.length} files modified, no deletes, using simplified Tree API`);
+            print(`[${modified.length}] files modified, no deletes, using simplified Tree API`);
             // http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
-            const mode = { blob : '100644', executable: '100755', tree: '040000', commit: '160000', blobsymlink: '120000' };
             
-            print(`Uploading [${blob_promises.length}] blobs to remote... If this takes too long, you may be experiencing Internet connectivity issues...`);
+            print(`Uploading [${modified.length}] blobs to remote... If this takes too long, you may be experiencing Internet connectivity issues...`);
             const blob_promises = modified.map(({path, status, abspath}) => 
             {
                 const contents = this.FS.readFile(abspath);
-                print(`Uploading [${path}]`);
+                print(`Uploading [${path}]...`);
                 return this.api('repos', repo_url, '/git/blobs', 'POST', {encoding: 'base64', content: base64_encode_uint8array(contents)}).then(resp => 
                 {
                     if(!resp.ok)
@@ -427,7 +428,7 @@ export class Github
                     }
                     else
                     {
-                        print(`Uploading [${path}] succeeded. Caching blob locally.`);
+                        print(`Uploading [${path}] -> [${resp.result.sha}] succeeded. Caching blob locally...`);
                         this.add(resp.result, contents, repo_path);
                         return resp.result.sha;
                     }
@@ -441,19 +442,20 @@ export class Github
             const new_tree_sha = resp.result.sha;
             print(`Created tree on remote: ${new_tree_sha}`);
 
-            //TODO: save tree locally
-
             const new_commit = { message : message, parents : [base_commit_sha], tree : new_tree_sha };
             resp = await this.api('repos', repo_url, '/git/commits', 'POST', new_commit);
             const new_commit_sha = resp.result.sha;
-            print(`Created commit on remote: ${new_commit_sha}`);
+            print(`Created commit on remote: ${new_commit_sha}. Caching commit locally...`);
+            //this.commit_tree(commit, tree, repo_path);
+            
             
             const new_ref = {sha : new_commit_sha};
             resp = await this.api('repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
             console.assert(resp.ok);
-            print(`OK! Updated ref on remote [${remote_branch}]`);
+            print(`OK! Updated ref on remote [${remote_branch}]. Updating refs locally...`);
+            //this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
+            //this.update_ref(origin_branch, commit.sha, repo_path);
             return true;
-            //TODO: update ref locally
         }
 
             

@@ -439,12 +439,14 @@ export class Github
 
             const new_tree = { base_tree : tree.sha, tree : blobs.map((blob_, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob_sha })) };
             let resp = await this.api('repos', repo_url, '/git/trees', 'POST', new_tree);
+            console.log('tree', resp.result);
             const new_tree_sha = resp.result.sha;
             print(`Created tree on remote: ${new_tree_sha}`);
 
             const new_commit = { message : message, parents : [base_commit_sha], tree : new_tree_sha };
             resp = await this.api('repos', repo_url, '/git/commits', 'POST', new_commit);
             const new_commit_sha = resp.result.sha;
+            console.log('commit', resp.result);
             print(`Created commit on remote: ${new_commit_sha}. Caching commit locally...`);
             //this.commit_tree(commit, tree, repo_path);
             

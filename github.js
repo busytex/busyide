@@ -394,10 +394,10 @@ export class Github
                 return false;
             }
 
-            const commit = resp.result.commit, tree = resp.result.commit.tree;
-            print(`OK! Created commit on remote: [${commit.sha}]. Caching commit and updating ref locally...`);
-            this.commit_tree(commit, tree, repo_path);
-            this.update_ref(origin_branch, commit.sha, repo_path);
+            const new_commit = resp.result.commit, new_tree = resp.result.commit.tree;
+            print(`OK! Created commit on remote: [${new_commit.sha}]. Caching commit and updating ref locally...`);
+            this.commit_tree(new_commit, new_tree, repo_path);
+            this.update_ref(origin_branch, new_commit.sha, repo_path);
             return true;
         }
         else if(no_deletes)

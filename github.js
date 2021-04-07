@@ -375,41 +375,29 @@ export class Github
         
         const mode = { blob : '100644', executable: '100755', tree: '040000', commit: '160000', blobsymlink: '120000' };
 
-        if(single_file_upsert)
+        if(single_file_upsert || single_file_delete)
         {
-            print(`Single file [${modified[0].status}], using Contents API: [${modified[0].path}]`);
-            const file_path = modified[0].path;
+            const modified_deleted = [...modified, ...deleted];
+            print(`Single file [${modified_deleted[0].status}], using Contents API: [${modified_deleted[0].path}]`);
+            const file_path = modified_deleted[0].path;
             const blob_sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
             
-            const uint8array = this.FS.readFile(file_path);
-            
-            const resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'PUT', Object.assign({message : message, content : base64_encode_uint8array(uint8array)}, blob_sha ? {sha : blob_sha} : {}));
+            let resp = null;
+            if(single_file_upsert)
+                resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'PUT', {message : message, content : base64_encode_uint8array(this.FS.readFile(file_path)), ...(blob_sha ? {sha : blob_sha} : {})} );
+            else if(single_file_delete)
+                resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'DELETE', {message : message, sha : blob_sha} );
+
             if(!resp.ok)
             {
                 print('Update request failed.');
                 return false;
             }
-            console.log('result', resp.result);
-            const new_commit_sha = resp.result.commit.sha;
-            print(`OK! New commit on remote: ${new_commit_sha}`);
-            return true;
-        }
-        else if(single_file_delete)
-        {
-            print(`Single file [deleted], using Contents API: [${modified[0].path}]`);
-            const file_path = modified[0].path;
-            const blob_sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
-            
-            console.assert(sha != null);
-            const resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'DELETE', {message : message, sha : blob_sha});
-            if(!resp.ok)
-            {
-                print('Update request failed.');
-                return false;
-            }
-            console.log('result', resp.result);
-            const new_commit_sha = resp.result.commit.sha;
-            print(`OK! New commit on remote: ${new_commit_sha}`);
+
+            const {commit, tree} = resp.result;
+            print(`OK! Created commit on remote: [${commit.sha}]. Caching commit and updating ref locally...`);
+            this.commit_tree(commit, tree, repo_path);
+            this.update_ref(origin_branch, commit.sha, repo_path);
             return true;
         }
         else if(no_deletes)
@@ -442,19 +430,32 @@ export class Github
 
             let new_tree = { base_tree : tree.sha, tree : blob_shas.map((blob_sha, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob_sha })) };
             let resp = await this.api('repos', repo_url, '/git/trees', 'POST', new_tree);
+            if(!resp.ok)
+            {
+                print('Tree upload failed');
+                return false;
+            }
             new_tree = resp.result;
             print(`Created tree on remote: ${new_tree.sha}`);
 
             let new_commit = { message : message, parents : [base_commit_sha], tree : new_tree.sha };
             resp = await this.api('repos', repo_url, '/git/commits', 'POST', new_commit);
+            if(!resp.ok)
+            {
+                print('Commit failed');
+                return false;
+            }
             new_commit = resp.result;
-            const new_commit_sha = new_commit.sha;
-            print(`Created commit on remote: ${new_commit_sha}. Caching commit locally...`);
+            print(`Created commit on remote: ${new_commit.sha}. Caching commit locally...`);
             this.commit_tree(new_commit, new_tree, repo_path);
             
-            const new_ref = {sha : new_commit_sha};
+            const new_ref = {sha : new_commit.sha};
             resp = await this.api('repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
-            console.assert(resp.ok);
+            if(!resp.ok)
+            {
+                print('Update ref failed');
+                return false;
+            }
             print(`OK! Updated ref on remote [${remote_branch}]. Updating refs locally...`);
             this.update_ref(origin_branch, new_commit.sha, repo_path);
             return true;

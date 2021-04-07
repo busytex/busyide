@@ -394,7 +394,7 @@ export class Github
                 return false;
             }
 
-            const {commit, tree} = resp.result;
+            const commit = resp.result.commit, tree = resp.result.commit.tree;
             print(`OK! Created commit on remote: [${commit.sha}]. Caching commit and updating ref locally...`);
             this.commit_tree(commit, tree, repo_path);
             this.update_ref(origin_branch, commit.sha, repo_path);

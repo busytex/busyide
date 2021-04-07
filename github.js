@@ -216,8 +216,8 @@ export class Github
                 return null;
             }
             const result = await resp.json();
-            console.assert(resp.encoding == 'base64');
-            contents = Uint8Array.from(atob(resp.content), v => v.charCodeAt());
+            console.assert(result.encoding == 'base64');
+            contents = Uint8Array.from(atob(result.content), v => v.charCodeAt());
             //const resp = await fetch(file.download_url).then(r => r.arrayBuffer());
             //contents = new Uint8Array(await resp);
             this.FS.writeFile(cached_file_path, contents, {encoding: 'binary'});

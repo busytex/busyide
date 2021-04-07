@@ -99,7 +99,7 @@ export class Github
 
     commit_tree(commit, tree, repo_path = '.')
     {
-        this.save_object(this.object_path(commit, repo_path), JSON.stringify(tree));
+        this.save_object(this.object_path(commit, repo_path), JSON.stringify(tree, null, 2));
     }
 
     cat_file(abspath, tree_dict = null)
@@ -314,7 +314,7 @@ export class Github
         this.init(repo_path);
         this.remote_set_url(repo_url, repo_path);
         
-        const origin_branch = this.PATH.join(this.ref_origin, branch)
+        const origin_branch = this.PATH.join(this.ref_origin, branch);
         
         this.commit_tree(commit, tree, repo_path);
         this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
@@ -357,6 +357,7 @@ export class Github
         const repo_url = this.remote_get_url();
         const base_branch = this.rev_parse(this.ref_origin_head, repo_path);
         const remote_branch = this.PATH.basename(base_branch);
+        const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
         const base_commit_sha = this.rev_parse(base_branch, repo_path);
         const tree = this.ls_tree(base_commit_sha);
         
@@ -437,26 +438,23 @@ export class Github
             const blob_shas = await Promise.all(blob_promises);
             print(`Uploaded [${blob_promises.length}] blobs to remote`);
 
-            const new_tree = { base_tree : tree.sha, tree : blob_shas.map((blob_sha, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob_sha })) };
+            let new_tree = { base_tree : tree.sha, tree : blob_shas.map((blob_sha, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob_sha })) };
             let resp = await this.api('repos', repo_url, '/git/trees', 'POST', new_tree);
-            console.log('tree', resp.result);
-            const new_tree_sha = resp.result.sha;
-            print(`Created tree on remote: ${new_tree_sha}`);
+            new_tree = resp.result;
+            print(`Created tree on remote: ${new_tree.sha}`);
 
-            const new_commit = { message : message, parents : [base_commit_sha], tree : new_tree_sha };
+            let new_commit = { message : message, parents : [base_commit_sha], tree : new_tree.sha };
             resp = await this.api('repos', repo_url, '/git/commits', 'POST', new_commit);
-            const new_commit_sha = resp.result.sha;
-            console.log('commit', resp.result);
+            new_commit = resp.result;
+            const new_commit_sha = new_commit.sha;
             print(`Created commit on remote: ${new_commit_sha}. Caching commit locally...`);
-            //this.commit_tree(commit, tree, repo_path);
-            
+            this.commit_tree(new_commit, new_tree, repo_path);
             
             const new_ref = {sha : new_commit_sha};
             resp = await this.api('repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
             console.assert(resp.ok);
             print(`OK! Updated ref on remote [${remote_branch}]. Updating refs locally...`);
-            //this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
-            //this.update_ref(origin_branch, commit.sha, repo_path);
+            this.update_ref(origin_branch, new_commit.sha, repo_path);
             return true;
         }
 

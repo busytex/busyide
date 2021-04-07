@@ -437,7 +437,7 @@ export class Github
             const blob_shas = await Promise.all(blob_promises);
             print(`Uploaded [${blob_promises.length}] blobs to remote`);
 
-            const new_tree = { base_tree : tree.sha, tree : blobs.map((blob_, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob_sha })) };
+            const new_tree = { base_tree : tree.sha, tree : blob_shas.map((blob_sha, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob_sha })) };
             let resp = await this.api('repos', repo_url, '/git/trees', 'POST', new_tree);
             console.log('tree', resp.result);
             const new_tree_sha = resp.result.sha;

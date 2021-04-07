@@ -418,7 +418,7 @@ export class Github
             {
                 const contents = this.FS.readFile(abspath);
                 print(`Uploading [${path}]`);
-                this.api('repos', repo_url, '/git/blobs', 'POST', {encoding: 'base64', content: base64_encode_uint8array(contents)}).then(resp => 
+                return this.api('repos', repo_url, '/git/blobs', 'POST', {encoding: 'base64', content: base64_encode_uint8array(contents)}).then(resp => 
                 {
                     if(!resp.ok)
                     {
@@ -431,8 +431,8 @@ export class Github
                         this.add(resp.result, contents, repo_path);
                         return resp.result.sha;
                     }
-                }
-            }));
+                });
+            });
             const blob_shas = await Promise.all(blob_promises);
             print(`Uploaded [${blob_promises.length}] blobs to remote`);
 

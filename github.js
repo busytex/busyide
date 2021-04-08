@@ -383,13 +383,16 @@ export class Github
             print(`Single file [${modified_deleted[0].status}], using Contents API: [${modified_deleted[0].path}]`);
             const file_path = modified_deleted[0].path;
             const blob_sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
+            const contents = this.FS.analyzePath(file_path).exists ? this.FS.readFile(file_path) : null;
             
             let resp = null;
             if(single_file_upsert)
-                resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'PUT', {message : message, content : base64_encode_uint8array(this.FS.readFile(file_path)), ...(blob_sha ? {sha : blob_sha} : {})} );
+                resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'PUT', {message : message, content : base64_encode_uint8array(contents), ...(blob_sha ? {sha : blob_sha} : {})} );
             else if(single_file_delete)
                 resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'DELETE', {message : message, sha : blob_sha} );
 
+            console.log(resp.result);
+            
             if(!resp.ok)
             {
                 print('Update request failed.');
@@ -408,6 +411,8 @@ export class Github
             const new_tree = resp.result;
             print(`Obtained new tree. [${new_commit.tree.sha}]...`);
 
+            if(single_file_upsert && blob_sha)
+                this.add({sha : blob_sha}, contents, repo_path);
             this.commit_tree(new_commit, new_tree, repo_path);
             this.update_ref(origin_branch, new_commit.sha, repo_path);
             return true;

@@ -391,7 +391,7 @@ export class Github
             else if(single_file_delete)
                 resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'DELETE', {message : message, sha : blob_sha} );
 
-            console.log(resp.result);
+            console.log('COMMITTED', resp.result);
             
             if(!resp.ok)
             {
@@ -409,10 +409,14 @@ export class Github
                 return false;
             }
             const new_tree = resp.result;
+            console.log('TREE', new_tree);
             print(`Obtained new tree. [${new_commit.tree.sha}]...`);
 
             if(single_file_upsert && blob_sha)
+            {
                 this.add({sha : blob_sha}, contents, repo_path);
+                print(`Added locally blob [${blob_sha}]`);
+            }
             this.commit_tree(new_commit, new_tree, repo_path);
             this.update_ref(origin_branch, new_commit.sha, repo_path);
             return true;

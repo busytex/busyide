@@ -395,10 +395,10 @@ export class Github
                 print('Update request failed.');
                 return false;
             }
+            const new_commit = resp.result.commit;
 
             print(`OK! Created commit on remote: [${new_commit.sha}]. Obtaining new tree [${new_commit.tree.sha}]...`);
             
-            const new_commit = resp.result.commit;
             resp = await this.api('repos', repo_url, `/git/trees/${new_commit.tree.sha}?recursive=1`);
             if(!resp.ok)
             {

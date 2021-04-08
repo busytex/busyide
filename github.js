@@ -390,16 +390,13 @@ export class Github
                 resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'PUT', {message : message, content : base64_encode_uint8array(contents), ...(blob_sha ? {sha : blob_sha} : {})} );
             else if(single_file_delete)
                 resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'DELETE', {message : message, sha : blob_sha} );
-
-            console.log('COMMITTED', resp.result);
             
             if(!resp.ok)
             {
                 print('Update request failed.');
                 return false;
             }
-            const new_commit = resp.result.commit;
-
+            const new_commit = resp.result.commit, new_blob = resp.result.content;
             print(`OK! Created commit on remote: [${new_commit.sha}]. Obtaining new tree [${new_commit.tree.sha}]...`);
             
             resp = await this.api('repos', repo_url, `/git/trees/${new_commit.tree.sha}?recursive=1`);
@@ -409,13 +406,12 @@ export class Github
                 return false;
             }
             const new_tree = resp.result;
-            console.log('TREE', new_tree);
             print(`Obtained new tree. [${new_commit.tree.sha}]...`);
 
             if(single_file_upsert && blob_sha)
             {
-                this.add({sha : blob_sha}, contents, repo_path);
-                print(`Added locally blob [${blob_sha}]`);
+                this.add(new_blob, contents, repo_path);
+                print(`Added locally blob [${new_blob.sha}]`);
             }
             this.commit_tree(new_commit, new_tree, repo_path);
             this.update_ref(origin_branch, new_commit.sha, repo_path);

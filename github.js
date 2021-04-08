@@ -300,15 +300,17 @@ export class Github
         
         print(`Querying commits of branch [${branch}]...`);
         resp = await this.api('repos', repo_url, `/commits/${branch}`);
-        if(!resp.ok) return false;
+        if(!resp.ok)
+            return false;
         const commit = resp.result;
         print(`Commit [${commit.sha}] obtained successfully`);
 
         print(`Querying tree of commit [${commit.commit.tree.sha}]...`);
         resp = await this.api('repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
-        if(!resp.ok) return false;
+        if(!resp.ok)
+            return false;
         const tree = resp.result;
-        print(`Tree [${commit.commit.tree.sha}] obtained successfully`);
+        print(`Tree [${tree.sha}] obtained successfully`);
         console.assert(tree.truncated == false);
 
         this.init(repo_path);
@@ -394,8 +396,18 @@ export class Github
                 return false;
             }
 
-            const new_commit = resp.result.commit, new_tree = resp.result.commit.tree;
-            print(`OK! Created commit on remote: [${new_commit.sha}]. Caching commit and updating ref locally...`);
+            print(`OK! Created commit on remote: [${new_commit.sha}]. Obtaining new tree [${new_commit.tree.sha}]...`);
+            
+            const new_commit = resp.result.commit;
+            resp = await this.api('repos', repo_url, `/git/trees/${new_commit.tree.sha}?recursive=1`);
+            if(!resp.ok)
+            {
+                print('Obtaining new tree failed.');
+                return false;
+            }
+            const new_tree = resp.result;
+            print(`Obtained new tree. [${new_commit.tree.sha}]...`);
+
             this.commit_tree(new_commit, new_tree, repo_path);
             this.update_ref(origin_branch, new_commit.sha, repo_path);
             return true;

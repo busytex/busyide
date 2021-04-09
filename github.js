@@ -289,28 +289,42 @@ export class Github
     {
         this.auth_token = auth_token;
         let resp = null;
+        let comment = null;
         if(!branch)
         {
-            print('No branch passed. Querying the remote for default branch...')
+            comment = 'Getting default branch...';
+            print(comment);
             resp = await this.api('repos', repo_url);
-            console.assert(resp.ok);
+            if(!resp.ok)
+            {
+                print(comment + ' FAILED!');
+                return false;
+            }
             branch = resp.result.default_branch;
-            print(`Obtained default branch: [${branch}]`);
         }
+        print(`Branch [${branch}]`);
         
-        print(`Querying commits of branch [${branch}]...`);
+        comment = `Getting commits of branch [${branch}]...`;
+        print(comment);
         resp = await this.api('repos', repo_url, `/commits/${branch}`);
         if(!resp.ok)
+        {
+            print(comment + ' FAILED!');
             return false;
+        }
         const commit = resp.result;
-        print(`Commit [${commit.sha}] obtained successfully`);
+        print(comment + ` commit [${commit.sha}]`);
 
-        print(`Querying tree of commit [${commit.commit.tree.sha}]...`);
+        comment = `Getting tree of commit [${commit.commit.tree.sha}]...`;
+        print(comment);
         resp = await this.api('repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
         if(!resp.ok)
+        {
+            print(comment + ' FAILED!');
             return false;
+        }
         const tree = resp.result;
-        print(`Tree [${tree.sha}] obtained successfully`);
+        print(comment + ' OK!');
         console.assert(tree.truncated == false);
 
         this.init(repo_path);
@@ -388,7 +402,7 @@ export class Github
             
             print(`Single file [${modified_deleted[0].status}], using Contents API`);
             
-            comment = `GitHub API: [${modified_deleted[0].path}] -> [[${modified_deleted[0].status}]] ...`
+            comment = `GitHub API: [${modified_deleted[0].path}] -> [${modified_deleted[0].status}] ...`
             print(comment);
             if(single_file_upsert)
                 resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'PUT', {message : message, content : base64_encode_uint8array(contents), ...(blob_sha ? {sha : blob_sha} : {})} );

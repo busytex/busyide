@@ -47,7 +47,7 @@ export class Github
         this.dot_git = '.git';
     }
     
-    api(realm, repo_url, relative_url = '', method = 'GET', body = null, result = 'json', log_prefix = '', print = (str => null))
+    api(log_prefix, print, realm, repo_url, relative_url = '', method = 'GET', body = null, result = 'json')
     {
         const api = realm != 'gists' ? repo_url.replace('github.com', this.PATH.join(this.api_endpoint, realm)) : ('https://' + this.PATH.join(this.api_endpoint, 'gists', this.parse_url(repo_url).reponame));
         const headers = Object.assign({Authorization : 'Basic ' + btoa(this.auth_token), 'If-None-Match' : ''}, body != null ? {'Content-Type' : 'application/json'} : {});
@@ -300,39 +300,23 @@ export class Github
         let comment = null;
         if(!branch)
         {
-            comment = 'Getting default branch...';
-            print(comment);
-            resp = await this.api('repos', repo_url);
+            resp = await this.api('Getting default branch...', print, 'repos', repo_url);
             if(!resp.ok)
-            {
-                print(comment + ' FAILED!');
                 return false;
-            }
             branch = resp.result.default_branch;
         }
         print(`Branch [${branch}]`);
         
-        comment = `Getting commits of branch [${branch}]...`;
-        print(comment);
-        resp = await this.api('repos', repo_url, `/commits/${branch}`);
+        resp = await this.api(`Getting commits of branch [${branch}]...`, print, 'repos', repo_url, `/commits/${branch}`);
         if(!resp.ok)
-        {
-            print(comment + ' FAILED!');
             return false;
-        }
         const commit = resp.result;
         print(comment + ` commit [${commit.sha}]`);
 
-        comment = `Getting tree of commit [${commit.commit.tree.sha}]...`;
-        print(comment);
-        resp = await this.api('repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
+        resp = await this.api(`Getting tree of commit [${commit.commit.tree.sha}]...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
         if(!resp.ok)
-        {
-            print(comment + ' FAILED!');
             return false;
-        }
         const tree = resp.result;
-        print(comment + ' OK!');
         console.assert(tree.truncated == false);
 
         this.init(repo_path);

@@ -430,54 +430,39 @@ export class Github
             const blob_promises = modified.map(({path, status, abspath}) => 
             {
                 const contents = this.FS.readFile(abspath);
-                print(`Uploading [${path}]...`);
-                return this.api('repos', repo_url, '/git/blobs', 'POST', {encoding: 'base64', content: base64_encode_uint8array(contents)}).then(resp => 
+                return this.api(`Uploading [${path}]...`, print, 'repos', repo_url, '/git/blobs', 'POST', {encoding: 'base64', content: base64_encode_uint8array(contents)}).then(resp => 
                 {
                     if(!resp.ok)
-                    {
-                        print(`Upload of [${path}] failed`);
                         return null;
-                    }
                     else
                     {
-                        print(`Uploading [${path}] -> [${resp.result.sha}] succeeded. Caching blob locally...`);
+                        print(`Adding blob locally [${path}] -> [${resp.result.sha}]...`);
                         this.add(resp.result, contents, repo_path);
                         return resp.result.sha;
                     }
                 });
             });
             const blob_shas = await Promise.all(blob_promises);
-            print(`Uploaded [${blob_promises.length}] blobs to remote`);
 
             let new_tree = { base_tree : tree.sha, tree : blob_shas.map((blob_sha, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob_sha })) };
-            let resp = await this.api('repos', repo_url, '/git/trees', 'POST', new_tree);
+            let resp = await this.api(`Uploaded [${blob_promises.length}] blobs to remote`, print, 'repos', repo_url, '/git/trees', 'POST', new_tree);
             if(!resp.ok)
-            {
-                print('Tree upload failed');
                 return false;
-            }
             new_tree = resp.result;
-            print(`Created tree on remote: ${new_tree.sha}`);
 
             let new_commit = { message : message, parents : [base_commit_sha], tree : new_tree.sha };
-            resp = await this.api('repos', repo_url, '/git/commits', 'POST', new_commit);
+            resp = await this.api(`Created tree on remote: ${new_tree.sha}`, print, 'repos', repo_url, '/git/commits', 'POST', new_commit);
             if(!resp.ok)
-            {
-                print('Commit failed');
                 return false;
-            }
             new_commit = resp.result;
-            print(`Created commit on remote: ${new_commit.sha}. Caching commit locally...`);
+            print(`Caching commit [${new_commit.sha}] locally...`);
             this.commit_tree(new_commit, new_tree, repo_path);
             
             const new_ref = {sha : new_commit.sha};
-            resp = await this.api('repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
+            resp = await this.api(`Updating ref on remote...`, print, 'repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
             if(!resp.ok)
-            {
-                print('Update ref failed');
                 return false;
-            }
-            print(`OK! Updated ref on remote [${remote_branch}]. Updating refs locally...`);
+            print(`Updating ref locally...`);
             this.update_ref(origin_branch, new_commit.sha, repo_path);
             return true;
         }

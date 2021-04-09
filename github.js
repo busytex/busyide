@@ -57,7 +57,7 @@ export class Github
         print(`${method} ${url}`);
         return fetch(url, Object.assign({method : method || 'GET', headers : headers}, body != null ? {body : JSON.stringify(body)} : {})).then(resp => resp[result]().then(data => 
         {
-            print(log_prefix + (resp.ok ? ' OK!', ' FAILED!'));
+            print(log_prefix + (resp.ok ? ' OK!': ' FAILED!'));
             return ({result : data, ok : resp.ok}); 
         }));
     }

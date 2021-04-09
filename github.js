@@ -394,37 +394,28 @@ export class Github
             
             print(`Single file [${modified_deleted[0].status}], using Contents API`);
             
-            comment = `GitHub API: [${modified_deleted[0].path}] -> [${modified_deleted[0].status}] ...`
-            print(comment);
+            comment = `[${modified_deleted[0].path}] -> [${modified_deleted[0].status}] ...`
             if(single_file_upsert)
-                resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'PUT', {message : message, content : base64_encode_uint8array(contents), ...(blob_sha ? {sha : blob_sha} : {})} );
+                resp = await this.api(comment, print, 'repos', repo_url, this.PATH.join('/contents', file_path), 'PUT', {message : message, content : base64_encode_uint8array(contents), ...(blob_sha ? {sha : blob_sha} : {})} );
             else if(single_file_delete)
-                resp = await this.api('repos', repo_url, this.PATH.join('/contents', file_path), 'DELETE', {message : message, sha : blob_sha} );
+                resp = await this.api(comment, print, 'repos', repo_url, this.PATH.join('/contents', file_path), 'DELETE', {message : message, sha : blob_sha} );
             
             if(!resp.ok)
-            {
-                print(comment + ' FAILED!');
                 return false;
-            }
+            
             const new_commit = resp.result.commit, new_blob = resp.result.content;
-            print(comment + ` OK! Commit: [${new_commit.sha}]`);
+            print(`Commit: [${new_commit.sha}]`);
 
-            comment = `GitHub API: GET tree [${new_commit.tree.sha}] ...`;
-            print(comment);
-            
-            resp = await this.api('repos', repo_url, `/git/trees/${new_commit.tree.sha}?recursive=1`);
+            resp = await this.api(`GitHub API: GET tree [${new_commit.tree.sha}] ...`, print, 'repos', repo_url, `/git/trees/${new_commit.tree.sha}?recursive=1`);
             if(!resp.ok)
-            {
-                print(comment + ' FAILED!');
                 return false;
-            }
             const new_tree = resp.result;
-            print(comment + ` OK! Tree: [${new_commit.tree.sha}]`);
+            print(`Tree: [${new_commit.tree.sha}]`);
 
             if(single_file_upsert && blob_sha)
             {
                 this.add(new_blob, contents, repo_path);
-                print(`Locally: added blob [${new_blob.sha}]`);
+                print(`Locally added blob [${new_blob.sha}]`);
             }
             this.commit_tree(new_commit, new_tree, repo_path);
             this.update_ref(origin_branch, new_commit.sha, repo_path);

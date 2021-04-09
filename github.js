@@ -311,7 +311,7 @@ export class Github
         if(!resp.ok)
             return false;
         const commit = resp.result;
-        print(comment + ` commit [${commit.sha}]`);
+        print(`Commit [${commit.sha}]`);
 
         resp = await this.api(`Getting tree of commit [${commit.commit.tree.sha}]...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
         if(!resp.ok)

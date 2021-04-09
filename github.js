@@ -47,11 +47,19 @@ export class Github
         this.dot_git = '.git';
     }
     
-    api(realm, repo_url, relative_url = '', method = 'get', body = null, result = 'json')
+    api(realm, repo_url, relative_url = '', method = 'GET', body = null, result = 'json', log_prefix = '', print = (str => null))
     {
         const api = realm != 'gists' ? repo_url.replace('github.com', this.PATH.join(this.api_endpoint, realm)) : ('https://' + this.PATH.join(this.api_endpoint, 'gists', this.parse_url(repo_url).reponame));
         const headers = Object.assign({Authorization : 'Basic ' + btoa(this.auth_token), 'If-None-Match' : ''}, body != null ? {'Content-Type' : 'application/json'} : {});
-        return fetch(api + relative_url, Object.assign({method : method || 'get', headers : headers}, body != null ? {body : JSON.stringify(body)} : {})).then(resp => resp[result]().then(data => ({result : data, ok : resp.ok}) ));
+        const url = api + relative_url;
+        
+        print(log_prefix);
+        print(`${method} ${url}`);
+        return fetch(url, Object.assign({method : method || 'GET', headers : headers}, body != null ? {body : JSON.stringify(body)} : {})).then(resp => resp[result]().then(data => 
+        {
+            print(log_prefix + (resp.ok ? ' OK!', ' FAILED!'));
+            return ({result : data, ok : resp.ok}); 
+        }));
     }
 
     parse_url(repo_url)
@@ -269,7 +277,7 @@ export class Github
     async clone_gist(print, auth_token, repo_url, repo_path)
     {
         this.auth_token = auth_token;
-        const repo = await this.api('gists', repo_url).then(r => r.json());
+        const repo = (await this.api('gists', repo_url)).result;
 
         this.PATH_.mkdir_p(this.PATH.join(repo_path, '.git', 'objects'));
         this.FS.writeFile(this.PATH.join(repo_path, '.git', 'config'), `[remote "origin"]\nurl = ${repo_url}`);

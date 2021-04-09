@@ -203,12 +203,12 @@ export class Github
         const cached_file_path = this.PATH.join(this.cache_dir, file.sha);
         if(this.PATH_.exists(cached_file_path))
         {
-            print(`Loading [${file_path}] from cached [${cached_file_path}]`);
+            print(`[${file_path}] <- [${cached_file_path}]`);
             contents = this.FS.readFile(cached_file_path, opts);
         }
         else
         {
-            print(`Downloading [${file_path}] from [${file.url}] and caching in [${cached_file_path}]`);
+            print(`[${file_path}] <- [${cached_file_path}] <- [${file.url}]`);
             const resp = await fetch(file.url);
             if(!resp.ok)
             {
@@ -352,7 +352,7 @@ export class Github
                 this.save_object(this.object_path(file, repo_path), contents);
             }
         }
-        print('Done!');
+        print('OK!');
         return true;
     }
 

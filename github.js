@@ -416,7 +416,7 @@ export class Github
             print(`[${modified.length}] files modified, no deletes, using simplified Tree API`);
             // http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
             
-            print(`Blobs ([${blob_promises.length}]) ->...`);
+            print(`Blobs ([${modified.length}]) ->...`);
             const blob_promises = modified.map(({path, status, abspath}) => 
             {
                 const contents = this.FS.readFile(abspath);
@@ -433,7 +433,7 @@ export class Github
                 });
             });
             const blob_shas = await Promise.all(blob_promises);
-            print(`Blobs ([${blob_promises.length}]) ->... OK!`);
+            print(`Blobs ([${modified.length}]) ->... OK!`);
 
             let new_tree = { base_tree : tree.sha, tree : blob_shas.map((blob_sha, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob_sha })) };
             new_tree = await this.api(`Tree ->...`, print, 'repos', repo_url, '/git/trees', 'POST', new_tree);

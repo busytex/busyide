@@ -420,13 +420,13 @@ export class Github
             const blob_promises = modified.map(({path, status, abspath}) => 
             {
                 const contents = this.FS.readFile(abspath);
-                return this.api(`[${path}] -> ...`, print, 'repos', repo_url, '/git/blobs', 'POST', {encoding: 'base64', content: base64_encode_uint8array(contents)}).then(resp => 
+                return this.api(`Blob [${path}] -> ...`, print, 'repos', repo_url, '/git/blobs', 'POST', {encoding: 'base64', content: base64_encode_uint8array(contents)}).then(resp => 
                 {
                     if(!resp.ok)
                         return null;
                     else
                     {
-                        print(`Locally [${path}] -> [${resp.sha}]...`);
+                        print(`Blob [${path}] local -> [${resp.sha}]...`);
                         this.add(resp, contents, repo_path);
                         return resp.sha;
                     }
@@ -447,11 +447,11 @@ export class Github
             this.commit_tree(new_commit, new_tree, repo_path);
             
             const new_ref = {sha : new_commit.sha};
-            new_ref = await this.api(`Updating ref on remote -> [${new_commit.sha}]...`, print, 'repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
+            new_ref = await this.api(`Ref remote -> [${new_commit.sha}]...`, print, 'repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
             if(!new_ref.ok)
                 return false;
-            print('Updating ref locally...');
             this.update_ref(origin_branch, new_commit.sha, repo_path);
+            print(`Ref local -> [${new_commit.sha}]... OK!`);
             print('OK!');
             return true;
         }

@@ -47,7 +47,7 @@ export class Github
         this.dot_git = '.git';
     }
     
-    api(log_prefix, print, realm, repo_url, relative_url = '', method = 'GET', body = null)
+    api(log_prefix, print, realm, repo_url, relative_url = '', method = 'GET', body = null, object_name = '')
     {
         const api = realm != 'gists' ? repo_url.replace('github.com', this.PATH.join(this.api_endpoint, realm)) : ('https://' + this.PATH.join(this.api_endpoint, 'gists', this.parse_url(repo_url).reponame));
         const headers = Object.assign({Authorization : 'Basic ' + btoa(this.auth_token), 'If-None-Match' : ''}, body != null ? {'Content-Type' : 'application/json'} : {});
@@ -57,9 +57,9 @@ export class Github
         print(`${method} ${url}`);
         return fetch(url, {method : method || 'GET', headers : headers, ...(body != null ? {body : JSON.stringify(body)} : {})}).then(resp => resp.json().then(data => 
         {
-            print(log_prefix + (resp.ok ? ' OK!': ' FAILED!'));
-            return {...data, ok : resp.ok, status : resp.status}); 
-        }));
+            print(log_prefix + (resp.ok ? (' [' + (data.sha || (object_name ? data[object_name].sha : null) || ' OK!')) : ' FAILED!'));
+            return ({...data, ok : resp.ok, status : resp.status}); 
+        });
     }
 
     parse_url(repo_url)

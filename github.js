@@ -373,6 +373,8 @@ export class Github
        
         const modified = status.files.filter(s => s.status == 'modified' || s.status == 'new');
         const deleted = status.files.filter(s => s == 'deleted');
+        const deleted_paths = deleted.map(f => f.path);
+        const modified_paths = modified.map(f => f.path);
         const single_file_upsert = deleted.length == 0 && modified.length == 1;
         const single_file_delete = deleted.length == 1 && modified.length == 0;
         const no_deletes = deleted.length == 0;
@@ -411,9 +413,9 @@ export class Github
             print('OK!');
             return true;
         }
-        else if(no_deletes)
+        else
         {
-            print(`[${modified.length}] files modified, no deletes, using simplified Tree API`);
+            print(`[${modified.length}] files modified, [${deleted.length}] files deleted`);
             // http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
             
             print(`Blobs ([${modified.length}]) ->...`);
@@ -433,9 +435,12 @@ export class Github
                 });
             });
             const blob_shas = await Promise.all(blob_promises);
+            
+            //TODO: check that all blobs upload OK
             print(`Blobs ([${modified.length}]) ->... OK!`);
+            const modified_blobs = blob_shas.map((blob_sha, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob_sha }));
 
-            let new_tree = { base_tree : tree.sha, tree : blob_shas.map((blob_sha, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob_sha })) };
+            let new_tree = no_deletes ? { base_tree : tree.sha, tree : modified_blobs } : { tree : tree.filter(f => f.type == 'blob' && !deleted_paths.includes(f.path) && !modified_paths.includes(f.path)).concat(modified_blobs) };
             new_tree = await this.api(`Tree ->...`, print, 'repos', repo_url, '/git/trees', 'POST', new_tree);
             if(!new_tree.ok)
                 return false;

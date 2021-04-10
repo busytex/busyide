@@ -59,7 +59,7 @@ export class Github
         {
             print(log_prefix + (resp.ok ? (' [' + (data.sha || (object_name ? data[object_name].sha : null) || ' OK!')) : ' FAILED!'));
             return ({...data, ok : resp.ok, status : resp.status}); 
-        });
+        }));
     }
 
     parse_url(repo_url)

@@ -435,7 +435,7 @@ export class Github
             const blob_shas = await Promise.all(blob_promises);
 
             let new_tree = { base_tree : tree.sha, tree : blob_shas.map((blob_sha, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob_sha })) };
-            new_tree = await this.api(`Uploaded [${blob_promises.length}] blobs to remote`, print, 'repos', repo_url, '/git/trees', 'POST', new_tree);
+            new_tree = await this.api(`Uploaded [${blob_promises.length}] blobs to remote. Uploading new tree...`, print, 'repos', repo_url, '/git/trees', 'POST', new_tree);
             if(!new_tree.ok)
                 return false;
 
@@ -446,12 +446,13 @@ export class Github
             print(`Caching commit [${new_commit.sha}] locally...`);
             this.commit_tree(new_commit, new_tree, repo_path);
             
-            const new_ref = {sha : new_commit.sha};
+            let new_ref = {sha : new_commit.sha};
             new_ref = await this.api(`Ref remote -> [${new_commit.sha}]...`, print, 'repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
             if(!new_ref.ok)
                 return false;
             this.update_ref(origin_branch, new_commit.sha, repo_path);
             print(`Ref local -> [${new_commit.sha}]... OK!`);
+
             print('OK!');
             return true;
         }

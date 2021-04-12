@@ -436,7 +436,12 @@ export class Github
             });
             const blob_shas = await Promise.all(blob_promises);
             
-            //TODO: check that all blobs upload OK
+            if(blob_shas.some(blob_sha => blob_sha === null))
+            {
+                print('Some blobs failed the upload');
+                return false;
+            }
+
             print(`Blobs ([${modified.length}]) ->... OK!`);
             const modified_blobs = blob_shas.map((blob_sha, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob_sha }));
 

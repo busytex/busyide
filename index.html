@@ -300,12 +300,12 @@ const ui =
         if(error)
         {
             ui.error.className = 'error';
-            ui.error.dataset.error = error;
+            ui.error.title = ui.error.dataset.error = error;
         }
         else
         {
             ui.error.className = 'ok';
-            ui.error.dataset.error = 'All OK!';
+            ui.error.title = ui.error.dataset.error = 'All OK!';
         }
     },
 

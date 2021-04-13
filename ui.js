@@ -400,6 +400,7 @@ export class Shell
             catch(err)
             {
                 this.terminal_print('Error: ' + err.message);
+                this.ui.set_error(`[${cmd}] error: [${err.message}]`);
             }
         }
     }

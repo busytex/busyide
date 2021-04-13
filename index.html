@@ -46,6 +46,10 @@
         .error {
             background-color: red
         }
+        
+        .ok {
+            background-color: green
+        }
 
         #fileupload {
             display: none;
@@ -117,7 +121,7 @@
         <button id="upload" class="busyui">Upload Files</button>
         <button id="new_file" class="busyui">New File</button>
         <button id="new_folder" class="busyui">New Folder</button>
-        <button id="error" class="busyui" data-error="no error really">Current Error</button>
+        <button id="error" class="busyui ok" data-error="All OK!">Current Error</button>
         <div style="display: flex; margin-left:auto">
             <input type="text" id="github_https_path" class="busyui" placeholder="GitHub https link"></input>
             <input type="text" id="github_token" class="busyui" placeholder="GitHub token" title="for private clone/push"></input>
@@ -300,8 +304,8 @@ const ui =
         }
         else
         {
-            ui.error.className = '';
-            ui.error.dataset.error = '';
+            ui.error.className = 'ok';
+            ui.error.dataset.error = 'All OK!';
         }
     },
 

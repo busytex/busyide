@@ -80,7 +80,7 @@ export class Shell
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.onKey(this.onkey.bind(this));
 
-        this.ui.error.onclick = () => this.ui.error.dataset.error && [this.log_big_header('Current Error'), this.log_big(this.ui.error.dataset.error)];
+        this.ui.error.onclick = () => this.ui.error.dataset.error && [this.log_big_header('Current Error (if any):'), this.log_big(this.ui.error.dataset.error)];
         this.ui.clone.onclick = () => this.commands(chain('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('cd', this.PATH.join2('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('open', '.')) );
         this.ui.download_pdf.onclick = () => this.pdf_path && this.commands(cmd('download', arg(this.pdf_path)));
         this.ui.cache_tokenpurge.onclick = () => this.commands(cmd('cache', 'token', 'purge'));
@@ -514,6 +514,7 @@ export class Shell
         else
             await this.commands('man');
 
+        this.ui.set_error('');
         this.bind();
         this.dirty('timer_save');
     }

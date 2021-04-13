@@ -57,9 +57,15 @@ export class Github
         print(`${method} ${url}`);
         return fetch(url, {method : method || 'GET', headers : headers, ...(body != null ? {body : JSON.stringify(body)} : {})}).then(resp => resp.json().then(data => 
         {
-            print(log_prefix + (resp.ok ? (' OK! [' + (data.sha || (object_name ? data[object_name].sha : '')) + ']') : ' FAILED!'));
-            return ({...data, ok : resp.ok, status : resp.status}); 
+            print(log_prefix + (resp.ok ? (' OK! [' + (data.sha || (object_name ? data[object_name].sha : '')) + ']') : (' FAILED! [${resp.status}]: [${resp.statusText}]')));
+            return ({...data, ok : resp.ok, status : resp.status, statusText : resp.statusText}); 
         }));
+    }
+
+    check_response(resp)
+    {
+        if(resp.status == 429)
+            throw network_error(resp);
     }
 
     parse_url(repo_url)
@@ -306,11 +312,13 @@ export class Github
         print(`Branch [${branch}]`);
         
         const commit = await this.api(`Getting commits of branch [${branch}]...`, print, 'repos', repo_url, `/commits/${branch}`);
+        this.check_response(commit);
         if(!commit.ok)
             return false;
         print(`Commit [${commit.sha}]`);
 
         const tree = await this.api(`Getting tree of commit [${commit.commit.tree.sha}]...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
+        this.check_response(tree);
         if(!tree.ok)
             return false;
         console.assert(tree.truncated == false);

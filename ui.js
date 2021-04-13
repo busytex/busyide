@@ -372,9 +372,10 @@ export class Shell
             }
 
             const route = this.ui.get_route();
+            let exit_code = '';
             if(route.length > 1)
-                args = args.map(a => a.replace('$URLARG', route[1]));
-            
+                args = args.map(a => a.replaceAll('$@', route[1]));
+            args = args.map(a => a.replaceAll('$?', '' + exit_code);
             try
             {
                 if (cmd == '')
@@ -388,7 +389,11 @@ export class Shell
                     print_or_dump(this.git_applets);
 
                 else if(cmd == 'git' && args.length > 0 && this.git_applets.includes(args[0]))
-                    await this['git_' + args[0]](...args.slice(1));
+                {
+                    const res = await this['git_' + args[0]](...args.slice(1));
+                    console.log('res [', res, ']');
+                    exit_code = res === true ? 0 : res === false ? 1 : res !== null ? res : '';
+                }
 
                 else if(cmd == 'cache' && args.length > 0 && this.cache_applets.includes(args[0]))
                     print_or_dump(await this['cache_' + args[0]](...args.slice(1)));
@@ -396,11 +401,15 @@ export class Shell
                     print_or_dump(await this[cmd](...args));
                 else
                     this.terminal_print(cmd + ': command not found');
+
+                this.ui.set_error('');
             }
             catch(err)
             {
                 this.terminal_print('Error: ' + err.message);
                 this.ui.set_error(`[${cmd}] error: [${err.message}]`);
+                exit_code = exit_code === 0 ? 1 : exit_code;
+                break;
             }
         }
     }
@@ -480,7 +489,7 @@ export class Shell
         else if(route0 == 'base64targz')
         {
             project_dir = '~';
-            cmds = [this.cmd('echo', '$URLARG', '>', this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_targz), this.cmd('gzip', this.shared_project_targz), 'cd', this.cmd('tar', '-xf', this.share_project_tar), this.cmd('open', '.')];
+            cmds = [this.cmd('echo', '$@', '>', this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_targz), this.cmd('gzip', this.shared_project_targz), 'cd', this.cmd('tar', '-xf', this.share_project_tar), this.cmd('open', '.')];
         }
 
         if(cmds)

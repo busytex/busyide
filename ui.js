@@ -423,17 +423,15 @@ export class Shell
                 }
                 else
                 {
-                    this.ui.set_error(`Error: code [${exit_code}]`);
+                    this.ui.set_error(`[${cmd}] error code: [${exit_code}]`);
                     break;
                 }
             }
             catch(err)
             {
                 this.terminal_print('Error: ' + err.message);
-                console.log('Error:', err);
-                this.ui.set_error(`[${cmd}] error: [${err.message}]`);
-                console.log('Error:', this.ui.error);
-                exit_code = exit_code === 0 ? 1 : exit_code;
+                this.ui.set_error(`[${cmd}] error message: [${err.message}]`);
+                exit_code = (exit_code === '' || exit_code === 0) ? 1 : exit_code;
                 break;
             }
         }

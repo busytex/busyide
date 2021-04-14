@@ -586,7 +586,9 @@ export class Shell
 
         token = token || this.ui.github_token.value;
         
-        await this.github.clone(this.log_big.bind(this), token, https_path, repo_path);
+        const exit_code = await this.github.clone(this.log_big.bind(this), token, https_path, repo_path);
+        if(exit_code === false)
+            return false;
         
         if(!token_cached && token != '')
         {

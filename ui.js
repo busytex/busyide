@@ -381,12 +381,17 @@ export class Shell
                 if (cmd == '')
                 {
                 }
-                else if(this.busybox_applets.includes(cmd))
-                    print_or_dump(this.busybox.run([cmd, ...args]), '');
+
                 else if(cmd == 'help')
                     print_or_dump(this.shell_commands);
                 else if(cmd == 'git' && args.length == 0)
                     print_or_dump(this.git_applets);
+                
+                else if(this.busybox_applets.includes(cmd))
+                    print_or_dump(this.busybox.run([cmd, ...args]), '');
+                
+                else if(this.shell_builtins.includes(cmd))
+                    print_or_dump(await this[cmd](...args));
 
                 else if(cmd == 'git' && args.length > 0 && this.git_applets.includes(args[0]))
                 {
@@ -397,8 +402,7 @@ export class Shell
 
                 else if(cmd == 'cache' && args.length > 0 && this.cache_applets.includes(args[0]))
                     print_or_dump(await this['cache_' + args[0]](...args.slice(1)));
-                else if(this.shell_builtins.includes(cmd))
-                    print_or_dump(await this[cmd](...args));
+                
                 else
                     this.terminal_print(cmd + ': command not found');
 

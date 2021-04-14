@@ -301,6 +301,8 @@ export class Github
 
     async clone_repo(print, auth_token, repo_url, repo_path, branch = null)
     {
+        return false;
+
         this.auth_token = auth_token;
         if(!branch)
         {

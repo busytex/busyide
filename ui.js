@@ -390,10 +390,14 @@ export class Shell
                     print_or_dump(this.git_applets);
                 
                 else if(this.busybox_applets.includes(cmd))
+                {
                     print_or_dump(this.busybox.run([cmd, ...args]), '');
+                }
                 
                 else if(this.shell_builtins.includes(cmd))
+                {
                     print_or_dump(await this[cmd](...args));
+                }
 
                 else if(cmd == 'git' && args.length > 0 && this.git_applets.includes(args[0]))
                 {
@@ -408,12 +412,15 @@ export class Shell
                 else
                     this.terminal_print(cmd + ': command not found');
 
+                exit_code = 0;
                 this.ui.set_error('');
             }
             catch(err)
             {
                 this.terminal_print('Error: ' + err.message);
+                console.log('Error:', err);
                 this.ui.set_error(`[${cmd}] error: [${err.message}]`);
+                console.log('Error:', this.ui.error);
                 exit_code = exit_code === 0 ? 1 : exit_code;
                 break;
             }

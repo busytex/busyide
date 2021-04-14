@@ -385,29 +385,33 @@ export class Shell
                 }
 
                 else if(cmd == 'help')
+                {
                     print_or_dump(this.shell_commands);
+                }
                 else if(cmd == 'git' && args.length == 0)
+                {
                     print_or_dump(this.git_applets);
-                
-                else if(this.busybox_applets.includes(cmd))
-                {
-                    print_or_dump(this.busybox.run([cmd, ...args]), '');
                 }
                 
-                else if(this.shell_builtins.includes(cmd))
-                {
-                    print_or_dump(await this[cmd](...args));
-                }
-
                 else if(cmd == 'git' && args.length > 0 && this.git_applets.includes(args[0]))
                 {
                     const res = await this['git_' + args[0]](...args.slice(1));
                     console.log('res [', res, ']');
                     exit_code = res === true ? 0 : res === false ? 1 : res !== null ? res : '';
                 }
-
                 else if(cmd == 'cache' && args.length > 0 && this.cache_applets.includes(args[0]))
+                {
                     print_or_dump(await this['cache_' + args[0]](...args.slice(1)));
+                }
+                
+                else if(this.shell_builtins.includes(cmd))
+                {
+                    print_or_dump(await this[cmd](...args));
+                }
+                else if(this.busybox_applets.includes(cmd))
+                {
+                    print_or_dump(this.busybox.run([cmd, ...args]), '');
+                }
                 
                 else
                     this.terminal_print(cmd + ': command not found');
@@ -511,6 +515,8 @@ export class Shell
 
     async run(busybox_module_constructor, busybox_wasm_module_promise)
     {
+        this.ui.set_error('');
+        
         this.compiler.postMessage(this.paths);
         this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, this.log_small.bind(this));
         
@@ -527,6 +533,7 @@ export class Shell
         const sha1 = uint8array => this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40);
         this.github = new Github(this.cache_dir, this.merge.bind(this), sha1, this.FS, this.PATH, this);
         
+        
         await this.cache_load();
        
         const route = this.ui.get_route();
@@ -537,7 +544,6 @@ export class Shell
         else
             await this.commands('man');
 
-        this.ui.set_error('');
         this.bind();
         this.dirty('timer_save');
     }

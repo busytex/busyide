@@ -371,11 +371,13 @@ export class Shell
                 print_or_dump = arg => this.FS.writeFile(stdout_redirect.trim(), arg.stdout_binary);
             }
 
-            const route = this.ui.get_route();
             let exit_code = '';
+            
+            const route = this.ui.get_route();
             if(route.length > 1)
                 args = args.map(a => a.replaceAll('$@', route[1]));
-            args = args.map(a => a.replaceAll('$?', '' + exit_code);
+            args = args.map(a => a.replaceAll('$?', '' + exit_code));
+            
             try
             {
                 if (cmd == '')

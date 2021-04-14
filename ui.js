@@ -416,8 +416,16 @@ export class Shell
                 else
                     this.terminal_print(cmd + ': command not found');
 
-                exit_code = 0;
-                this.ui.set_error('');
+                if(exit_code === '' || exit_code === 0)
+                {
+                    exit_code = 0;
+                    this.ui.set_error('');
+                }
+                else
+                {
+                    this.ui.set_error(`Error: code [${exit_code}]`);
+                    break;
+                }
             }
             catch(err)
             {

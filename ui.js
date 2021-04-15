@@ -406,11 +406,13 @@ export class Shell
                 
                 else if(this.shell_builtins.includes(cmd))
                 {
-                    print_or_dump(await this[cmd](...args));
+                    const res = await this[cmd](...args);
+                    print_or_dump(res);
                 }
                 else if(this.busybox_applets.includes(cmd))
                 {
-                    print_or_dump(this.busybox.run([cmd, ...args]), '');
+                    const res = this.busybox.run([cmd, ...args]);
+                    print_or_dump(res, '');
                 }
                 
                 else

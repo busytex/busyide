@@ -72,6 +72,9 @@ export class Shell
         this.cmd = (...parts) => parts.join(' ');
         this.arg = path => this.expandcollapseuser(path, false);
         this.chain = (...cmds) => cmds.join(' && ');
+
+        this.sha1 = uint8array => this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40);
+        this.rm_rf = dirpath => this.busybox.run(['rm', '-rf', dirpath]);
     }
 
     bind()
@@ -538,9 +541,7 @@ export class Shell
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.writeFile(this.git_log, '');
         this.FS.chdir(this.home_dir);
-        const sha1 = uint8array => this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40);
-        this.github = new Github(this.cache_dir, this.merge.bind(this), sha1, this.FS, this.PATH, this);
-        
+        this.github = new Github(this.cache_dir, this.merge.bind(this), this.sha1.bind(this), this.rm_rf.bind(this), this.FS, this.PATH, this);
         
         await this.cache_load();
        

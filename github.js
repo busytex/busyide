@@ -30,13 +30,14 @@ function ApiResult(resp, result)
 */
 export class Github
 {
-    constructor(cache_dir, merge, sha1, FS, PATH, PATH_)
+    constructor(cache_dir, merge, sha1, rm_rf, FS, PATH, PATH_)
     {
         this.retry_delay_seconds = 2;
         this.auth_token = '';
         this.cache_dir = cache_dir;
         this.merge = merge;
         this.sha1 = sha1;
+        this.rm_rf = rm_rf;
         this.FS = FS;
         this.PATH = PATH;
         this.PATH_ = PATH_;
@@ -342,7 +343,11 @@ export class Github
             {
                 const file_path = this.PATH.join(repo_path, file.path);
                 const contents = await this.load_file(print, file_path, file);
-                if(contents === null) return false;
+                if(contents === null)
+                {
+                    this.rm_rf(repo_path);
+                    return false;
+                }
 
                 this.FS.writeFile(file_path, contents);
                 this.save_object(this.object_path(file, repo_path), contents);

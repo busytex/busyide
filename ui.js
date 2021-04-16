@@ -66,6 +66,7 @@ export class Shell
         this.tab = null;
         this.interval_id = 0;
         this.HTTP_OK = 200;
+        this.last_exit_code = '';
         this.cors_proxy_fmt = cors_proxy_fmt;
         this.cmd = (...parts) => parts.join(' ');
         this.arg = path => this.expandcollapseuser(path, false);
@@ -371,12 +372,8 @@ export class Shell
                 print_or_dump = arg => this.FS.writeFile(stdout_redirect.trim(), arg.stdout_binary);
             }
 
-            let exit_code = '';
-            
-            const route = this.ui.get_route();
-            if(route.length > 1)
-                args = args.map(a => a.replaceAll('$@', route[1]));
-            args = args.map(a => a.replaceAll('$?', '' + exit_code));
+            const urlarg = this.ui.get_route().length > 1 ? thie.ui.get_route()[1] : '';
+            args = args.map(a => a.replaceAll('$@', urlarg).replaceAll('$?', '' + this.last_exit_code));
             
             try
             {
@@ -397,7 +394,7 @@ export class Shell
                 {
                     const res = await this['git_' + args[0]](...args.slice(1));
                     console.log('res [', res, ']');
-                    exit_code = res === true ? 0 : res === false ? 1 : res !== null ? res : '';
+                    this.last_exit_code = res === true ? 0 : res === false ? 1 : res !== null ? res : '';
                 }
                 else if(cmd == 'cache' && args.length > 0 && this.cache_applets.includes(args[0]))
                 {
@@ -418,14 +415,14 @@ export class Shell
                 else
                     this.terminal_print(cmd + ': command not found');
 
-                if(exit_code === '' || exit_code === 0)
+                if(this.last_exit_code === '' || this.last_exit_code === 0)
                 {
-                    exit_code = 0;
+                    this.last_exit_code = 0;
                     this.ui.set_error('');
                 }
                 else
                 {
-                    this.ui.set_error(`[${cmd}] error code: [${exit_code}]`);
+                    this.ui.set_error(`[${cmd}] error code: [${this.last_exit_code}]`);
                     break;
                 }
             }
@@ -433,7 +430,7 @@ export class Shell
             {
                 this.terminal_print('Error: ' + err.message);
                 this.ui.set_error(`[${cmd}] error message: [${err.message}]`);
-                exit_code = (exit_code === '' || exit_code === 0) ? 1 : exit_code;
+                this.last_exit_code = (this.last_exit_code === '' || this.last_exit_code === 0) ? 1 : this.last_exit_code;
                 break;
             }
         }

@@ -62,9 +62,9 @@ export class Github
         }));
     }
 
-    check_response(resp)
+    check_response(resp, http_status_codes = {too_many_requests : 429})
     {
-        if(resp.status == 429)
+        if(resp.status == http_status_codes.too_many_requests)
             throw network_error(resp);
     }
 

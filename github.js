@@ -58,12 +58,12 @@ export class Github
         print(`${method} ${url}`);
         return fetch(url, {method : method || 'GET', headers : headers, ...(body != null ? {body : JSON.stringify(body)} : {})}).then(resp => resp.json().then(data => 
         {
-            print(log_prefix + (resp.ok ? (' OK! [ ' + (data.sha || (object_name ? data[object_name].sha : '')) + ' ]') : (` FAILED! [ [${resp.status}]: [${resp.statusText}] ]`)));
+            print(log_prefix + (resp.ok ? (' OK! [ ' + (data.sha || (object_name ? data[object_name].sha : '')) + ' ]') : (` FAILED! [ [${resp.status}]: [${resp.statusText}], [${data.message}] ]`)));
             return ({...data, ok : resp.ok, status : resp.status, statusText : resp.statusText}); 
         }));
     }
 
-    check_response(resp, http_status_codes = {too_many_requests : 429})
+    check_response(resp, http_status_codes = {too_many_requests : 429, not_fast_forward : 422})
     {
         if(resp.status == http_status_codes.too_many_requests)
             throw network_error(resp);

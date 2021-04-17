@@ -376,7 +376,7 @@ export class Shell
                 print_or_dump = arg => this.FS.writeFile(stdout_redirect.trim(), arg.stdout_binary);
             }
 
-            const urlarg = this.ui.get_route().length > 1 ? thie.ui.get_route()[1] : '';
+            const urlarg = [...this.ui.get_route(), '', ''][1];
             args = args.map(a => a.replaceAll('$@', urlarg).replaceAll('$?', '' + this.last_exit_code));
             
             const exit_code = res => (res === true || res === null) ? this.EXIT_SUCCESS : res === false ? this.EXIT_FAILURE : ('' + res);

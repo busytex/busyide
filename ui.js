@@ -379,7 +379,7 @@ export class Shell
             const urlarg = [...this.ui.get_route(), '', ''][1];
             args = args.map(a => a.replaceAll('$@', urlarg).replaceAll('$?', '' + this.last_exit_code));
             
-            const exit_code = res => (res === true || res === null) ? this.EXIT_SUCCESS : res === false ? this.EXIT_FAILURE : ('' + res);
+            const exit_code = res => res === false ? this.EXIT_FAILURE : Number.isInteger(res) ? ('' + res) : this.EXIT_SUCCESS;
             try
             {
                 if (cmd == '')

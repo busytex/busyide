@@ -434,8 +434,9 @@ export class Shell
             }
             catch(err)
             {
-                this.terminal_print('Error: ' + err.message);
-                this.ui.set_error(`[${cmd}] error message: [${err.message}]`);
+                const msg = `[${cmd}] error message: [${err.message}]`
+                this.terminal_print(msg);
+                this.ui.set_error(msg);
                 this.last_exit_code = (this.last_exit_code === '' || this.last_exit_code === this.EXIT_SUCCESS) ? this.EXIT_FAILURE : this.last_exit_code;
                 break;
             }

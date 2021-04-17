@@ -305,20 +305,20 @@ export class Github
         this.auth_token = auth_token;
         if(!branch)
         {
-            const repo = await this.api('Getting default branch...', print, 'repos', repo_url);
+            const repo = await this.api('Default branch <- ...', print, 'repos', repo_url);
             if(!repo.ok)
                 return false;
             branch = repo.default_branch;
         }
         print(`Branch [${branch}]`);
         
-        const commit = await this.api(`Getting commits of branch [${branch}]...`, print, 'repos', repo_url, `/commits/${branch}`);
+        const commit = await this.api(`Commits of branch [${branch}] <- ...`, print, 'repos', repo_url, `/commits/${branch}`);
         this.check_response(commit);
         if(!commit.ok)
             return false;
         print(`Commit [${commit.sha}]`);
 
-        const tree = await this.api(`Getting tree of commit [${commit.commit.tree.sha}]...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
+        const tree = await this.api(`Tree of commit [${commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
         this.check_response(tree);
         if(!tree.ok)
             return false;

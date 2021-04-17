@@ -471,11 +471,11 @@ export class Github
             this.commit_tree(new_commit, new_tree, repo_path);
             
             let new_ref = {sha : new_commit.sha};
-            new_ref = await this.api(`Branch remote [${branch}] -> [${new_commit.sha}]...`, print, 'repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
+            new_ref = await this.api(`Branch remote [${remote_branch}] -> [${new_commit.sha}]...`, print, 'repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
             if(!new_ref.ok)
                 return false;
             this.update_ref(origin_branch, new_commit.sha, repo_path);
-            print(`Branch local [${branch}] -> [${new_commit.sha}]... OK!`);
+            print(`Branch local [${remote_branch}] -> [${new_commit.sha}]... OK!`);
 
             print('OK!');
             return true;

@@ -645,10 +645,10 @@ export class Shell
         this.ui.toggle_viewer('gitpull');
     }
     
-    async git_push()
+    git_push()
     {
         this.log_big_header('$ git push', this.git_log); 
-        await this.github.push(this.log_big.bind(this), this.github.status(), this.ui.commit_message.value);
+        return this.github.push(this.log_big.bind(this), this.github.status(), this.ui.commit_message.value);
     }
     
     async cache_load()

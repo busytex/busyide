@@ -6,7 +6,7 @@
 //
 
 const delay = seconds => new Promise(resolve => setTimeout(resolve, seconds * 1000));
-const network_error = resp => new Error(`${resp.status}: ${resp.statusText}`);
+const network_error = resp => new Error(`[${resp.status}]: [${resp.statusText}]`);
 
 const base64_encode_utf8 = str => btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {return String.fromCharCode(parseInt(p1, 16)) }));
 const base64_encode_uint8array = uint8array => btoa(String.fromCharCode.apply(null, uint8array));
@@ -58,7 +58,7 @@ export class Github
         print(`${method} ${url}`);
         return fetch(url, {method : method || 'GET', headers : headers, ...(body != null ? {body : JSON.stringify(body)} : {})}).then(resp => resp.json().then(data => 
         {
-            print(log_prefix + (resp.ok ? (' OK! [' + (data.sha || (object_name ? data[object_name].sha : '')) + ']') : (' FAILED! [${resp.status}]: [${resp.statusText}]')));
+            print(log_prefix + (resp.ok ? (' OK! [ ' + (data.sha || (object_name ? data[object_name].sha : '')) + ' ]') : (` FAILED! [ [${resp.status}]: [${resp.statusText}] ]`)));
             return ({...data, ok : resp.ok, status : resp.status, statusText : resp.statusText}); 
         }));
     }

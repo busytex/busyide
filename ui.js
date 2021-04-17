@@ -379,7 +379,7 @@ export class Shell
             const urlarg = this.ui.get_route().length > 1 ? thie.ui.get_route()[1] : '';
             args = args.map(a => a.replaceAll('$@', urlarg).replaceAll('$?', '' + this.last_exit_code));
             
-            const exit_code = res => (res === true || res === null) ? this.EXIT_SUCCESS : res === false ? this.EXIT_FAILURE : res !== null ? ('' + res);
+            const exit_code = res => (res === true || res === null) ? this.EXIT_SUCCESS : res === false ? this.EXIT_FAILURE : ('' + res);
             try
             {
                 if (cmd == '')

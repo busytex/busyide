@@ -6,7 +6,6 @@
 //
 
 const delay = seconds => new Promise(resolve => setTimeout(resolve, seconds * 1000));
-const network_error = resp => new Error(`[${resp.status}]: [${resp.statusText}]`);
 
 const base64_encode_utf8 = str => btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {return String.fromCharCode(parseInt(p1, 16)) }));
 const base64_encode_uint8array = uint8array => btoa(String.fromCharCode.apply(null, uint8array));
@@ -63,10 +62,16 @@ export class Github
         }));
     }
 
-    check_response(resp, http_status_codes = {too_many_requests : 429, not_fast_forward : 422})
+    check_response(resp, api_http_codes = {too_many_requests : 429, not_fast_forward : 422})
     {
-        if(resp.status == http_status_codes.too_many_requests)
-            throw network_error(resp);
+        if(resp.status == api_http_codes.too_many_requests)
+        {
+            throw new Error(`[${resp.status}]: [${resp.statusText}]`);
+        }
+        else if(resp.status == api_http_codes.not_fast_forward)
+        {
+            throw new Error(`[${resp.status}]: [${resp.statusText}]`);
+        }
     }
 
     parse_url(repo_url)
@@ -472,6 +477,7 @@ export class Github
             
             let new_ref = {sha : new_commit.sha};
             new_ref = await this.api(`Branch remote [${remote_branch}] -> [${new_commit.sha}]...`, print, 'repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
+            this.check_response(new_ref);
             if(!new_ref.ok)
                 return false;
             this.update_ref(origin_branch, new_commit.sha, repo_path);

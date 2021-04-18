@@ -66,9 +66,13 @@ export class Github
     {
         if(resp.status == api_http_codes.too_many_requests)
         {
-            throw new Error(`[${resp.status}]: [${resp.statusText}]`);
+            throw new Error(`[${resp.status}]: [too_many_requests] [${resp.statusText}]`);
         }
         else if(resp.status == api_http_codes.not_fast_forward)
+        {
+            throw new Error(`[${resp.status}]: [not_fast_forward] [${resp.statusText}]`);
+        }
+        else if(!resp.ok)
         {
             throw new Error(`[${resp.status}]: [${resp.statusText}]`);
         }
@@ -410,15 +414,13 @@ export class Github
             
             const comment = `[${modified_deleted[0].path}] -> [${modified_deleted[0].status}] ...`
             const resp = single_file_upsert ? (await this.api(comment, print, 'repos', repo_url, this.PATH.join('/contents', file_path), 'PUT', {message : message, content : base64_encode_uint8array(contents), ...(blob_sha ? {sha : blob_sha} : {})} )) : single_file_delete ? (await this.api(comment, print, 'repos', repo_url, this.PATH.join('/contents', file_path), 'DELETE', {message : message, sha : blob_sha} )) : null;
-            if(!resp.ok)
-                return false;
+            this.check_response(resp);
             
             const new_commit = resp.commit, new_blob = resp.content;
             print(`Commit: [${new_commit.sha}]`);
 
             const new_tree = await this.api(`GitHub API: GET tree [${new_commit.tree.sha}] ...`, print, 'repos', repo_url, `/git/trees/${new_commit.tree.sha}?recursive=1`);
-            if(!new_tree.ok)
-                return false;
+            this.check_response(new_tree);
             print(`Tree: [${new_commit.tree.sha}]`);
 
             if(single_file_upsert && blob_sha)
@@ -465,21 +467,17 @@ export class Github
 
             let new_tree = no_deletes ? { base_tree : tree.sha, tree : modified_blobs } : { tree : tree.filter(f => f.type == 'blob' && !deleted_paths.includes(f.path) && !modified_paths.includes(f.path)).concat(modified_blobs) };
             new_tree = await this.api(`Tree ->...`, print, 'repos', repo_url, '/git/trees', 'POST', new_tree);
-            if(!new_tree.ok)
-                return false;
+            this.check_response(new_tree);
 
             let new_commit = { message : message, parents : [base_commit_sha], tree : new_tree.sha };
             new_commit = await this.api(`Commit with tree [${new_tree.sha}] -> ...`, print, 'repos', repo_url, '/git/commits', 'POST', new_commit);
-            if(!new_tree.ok)
-                return false;
+            this.check_response(new_commit);
             print(`Commit [${new_commit.sha}] -> local...`);
             this.commit_tree(new_commit, new_tree, repo_path);
             
             let new_ref = {sha : new_commit.sha};
             new_ref = await this.api(`Branch remote [${remote_branch}] -> [${new_commit.sha}]...`, print, 'repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
             this.check_response(new_ref);
-            if(!new_ref.ok)
-                return false;
             this.update_ref(origin_branch, new_commit.sha, repo_path);
             print(`Branch local [${remote_branch}] -> [${new_commit.sha}]... OK!`);
 

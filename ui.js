@@ -418,6 +418,7 @@ export class Shell
                     const res = this.busybox.run([cmd, ...args]);
                     this.last_exit_code = '' + res.exit_code;
                     print_or_dump(res, '');
+                    // if(this.last_exit_code != this.EXIT_SUCCESS) throw new Error(res.output_stderr);
                 }
                 
                 else
@@ -428,6 +429,7 @@ export class Shell
                     this.ui.set_error('');
                 else
                 {
+                    //throw new Error(`[${cmd}] error code: [${this.last_exit_code}]`);
                     this.ui.set_error(`[${cmd}] error code: [${this.last_exit_code}]`);
                     break;
                 }

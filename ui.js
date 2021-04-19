@@ -418,7 +418,9 @@ export class Shell
                     const res = this.busybox.run([cmd, ...args]);
                     this.last_exit_code = '' + res.exit_code;
                     print_or_dump(res, '');
-                    // if(this.last_exit_code != this.EXIT_SUCCESS) throw new Error(res.output_stderr);
+
+                    if(this.last_exit_code != this.EXIT_SUCCESS)
+                        throw new Error(res.output_stderr);
                 }
                 
                 else
@@ -436,10 +438,10 @@ export class Shell
             }
             catch(err)
             {
-                const msg = `[${cmd}] error message: [${err.message}]`
+                this.last_exit_code = (this.last_exit_code === '' || this.last_exit_code === this.EXIT_SUCCESS) ? this.EXIT_FAILURE : this.last_exit_code;
+                const msg = `[${cmd}] last error code: [${this.last_exit_code}], error message: [${err.message}]`
                 this.terminal_print(msg);
                 this.ui.set_error(msg);
-                this.last_exit_code = (this.last_exit_code === '' || this.last_exit_code === this.EXIT_SUCCESS) ? this.EXIT_FAILURE : this.last_exit_code;
                 break;
             }
         }

@@ -354,17 +354,6 @@ export class Github
         print('OK!');
         return true;
     }
-
-    async push_gist(status, message, retry)
-    {
-        const repo_url = this.remote_get_url();
-
-        // TODO: check last commit+pull? check binary files? 
-        const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {content : s.status == 'deleted' ? null : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
-
-        const resp = await this.api('gists', repo_url, message, 'PATCH', { files : Object.fromEntries(files) });
-        console.assert(resp.ok); 
-    }
     
     async push_repo(print, status, message, retry)
     {
@@ -446,7 +435,7 @@ export class Github
             
             if(blob_shas.some(blob_sha => blob_sha === null))
             {
-                print('Some blobs failed the upload');
+                print('Blobs failed the upload');
                 return false;
             }
 
@@ -463,7 +452,7 @@ export class Github
             print(`Commit [${new_commit.sha}] -> local...`);
             this.commit_tree(new_commit, new_tree, repo_path);
             
-            let new_ref = {sha : new_commit.sha};
+            let new_ref = { sha : new_commit.sha };
             new_ref = await this.api(`Branch remote [${remote_branch}] -> [${new_commit.sha}]...`, print, 'repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
             this.check_response(new_ref);
             this.update_ref(origin_branch, new_commit.sha, repo_path);
@@ -474,21 +463,12 @@ export class Github
         }
     }
 
-    async upload_asset()
-    {
-        // https://developer.github.com/v3/repos/releases/#get-a-release-by-tag-name
-        // https://developer.github.com/v3/repos/releases/#get-a-release
-        // https://developer.github.com/v3/repos/releases/#list-releases
-        // https://developer.github.com/v3/repos/releases/#create-a-release
-        // https://developer.github.com/v3/repos/releases/#upload-a-release-asset
-        // https://developer.github.com/v3/repos/releases/#delete-a-release-asset
-    }
-
     async pull_repo(print, repo_path = '.')
     {
         const repo_url = this.remote_get_url();
         const tree = this.ls_tree();
-        const repo = await this.api('repos', repo_url, '/contents').then(r => r.json());
+        const repo = await this.api('', print, 'repos', repo_url, '/contents');
+        this.check_response(repo);
         
         let Q = [...repo];
 
@@ -515,7 +495,7 @@ export class Github
                     
                     const contents = await this.load_file(print, file.path, file);
                     const theirs_path = this.object_path(file);
-                    this.ave_object(theirs_path, contents);
+                    this.save_object(theirs_path, contents);
 
                     const old_file = tree_files[0];
                     const old_path = this.object_path(old_file);
@@ -527,13 +507,25 @@ export class Github
             {
                 this.PATH_.mkdir_p(this.PATH.join(repo_path, file.path));
                 
-                const dir = await this.api('repos', repo_url, '/contents/' + file.path).then(r => r.json());
+                const dir = await this.api('', print, 'repos', repo_url, '/contents/' + file.path);
+                this.check_response(dir);
                 repo.push(...dir);
                 Q.push(...dir);
             }
         }
-        this.save_githubcontents(repo_path, repo);
+        //this.save_githubcontents(repo_path, repo);
         return res;
+    }
+
+    async push_gist(status, message, retry)
+    {
+        const repo_url = this.remote_get_url();
+
+        // TODO: check last commit+pull? check binary files? 
+        const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {content : s.status == 'deleted' ? null : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
+
+        const gist = await this.api('gists', repo_url, message, 'PATCH', { files : Object.fromEntries(files) });
+        this.check_response(gist);
     }
 
     async pull_gist(auth_token)
@@ -547,5 +539,15 @@ export class Github
 
         }
         return res;
+    }
+
+    async upload_asset()
+    {
+        // https://developer.github.com/v3/repos/releases/#get-a-release-by-tag-name
+        // https://developer.github.com/v3/repos/releases/#get-a-release
+        // https://developer.github.com/v3/repos/releases/#list-releases
+        // https://developer.github.com/v3/repos/releases/#create-a-release
+        // https://developer.github.com/v3/repos/releases/#upload-a-release-asset
+        // https://developer.github.com/v3/repos/releases/#delete-a-release-asset
     }
 }

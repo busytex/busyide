@@ -5,8 +5,6 @@
 //     }
 //
 
-const delay = seconds => new Promise(resolve => setTimeout(resolve, seconds * 1000));
-
 const base64_encode_utf8 = str => btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {return String.fromCharCode(parseInt(p1, 16)) }));
 const base64_encode_uint8array = uint8array => btoa(String.fromCharCode.apply(null, uint8array));
 
@@ -18,15 +16,7 @@ const base64_encode_uint8array = uint8array => btoa(String.fromCharCode.apply(nu
 *      return btoa(binstr);
 *  }
 */
-/*
-function ApiResult(resp, result)
-{
-    this.status = resp.status;
-    this.statusText = resp.statusText;
-    this.ok = resp.ok;
-    this = result;
-}
-*/
+
 export class Github
 {
     constructor(cache_dir, merge, sha1, rm_rf, FS, PATH, PATH_)
@@ -62,13 +52,13 @@ export class Github
         }));
     }
 
-    check_response(resp, api_http_codes = {too_many_requests : 429, not_fast_forward : 422})
+    check_response(resp, api_http_codes = {too_many_requests : 429, not_fast_forward : 422, conflict : 409})
     {
         if(resp.status == api_http_codes.too_many_requests)
         {
             throw new Error(`[${resp.status}]: [too_many_requests] [${resp.statusText}]`);
         }
-        else if(resp.status == api_http_codes.not_fast_forward)
+        else if(resp.status == api_http_codes.not_fast_forward || resp.status == api_http_codes.conflict)
         {
             throw new Error(`[${resp.status}]: [not_fast_forward] [${resp.statusText}]`);
         }
@@ -323,14 +313,10 @@ export class Github
         
         const commit = await this.api(`Commits of branch [${branch}] <- ...`, print, 'repos', repo_url, `/commits/${branch}`);
         this.check_response(commit);
-        if(!commit.ok)
-            return false;
         print(`Commit [${commit.sha}]`);
 
         const tree = await this.api(`Tree of commit [${commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
         this.check_response(tree);
-        if(!tree.ok)
-            return false;
         console.assert(tree.truncated == false);
 
         this.init(repo_path);
@@ -484,18 +470,6 @@ export class Github
             print('OK!');
             return true;
         }
-
-            
-        //else if(resp.status == 409 && retry != false)
-        //{
-        //    console.log('retry not implemented');
-        //    //await delay(this.retry_delay_seconds);
-        //    //await this.put(message, sha ? ((await this.init_doc()) || this.sha) : null, false);
-        //}
-        //else
-        //{
-        //    throw network_error(resp);
-        //}
     }
 
     async upload_asset()

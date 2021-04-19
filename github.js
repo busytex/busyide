@@ -324,10 +324,6 @@ export class Github
         
         const origin_branch = this.PATH.join(this.ref_origin, branch);
         
-        this.commit_tree(commit, tree, repo_path);
-        this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
-        this.update_ref(origin_branch, commit.sha, repo_path);
-
         for(const file of tree.tree)
         {
             if(file.type == 'tree')
@@ -348,6 +344,13 @@ export class Github
                 this.save_object(this.object_path(file, repo_path), contents);
             }
         }
+        
+        tree.tree = tree.tree.filter(f => f.type == 'blob');
+
+        this.commit_tree(commit, tree, repo_path);
+        this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
+        this.update_ref(origin_branch, commit.sha, repo_path);
+        
         print('OK!');
         return true;
     }
@@ -398,8 +401,7 @@ export class Github
             
             print(`Single file [${modified_deleted[0].status}], using Contents API`);
             
-            const comment = `[${modified_deleted[0].path}] -> [${modified_deleted[0].status}] ...`
-            const resp = single_file_upsert ? (await this.api(comment, print, 'repos', repo_url, this.PATH.join('/contents', file_path), 'PUT', {message : message, content : base64_encode_uint8array(contents), ...(blob_sha ? {sha : blob_sha} : {})} )) : single_file_delete ? (await this.api(comment, print, 'repos', repo_url, this.PATH.join('/contents', file_path), 'DELETE', {message : message, sha : blob_sha} )) : null;
+            const resp = await this.api(`[${modified_deleted[0].path}] -> [${modified_deleted[0].status}] ...`, print, 'repos', repo_url, this.PATH.join('/contents', file_path), ...(single_file_delete ? [ 'DELETE', {message : message, sha : blob_sha} ] : [ 'PUT', {message : message, content : base64_encode_uint8array(contents), ...(blob_sha ? {sha : blob_sha} : {})} ] ));
             this.check_response(resp);
             
             const new_commit = resp.commit, new_blob = resp.content;
@@ -412,7 +414,7 @@ export class Github
             if(single_file_upsert && blob_sha)
             {
                 this.add(new_blob, contents, repo_path);
-                print(`Locally added blob [${new_blob.sha}]`);
+                print(`Blob local -> [${new_blob.sha}]`);
             }
             this.commit_tree(new_commit, new_tree, repo_path);
             this.update_ref(origin_branch, new_commit.sha, repo_path);

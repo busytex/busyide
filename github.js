@@ -305,8 +305,7 @@ export class Github
         if(!branch)
         {
             const repo = await this.api('Default branch <- ...', print, 'repos', repo_url);
-            if(!repo.ok)
-                return false;
+            this.check_response(repo);
             branch = repo.default_branch;
         }
         print(`Branch [${branch}]`);
@@ -326,6 +325,7 @@ export class Github
         
         for(const file of tree.tree)
         {
+            //TODO: assert type only tree or blob
             if(file.type == 'tree')
             {
                 this.FS.mkdir(this.PATH.join(repo_path, file.path));

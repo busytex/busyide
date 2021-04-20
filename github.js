@@ -368,9 +368,6 @@ export class Github
         if(status.files.every(s => s == 'not modified'))
             return;
         
-        if(this.parse_url(repo_url).gist)
-            await this.push_gist(status, message, retry);
-       
         const modified = status.files.filter(s => s.status == 'modified' || s.status == 'new');
         const deleted = status.files.filter(s => s == 'deleted');
         const deleted_paths = deleted.map(f => f.path);
@@ -463,8 +460,9 @@ export class Github
         }
     }
 
-    async pull_repo(print, repo_path = '.')
+    async pull_repo(print)
     {
+        const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         const repo_url = this.remote_get_url();
         const tree = this.ls_tree();
 
@@ -504,9 +502,9 @@ export class Github
             }
         }
 
-        this.commit_tree(commit, tree, repo_path);
+        this.commit_tree(new_commit, new_tree, repo_path);
         this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
-        this.update_ref(origin_branch, commit.sha, repo_path);
+        this.update_ref(origin_branch, new_commit.sha, repo_path);
         
         print('OK!')
         return res;

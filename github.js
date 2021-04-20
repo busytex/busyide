@@ -299,18 +299,18 @@ export class Github
         this.save_githubcontents(repo_path, repo);
     }
 
-    async clone_repo(print, auth_token, repo_url, repo_path, branch = null)
+    async clone_repo(print, auth_token, repo_url, repo_path, remote_branch = null)
     {
         this.auth_token = auth_token;
-        if(!branch)
+        if(!remote_branch)
         {
             const repo = await this.api('Default branch <- ...', print, 'repos', repo_url);
             this.check_response(repo);
-            branch = repo.default_branch;
+            remote_branch = repo.default_branch;
         }
-        print(`Branch [${branch}]`);
+        print(`Branch [${remote_branch}]`);
         
-        const commit = await this.api(`Commits of branch [${branch}] <- ...`, print, 'repos', repo_url, `/commits/${branch}`);
+        const commit = await this.api(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits/${remote_branch}`);
         this.check_response(commit);
 
         const tree = await this.api(`Tree of commit [${commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
@@ -321,7 +321,7 @@ export class Github
         this.init(repo_path);
         this.remote_set_url(repo_url, repo_path);
         
-        const origin_branch = this.PATH.join(this.ref_origin, branch);
+        const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
         
         for(const file of tree.tree)
         {
@@ -464,16 +464,21 @@ export class Github
     {
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         const repo_url = this.remote_get_url();
+        const base_branch = this.rev_parse(this.ref_origin_head, repo_path);
+        const remote_branch = this.PATH.basename(base_branch);
+        
         const tree = this.ls_tree();
 
-        const new_commit = await this.api(`Commits of branch [${branch}] <- ...`, print, 'repos', repo_url, `/commits/${branch}`);
+        const new_commit = await this.api(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits/${branch}`);
         this.check_response(new_commit);
         print(`Commit [${new_commit.sha}]`);
 
         const new_tree = await this.api(`Tree of commit [${new_commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
         this.check_response(new_tree);
+        if(new_tree.truncated)
+            throw new Error('Tree retrieved from GitHub is truncated: not supported yet');
 
-        let res = [];
+        /*let res = [];
         if(file.type == 'file')
         {
             const tree_files = tree.filter(f => f.path == file.path);
@@ -505,7 +510,7 @@ export class Github
         this.commit_tree(new_commit, new_tree, repo_path);
         this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
         this.update_ref(origin_branch, new_commit.sha, repo_path);
-        
+       */ 
         print('OK!')
         return res;
     }

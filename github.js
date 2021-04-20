@@ -479,7 +479,7 @@ export class Github
         this.check_response(new_commit);
         print(`Commit [${new_commit.sha}]`);
 
-        const new_tree = await this.api(`Tree of commit [${new_commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
+        const new_tree = await this.api(`Tree of commit [${new_commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${new_commit.commit.tree.sha}?recursive=1`);
         this.check_response(new_tree);
         if(new_tree.truncated)
             throw new Error('Tree retrieved from GitHub is truncated: not supported yet');

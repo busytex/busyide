@@ -477,7 +477,6 @@ export class Github
 
         const new_commit = await this.api(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits/${remote_branch}`);
         this.check_response(new_commit);
-        print(`Commit [${new_commit.sha}]`);
 
         const new_tree = await this.api(`Tree of commit [${new_commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${new_commit.commit.tree.sha}?recursive=1`);
         this.check_response(new_tree);

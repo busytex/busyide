@@ -475,7 +475,7 @@ export class Github
         
         const tree_dict = this.ls_tree(base_commit_sha, repo_path, true);
 
-        const new_commit = await this.api(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits/${branch}`);
+        const new_commit = await this.api(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits/${remote_branch}`);
         this.check_response(new_commit);
         print(`Commit [${new_commit.sha}]`);
 

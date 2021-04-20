@@ -467,53 +467,48 @@ export class Github
     {
         const repo_url = this.remote_get_url();
         const tree = this.ls_tree();
-        const repo = await this.api('', print, 'repos', repo_url, '/contents');
-        this.check_response(repo);
-        
-        let Q = [...repo];
+
+        const commit = await this.api(`Commits of branch [${branch}] <- ...`, print, 'repos', repo_url, `/commits/${branch}`);
+        this.check_response(commit);
+        print(`Commit [${commit.sha}]`);
+
+        const tree = await this.api(`Tree of commit [${commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
+        this.check_response(tree);
 
         let res = [];
-        while(Q.length > 0)
+        if(file.type == 'file')
         {
-            const file = Q.pop();
-            if(file.type == 'file')
+            const tree_files = tree.filter(f => f.path == file.path);
+            if(!this.PATH_.exists(file.path))
             {
-                const tree_files = tree.filter(f => f.path == file.path);
-                if(!this.PATH_.exists(file.path))
-                {
-                    const contents = await this.load_file(print, file.path, file);
-                    this.FS.writeFile(file_path, contents);
-                    res.push({path: file_path, status : 'deleted'});
-                }
-                
-                else if(tree_files.length > 0 && tree_files[0].sha == file.sha) 
-                    res.push({path: file.path, status : 'not modified'});
-                
-                else if(tree_files.length > 0 && tree_files[0].sha != file.sha) 
-                {
-                    const ours_path = file.path;
-                    
-                    const contents = await this.load_file(print, file.path, file);
-                    const theirs_path = this.object_path(file);
-                    this.save_object(theirs_path, contents);
-
-                    const old_file = tree_files[0];
-                    const old_path = this.object_path(old_file);
-                    const conflicted = this.merge(ours_path, theirs_path, old_path);
-                    res.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
-                }
+                const contents = await this.load_file(print, file.path, file);
+                this.FS.writeFile(file_path, contents);
+                res.push({path: file_path, status : 'deleted'});
             }
-            else if(file.type == 'dir')
+            
+            else if(tree_files.length > 0 && tree_files[0].sha == file.sha) 
+                res.push({path: file.path, status : 'not modified'});
+            
+            else if(tree_files.length > 0 && tree_files[0].sha != file.sha) 
             {
-                this.PATH_.mkdir_p(this.PATH.join(repo_path, file.path));
+                const ours_path = file.path;
                 
-                const dir = await this.api('', print, 'repos', repo_url, '/contents/' + file.path);
-                this.check_response(dir);
-                repo.push(...dir);
-                Q.push(...dir);
+                const contents = await this.load_file(print, file.path, file);
+                const theirs_path = this.object_path(file);
+                this.save_object(theirs_path, contents);
+
+                const old_file = tree_files[0];
+                const old_path = this.object_path(old_file);
+                const conflicted = this.merge(ours_path, theirs_path, old_path);
+                res.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
             }
         }
-        //this.save_githubcontents(repo_path, repo);
+
+        this.commit_tree(commit, tree, repo_path);
+        this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
+        this.update_ref(origin_branch, commit.sha, repo_path);
+        
+        print('OK!')
         return res;
     }
 

@@ -312,11 +312,11 @@ export class Github
         
         const commit = await this.api(`Commits of branch [${branch}] <- ...`, print, 'repos', repo_url, `/commits/${branch}`);
         this.check_response(commit);
-        print(`Commit [${commit.sha}]`);
 
         const tree = await this.api(`Tree of commit [${commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
         this.check_response(tree);
-        console.assert(tree.truncated == false);
+        if(tree.truncated)
+            throw new Error('Tree retrieved from GitHub is truncated: not supported yet');
 
         this.init(repo_path);
         this.remote_set_url(repo_url, repo_path);
@@ -325,7 +325,7 @@ export class Github
         
         for(const file of tree.tree)
         {
-            //TODO: assert type only tree or blob
+            //TODO: assert type only tree or blob - submodules, symbolic links?
             if(file.type == 'tree')
             {
                 this.FS.mkdir(this.PATH.join(repo_path, file.path));

@@ -468,12 +468,12 @@ export class Github
         const repo_url = this.remote_get_url();
         const tree = this.ls_tree();
 
-        const commit = await this.api(`Commits of branch [${branch}] <- ...`, print, 'repos', repo_url, `/commits/${branch}`);
-        this.check_response(commit);
-        print(`Commit [${commit.sha}]`);
+        const new_commit = await this.api(`Commits of branch [${branch}] <- ...`, print, 'repos', repo_url, `/commits/${branch}`);
+        this.check_response(new_commit);
+        print(`Commit [${new_commit.sha}]`);
 
-        const tree = await this.api(`Tree of commit [${commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
-        this.check_response(tree);
+        const new_tree = await this.api(`Tree of commit [${new_commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
+        this.check_response(new_tree);
 
         let res = [];
         if(file.type == 'file')

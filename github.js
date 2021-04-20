@@ -470,9 +470,10 @@ export class Github
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         const repo_url = this.remote_get_url();
         const base_branch = this.rev_parse(this.ref_origin_head, repo_path);
+        const base_commit_sha = this.rev_parse(base_branch, repo_path);
         const remote_branch = this.PATH.basename(base_branch);
         
-        const tree = this.ls_tree();
+        const tree_dict = this.ls_tree(base_commit_sha, repo_path, true);
 
         const new_commit = await this.api(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits/${branch}`);
         this.check_response(new_commit);

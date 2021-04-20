@@ -484,8 +484,8 @@ export class Github
         if(new_tree.truncated)
             throw new Error('Tree retrieved from GitHub is truncated: not supported yet');
 
-        /*let res = [];
-        if(file.type == 'file')
+        let res = [];
+        /*if(file.type == 'file')
         {
             const tree_files = tree.filter(f => f.path == file.path);
             if(!this.PATH_.exists(file.path))
@@ -517,7 +517,7 @@ export class Github
         this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
         this.update_ref(origin_branch, new_commit.sha, repo_path);
        */ 
-        print('OK!')
+        print('OK!');
         return res;
     }
 

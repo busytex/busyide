@@ -490,16 +490,18 @@ export class Github
             {
                 const abspath = this.PATH.join(repo_path, file.path);
 
-                console.log(file, abspath);
+                const file2 = tree_dict[file.path];
+
+                console.log(file, abspath, file2);
 
                 //const tree_files = tree.filter(f => f.path == file.path);
-                if(!this.PATH_.exists(abspath))
-                {
+                //if(!this.PATH_.exists(abspath))
+                //{
 
                 //    const contents = await this.load_file(print, file.path, file);
                 //    this.FS.writeFile(file_path, contents);
-                    res.push({path: file.path, status : 'deleted'});
-                }
+                //    res.push({path: file.path, status : 'deleted'});
+                //}
                 
                 //else if(tree_files.length > 0 && tree_files[0].sha == file.sha) 
                 //    res.push({path: file.path, status : 'not modified'});

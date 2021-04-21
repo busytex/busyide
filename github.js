@@ -484,38 +484,42 @@ export class Github
             throw new Error('Tree retrieved from GitHub is truncated: not supported yet');
 
         let res = [];
-        /*if(file.type == 'file')
+        for(const file of new_tree.tree)
         {
-            const tree_files = tree.filter(f => f.path == file.path);
-            if(!this.PATH_.exists(file.path))
+            if(file.type == 'blob')
             {
-                const contents = await this.load_file(print, file.path, file);
-                this.FS.writeFile(file_path, contents);
-                res.push({path: file_path, status : 'deleted'});
-            }
-            
-            else if(tree_files.length > 0 && tree_files[0].sha == file.sha) 
-                res.push({path: file.path, status : 'not modified'});
-            
-            else if(tree_files.length > 0 && tree_files[0].sha != file.sha) 
-            {
-                const ours_path = file.path;
-                
-                const contents = await this.load_file(print, file.path, file);
-                const theirs_path = this.object_path(file);
-                this.save_object(theirs_path, contents);
+                const abspath = this.PATH.join(repo_path, file.path);
 
-                const old_file = tree_files[0];
-                const old_path = this.object_path(old_file);
-                const conflicted = this.merge(ours_path, theirs_path, old_path);
-                res.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
+                //const tree_files = tree.filter(f => f.path == file.path);
+                //if(!this.PATH_.exists(abspath))
+                //{
+                //    const contents = await this.load_file(print, file.path, file);
+                //    this.FS.writeFile(file_path, contents);
+                //    res.push({path: file_path, status : 'deleted'});
+                //}
+                
+                //else if(tree_files.length > 0 && tree_files[0].sha == file.sha) 
+                //    res.push({path: file.path, status : 'not modified'});
+                
+                //else if(tree_files.length > 0 && tree_files[0].sha != file.sha) 
+                //{
+                //    const ours_path = file.path;
+                //    
+                //    const contents = await this.load_file(print, file.path, file);
+                //    const theirs_path = this.object_path(file);
+                //    this.save_object(theirs_path, contents);
+
+                //    const old_file = tree_files[0];
+                //    const old_path = this.object_path(old_file);
+                //    const conflicted = this.merge(ours_path, theirs_path, old_path);
+                //    res.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
+                //}
             }
         }
 
-        this.commit_tree(new_commit, new_tree, repo_path);
-        this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
-        this.update_ref(origin_branch, new_commit.sha, repo_path);
-       */ 
+        //this.commit_tree(new_commit, new_tree, repo_path);
+        //this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
+        //this.update_ref(origin_branch, new_commit.sha, repo_path);
         print('OK!');
         return res;
     }

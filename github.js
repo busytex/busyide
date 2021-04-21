@@ -490,35 +490,29 @@ export class Github
             {
                 const abspath = this.PATH.join(repo_path, file.path);
 
-                const file2 = tree_dict[file.path];
+                const file_old = tree_dict[file.path];
+                
+                if(file_old && file_old.sha != file.sha) 
+                {
+                    const ours_path = abspath;
+                    
+                    //const contents = await this.load_file(print, file.path, file);
+                    //const theirs_path = this.object_path(file);
+                    //this.save_object(theirs_path, contents);
 
-                console.log(file, abspath, file2);
+                    //const old_path = this.object_path(file_old);
+                    //const conflicted = this.merge(ours_path, theirs_path, old_path);
+                    //res.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
+                }
 
-                //const tree_files = tree.filter(f => f.path == file.path);
                 //if(!this.PATH_.exists(abspath))
                 //{
-
-                //    const contents = await this.load_file(print, file.path, file);
-                //    this.FS.writeFile(file_path, contents);
+                //    this.FS.writeFile(file_path, await this.load_file(print, file.path, file));
                 //    res.push({path: file.path, status : 'deleted'});
                 //}
-                
-                //else if(tree_files.length > 0 && tree_files[0].sha == file.sha) 
+                //else if(file_old && file_old == file.sha) 
                 //    res.push({path: file.path, status : 'not modified'});
                 
-                //else if(tree_files.length > 0 && tree_files[0].sha != file.sha) 
-                //{
-                //    const ours_path = file.path;
-                //    
-                //    const contents = await this.load_file(print, file.path, file);
-                //    const theirs_path = this.object_path(file);
-                //    this.save_object(theirs_path, contents);
-
-                //    const old_file = tree_files[0];
-                //    const old_path = this.object_path(old_file);
-                //    const conflicted = this.merge(ours_path, theirs_path, old_path);
-                //    res.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
-                //}
             }
         }
 

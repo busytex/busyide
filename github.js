@@ -490,6 +490,8 @@ export class Github
             {
                 const abspath = this.PATH.join(repo_path, file.path);
 
+                console.log(file, abspath);
+
                 //const tree_files = tree.filter(f => f.path == file.path);
                 if(!this.PATH_.exists(abspath))
                 {
@@ -498,8 +500,6 @@ export class Github
                 //    this.FS.writeFile(file_path, contents);
                     res.push({path: file.path, status : 'deleted'});
                 }
-
-                console.log(abspath, res);
                 
                 //else if(tree_files.length > 0 && tree_files[0].sha == file.sha) 
                 //    res.push({path: file.path, status : 'not modified'});

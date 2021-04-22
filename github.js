@@ -494,6 +494,18 @@ export class Github
 
                 const file_ours = (status.files.filter(f => f.path == file.path).concat([{}]))[0];
 
+                if(file_base)
+                {
+                    // if not modified, upgrade and mark as fast-forward if sha is different
+                    // if deleted, delete, mark as deleted
+                    // if modified, merge, mark as merged
+                }
+                else
+                {
+                    // if not new, create a file
+                    // if new, merge?
+                }
+                
                 //if(file_old && file_old.sha != file.sha) 
                 //{
                     //const ours_path = abspath;

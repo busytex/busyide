@@ -424,7 +424,13 @@ export class Shell
                 }
                 
                 else
-                    throw new Error(`[${cmd}]: command not found`);
+                {
+                    this.last_exit_code = this.EXIT_FAILURE;
+                    const msg = `[${cmd}]: command not found`;
+                    this.terminal_print(msg);
+                    this.ui.set_error(msg);
+                    break;
+                }
 
 
                 if(this.last_exit_code === this.EXIT_SUCCESS)

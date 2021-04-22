@@ -465,7 +465,7 @@ export class Github
         }
     }
 
-    async pull_repo(print)
+    async pull_repo(print, status)
     {
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         const repo_url = this.remote_get_url();
@@ -490,11 +490,13 @@ export class Github
             {
                 const abspath = this.PATH.join(repo_path, file.path);
 
-                const file_old = tree_dict[file.path];
-                
-                if(file_old && file_old.sha != file.sha) 
-                {
-                    const ours_path = abspath;
+                const file_base = tree_dict[file.path];
+
+                const file_ours = (status.files.filter(f => f.path == file.path).concat([{}]))[0];
+
+                //if(file_old && file_old.sha != file.sha) 
+                //{
+                    //const ours_path = abspath;
                     
                     //const contents = await this.load_file(print, file.path, file);
                     //const theirs_path = this.object_path(file);
@@ -503,7 +505,7 @@ export class Github
                     //const old_path = this.object_path(file_old);
                     //const conflicted = this.merge(ours_path, theirs_path, old_path);
                     //res.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
-                }
+                //}
 
                 //if(!this.PATH_.exists(abspath))
                 //{

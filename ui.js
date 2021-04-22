@@ -645,7 +645,7 @@ export class Shell
     async git_pull()
     {
         this.log_big_header('$ git pull', this.git_log); 
-        const status = await this.github.pull(this.log_big.bind(this));
+        const status = await this.github.pull(this.log_big.bind(this), this.github.status());
         //this.ui.update_git_pull(status.filter(f => f.status != not_modified), status.filter(f => f.status == not_modified));
         //this.ui.toggle_viewer('gitpull');
     }

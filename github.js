@@ -199,9 +199,9 @@ export class Github
         return this.parse_url(this.remote_get_url()).gist ? this.push_gist(print, status, message, retry) : this.push_repo(print, status, message, retry);
     }
     
-    async pull(print)
+    async pull(print, status)
     {
-        return this.parse_url(this.remote_get_url()).gist ? this.pull_gist(print) : this.pull_repo(print);
+        return this.parse_url(this.remote_get_url()).gist ? this.pull_gist(print, status) : this.pull_repo(print, status);
     }
     
     cached_path(file)

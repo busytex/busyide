@@ -488,45 +488,46 @@ export class Github
         {
             if(file.type == 'blob')
             {
-                const abspath = this.PATH.join(repo_path, file.path);
-
                 const file_base = tree_dict[file.path];
-
                 const file_ours = (status.files.filter(f => f.path == file.path).concat([{}]))[0];
 
+                const abspath = this.PATH.join(repo_path, file.path);
+                
                 if(file_base)
                 {
-                    // if not modified, upgrade and mark as fast-forward if sha is different
-                    // if deleted, delete, mark as deleted
-                    // if modified, merge, mark as merged
+                    if(file_ours.status == 'not modified')
+                    {
+                        if(file.sha != file_base.sha)
+                        {
+                            // if not modified, upgrade and mark as fast-forward if sha is different
+                        }
+                        else
+                        {
+                            res.push({path: file.path, status : 'not modified'});
+                        }
+                    }
+                    else if(file_ours.status == 'deleted')
+                    {
+                        res.push({path: file.path, status : 'deleted'});
+                    }
+                    else if(file_ours.status == 'modified')
+                    {
+                        // if modified, merge, mark as merged
+                        //const contents = await this.load_file(print, file.path, file);
+                        //const theirs_path = this.object_path(file);
+                        //this.save_object(theirs_path, contents);
+
+                        //const old_path = this.object_path(file_old);
+                        //const conflicted = this.merge(ours_path, theirs_path, old_path);
+                        //res.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
+                    }
                 }
                 else
                 {
                     // if not new, create a file
                     // if new, merge?
+                    // this.FS.writeFile(file_path, await this.load_file(print, file.path, file));
                 }
-                
-                //if(file_old && file_old.sha != file.sha) 
-                //{
-                    //const ours_path = abspath;
-                    
-                    //const contents = await this.load_file(print, file.path, file);
-                    //const theirs_path = this.object_path(file);
-                    //this.save_object(theirs_path, contents);
-
-                    //const old_path = this.object_path(file_old);
-                    //const conflicted = this.merge(ours_path, theirs_path, old_path);
-                    //res.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
-                //}
-
-                //if(!this.PATH_.exists(abspath))
-                //{
-                //    this.FS.writeFile(file_path, await this.load_file(print, file.path, file));
-                //    res.push({path: file.path, status : 'deleted'});
-                //}
-                //else if(file_old && file_old == file.sha) 
-                //    res.push({path: file.path, status : 'not modified'});
-                
             }
         }
 

@@ -652,8 +652,9 @@ export class Shell
     {
         this.log_big_header('$ git pull', this.git_log); 
         const status = await this.github.pull(this.log_big.bind(this), this.github.status());
-        //this.ui.update_git_pull(status.filter(f => f.status != not_modified), status.filter(f => f.status == not_modified));
-        //this.ui.toggle_viewer('gitpull');
+        
+        this.ui.update_git_status(this.ui.gitstatus, status, this.github.format_url, this.git_difftool.bind(this), this.open.bind(this));
+        this.ui.toggle_viewer('gitstatus');
     }
     
     git_push()

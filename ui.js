@@ -650,8 +650,9 @@ export class Shell
 
     async git_pull()
     {
-        this.log_big_header('$ git pull', this.git_log); 
-        const status = await this.github.pull(this.log_big.bind(this), this.github.status());
+        this.log_big_header('$ git pull', this.git_log);
+        let status = this.github.status()
+        status = await this.github.pull(this.log_big.bind(this), status);
         
         this.ui.update_git_status(this.ui.gitstatus, status, this.github.format_url, this.git_difftool.bind(this), this.open.bind(this));
         this.ui.toggle_viewer('gitstatus');

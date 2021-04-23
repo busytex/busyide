@@ -483,7 +483,7 @@ export class Github
         if(new_tree.truncated)
             throw new Error('Tree retrieved from GitHub is truncated: not supported yet');
 
-        let res = [];
+        const status_res = {...status, files : []};
         for(const file of new_tree.tree)
         {
             if(file.type == 'blob')
@@ -503,12 +503,12 @@ export class Github
                         }
                         else
                         {
-                            res.push({path: file.path, status : 'not modified'});
+                            status_res.files.push(file_ours);
                         }
                     }
                     else if(file_ours.status == 'deleted')
                     {
-                        res.push({path: file.path, status : 'deleted'});
+                        status_res.files.push(file_ours);
                     }
                     else if(file_ours.status == 'modified')
                     {
@@ -535,7 +535,7 @@ export class Github
         //this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
         //this.update_ref(origin_branch, new_commit.sha, repo_path);
         print('OK!');
-        return res;
+        return status_res;
     }
 
     async push_gist(status, message, retry)

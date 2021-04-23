@@ -497,9 +497,15 @@ export class Github
                 {
                     if(file_ours.status == 'not modified')
                     {
-                        if(file.sha != file_base.sha)
+                        if(file_base.sha != file.sha)
                         {
-                            // if not modified, upgrade and mark as fast-forward if sha is different
+                            print(`Blob [${file_base.sha}] -> [${file.sha}]`);
+                            
+                            const contents = await this.load_file(print, file.path, file);
+                            this.save_object(this.object_path(file), contents);
+                            this.FS.writeFile(abspath, contents);
+                            
+                            status_res.files.push(file_ours);
                         }
                         else
                         {

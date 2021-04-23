@@ -536,7 +536,7 @@ export class Github
                     }
                     else
                     {
-                        print(`Blob [${file.sha}] -> [${file.path}] ...`);
+                        print(`Blob [${file.path}] <- [${file.sha}] ...`);
                         
                         const contents = await this.load_file(print, file.path, file);
                         this.save_object(this.object_path(file), contents);
@@ -551,6 +551,8 @@ export class Github
         this.commit_tree(new_commit, new_tree, repo_path);
         this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
         this.update_ref(origin_branch, new_commit.sha, repo_path);
+
+        print(`Branch local [${remote_branch}] -> [${new_commit.sha}]`);
 
         print('OK!');
         return status_res;

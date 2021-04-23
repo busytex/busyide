@@ -472,6 +472,7 @@ export class Github
         const base_branch = this.rev_parse(this.ref_origin_head, repo_path);
         const base_commit_sha = this.rev_parse(base_branch, repo_path);
         const remote_branch = this.PATH.basename(base_branch);
+        const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
         
         const tree_dict = this.ls_tree(base_commit_sha, repo_path, true);
 
@@ -489,8 +490,7 @@ export class Github
             if(file.type == 'blob')
             {
                 const file_base = tree_dict[file.path];
-                const file_ours = (status.files.filter(f => f.path == file.path).concat([{}]))[0];
-
+                const file_ours = status.files.filter(f => f.path == file.path).concat([{}])[0];
                 const abspath = this.PATH.join(repo_path, file.path);
                 
                 if(file_base)
@@ -499,7 +499,7 @@ export class Github
                     {
                         if(file_base.sha != file.sha)
                         {
-                            print(`Blob [${file_base.sha}] -> [${file.sha}]`);
+                            print(`Blob [${file.path}]: [${file_base.sha}] -> [${file.sha}]`);
                             
                             const contents = await this.load_file(print, file.path, file);
                             this.save_object(this.object_path(file), contents);
@@ -530,16 +530,28 @@ export class Github
                 }
                 else
                 {
-                    // if not new, create a file
-                    // if new, merge?
-                    // this.FS.writeFile(file_path, await this.load_file(print, file.path, file));
+                    if(file_ours.status == 'new')
+                    {
+                        // if new, merge?
+                    }
+                    else
+                    {
+                        print(`Blob [${file.sha}] -> [${file.path}] ...`);
+                        
+                        const contents = await this.load_file(print, file.path, file);
+                        this.save_object(this.object_path(file), contents);
+                        this.FS.writeFile(abspath, contents);
+                    }
                 }
             }
         }
 
-        //this.commit_tree(new_commit, new_tree, repo_path);
-        //this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
-        //this.update_ref(origin_branch, new_commit.sha, repo_path);
+        tree.tree = tree.tree.filter(f => f.type == 'blob');
+        
+        this.commit_tree(new_commit, new_tree, repo_path);
+        this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
+        this.update_ref(origin_branch, new_commit.sha, repo_path);
+
         print('OK!');
         return status_res;
     }

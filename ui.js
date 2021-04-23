@@ -654,6 +654,7 @@ export class Shell
         let status = this.github.status()
         status = await this.github.pull(this.log_big.bind(this), status);
         
+        //TODO: reload editor if updated
         this.ui.update_git_status(this.ui.gitstatus, status, this.github.format_url, this.git_difftool.bind(this), this.open.bind(this));
         this.ui.toggle_viewer('gitstatus');
     }

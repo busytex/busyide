@@ -546,7 +546,7 @@ export class Github
             }
         }
 
-        tree.tree = tree.tree.filter(f => f.type == 'blob');
+        new_tree.tree = new_tree.tree.filter(f => f.type == 'blob');
         
         this.commit_tree(new_commit, new_tree, repo_path);
         this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);

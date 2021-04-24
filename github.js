@@ -102,7 +102,7 @@ export class Github
     {
         for(let cwd = this.FS.cwd(); cwd != '/'; cwd = this.PATH.normalize(this.PATH.join(cwd, '..')))
         {
-            const dotgit = this.PATH.join(cwd, '.git');
+            const dotgit = this.PATH.join(cwd, this.dot_git);
             if(this.PATH_.exists(dotgit))
                 return dotgit;
         }
@@ -266,7 +266,7 @@ export class Github
 
         for(const file of ls_R)
         {
-            if(!file.contents || file.path.startsWith('.git/'))
+            if(!file.contents || file.path.startsWith(this.dot_git + '/'))
             {
                 delete tree_dict[file.path];
                 continue;
@@ -296,8 +296,8 @@ export class Github
         this.auth_token = auth_token;
         const repo = (await this.api('gists', repo_url));
 
-        this.PATH_.mkdir_p(this.PATH.join(repo_path, '.git', 'objects'));
-        this.FS.writeFile(this.PATH.join(repo_path, '.git', 'config'), `[remote "origin"]\nurl = ${repo_url}`);
+        this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, 'objects'));
+        this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, 'config'), `[remote "origin"]\nurl = ${repo_url}`);
 
         for(const file_name in repo.files)
         {

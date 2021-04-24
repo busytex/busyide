@@ -31,6 +31,7 @@
 30. pstoedit
 31. dot and dotdot get unselected, because dirname does not match . or .. in the select
 32. Do not close edited file when viewing directory or git
+33. Better status: how many commits behind master (refresh button?). Check before push
 
 ```shell
 # https://github.com/xloem/emterm

@@ -637,8 +637,6 @@ export class Shell
         
         await this.cache_save();
         this.ui.set_route('github', https_path);
-        
-        return repo_path;
     }
 
     git_status()

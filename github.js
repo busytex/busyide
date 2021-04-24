@@ -591,7 +591,7 @@ export class Github
         }
 
         const commit = repo.history[0];
-        const tree = {tree : repo.files.map(f => ({ type: 'blob', path: f.filename, sha : this.PATH.basename(this.PATH.dirname(f.raw_url)) })) };
+        const tree = {tree : Object.values(repo.files).map(f => ({ type: 'blob', path: f.filename, sha : this.PATH.basename(this.PATH.dirname(f.raw_url)) })) };
         
         this.commit_tree(commit, tree, repo_path);
         this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);

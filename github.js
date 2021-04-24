@@ -562,7 +562,7 @@ export class Github
     async clone_gist(print, auth_token, repo_url, repo_path)
     {
         this.auth_token = auth_token;
-        const repo = await this.api_check('gists', repo_url);
+        const repo = await this.api_check(`Gist [${repo_url}] info...`, print, 'gists', repo_url);
         const remote_branch = this.gist_branch;
         const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
 

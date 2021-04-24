@@ -54,7 +54,7 @@ export class Github
     
     api_check(...args)
     {
-        return api(...args).then(this.check_response.bind(this));
+        return this.api(...args).then(this.check_response.bind(this));
     }
 
     check_response(resp, api_http_codes = {too_many_requests : 429, not_fast_forward : 422, conflict : 409})

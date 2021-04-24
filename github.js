@@ -163,7 +163,7 @@ export class Github
 
     object_path(file, repo_path = '.')
     {
-        return this.PATH.join(repo_path, this.dot_git, 'objects', file.sha.slice(0, 2), file.sha.slice(2));
+        return this.PATH.join(repo_path, this.dot_git, 'objects', (file.sha || file.version).slice(0, 2), file.sha.slice(2));
     }
 
     save_object(obj_path, contents)
@@ -581,7 +581,7 @@ export class Github
             this.FS.writeFile(file_path, contents);
         }
 
-        const commit = repo.history;
+        const commit = repo.history[0];
         const tree = repo.files;
         
         this.commit_tree(commit, tree, repo_path);

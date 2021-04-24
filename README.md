@@ -47,6 +47,15 @@
 
 ### Links
 
+https://mincong.io/2018/04/28/git-index/
+
+https://medium.com/hackernoon/understanding-git-index-4821a0765cf
+
+https://stackoverflow.com/questions/25576415/what-is-the-precise-meaning-of-ours-and-theirs-in-git
+
+https://nitaym.github.io/ourstheirs/
+
+
 http://www.jpeek.com/articles/linuxmag/2007-06/
 
 https://github.com/BlueMagnificent/monaco-tree

@@ -33,6 +33,7 @@ export class Shell
         this.targz_path = '/tmp/archive.tar.gz';
         this.arxiv_path = '/tmp/arxiv.tar';
         this.git_log = '/tmp/git.log';
+        this.diff_path = '/tmp/git.diff';
         this.new_file_name = 'newfile';
         this.new_file_ext = '.tex';
         this.new_dir_name = 'newfolder';
@@ -42,7 +43,7 @@ export class Shell
         this.busybox_applets = ['busyzip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed', 'true', 'false', 'seq'];
         this.shell_builtins =  ['man', 'help', 'open', 'close', 'download', 'cd', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty'];
         this.cache_applets = ['object', 'token'];
-        this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool'];
+        this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'diff'];
         this.viewer_extensions = ['.log', '.svg', '.png', '.jpg', '.pdf'];
         this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
         this.tic_ = 0;
@@ -87,6 +88,7 @@ export class Shell
 
         this.ui.error.onclick = () => this.ui.error.dataset.error && [this.log_big_header('Current Error (if any):\n'), this.log_big(this.ui.error.dataset.error)];
         this.ui.clone.onclick = () => this.commands(chain('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('cd', this.PATH.join2('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('open', '.')) );
+        this.ui.download_diff.onclick = () => this.commands(cmd('git', 'diff', '>', arg(this.diff_path)), cmd('download', arg(this.diff_path)));
         this.ui.download_pdf.onclick = () => this.pdf_path && this.commands(cmd('download', arg(this.pdf_path)));
         this.ui.cache_tokenpurge.onclick = () => this.commands(cmd('cache', 'token', 'purge'));
         this.ui.view_log.onclick = () => this.log_path && this.commands(cmd('open', arg(this.log_path)));
@@ -405,6 +407,7 @@ export class Shell
                 {
                     const res = await this['git_' + args[0]](...args.slice(1));
                     this.last_exit_code = exit_code(res);
+                    print_or_dump(res);
                 }
                 
                 else if(this.shell_builtins.includes(cmd))
@@ -663,6 +666,11 @@ export class Shell
     {
         this.log_big_header('$ git push', this.git_log); 
         return this.github.push(this.log_big.bind(this), this.github.status(), this.ui.commit_message.value);
+    }
+    
+    git_diff()
+    {
+        return 'hi!';
     }
     
     async cache_load()

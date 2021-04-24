@@ -88,7 +88,7 @@ export class Shell
 
         this.ui.error.onclick = () => this.ui.error.dataset.error && [this.log_big_header('Current Error (if any):\n'), this.log_big(this.ui.error.dataset.error)];
         this.ui.clone.onclick = () => this.commands(chain('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('cd', this.PATH.join2('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('open', '.')) );
-        this.ui.download_diff.onclick = () => this.commands(cmd('git', 'diff', '>', arg(this.diff_path)), cmd('download', arg(this.diff_path)));
+        this.ui.download_diff.onclick = () => this.commands(chain(cmd('git', 'diff', '>', arg(this.diff_path)), cmd('download', arg(this.diff_path))));
         this.ui.download_pdf.onclick = () => this.pdf_path && this.commands(cmd('download', arg(this.pdf_path)));
         this.ui.cache_tokenpurge.onclick = () => this.commands(cmd('cache', 'token', 'purge'));
         this.ui.view_log.onclick = () => this.log_path && this.commands(cmd('open', arg(this.log_path)));

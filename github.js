@@ -51,6 +51,11 @@ export class Github
             return ({...data, ok : resp.ok, status : resp.status, statusText : resp.statusText}); 
         }));
     }
+    
+    api_check(...args)
+    {
+        return api(...args).then(this.check_response.bind(this));
+    }
 
     check_response(resp, api_http_codes = {too_many_requests : 429, not_fast_forward : 422, conflict : 409})
     {
@@ -66,6 +71,7 @@ export class Github
         {
             throw new Error(`[${resp.status}]: [${resp.statusText}]`);
         }
+        return resp;
     }
 
     parse_url(repo_url)
@@ -309,17 +315,14 @@ export class Github
         this.auth_token = auth_token;
         if(!remote_branch)
         {
-            const repo = await this.api('Default branch <- ...', print, 'repos', repo_url);
-            this.check_response(repo);
+            const repo = await this.api_check('Default branch <- ...', print, 'repos', repo_url);
             remote_branch = repo.default_branch;
         }
         print(`Branch [${remote_branch}]`);
         
-        const commit = await this.api(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits/${remote_branch}`);
-        this.check_response(commit);
+        const commit = await this.api_check(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits/${remote_branch}`);
 
-        const tree = await this.api(`Tree of commit [${commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
-        this.check_response(tree);
+        const tree = await this.api_check(`Tree of commit [${commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
         if(tree.truncated)
             throw new Error('Tree retrieved from GitHub is truncated: not supported yet');
 
@@ -356,6 +359,7 @@ export class Github
         this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
         this.update_ref(origin_branch, commit.sha, repo_path);
         
+        print(`Branch local [${remote_branch}] -> [${new_commit.sha}]`);
         print('OK!');
         return true;
     }
@@ -571,7 +575,6 @@ export class Github
         this.update_ref(origin_branch, new_commit.sha, repo_path);
 
         print(`Branch local [${remote_branch}] -> [${new_commit.sha}]`);
-
         print('OK!');
         return status_res;
     }

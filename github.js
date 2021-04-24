@@ -495,6 +495,8 @@ export class Github
                 
                 if(file_base)
                 {
+                    const ours_path = abspath;
+                    
                     if(file_ours.status == 'not modified')
                     {
                         if(file_base.sha != file.sha)
@@ -518,21 +520,37 @@ export class Github
                     }
                     else if(file_ours.status == 'modified')
                     {
-                        // if modified, merge, mark as merged
-                        //const contents = await this.load_file(print, file.path, file);
-                        //const theirs_path = this.object_path(file);
-                        //this.save_object(theirs_path, contents);
+                        if(file_ours.sha != file.sha)
+                        {
+                            const contents = await this.load_file(print, file.path, file);
+                            const theirs_path = this.object_path(file);
+                            this.save_object(theirs_path, contents);
 
-                        //const old_path = this.object_path(file_old);
-                        //const conflicted = this.merge(ours_path, theirs_path, old_path);
-                        //res.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
+                            const old_path = this.object_path(file_old);
+                            const conflicted = this.merge(ours_path, theirs_path, old_path);
+
+                            status_res.files.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
+                        }
+                        else
+                        {
+                            status_res.files.push({path : ours_path, status : 'not modified'});
+                        }
                     }
                 }
                 else
                 {
                     if(file_ours.status == 'new')
                     {
-                        // if new, merge?
+                        const ours_path = abspath;
+
+                        //const contents = await this.load_file(print, file.path, file);
+                        //const theirs_path = this.object_path(file);
+                        //this.save_object(theirs_path, contents);
+
+                        //const old_path = this.object_path(file_old);
+                        //const conflicted = this.merge(ours_path, theirs_path, old_path);
+
+                        //status_res.files.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
                     }
                     else
                     {

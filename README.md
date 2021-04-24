@@ -55,6 +55,8 @@ https://stackoverflow.com/questions/25576415/what-is-the-precise-meaning-of-ours
 
 https://nitaym.github.io/ourstheirs/
 
+https://git-scm.com/book/en/v2/Git-Tools-Advanced-Merging
+
 
 http://www.jpeek.com/articles/linuxmag/2007-06/
 

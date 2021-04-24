@@ -575,6 +575,7 @@ export class Github
         {
             const file = repo.files[file_name];
             const file_path = this.PATH.join(repo_path, file_name);
+            
             file.sha = this.PATH.basename(this.PATH.dirname(file.raw_url));
             
             print(`Blob [${file_name}] <- [${file.raw_url}] ...`);
@@ -583,13 +584,12 @@ export class Github
             {
                 const resp = await fetch(file.raw_url);
                 console.assert(resp.ok);
-
                 contents = await resp.text();
             }
             print(`Blob [${file_name}] <- [${file.raw_url}] ...` + ' OK!');
 
             this.FS.writeFile(file_path, contents);
-            this.save_object(this.object_path(sha, repo_path), contents);
+            this.save_object(this.object_path(file.sha, repo_path), contents);
         }
 
         const commit = repo.history[0];

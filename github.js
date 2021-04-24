@@ -576,14 +576,21 @@ export class Github
             const file_path = this.PATH.join(repo_path, file_name);
             
             print(`Blob [${file_name}] <- [${file.raw_url}] ...`);
-            const contents = file.truncated ? (await fetch(file.raw_url).then(x => x.text())) : file.content;
+            let contents = file.content;
+            if(file.truncated)
+            {
+                const resp = await fetch(file.raw_url);
+                console.assert(resp.ok);
+
+                contents = await resp.text();
+            }
             print(`Blob [${file_name}] <- [${file.raw_url}] ...` + ' OK!');
 
             this.FS.writeFile(file_path, contents);
         }
 
         const commit = repo.history[0];
-        const tree = repo.files;
+        const tree = {tree : repo.files.map(f => ({ type: 'blob', path: f.filename, sha : this.PATH.basename(this.PATH.dirname(f.raw_url)) }) });
         
         this.commit_tree(commit, tree, repo_path);
         this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);

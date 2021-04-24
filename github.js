@@ -344,6 +344,7 @@ export class Github
                 const contents = await this.load_file(print, file_path, file);
                 if(contents === null)
                 {
+                    //TOOD: move this down to catch-all
                     this.rm_rf(repo_path);
                     return false;
                 }

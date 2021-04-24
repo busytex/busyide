@@ -163,7 +163,8 @@ export class Github
 
     object_path(file, repo_path = '.')
     {
-        return this.PATH.join(repo_path, this.dot_git, 'objects', (file.sha || file.version).slice(0, 2), file.sha.slice(2));
+        const sha = typeof(file) == 'string' ? file : (file.sha || file.version); 
+        return this.PATH.join(repo_path, this.dot_git, 'objects', sha.slice(0, 2), sha.slice(2));
     }
 
     save_object(obj_path, contents)

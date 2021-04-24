@@ -618,7 +618,7 @@ export class Github
         for(const {abspath, status, sha_base} of this.status().files.filter(f => f.status != 'not modified'))
         {
             if(sha_base)
-                res += this.diff_(abspath, this.object_path({sha : sha_base}, repo_path)) + '\n';
+                res += this.diff_(abspath, this.object_path({sha : sha_base}, repo_path), repo_path) + '\n';
             else
             {
             }

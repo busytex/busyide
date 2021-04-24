@@ -86,7 +86,7 @@ export class Busybox
         console.assert(this.mem_header_size % 4 == 0 && this.Module.HEAP32.slice(this.mem_header_size / 4).every(x => x == 0));
     }
 
-    run(cmd, stdin = '')
+    run(cmd, stdin = '', cwd = '')
     {
         console.log('busybox run', cmd);
         const NOCLEANUP_callMain = (Module, args) =>
@@ -141,6 +141,8 @@ export class Busybox
         this.Module.prefix = cmd[0];
         const mem_header = Uint8Array.from(this.Module.HEAPU8.slice(0, this.mem_header_size));
         const OLDPWD = this.Module.FS.cwd();
+        if(cwd)
+            this.Module.FS.chdir(cwd);
         const exit_code = NOCLEANUP_callMain(this.Module, cmd, this.print);
         this.Module.FS.chdir(OLDPWD);
         this.Module.FS.quit();

@@ -76,7 +76,7 @@ export class Shell
 
         this.sha1 = uint8array => this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40);
         this.rm_rf = dirpath => this.busybox.run(['rm', '-rf', dirpath]);
-        this.diff = (abspath, basepath, cwd) => this.busybox.run(['bsddiff', '-u', basepath, abspath], '', cwd).stdout;
+        this.diff = (abspath, basepath, cwd) => this.busybox.run(['bsddiff', '-Nu', basepath, abspath], '', cwd).stdout;
     }
 
     bind()

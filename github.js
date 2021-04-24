@@ -260,6 +260,7 @@ export class Github
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         const base_branch = this.rev_parse(this.ref_origin_head, repo_path);
         const remote_branch = this.PATH.basename(base_branch);
+        const remote_url = this.remote_get_url();
         const base_commit_sha = this.rev_parse(base_branch, repo_path);
         const tree_dict = this.ls_tree(base_commit_sha, repo_path, true);
         const tree_dict_copy = {...tree_dict};
@@ -291,7 +292,7 @@ export class Github
         for(const f of files)
             f.abspath_remote = this.cat_file(f.abspath, tree_dict_copy).abspath;
         
-        return {...this.parse_url(this.remote_get_url()), files : files, remote_branch : remote_branch, remote_commit : base_commit_sha};
+        return {...this.parse_url(remote_url), files : files, remote_branch : remote_branch, remote_commit : base_commit_sha, remote_url : remote_url};
     }
     
     async clone_repo(print, auth_token, repo_url, repo_path, remote_branch = null)
@@ -635,11 +636,11 @@ export class Github
         // https://developer.github.com/v3/repos/releases/#delete-a-release-asset
     }
 
-    diff()
+    diff(status)
     {
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         let res = ''
-        for(const {abspath, status, sha_base} of this.status().files.filter(f => f.status != 'not modified'))
+        for(const {abspath, status, sha_base} of status.files.filter(f => f.status != 'not modified'))
         {
             if(sha_base)
                 res += this.diff_(abspath, this.object_path(sha_base, repo_path), repo_path) + '\n';

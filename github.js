@@ -575,6 +575,7 @@ export class Github
         {
             const file = repo.files[file_name];
             const file_path = this.PATH.join(repo_path, file_name);
+            file.sha = this.PATH.basename(this.PATH.dirname(file.raw_url));
             
             print(`Blob [${file_name}] <- [${file.raw_url}] ...`);
             let contents = file.content;
@@ -588,10 +589,11 @@ export class Github
             print(`Blob [${file_name}] <- [${file.raw_url}] ...` + ' OK!');
 
             this.FS.writeFile(file_path, contents);
+            this.save_object(this.object_path(sha, repo_path), contents);
         }
 
         const commit = repo.history[0];
-        const tree = {tree : Object.values(repo.files).map(f => ({ type: 'blob', path: f.filename, sha : this.PATH.basename(this.PATH.dirname(f.raw_url)) })) };
+        const tree = {tree : Object.values(repo.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
         
         this.commit_tree(commit, tree, repo_path);
         this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);

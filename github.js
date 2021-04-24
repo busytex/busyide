@@ -576,7 +576,7 @@ export class Github
             
             print(`Blob [${file_name}] <- [${file.raw_url}] ...`);
             const contents = file.truncated ? (await fetch(file.raw_url).then(x => x.text())) : file.content;
-            print(`Blob [${file_name}] <- [${file.raw_url}] ...` + 'OK!');
+            print(`Blob [${file_name}] <- [${file.raw_url}] ...` + ' OK!');
 
             this.FS.writeFile(file_path, contents);
         }

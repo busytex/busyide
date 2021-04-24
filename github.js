@@ -234,7 +234,7 @@ export class Github
             print(`[${file_path}] <- [${cached_file_path}]`);
             contents = this.FS.readFile(cached_file_path, opts);
         }
-        else
+        else if(file.url)
         {
             print(`[${file_path}] <- [${cached_file_path}] <- [${file.url}]`);
             const resp = await fetch(file.url);
@@ -251,6 +251,23 @@ export class Github
             this.FS.writeFile(cached_file_path, contents, {encoding: 'binary'});
             if(opts.encoding == 'utf8')
                 contents = this.FS.readFile(cached_file_path, opts);
+        }
+        else if(file.raw_url)
+        {
+            if(file.truncated)
+            {
+                const resp = await fetch(file.raw_url);
+                if(!resp.ok)
+                {
+                    print(`Dowloading [${file.url}] failed`);
+                    return null;
+                }
+                contents = await resp.text();
+            }
+            else
+                contents = file.content;
+            
+            this.FS.writeFile(cached_file_path, contents);
         }
         return contents;
     }
@@ -579,13 +596,7 @@ export class Github
             file.sha = this.PATH.basename(this.PATH.dirname(file.raw_url));
             
             print(`Blob [${file_name}] <- [${file.raw_url}] ...`);
-            let contents = file.content;
-            if(file.truncated)
-            {
-                const resp = await fetch(file.raw_url);
-                console.assert(resp.ok);
-                contents = await resp.text();
-            }
+            const contents = await this.load_file(print, file_path, file);
             print(`Blob [${file_name}] <- [${file.raw_url}] ...` + ' OK!');
 
             this.FS.writeFile(file_path, contents);

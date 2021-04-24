@@ -685,6 +685,15 @@ export class Shell
     
     git_diff()
     {
+        // https://man.openbsd.org/diff.1
+        
+        this.log_big_header('$ git diff > ' + this.diff_path);
+        this.log_big('# to apply the patch locally:');
+        this.log_big('git clone ...');
+        this.log_big('cd ...');
+        this.log_big('git checkout ...');
+        this.log_big('patch -i ' + this.PATH.basename(this.diff_path));
+        
         return this.github.diff();
     }
     

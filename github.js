@@ -36,6 +36,7 @@ export class Github
         this.head = 'HEAD';
         this.ref_origin_head = this.PATH.join(this.ref_origin, this.head);
         this.dot_git = '.git';
+        this.gist_branch = 'gist';
     }
     
     api(log_prefix, print, realm, repo_url, relative_url = '', method = 'GET', body = null, object_name = '')
@@ -562,19 +563,34 @@ export class Github
     {
         this.auth_token = auth_token;
         const repo = await this.api_check('gists', repo_url);
+        const remote_branch = this.gist_branch;
+        const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
 
-        this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, 'objects'));
-        this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, 'config'), `[remote "origin"]\nurl = ${repo_url}`);
+        this.init(repo_path);
+        this.remote_set_url(repo_url, repo_path);
 
         for(const file_name in repo.files)
         {
-            print(`Creating [${file_name}]`);
             const file = repo.files[file_name];
             const file_path = this.PATH.join(repo_path, file_name);
+            
+            print(`Blob [${file_name}] <- [${file.raw_url}] ...`);
             const contents = file.truncated ? (await fetch(file.raw_url).then(x => x.text())) : file.content;
+            print(`Blob [${file_name}] <- [${file.raw_url}] ...` + 'OK!');
+
             this.FS.writeFile(file_path, contents);
         }
-        //this.save_githubcontents(repo_path, repo);
+
+        const commit = repo.history;
+        const tree = repo.files;
+        
+        this.commit_tree(commit, tree, repo_path);
+        this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
+        this.update_ref(origin_branch, commit.version, repo_path);
+        
+        print(`Branch local [${remote_branch}] -> [${commit.version}]`);
+        print('OK!');
+        return true;
     }
 
 

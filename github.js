@@ -161,9 +161,9 @@ export class Github
         this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, 'config'), `[remote "origin"]\nurl = ${repo_url}`);
     }
 
-    object_path(file, repo_path = '.')
+    object_path(sha, repo_path = '.')
     {
-        const sha = typeof(file) == 'string' ? file : (file.sha || file.version); 
+        sha = typeof(sha) == 'string' ? sha : (sha.sha || sha.version); 
         return this.PATH.join(repo_path, this.dot_git, 'objects', sha.slice(0, 2), sha.slice(2));
     }
 

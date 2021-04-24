@@ -33,7 +33,7 @@ export class Shell
         this.targz_path = '/tmp/archive.tar.gz';
         this.arxiv_path = '/tmp/arxiv.tar';
         this.git_log = '/tmp/git.log';
-        this.diff_path = '/tmp/git.diff';
+        this.diff_path = '/tmp/git.patch';
         this.new_file_name = 'newfile';
         this.new_file_ext = '.tex';
         this.new_dir_name = 'newfolder';

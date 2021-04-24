@@ -19,7 +19,7 @@ const base64_encode_uint8array = uint8array => btoa(String.fromCharCode.apply(nu
 
 export class Github
 {
-    constructor(cache_dir, merge, sha1, rm_rf, FS, PATH, PATH_)
+    constructor(cache_dir, merge, sha1, rm_rf, diff, FS, PATH, PATH_)
     {
         this.retry_delay_seconds = 2;
         this.auth_token = '';
@@ -27,6 +27,7 @@ export class Github
         this.merge = merge;
         this.sha1 = sha1;
         this.rm_rf = rm_rf;
+        this.diff_ = diff;
         this.FS = FS;
         this.PATH = PATH;
         this.PATH_ = PATH_;
@@ -278,7 +279,7 @@ export class Github
                 files.push({path : file.path, abspath : this.PATH.join(repo_path, file.path), status : 'new'});
             else
             {
-                files.push({path : file.path, abspath : this.PATH.join(repo_path, file.path), status : sha != this.blob_sha(file.contents) ? 'modified' : 'not modified'});
+                files.push({path : file.path, abspath : this.PATH.join(repo_path, file.path), status : sha != this.blob_sha(file.contents) ? 'modified' : 'not modified', sha_base : sha});
                 delete tree_dict[file.path];
             }
         }
@@ -608,5 +609,17 @@ export class Github
         // https://developer.github.com/v3/repos/releases/#create-a-release
         // https://developer.github.com/v3/repos/releases/#upload-a-release-asset
         // https://developer.github.com/v3/repos/releases/#delete-a-release-asset
+    }
+
+    diff()
+    {
+        const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
+        let res = ''
+        for(const {abspath, status, sha, sha_base} of this.status().files.filter(f => f.status != 'not modified'))
+        {
+            if(sha_base)
+                res += this.diff_(abspath, this.github.object_path({sha : sha_base}, repo_path)) + '\n';
+        }
+        return res;
     }
 }

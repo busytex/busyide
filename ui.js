@@ -76,6 +76,7 @@ export class Shell
 
         this.sha1 = uint8array => this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40);
         this.rm_rf = dirpath => this.busybox.run(['rm', '-rf', dirpath]);
+        this.diff = (abspath, basepath) => this.busybox.run(['bsddiff', abspath, basepath]).stdout;
     }
 
     bind()
@@ -571,7 +572,7 @@ export class Shell
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.writeFile(this.git_log, '');
         this.FS.chdir(this.home_dir);
-        this.github = new Github(this.cache_dir, this.merge.bind(this), this.sha1.bind(this), this.rm_rf.bind(this), this.FS, this.PATH, this);
+        this.github = new Github(this.cache_dir, this.merge.bind(this), this.sha1.bind(this), this.rm_rf.bind(this), this.diff.bind(this), this.FS, this.PATH, this);
         
         await this.cache_load();
        
@@ -684,7 +685,7 @@ export class Shell
     
     git_diff()
     {
-        return 'hi!';
+        return this.github.diff();
     }
     
     async cache_load()

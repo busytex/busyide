@@ -113,7 +113,7 @@ export class Github
 
     ls_tree(commit_sha, repo_path, dict = false)
     {
-        const array = JSON.parse(this.FS.readFile(this.object_path({sha : commit_sha}, repo_path), {encoding: 'utf8'})).tree;
+        const array = JSON.parse(this.FS.readFile(this.object_path(commit_sha, repo_path), {encoding: 'utf8'})).tree;
         if(dict == true)
             return Object.fromEntries(array.map(x => [x.path, x]));
         return array
@@ -635,7 +635,7 @@ export class Github
         for(const {abspath, status, sha_base} of this.status().files.filter(f => f.status != 'not modified'))
         {
             if(sha_base)
-                res += this.diff_(abspath, this.object_path({sha : sha_base}, repo_path), repo_path) + '\n';
+                res += this.diff_(abspath, this.object_path(sha_base, repo_path), repo_path) + '\n';
             else
             {
             }

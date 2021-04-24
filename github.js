@@ -359,7 +359,7 @@ export class Github
         this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
         this.update_ref(origin_branch, commit.sha, repo_path);
         
-        print(`Branch local [${remote_branch}] -> [${new_commit.sha}]`);
+        print(`Branch local [${remote_branch}] -> [${commit.sha}]`);
         print('OK!');
         return true;
     }
@@ -392,18 +392,17 @@ export class Github
             const modified_deleted = [...modified, ...deleted];
             const file_path = modified_deleted[0].path;
             const blob_sha = tree.filter(f => f.path == file_path).concat([{}])[0].sha;
-            const contents = this.FS.analyzePath(file_path).exists ? this.FS.readFile(file_path) : null;
+            const contents = this.PATH_.exists(file_path) ? this.FS.readFile(file_path) : null;
             
             print(`Single file [${modified_deleted[0].status}], using Contents API`);
             
-            const resp = await this.api(`[${modified_deleted[0].path}] -> [${modified_deleted[0].status}] ...`, print, 'repos', repo_url, this.PATH.join('/contents', file_path), ...(single_file_delete ? [ 'DELETE', {message : message, sha : blob_sha} ] : [ 'PUT', {message : message, content : base64_encode_uint8array(contents), ...(blob_sha ? {sha : blob_sha} : {})} ] ));
-            this.check_response(resp);
+            const resp = await this.api_check(`[${modified_deleted[0].path}] -> [${modified_deleted[0].status}] ...`, print, 'repos', repo_url, this.PATH.join('/contents', file_path), ...(single_file_delete ? [ 'DELETE', {message : message, sha : blob_sha} ] : [ 'PUT', {message : message, content : base64_encode_uint8array(contents), ...(blob_sha ? {sha : blob_sha} : {})} ] ));
             
             const new_commit = resp.commit, new_blob = resp.content;
             print(`Commit: [${new_commit.sha}]`);
 
-            const new_tree = await this.api(`GitHub API: GET tree [${new_commit.tree.sha}] ...`, print, 'repos', repo_url, `/git/trees/${new_commit.tree.sha}?recursive=1`);
-            this.check_response(new_tree);
+            //TODO: modify the local tree without getting the new one
+            const new_tree = await this.api_check(`GitHub API: GET tree [${new_commit.tree.sha}] ...`, print, 'repos', repo_url, `/git/trees/${new_commit.tree.sha}?recursive=1`);
             print(`Tree: [${new_commit.tree.sha}]`);
 
             if(single_file_upsert && blob_sha)
@@ -449,21 +448,18 @@ export class Github
             const modified_blobs = blob_shas.map((blob_sha, i) => ({path : modified[i].path, type : 'blob', mode : mode['blob'], sha : blob_sha }));
 
             let new_tree = no_deletes ? { base_tree : tree.sha, tree : modified_blobs } : { tree : tree.filter(f => f.type == 'blob' && !deleted_paths.includes(f.path) && !modified_paths.includes(f.path)).concat(modified_blobs) };
-            new_tree = await this.api(`Tree ->...`, print, 'repos', repo_url, '/git/trees', 'POST', new_tree);
-            this.check_response(new_tree);
+            new_tree = await this.api_check(`Tree ->...`, print, 'repos', repo_url, '/git/trees', 'POST', new_tree);
 
             let new_commit = { message : message, parents : [base_commit_sha], tree : new_tree.sha };
-            new_commit = await this.api(`Commit with tree [${new_tree.sha}] -> ...`, print, 'repos', repo_url, '/git/commits', 'POST', new_commit);
-            this.check_response(new_commit);
+            new_commit = await this.api_check(`Commit with tree [${new_tree.sha}] -> ...`, print, 'repos', repo_url, '/git/commits', 'POST', new_commit);
             print(`Commit [${new_commit.sha}] -> local...`);
             this.commit_tree(new_commit, new_tree, repo_path);
             
             let new_ref = { sha : new_commit.sha };
-            new_ref = await this.api(`Branch remote [${remote_branch}] -> [${new_commit.sha}]...`, print, 'repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
-            this.check_response(new_ref);
+            new_ref = await this.api_check(`Branch remote [${remote_branch}] -> [${new_commit.sha}]...`, print, 'repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
             this.update_ref(origin_branch, new_commit.sha, repo_path);
+            
             print(`Branch local [${remote_branch}] -> [${new_commit.sha}]... OK!`);
-
             print('OK!');
             return true;
         }

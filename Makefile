@@ -9,7 +9,7 @@ URL_bsddiff ?= https://raw.githubusercontent.com/openbsd/src/master/usr.bin/diff
 URL_RELEASE_busytex_wasm ?= https://github.com/busytex/busytex/releases/tag/build_b16fdf28019d93ccfd8f09776e4191835acea5dc
 URL_RELEASE_ubuntu_packages ?= https://github.com/busytex/busytex/releases/tag/release_88f12c721278c652c9fb69c6a097af9481a2ae7e
 
-CFLAGS_wasm_busyide = -Oz -s ERROR_ON_UNDEFINED_SYMBOLS=0 -lidbfs.js -s INVOKE_RUN=0 -s MODULARIZE=1 -s EXPORT_NAME=busbox -s FORCE_FILESYSTEM=1 -s EXPORTED_FUNCTIONS='[\"_main\",\"_fflush\",\"_putchar\"]' -s EXPORTED_RUNTIME_METHODS=[\"FS\",\"TTY\",\"PATH\",\"callMain\",\"allocateUTF8OnStack\"] -s EXTRA_EXPORTED_RUNTIME_METHODS=[\"lengthBytesUTF8\"]
+CFLAGS_wasm_busyide = -Oz -s ERROR_ON_UNDEFINED_SYMBOLS=0 -lidbfs.js -s INVOKE_RUN=0 -s MODULARIZE=1 -s EXPORT_NAME=busbox -s FORCE_FILESYSTEM=1 -s EXPORTED_FUNCTIONS='[\"_main\",\"_fflush\",\"_putchar\"]' -s EXPORTED_RUNTIME_METHODS=[\"FS\",\"TTY\",\"PATH\",\"callMain\",\"allocateUTF8OnStack\",\"stringToUTF8Array\"] -s EXTRA_EXPORTED_RUNTIME_METHODS=[\"lengthBytesUTF8\"]
 
 BSDDIFF_SED = s/xmalloc(/bsddiff_xmalloc(/g; s/xcalloc(/bsddiff_xcalloc(/g; s/xreallocarray(/bsddiff_xreallocarray(/g; s/xstrdup(/bsddiff_xstrdup(/g; s/xasprintf(/bsddiff_xasprintf(/g; s/splice(/bsddiff_splice(/g
 

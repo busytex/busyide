@@ -363,19 +363,35 @@ export class Shell
             args = expand_subcommand_args(args);
 
             let print_or_dump = (arg, ...args) => arg && this.terminal_print(toString(arg), ...args);
-
+            
             if(stdout_redirect_append)
             {
                 print_or_dump = arg => 
                 {
                     const f = this.FS.open(stdout_redirect_append.trim(), 'a');
-                    this.FS.write(f, arg.stdout_binary, 0, arg.stdout_binary.length);
+
+                    if(typeof(arg) == 'string')
+                    {
+                        const buf = new Uint8Array(this.busybox.Module.lengthBytesUTF8(arg)+1);
+                        const actualNumBytes = this.busybox.Module.stringToUTF8Array(data, buf, 0, buf.length);
+                        this.FS.write(f, buf, 0, actualNumBytes);
+                    }
+                    else
+                        this.FS.write(f, arg.stdout_binary, 0, arg.stdout_binary.length);
+
                     this.FS.close(f);
                 }
             }
             else if(stdout_redirect)
             {
-                print_or_dump = arg => this.FS.writeFile(stdout_redirect.trim(), arg.stdout_binary);
+                const toString_redirect = arg =>
+                {
+                    if(typeof(arg) == 'string')
+                        return arg;
+                    return arg.stdout_binary;
+                };
+
+                print_or_dump = arg => this.FS.writeFile(stdout_redirect.trim(), toString_redirect(arg));
             }
 
             const urlarg = [...this.ui.get_route(), '', ''][1];

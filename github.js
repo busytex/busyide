@@ -291,33 +291,13 @@ export class Github
         return {...this.parse_url(this.remote_get_url()), files : files, remote_branch : remote_branch, remote_commit : base_commit_sha};
     }
     
-    async clone_gist(print, auth_token, repo_url, repo_path)
-    {
-        this.auth_token = auth_token;
-        const repo = (await this.api('gists', repo_url));
-
-        this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, 'objects'));
-        this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, 'config'), `[remote "origin"]\nurl = ${repo_url}`);
-
-        for(const file_name in repo.files)
-        {
-            print(`Creating [${file_name}]`);
-            const file = repo.files[file_name];
-            const file_path = this.PATH.join(repo_path, file_name);
-            const contents = file.truncated ? (await fetch(file.raw_url).then(x => x.text())) : file.content;
-            this.FS.writeFile(file_path, contents);
-        }
-        this.save_githubcontents(repo_path, repo);
-    }
-
     async clone_repo(print, auth_token, repo_url, repo_path, remote_branch = null)
     {
         this.auth_token = auth_token;
+        
         if(!remote_branch)
-        {
-            const repo = await this.api_check('Default branch <- ...', print, 'repos', repo_url);
-            remote_branch = repo.default_branch;
-        }
+            remote_branch = (await this.api_check('Default branch <- ...', print, 'repos', repo_url)).default_branch;
+
         print(`Branch [${remote_branch}]`);
         
         const commit = await this.api_check(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits/${remote_branch}`);
@@ -477,11 +457,9 @@ export class Github
         
         const tree_dict = this.ls_tree(base_commit_sha, repo_path, true);
 
-        const new_commit = await this.api(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits/${remote_branch}`);
-        this.check_response(new_commit);
+        const new_commit = await this.api_check(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits/${remote_branch}`);
 
-        const new_tree = await this.api(`Tree of commit [${new_commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${new_commit.commit.tree.sha}?recursive=1`);
-        this.check_response(new_tree);
+        const new_tree = await this.api_check(`Tree of commit [${new_commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${new_commit.commit.tree.sha}?recursive=1`);
         if(new_tree.truncated)
             throw new Error('Tree retrieved from GitHub is truncated: not supported yet');
 
@@ -575,6 +553,29 @@ export class Github
         print('OK!');
         return status_res;
     }
+    
+    
+    
+    
+    async clone_gist(print, auth_token, repo_url, repo_path)
+    {
+        this.auth_token = auth_token;
+        const repo = await this.api_check('gists', repo_url);
+
+        this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, 'objects'));
+        this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, 'config'), `[remote "origin"]\nurl = ${repo_url}`);
+
+        for(const file_name in repo.files)
+        {
+            print(`Creating [${file_name}]`);
+            const file = repo.files[file_name];
+            const file_path = this.PATH.join(repo_path, file_name);
+            const contents = file.truncated ? (await fetch(file.raw_url).then(x => x.text())) : file.content;
+            this.FS.writeFile(file_path, contents);
+        }
+        //this.save_githubcontents(repo_path, repo);
+    }
+
 
     async push_gist(status, message, retry)
     {
@@ -583,14 +584,13 @@ export class Github
         // TODO: check last commit+pull? check binary files? 
         const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {content : s.status == 'deleted' ? null : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
 
-        const gist = await this.api('gists', repo_url, message, 'PATCH', { files : Object.fromEntries(files) });
-        this.check_response(gist);
+        const gist = await this.api_check('gists', repo_url, message, 'PATCH', { files : Object.fromEntries(files) });
     }
 
     async pull_gist(auth_token)
     {
         this.auth_token = auth_token;
-        const repo = await this.api('gists', repo_url).then(r => r.json());
+        const repo = await this.api('gists', repo_url);
 
         let res = [];
         for(const file of repo)

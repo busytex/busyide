@@ -529,11 +529,11 @@ export class Github
                             const old_path = this.object_path(file_old);
                             const conflicted = this.merge(ours_path, theirs_path, old_path);
 
-                            status_res.files.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
+                            status_res.files.push({path: file.path, status : conflicted ? 'conflict' : 'merged'});
                         }
                         else
                         {
-                            status_res.files.push({path : ours_path, status : 'not modified'});
+                            status_res.files.push({path : file.path, status : 'not modified'});
                         }
                     }
                 }

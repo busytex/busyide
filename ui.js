@@ -690,15 +690,15 @@ export class Shell
         this.log_big_header('$ git diff > ' + this.diff_path); 
         
         const status = this.github.status();
+        const diff = this.github.diff(status);
+
         this.log_big('# to apply the patch locally:');
         this.log_big(`git clone --branch ${status.remote_branch} ${status.remote_url}`);
         this.log_big('cd ' + status.reponame);
         this.log_big(`git checkout ${status.remote_commit}`);
-
-        const diff = this.github.diff(status);
-
         this.log_big('patch -i ' + this.PATH.basename(this.diff_path));
-        return res;
+        
+        return diff;
     }
     
     async cache_load()

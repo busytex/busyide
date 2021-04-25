@@ -33,6 +33,7 @@ export class Github
         this.PATH_ = PATH_;
         this.api_endpoint = 'api.github.com';
         this.ref_origin = 'refs/remotes/origin';
+        this.ref_heads = 'refs/heads';
         this.head = 'HEAD';
         this.ref_origin_head = this.PATH.join(this.ref_origin, this.head);
         this.dot_git = '.git';

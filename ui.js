@@ -5,7 +5,7 @@ import { Busybox } from '/busybox.js'
 
 export class Shell
 {
-    constructor(monaco, ui, paths, readme, terminal, editor, difftool, cors_proxy_fmt = 'https://cors-anywhere.herokuapp.com/${url}')
+    constructor(monaco, ui, paths, readme, terminal, editor, difftool, cors_proxy_fmt = 'https://withered-shape-3305.vadimkantorov.workers.dev/?${url}') //  https://cors-anywhere.herokuapp.com/${url}
     {
         this.monaco = monaco;
         this.share_link_log = '/tmp/share_link.log';

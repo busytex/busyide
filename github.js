@@ -235,12 +235,12 @@ export class Github
         const cached_file_path = this.PATH.join(this.cache_dir, file.sha);
         if(this.PATH_.exists(cached_file_path))
         {
-            print(`[${file_path}] <- [${cached_file_path}]`);
+            print(`Blob [${file_path}] <- [${cached_file_path}]`);
             contents = this.FS.readFile(cached_file_path, opts);
         }
         else if(file.url)
         {
-            print(`[${file_path}] <- [${cached_file_path}] <- [${file.url}]`);
+            print(`Blob [${file_path}] <- [${cached_file_path}] <- [${file.url}]`);
             const resp = await fetch(file.url);
             if(!resp.ok)
             {
@@ -260,6 +260,7 @@ export class Github
         {
             if(file.truncated)
             {
+                print(`Blob [${file_path}] <- [${file.raw_url}] ...`);
                 const resp = await fetch(file.raw_url);
                 if(!resp.ok)
                 {
@@ -267,6 +268,7 @@ export class Github
                     return null;
                 }
                 contents = await resp.text();
+                print(`Blob [${file_path}] <- [${file.raw_url}] ...` + ' OK!');
             }
             else
                 contents = file.content;
@@ -596,9 +598,7 @@ export class Github
             
             file.sha = this.PATH.basename(this.PATH.dirname(file.raw_url));
             
-            print(`Blob [${file_name}] <- [${file.raw_url}] ...`);
             const contents = await this.load_file(print, file_path, file);
-            print(`Blob [${file_name}] <- [${file.raw_url}] ...` + ' OK!');
 
             this.FS.writeFile(file_path, contents);
             this.save_object(this.object_path(file.sha, repo_path), contents);

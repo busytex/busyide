@@ -624,7 +624,7 @@ export class Github
 
         const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {content : s.status == 'deleted' ? null : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
 
-        const gist = await this.api_check(`Gist [${repo_url}] -> ...`, print, 'gists', repo_url, message, 'PATCH', { files : Object.fromEntries(files) });
+        const gist = await this.api_check(`Gist [${repo_url}] -> ...`, print, 'gists', repo_url, '', 'PATCH', { files : Object.fromEntries(files) });
         console.log(gist);
         //const commit = repo.history[0];
         //const tree = {tree : Object.values(repo.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };

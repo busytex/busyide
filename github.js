@@ -415,7 +415,7 @@ export class Github
             if(single_file_upsert && blob_sha)
             {
                 this.add(new_blob, contents, repo_path);
-                print(`Blob local -> [${new_blob.sha}]`);
+                print(`Blob [${new_blob.path}] -> [${new_blob.sha}]`);
             }
             this.commit_tree(new_commit, new_tree, repo_path);
             this.update_ref(origin_branch, new_commit.sha, repo_path);
@@ -637,6 +637,12 @@ export class Github
         
         print(`Branch local [${remote_branch}] -> [${commit.version}]`);
         
+        for(const new_blob of files)
+        {
+            this.add(new_blbo, f.contents, repo_path);
+            print(`Blob [${new_blob.path}] -> [${new_blob.sha}]`);
+        }
+
         if(message)
         {
             const parsed = this.parse_url(remote_url);

@@ -640,7 +640,7 @@ export class Github
         if(message)
         {
             const parsed = this.parse_url(remote_url);
-            const commit_url = this.format_url(parsed.username, parsed.reponame, true, null, commit.version, path)
+            const commit_url = this.format_url(parsed.username, parsed.reponame, true, null, commit.version);
             await this.api_check(`Comment for gist [${remote_url}] -> ...`, print, 'gists', remote_url, '/comments', 'POST', {body : `Commit message for [${commit_url}]: [${message}]`});
         }
         

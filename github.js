@@ -207,9 +207,9 @@ export class Github
         return this.parse_url(repo_url).gist ? this.clone_gist(print, auth_token, repo_url, repo_path) : this.clone_repo(print, auth_token, repo_url, repo_path);
     }
     
-    async push(print, status, message, retry)
+    async push(print, status, message)
     {
-        return this.parse_url(this.remote_get_url()).gist ? this.push_gist(print, status, message, retry) : this.push_repo(print, status, message, retry);
+        return this.parse_url(this.remote_get_url()).gist ? this.push_gist(print, status, message) : this.push_repo(print, status, message);
     }
     
     async pull(print, status)
@@ -367,7 +367,6 @@ export class Github
         
         print(`Branch local [${remote_branch}] -> [${commit.sha}]`);
         print('OK!');
-        return true;
     }
     
     async push_repo(print, status, message, retry)
@@ -419,7 +418,6 @@ export class Github
             this.commit_tree(new_commit, new_tree, repo_path);
             this.update_ref(origin_branch, new_commit.sha, repo_path);
             print('OK!');
-            return true;
         }
         else
         {
@@ -467,7 +465,6 @@ export class Github
             
             print(`Branch local [${remote_branch}] -> [${new_commit.sha}]... OK!`);
             print('OK!');
-            return true;
         }
     }
 
@@ -585,7 +582,7 @@ export class Github
     async clone_gist(print, auth_token, repo_url, repo_path)
     {
         this.auth_token = auth_token;
-        const repo = await this.api_check(`Gist [${repo_url}] info...`, print, 'gists', repo_url);
+        const repo = await this.api_check(`Gist [${repo_url}] <- ...`, print, 'gists', repo_url);
         const remote_branch = this.gist_branch;
         const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
 
@@ -616,18 +613,28 @@ export class Github
         
         print(`Branch local [${remote_branch}] -> [${commit.version}]`);
         print('OK!');
-        return true;
     }
 
 
-    async push_gist(status, message, retry)
+    async push_gist(print, status, message)
     {
+        // TODO: check last commit+pull? check binary files? 
+        
         const repo_url = this.remote_get_url();
 
-        // TODO: check last commit+pull? check binary files? 
         const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {content : s.status == 'deleted' ? null : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
 
-        const gist = await this.api_check('gists', repo_url, message, 'PATCH', { files : Object.fromEntries(files) });
+        const gist = await this.api_check(`Gist [${repo_url}] -> ...`, print, 'gists', repo_url, message, 'PATCH', { files : Object.fromEntries(files) });
+        console.log(gist);
+        //const commit = repo.history[0];
+        //const tree = {tree : Object.values(repo.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
+        //
+        //this.commit_tree(commit, tree, repo_path);
+        //this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
+        //this.update_ref(origin_branch, commit.version, repo_path);
+        //
+        print(`Branch local [${remote_branch}] -> [${commit.version}]`);
+        print('OK!');
     }
 
     async pull_gist(auth_token)

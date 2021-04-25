@@ -88,9 +88,11 @@ export class Github
 
     format_url(username, reponame, gist, branch, commit, path)
     {
-        if(gist && !path)
+        if(gist && !commit)
+            return `https://gist.github.com/${username}/${reponame}`;
+        if(gist && commit && !path)
             return `https://gist.github.com/${username}/${reponame}/${commit}`;
-        else if(gist && path)
+        else if(gist && commit && path)
             return `https://gist.github.com/${username}/${reponame}/${commit}#file-` + path.replaceAll('.', '-');
         else if(!gist && (branch || commit) && path)
             return `https://github.com/${username}/${reponame}/blob/${commit||branch}/${path}`;

@@ -657,7 +657,7 @@ export class Github
     {
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         let res = ''
-        for(const {abspath, status, sha_base} of status.files.filter(f => f.status != 'not modified'))
+        for(const {abspath, sha_base} of status.files.filter(f => f.status != 'not modified'))
             res += this.diff_(abspath, sha_base ? this.object_path(sha_base, repo_path) : 'newfile', repo_path) + '\n';
         return res;
     }

@@ -582,7 +582,7 @@ export class Github
     async clone_gist(print, auth_token, repo_url, repo_path)
     {
         this.auth_token = auth_token;
-        const repo = await this.api_check(`Gist [${repo_url}] <- ...`, print, 'gists', repo_url);
+        const gist = await this.api_check(`Gist [${repo_url}] <- ...`, print, 'gists', repo_url);
         const remote_branch = this.gist_branch;
         const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
 
@@ -591,7 +591,7 @@ export class Github
 
         for(const file_name in repo.files)
         {
-            const file = repo.files[file_name];
+            const file = gist.files[file_name];
             const file_path = this.PATH.join(repo_path, file_name);
             
             file.sha = this.PATH.basename(this.PATH.dirname(file.raw_url));
@@ -604,8 +604,8 @@ export class Github
             this.save_object(this.object_path(file.sha, repo_path), contents);
         }
 
-        const commit = repo.history[0];
-        const tree = {tree : Object.values(repo.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
+        const commit = gist.history[0];
+        const tree = {tree : Object.values(gist.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
         
         this.commit_tree(commit, tree, repo_path);
         this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
@@ -618,22 +618,31 @@ export class Github
 
     async push_gist(print, status, message)
     {
-        // TODO: check last commit+pull? check binary files? 
+        // TODO: check last commit+pull? check binary files? skip empty new files?
         
-        const repo_url = this.remote_get_url();
+        const remote_url = this.remote_get_url();
+        const remote_branch = this.gist_branch;
+        const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
 
         const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {content : s.status == 'deleted' ? null : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
 
-        const gist = await this.api_check(`Gist [${repo_url}] -> ...`, print, 'gists', repo_url, '', 'PATCH', { files : Object.fromEntries(files) });
-        console.log(gist);
-        //const commit = repo.history[0];
-        //const tree = {tree : Object.values(repo.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
-        //
-        //this.commit_tree(commit, tree, repo_path);
-        //this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
-        //this.update_ref(origin_branch, commit.version, repo_path);
-        //
+        const gist = await this.api_check(`Gist [${remote_url}] -> ...`, print, 'gists', remote_url, '', 'PATCH', { files : Object.fromEntries(files) });
+        const commit = gist.history[0];
+        const tree = {tree : Object.values(gist.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
+        
+        this.commit_tree(commit, tree, repo_path);
+        this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
+        this.update_ref(origin_branch, commit.version, repo_path);
+        
         print(`Branch local [${remote_branch}] -> [${commit.version}]`);
+        
+        if(message)
+        {
+            const parsed = this.parse_url(remote_url);
+            const commit_url = this.format_url(parsed.username, parsed.reponame, true, null, commit.version, path)
+            await this.api_check(`Comment for gist [${remote_url}] -> ...`, print, 'gists', remote_url, '/comments', 'POST', {body : `Commit message for [${commit_url}]: [${message}]`});
+        }
+        
         print('OK!');
     }
 

@@ -297,7 +297,7 @@ export class Github
                 continue;
             }
 
-            const sha = tree_dict[file.path].sha;
+            const sha = (tree_dict[file.path] || {}).sha;
             
             if(!sha)
                 files.push({path : file.path, abspath : this.PATH.join(repo_path, file.path), status : 'new'});

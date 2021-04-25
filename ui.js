@@ -88,7 +88,7 @@ export class Shell
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.onKey(this.onkey.bind(this));
 
-        this.ui.clone.onclick = () => this.commands(chain('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('cd', this.PATH.join2('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('open', '.')) );
+        this.ui.clone.onclick = () => this.commands(chain('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('cd', this.PATH.join('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('open', '.')) );
         this.ui.download_diff.onclick = () => this.commands(chain(cmd('git', 'diff', '>', arg(this.diff_path)), cmd('download', arg(this.diff_path))));
         this.ui.download_pdf.onclick = () => this.pdf_path && this.commands(cmd('download', arg(this.pdf_path)));
         this.ui.cache_purge.onclick = () => this.commands(chain(cmd('cache', 'token', 'purge'), cmd('cache', 'object', 'purge')));
@@ -170,7 +170,7 @@ export class Shell
 
     abspath(path)
     {
-        return path.startsWith('/') ? path : this.PATH.normalize(this.PATH.join2(this.FS.cwd(), path));
+        return path.startsWith('/') ? path : this.PATH.normalize(this.PATH.join(this.FS.cwd(), path));
     }
 
     isdir(path)
@@ -475,7 +475,7 @@ export class Shell
 
     async wget(url, _OP = '-O', output_path = null)
     {
-        output_path = _OP == '-P' ? this.PATH.join2(output_path, this.PATH.basename(url)) : (output_path || this.PATH.basename(url));
+        output_path = _OP == '-P' ? this.PATH.join(output_path, this.PATH.basename(url)) : (output_path || this.PATH.basename(url));
         const proxy_path = this.cors_proxy_fmt.replace('${url}', url);
         const resp = await fetch(proxy_path, {headers : {'X-Requested-With': 'XMLHttpRequest'}});
         console.assert(this.HTTP_OK == resp.status);
@@ -492,7 +492,7 @@ export class Shell
         let dirs = new Set(['/', project_dir]);
         for(const {path, contents} of files.sort((lhs, rhs) => lhs['path'] < rhs['path'] ? -1 : 1))
         {
-            const absolute_path = this.PATH.join2(project_dir, path);
+            const absolute_path = this.PATH.join(project_dir, path);
             if(contents == null)
                 this.mkdir_p(absolute_path, dirs);
             else
@@ -518,15 +518,15 @@ export class Shell
         else if(route0 == 'arxiv')
         {
             const arxiv_https_path = route1.replace('/abs/', '/e-print/');
-            project_dir = this.PATH.join2('~', this.PATH.basename(arxiv_https_path));
+            project_dir = this.PATH.join('~', this.PATH.basename(arxiv_https_path));
             cmds = [this.cmd('wget', arxiv_https_path, '-O', this.arxiv_path), this.cmd('mkdir', project_dir), this.cmd('tar', '-xf', this.arxiv_path, '-C', project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')];
         }
         else if(route0 == 'archive')
         {
             const file_https_path = route1;
             const basename = this.PATH.basename(file_https_path);
-            const file_path = this.PATH.join2(this.tmp_dir, basename);
-            project_dir = this.PATH.join2('~', basename.slice(0, basename.indexOf('.')));
+            const file_path = this.PATH.join(this.tmp_dir, basename);
+            project_dir = this.PATH.join('~', basename.slice(0, basename.indexOf('.')));
             
             let download_cmds = [];
             if(this.exists(file_https_path))
@@ -541,7 +541,7 @@ export class Shell
         {
             const path = route1;
             const basename = this.PATH.basename(path);
-            const file_path = this.PATH.join2(this.tmp_dir, basename);
+            const file_path = this.PATH.join(this.tmp_dir, basename);
             project_dir = this.PATH.join('~', basename.slice(0, basename.indexOf('.')));
             cmds = [this.cmd('mkdir', project_dir), path.startsWith('http://') || path.startsWith('https://') ? this.cmd('wget', path, '-P', project_dir) : this.cmd('cp', path, project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')];
         }
@@ -967,7 +967,7 @@ export class Shell
                 {
                     this.ls_la(abspath, file_path);
 
-                    file_path = this.PATH.join2(file_path, default_path);
+                    file_path = this.PATH.join(file_path, default_path);
                     this.refresh(file_path);
                 }
             }
@@ -1067,7 +1067,7 @@ export class Shell
         console.assert(cwd.startsWith(this.home_dir));
         
         const project_dir = this.project_dir(cwd);
-        const source_path = tex_path.startsWith('/') ? tex_path : this.PATH.join2(cwd, tex_path);
+        const source_path = tex_path.startsWith('/') ? tex_path : this.PATH.join(cwd, tex_path);
         const main_tex_path = source_path.slice(project_dir.length + 1);
 
         this.compiler.postMessage({files : this.find(project_dir), main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver});
@@ -1090,7 +1090,7 @@ export class Shell
         const upload_file = file =>
         {
             const src_name = file.name;
-            const dst_path = this.isdir(file_path) ? this.PATH.join2(file_path, src_name) : (file_path || src_name);
+            const dst_path = this.isdir(file_path) ? this.PATH.join(file_path, src_name) : (file_path || src_name);
             return new Promise((resolve, reject) => 
             {
                 const reader = new FileReader();
@@ -1150,13 +1150,13 @@ export class Shell
             entries.push({ path : relative_dir_path || root, name : '.', abspath : abspath });
 
             if(abspath != '/')
-                entries.push({ path : this.PATH.dirname(relative_dir_path || root), name : '..', abspath : this.PATH.normalize(this.PATH.join2(root, '..')) });
+                entries.push({ path : this.PATH.dirname(relative_dir_path || root), name : '..', abspath : this.PATH.normalize(this.PATH.join(root, '..')) });
         }
-        const absolute_dir_path = this.expandcollapseuser(this.PATH.join2(root, relative_dir_path))
+        const absolute_dir_path = this.expandcollapseuser(this.PATH.join(root, relative_dir_path))
         for(const [name, entry] of Object.entries(this.FS.lookupPath(absolute_dir_path, {parent : false}).node.contents))
         {
-            const relative_path = relative_dir_path ? this.PATH.join2(relative_dir_path, name) : name;
-            const absolute_path = this.expandcollapseuser(this.PATH.join2(root, relative_path));
+            const relative_path = relative_dir_path ? this.PATH.join(relative_dir_path, name) : name;
+            const absolute_path = this.expandcollapseuser(this.PATH.join(root, relative_path));
             if(entry.isFolder)
             {
                 if(!exclude.includes(name))

@@ -141,7 +141,7 @@ export class Github
         const relative_path = abspath.slice(repo_path.length);
         const file = tree_dict[relative_path];
 
-        if(file === null)
+        if(!file)
             return {};
 
         abspath = this.object_path(file, repo_path);

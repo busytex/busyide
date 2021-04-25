@@ -34,6 +34,7 @@ export class Shell
         this.arxiv_path = '/tmp/arxiv.tar';
         this.git_log = '/tmp/git.log';
         this.diff_path = '/tmp/git.patch';
+        this.empty_file = '/etc/empty';
         this.new_file_name = 'newfile';
         this.new_file_ext = '.tex';
         this.new_dir_name = 'newfolder';
@@ -76,7 +77,7 @@ export class Shell
 
         this.sha1 = uint8array => this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40);
         this.rm_rf = dirpath => this.busybox.run(['rm', '-rf', dirpath]);
-        this.diff = (abspath, basepath, cwd) => this.busybox.run(['bsddiff', '-Nu', basepath, abspath], '', cwd).stdout;
+        this.diff = (abspath, basepath, cwd) => this.busybox.run(['bsddiff', '-Nu', this.PATH.exists(basepath) ? base_path : this.empty_file, abspath]).stdout;
     }
 
     bind()
@@ -571,6 +572,7 @@ export class Shell
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.writeFile(this.git_log, '');
+        this.FS.writeFile(this.empty_file, '');
         this.FS.chdir(this.home_dir);
         this.github = new Github(this.cache_dir, this.merge.bind(this), this.sha1.bind(this), this.rm_rf.bind(this), this.diff.bind(this), this.FS, this.PATH, this);
         
@@ -692,7 +694,9 @@ export class Shell
         const status = this.github.status();
         const diff = this.github.diff(status);
 
-        this.log_big('# to apply the patch locally:');
+        this.log_big('');
+        this.log_big('# To apply the patch locally:');
+        this.log_big('');
         this.log_big(`git clone --branch ${status.remote_branch} ${status.remote_url}`);
         this.log_big('cd ' + status.reponame);
         this.log_big(`git checkout ${status.remote_commit}`);

@@ -620,6 +620,7 @@ export class Github
     {
         // TODO: check last commit+pull? check binary files? skip empty new files?
         
+        const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         const remote_url = this.remote_get_url();
         const remote_branch = this.gist_branch;
         const origin_branch = this.PATH.join(this.ref_origin, remote_branch);

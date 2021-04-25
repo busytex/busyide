@@ -589,7 +589,7 @@ export class Github
         this.init(repo_path);
         this.remote_set_url(repo_url, repo_path);
 
-        for(const file_name in repo.files)
+        for(const file_name in gist.files)
         {
             const file = gist.files[file_name];
             const file_path = this.PATH.join(repo_path, file_name);

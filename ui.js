@@ -5,7 +5,7 @@ import { Busybox } from '/busybox.js'
 
 export class Shell
 {
-    constructor(monaco, ui, paths, readme, terminal, editor, difftool, cors_proxy_fmt = 'https://withered-shape-3305.vadimkantorov.workers.dev/?${url}') //  https://cors-anywhere.herokuapp.com/${url}
+    constructor(monaco, ui, paths, readme, terminal, editor, difftool, cors_proxy_fmt = 'https://withered-shape-3305.vadimkantorov.workers.dev/?${url}')
     {
         this.monaco = monaco;
         this.share_link_log = '/tmp/share_link.log';
@@ -88,7 +88,6 @@ export class Shell
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.onKey(this.onkey.bind(this));
 
-        this.ui.error.onclick = () => this.ui.error.dataset.error && [this.log_big_header('Current Error (if any):\n'), this.log_big(this.ui.error.dataset.error)];
         this.ui.clone.onclick = () => this.commands(chain('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('cd', this.PATH.join2('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('open', '.')) );
         this.ui.download_diff.onclick = () => this.commands(chain(cmd('git', 'diff', '>', arg(this.diff_path)), cmd('download', arg(this.diff_path))));
         this.ui.download_pdf.onclick = () => this.pdf_path && this.commands(cmd('download', arg(this.pdf_path)));
@@ -543,7 +542,7 @@ export class Shell
             const path = route1;
             const basename = this.PATH.basename(path);
             const file_path = this.PATH.join2(this.tmp_dir, basename);
-            project_dir = this.PATH.join2('~', basename.slice(0, basename.indexOf('.')));
+            project_dir = this.PATH.join('~', basename.slice(0, basename.indexOf('.')));
             cmds = [this.cmd('mkdir', project_dir), path.startsWith('http://') || path.startsWith('https://') ? this.cmd('wget', path, '-P', project_dir) : this.cmd('cp', path, project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')];
         }
         else if(route0 == 'base64targz')

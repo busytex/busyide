@@ -91,7 +91,7 @@ export class Shell
         this.ui.clone.onclick = () => this.commands(chain('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('cd', this.PATH.join2('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('open', '.')) );
         this.ui.download_diff.onclick = () => this.commands(chain(cmd('git', 'diff', '>', arg(this.diff_path)), cmd('download', arg(this.diff_path))));
         this.ui.download_pdf.onclick = () => this.pdf_path && this.commands(cmd('download', arg(this.pdf_path)));
-        this.ui.cache_tokenpurge.onclick = () => this.commands(cmd('cache', 'token', 'purge'));
+        this.ui.cache_purge.onclick = () => this.commands(chain(cmd('cache', 'token', 'purge'), cmd('cache', 'object', 'purge')));
         this.ui.view_log.onclick = () => this.log_path && this.commands(cmd('open', arg(this.log_path)));
         this.ui.view_pdf.onclick = () => this.pdf_path && this.commands(cmd('open', arg(this.pdf_path)));
         this.ui.download.onclick = () => this.ui.get_current_file() && !this.isdir(this.ui.get_current_file()) && this.commands(cmd('download', arg(this.ui.get_current_file())));
@@ -718,7 +718,7 @@ export class Shell
             const cached_files = this.FS.readdir(this.cache_dir);
             for(const file_name of cached_files)
                 if(file_name != '.' && file_name != '..')
-                    this.FS.unlink(this.PATH.join2(this.cache_dir, file_name));
+                    this.FS.unlink(this.PATH.join(this.cache_dir, file_name));
             await this.cache_save();
         }
     }

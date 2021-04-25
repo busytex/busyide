@@ -653,17 +653,33 @@ export class Github
         print('OK!');
     }
 
-    async pull_gist(auth_token)
+    async pull_gist(print, status)
     {
         this.auth_token = auth_token;
-        const repo = await this.api('gists', repo_url);
+        const gist = await this.api_check(`Gist [${repo_url}] <- ...`, print, 'gists', repo_url);
+        const remote_branch = this.gist_branch;
+        const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
 
-        let res = [];
-        for(const file of repo)
+        for(const file_name in gist.files)
         {
-
+            const file = gist.files[file_name];
+            const file_path = this.PATH.join(repo_path, file_name);
+            
+            //file.sha = this.PATH.basename(this.PATH.dirname(file.raw_url));
+            
+            //const contents = await this.load_file(print, file_path, file);
+            //this.FS.writeFile(file_path, contents);
+            //this.save_object(this.object_path(file.sha, repo_path), contents);
         }
-        return res;
+
+        //const commit = gist.history[0];
+        //const tree = {tree : Object.values(gist.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
+        //
+        //this.commit_tree(commit, tree, repo_path);
+        //this.update_ref(origin_branch, commit.version, repo_path);
+        //
+        //print(`Branch local [${remote_branch}] -> [${commit.version}]`);
+        print('OK!');
     }
 
     async upload_asset()

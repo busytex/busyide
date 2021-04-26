@@ -624,6 +624,30 @@ export class Github
         print('OK!');
     }
 
+    async fetch_gist()
+    {
+        const s = this.summary();
+        const gist = await this.api_check(`Gist [${s.repo_url}] <- ...`, print, 'gists', s.repo_url);
+        const commit = gist.history[0];
+
+        if(commit.version == s.base_commit_sha)
+            return;
+
+        for(const file_name in gist.files)
+        {
+            const file_path = this.PATH.join(repo_path, file_name);
+            const file = gist.files[file_name];
+            file.sha = this.PATH.basename(this.PATH.dirname(file.raw_url));
+            
+            await this.load_file(print, file_path, file);
+        }
+
+        const tree = {tree : Object.values(gist.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
+        
+        this.commit_tree(repo_path, commit, tree);
+        this.update_ref(repo_path, s.origin_branch, commit.version);
+    }
+
 
     async push_gist(print, status, message)
     {

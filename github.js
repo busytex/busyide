@@ -179,7 +179,7 @@ export class Github
 
     blob_sha(contents)
     {
-        const header = `blob ${contents.length}\0`
+        const header = `blob ${contents.length}\0`;
         const byte_array = new Uint8Array(header.length + contents.length);
         byte_array.set(Array.from(header).map(c => c.charCodeAt()));
         byte_array.set(contents, header.length);

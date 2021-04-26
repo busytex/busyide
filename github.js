@@ -4,10 +4,6 @@
 //     "documentation_url": "https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"
 //     }
 //
-
-const base64_encode_utf8 = str => btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {return String.fromCharCode(parseInt(p1, 16)) }));
-const base64_encode_uint8array = uint8array => btoa(String.fromCharCode.apply(null, uint8array));
-
 /*
  * function bufferToBase64(buf) {
  *     var binstr = Array.prototype.map.call(buf, function (ch) {
@@ -16,6 +12,9 @@ const base64_encode_uint8array = uint8array => btoa(String.fromCharCode.apply(nu
 *      return btoa(binstr);
 *  }
 */
+
+const base64_encode_utf8 = str => btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {return String.fromCharCode(parseInt(p1, 16)) }));
+const base64_encode_uint8array = uint8array => btoa(String.fromCharCode.apply(null, uint8array));
 
 export class Github
 {
@@ -124,7 +123,7 @@ export class Github
         return array
     }
 
-    commit_tree(commit, tree, repo_path = '.')
+    commit_tree(repo_path, commit, tree)
     {
         this.save_object(this.object_path(commit, repo_path), JSON.stringify(tree, null, 2));
     }
@@ -187,7 +186,7 @@ export class Github
         return this.sha1(byte_array);
     }
 
-    update_ref(ref, new_value, repo_path = '.')
+    update_ref(repo_path, ref, new_value)
     {
         this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, ref), new_value);
     }
@@ -364,9 +363,9 @@ export class Github
         
         tree.tree = tree.tree.filter(f => f.type == 'blob');
 
-        this.commit_tree(commit, tree, repo_path);
-        this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
-        this.update_ref(origin_branch, commit.sha, repo_path);
+        this.commit_tree(repo_path, commit, tree);
+        this.update_ref(repo_path, this.ref_origin_head, 'ref: ' + origin_branch);
+        this.update_ref(repo_path, origin_branch, commit.sha);
         
         print(`Branch local [${remote_branch}] -> [${commit.sha}]`);
         print('OK!');
@@ -418,8 +417,8 @@ export class Github
                 this.add(new_blob, contents, repo_path);
                 print(`Blob [${new_blob.path}] -> [${new_blob.sha}]`);
             }
-            this.commit_tree(new_commit, new_tree, repo_path);
-            this.update_ref(origin_branch, new_commit.sha, repo_path);
+            this.commit_tree(repo_path, new_commit, new_tree);
+            this.update_ref(repo_path, origin_branch, new_commit.sha);
             print('OK!');
         }
         else
@@ -460,18 +459,18 @@ export class Github
             let new_commit = { message : message, parents : [base_commit_sha], tree : new_tree.sha };
             new_commit = await this.api_check(`Commit with tree [${new_tree.sha}] -> ...`, print, 'repos', repo_url, '/git/commits', 'POST', new_commit);
             print(`Commit [${new_commit.sha}] -> local...`);
-            this.commit_tree(new_commit, new_tree, repo_path);
+            this.commit_tree(repo_path, new_commit, new_tree);
             
             let new_ref = { sha : new_commit.sha };
             new_ref = await this.api_check(`Branch remote [${remote_branch}] -> [${new_commit.sha}]...`, print, 'repos', repo_url, this.PATH.join('/git/refs/heads', remote_branch), 'PATCH', new_ref);
-            this.update_ref(origin_branch, new_commit.sha, repo_path);
+            this.update_ref(repo_path, origin_branch, new_commit.sha);
             
             print(`Branch local [${remote_branch}] -> [${new_commit.sha}]... OK!`);
             print('OK!');
         }
     }
 
-    async pull_repo(print, status)
+    summary()
     {
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         const repo_url = this.remote_get_url();
@@ -480,21 +479,27 @@ export class Github
         const remote_branch = this.PATH.basename(base_branch);
         const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
         
-        const tree_dict = this.ls_tree(base_commit_sha, repo_path, true);
+        return {remote_branch : remote_branch, repo_path : repo_path, repo_url : repo_url, origin_branch : origin_branch};
+    }
 
-        const new_commit = await this.api_check(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits/${remote_branch}`);
+    async pull_repo(print, status)
+    {
+        const s = this.summary();
+        const tree_dict = this.ls_tree(s.base_commit_sha, s.repo_path, true);
+
+        const new_commit = await this.api_check(`Commits of branch [${s.remote_branch}] <- ...`, print, 'repos', s.repo_url, `/commits/${s.remote_branch}`);
 
         const new_tree = await this.api_check(`Tree of commit [${new_commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${new_commit.commit.tree.sha}?recursive=1`);
         if(new_tree.truncated)
             throw new Error('Tree retrieved from GitHub is truncated: not supported yet');
 
-        const status_res = await this.merge(repo_path, status, tree_dict, new_tree);
+        const status_res = await this.merge(s.repo_path, status, tree_dict, new_tree);
         
         new_tree.tree = new_tree.tree.filter(f => f.type == 'blob');
-        this.commit_tree(new_commit, new_tree, repo_path);
-        this.update_ref(origin_branch, new_commit.sha, repo_path);
+        this.commit_tree(s.repo_path, new_commit, new_tree);
+        this.update_ref(s.repo_path, origin_branch, new_commit.sha);
 
-        print(`Branch local [${remote_branch}] -> [${new_commit.sha}]`);
+        print(`Branch local [${s.remote_branch}] -> [${new_commit.sha}]`);
         print('OK!');
         return status_res;
     }
@@ -611,9 +616,9 @@ export class Github
         const commit = gist.history[0];
         const tree = {tree : Object.values(gist.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
         
-        this.commit_tree(commit, tree, repo_path);
-        this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
-        this.update_ref(origin_branch, commit.version, repo_path);
+        this.commit_tree(repo_path, commit, tree);
+        this.update_ref(repo_path, this.ref_origin_head, 'ref: ' + origin_branch);
+        this.update_ref(repo_path, s.origin_branch, commit.version);
         
         print(`Branch local [${remote_branch}] -> [${commit.version}]`);
         print('OK!');
@@ -635,9 +640,9 @@ export class Github
         const commit = gist.history[0];
         const tree = {tree : Object.values(gist.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
         
-        this.commit_tree(commit, tree, repo_path);
-        this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
-        this.update_ref(origin_branch, commit.version, repo_path);
+        this.commit_tree(repo_path, commit, tree);
+        this.update_ref(repo_path, this.ref_origin_head, 'ref: ' + origin_branch);
+        this.update_ref(repo_path, origin_branch, commit.version);
         
         print(`Branch local [${remote_branch}] -> [${commit.version}]`);
         
@@ -660,24 +665,21 @@ export class Github
     async pull_gist(print, status)
     {
         this.auth_token = auth_token;
-        const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
-        const base_branch = this.rev_parse(this.ref_origin_head, repo_path);
-        const remote_branch = this.gist_branch;
-        const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
-        const base_commit_sha = this.rev_parse(base_branch, repo_path);
         
-        const tree_dict = this.ls_tree(base_commit_sha, repo_path, true);
+        const s = this.summary();
         
-        const gist = await this.api_check(`Gist [${repo_url}] <- ...`, print, 'gists', repo_url);
+        const tree_dict = this.ls_tree(s.base_commit_sha, repo_path, true);
+        
+        const gist = await this.api_check(`Gist [${s.repo_url}] <- ...`, print, 'gists', s.repo_url);
         const new_commit = gist.history[0];
         const new_tree = {tree : Object.values(gist.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
 
-        const status_res = await this.merge(repo_path, status, tree_dict, new_tree);
+        const status_res = await this.merge(s.repo_path, status, tree_dict, new_tree);
         
-        this.commit_tree(new_commit, new_tree, repo_path);
-        this.update_ref(origin_branch, new_commit.version, repo_path);
+        this.commit_tree(s.repo_path, new_commit, new_tree);
+        this.update_ref(s.repo_path, s.origin_branch, new_commit.version);
         
-        print(`Branch local [${remote_branch}] -> [${commit.version}]`);
+        print(`Branch local [${s.remote_branch}] -> [${commit.version}]`);
         print('OK!');
         return status_res;
     }

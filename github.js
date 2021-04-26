@@ -488,7 +488,7 @@ export class Github
         if(new_tree.truncated)
             throw new Error('Tree retrieved from GitHub is truncated: not supported yet');
 
-        const status_res = this.merge(repo_path, status, tree_dict, new_tree);
+        const status_res = await this.merge(repo_path, status, tree_dict, new_tree);
         
         new_tree.tree = new_tree.tree.filter(f => f.type == 'blob');
         this.commit_tree(new_commit, new_tree, repo_path);
@@ -499,7 +499,7 @@ export class Github
         return status_res;
     }
     
-    merge(repo_path, status, tree_dict, new_tree)
+    async merge(repo_path, status, tree_dict, new_tree)
     {
         const status_res = {...status, files : []};
         for(const file of new_tree.tree)
@@ -672,7 +672,7 @@ export class Github
         const new_commit = gist.history[0];
         const new_tree = {tree : Object.values(gist.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
 
-        const status_res = this.merge(repo_path, status, tree_dict, new_tree);
+        const status_res = await this.merge(repo_path, status, tree_dict, new_tree);
         
         this.commit_tree(new_commit, new_tree, repo_path);
         this.update_ref(origin_branch, new_commit.version, repo_path);

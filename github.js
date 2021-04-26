@@ -19,12 +19,12 @@ const base64_encode_uint8array = uint8array => btoa(String.fromCharCode.apply(nu
 
 export class Github
 {
-    constructor(cache_dir, merge, sha1, rm_rf, diff, FS, PATH, PATH_)
+    constructor(cache_dir, diff3, sha1, rm_rf, diff, FS, PATH, PATH_)
     {
         this.retry_delay_seconds = 2;
         this.auth_token = '';
         this.cache_dir = cache_dir;
-        this.merge = merge;
+        this.diff3 = diff3;
         this.sha1 = sha1;
         this.rm_rf = rm_rf;
         this.diff_ = diff;
@@ -488,6 +488,19 @@ export class Github
         if(new_tree.truncated)
             throw new Error('Tree retrieved from GitHub is truncated: not supported yet');
 
+        const status_res = this.merge(repo_path, status, tree_dict, new_tree);
+        
+        new_tree.tree = new_tree.tree.filter(f => f.type == 'blob');
+        this.commit_tree(new_commit, new_tree, repo_path);
+        this.update_ref(origin_branch, new_commit.sha, repo_path);
+
+        print(`Branch local [${remote_branch}] -> [${new_commit.sha}]`);
+        print('OK!');
+        return status_res;
+    }
+    
+    merge(repo_path, status, tree_dict, new_tree)
+    {
         const status_res = {...status, files : []};
         for(const file of new_tree.tree)
         {
@@ -531,7 +544,7 @@ export class Github
                             this.save_object(theirs_path, contents);
 
                             const old_path = this.object_path(file_old);
-                            const conflicted = this.merge(ours_path, theirs_path, old_path);
+                            const conflicted = this.diff3(ours_path, theirs_path, old_path);
 
                             status_res.files.push({path: file.path, status : conflicted ? 'conflict' : 'merged'});
                         }
@@ -552,7 +565,7 @@ export class Github
                         this.save_object(theirs_path, contents);
 
                         const old_path = null;
-                        const conflicted = this.merge(ours_path, theirs_path, old_path);
+                        const conflicted = this.diff3(ours_path, theirs_path, old_path);
 
                         status_res.files.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
                     }
@@ -568,18 +581,8 @@ export class Github
             }
         }
 
-        new_tree.tree = new_tree.tree.filter(f => f.type == 'blob');
-        
-        this.commit_tree(new_commit, new_tree, repo_path);
-        this.update_ref(this.ref_origin_head, 'ref: ' + origin_branch, repo_path);
-        this.update_ref(origin_branch, new_commit.sha, repo_path);
-
-        print(`Branch local [${remote_branch}] -> [${new_commit.sha}]`);
-        print('OK!');
         return status_res;
     }
-    
-    
     
     
     async clone_gist(print, auth_token, repo_url, repo_path)
@@ -659,15 +662,24 @@ export class Github
         this.auth_token = auth_token;
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         const base_branch = this.rev_parse(this.ref_origin_head, repo_path);
+        const remote_branch = this.gist_branch;
+        const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
         const base_commit_sha = this.rev_parse(base_branch, repo_path);
         
-        const ours_tree_dict = this.ls_tree(base_commit_sha, repo_path, true);
+        const tree_dict = this.ls_tree(base_commit_sha, repo_path, true);
         
         const gist = await this.api_check(`Gist [${repo_url}] <- ...`, print, 'gists', repo_url);
-        const theirs_tree = {tree : Object.values(gist.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
+        const new_commit = gist.history[0];
+        const new_tree = {tree : Object.values(gist.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
 
-        this.merge_changes(status, theirs_tree, ours_tree_dict);
+        const status_res = this.merge(repo_path, status, tree_dict, new_tree);
+        
+        this.commit_tree(new_commit, new_tree, repo_path);
+        this.update_ref(origin_branch, new_commit.version, repo_path);
+        
+        print(`Branch local [${remote_branch}] -> [${commit.version}]`);
         print('OK!');
+        return status_res;
     }
 
     async upload_asset()
@@ -682,6 +694,7 @@ export class Github
 
     diff(status)
     {
+        //TODO: deleted? new?
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         let res = ''
         for(const {abspath, sha_base} of status.files.filter(f => f.status != 'not modified'))

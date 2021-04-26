@@ -657,29 +657,16 @@ export class Github
     async pull_gist(print, status)
     {
         this.auth_token = auth_token;
+        const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
+        const base_branch = this.rev_parse(this.ref_origin_head, repo_path);
+        const base_commit_sha = this.rev_parse(base_branch, repo_path);
+        
+        const ours_tree_dict = this.ls_tree(base_commit_sha, repo_path, true);
+        
         const gist = await this.api_check(`Gist [${repo_url}] <- ...`, print, 'gists', repo_url);
-        const remote_branch = this.gist_branch;
-        const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
+        const theirs_tree = {tree : Object.values(gist.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
 
-        for(const file_name in gist.files)
-        {
-            const file = gist.files[file_name];
-            const file_path = this.PATH.join(repo_path, file_name);
-            
-            //file.sha = this.PATH.basename(this.PATH.dirname(file.raw_url));
-            
-            //const contents = await this.load_file(print, file_path, file);
-            //this.FS.writeFile(file_path, contents);
-            //this.save_object(this.object_path(file.sha, repo_path), contents);
-        }
-
-        //const commit = gist.history[0];
-        //const tree = {tree : Object.values(gist.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
-        //
-        //this.commit_tree(commit, tree, repo_path);
-        //this.update_ref(origin_branch, commit.version, repo_path);
-        //
-        //print(`Branch local [${remote_branch}] -> [${commit.version}]`);
+        this.merge_changes(status, theirs_tree, ours_tree_dict);
         print('OK!');
     }
 

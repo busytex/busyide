@@ -1133,11 +1133,15 @@ export class Shell
     
     merge(ours_path, theirs_path, parent_path, df13_diff = '/tmp/df13.diff', df23_diff = '/tmp/df23.diff', conflict_left = '<<<<<<<', conflict_right = '>>>>>>>')
     {
+        theirs_path = theirs_path || this.empty_file;
+        parent_path = parent_path || this.empty_file;
+
         const [f1, f2, f3] = [ours_path, parent_path, theirs_path];
         this.FS.writeFile(df13_diff, this.busybox.run(['bsddiff', f1, f3]).stdout_binary);
         this.FS.writeFile(df23_diff, this.busybox.run(['bsddiff', f2, f3]).stdout_binary);
         const edscript = this.busybox.run(['bsddiff3prog', '-E', df13_diff, df23_diff, f1, f2, f3]).stdout + 'w';
         this.busybox.run(['ed', ours_path], edscript);
+        
         return edscript.includes(conflict_left) && edscript.includes(conflict_right);
     }
 

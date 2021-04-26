@@ -547,14 +547,14 @@ export class Github
                     {
                         const ours_path = abspath;
 
-                        //const contents = await this.load_file(print, file.path, file);
-                        //const theirs_path = this.object_path(file);
-                        //this.save_object(theirs_path, contents);
+                        const contents = await this.load_file(print, file.path, file);
+                        const theirs_path = this.object_path(file);
+                        this.save_object(theirs_path, contents);
 
-                        //const old_path = this.object_path(file_old);
-                        //const conflicted = this.merge(ours_path, theirs_path, old_path);
+                        const old_path = null;
+                        const conflicted = this.merge(ours_path, theirs_path, old_path);
 
-                        //status_res.files.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
+                        status_res.files.push({path: ours_path, status : conflicted ? 'conflict' : 'merged'});
                     }
                     else
                     {

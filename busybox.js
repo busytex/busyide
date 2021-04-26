@@ -86,6 +86,14 @@ export class Busybox
         console.assert(this.mem_header_size % 4 == 0 && this.Module.HEAP32.slice(this.mem_header_size / 4).every(x => x == 0));
     }
 
+    run_check(cmd, ...args)
+    {
+        const res = this.run(cmd, ...args);
+        if(res.exit_code != 0)
+            throw new Error(`[${cmd[0]}]: non-zero exit code [${res.exit_code}]`);
+        return res;
+    }
+
     run(cmd, stdin = '', cwd = '')
     {
         console.log('busybox run', cmd);

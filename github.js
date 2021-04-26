@@ -664,8 +664,6 @@ export class Github
 
     async pull_gist(print, status)
     {
-        this.auth_token = auth_token;
-        
         const s = this.summary();
         
         const tree_dict = this.ls_tree(s.base_commit_sha, repo_path, true);

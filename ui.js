@@ -44,7 +44,7 @@ export class Shell
         this.busybox_applets = ['busyzip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed', 'true', 'false', 'seq'];
         this.shell_builtins =  ['man', 'help', 'open', 'close', 'download', 'cd', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty'];
         this.cache_applets = ['object', 'token'];
-        this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'diff'];
+        this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'diff', 'fetch'];
         this.viewer_extensions = ['.log', '.svg', '.png', '.jpg', '.pdf'];
         this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
         this.tic_ = 0;
@@ -117,6 +117,7 @@ export class Shell
             this.commands(chain(cmd('mkdir', new_path), cmd('open', new_path)));
         }
 
+        this.ui.refresh_fetch.onclick = () => this.commands(cmd('git', 'fetch'));
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
         this.ui.push.onclick = () => this.commands(cmd('git', 'status'));
         this.ui.commit_push.onclick = () => this.commands(cmd('git', 'push'));
@@ -601,6 +602,11 @@ export class Shell
         this.ui.log_big(text);
         if(this.log_sink_path)
             this.FS.writeFile(this.log_sink_path, this.read_all_text(this.log_sink_path) + text + '\n');
+    }
+    
+    git_fetch()
+    {
+        return this.github.fetch();
     }
 
     async git_clone(https_path)

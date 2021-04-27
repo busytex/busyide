@@ -282,6 +282,7 @@ export class Github
     status()
     {
         const s = this.summary();
+        console.log(s);
         
         const tree_dict = this.ls_tree(s.base_commit_sha, repo_path, true);
         const tree_dict_copy = {...tree_dict};
@@ -474,12 +475,16 @@ export class Github
     {
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         const repo_url = this.remote_get_url();
+
         const base_branch = this.rev_parse(this.ref_origin_head, repo_path);
-        const base_commit_sha = this.rev_parse(base_branch, repo_path);
         const remote_branch = this.PATH.basename(base_branch);
         const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
+        const local_branch = this.PATH.join(this.ref_heads, remote_branch);
         
-        return {remote_branch : remote_branch, repo_path : repo_path, repo_url : repo_url, origin_branch : origin_branch};
+        const local_commit_sha = this.rev_parse(local_branch, repo_path);
+        const base_commit_sha = this.rev_parse(base_branch, repo_path);
+        
+        return {remote_branch : remote_branch, repo_path : repo_path, repo_url : repo_url, origin_branch : origin_branch, base_commit_sha : base_commit_sha, local_commit_sha : local_commit_sha};
     }
 
     async pull_repo(print, status)

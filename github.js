@@ -203,7 +203,7 @@ export class Github
 
     fetch(print)
     {
-        return this.parse_url(this.remote_get_url()).gist ? this.clone_gist(print) : this.clone_repo(print);
+        return this.parse_url(this.remote_get_url()).gist ? this.fetch_gist(print) : this.fetch_repo(print);
     }
 
     clone(print, auth_token, repo_url, repo_path, branch = null)

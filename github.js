@@ -303,7 +303,7 @@ export class Github
         const s = this.summary();
         console.log(s);
         
-        const tree_dict = this.ls_tree(s.base_commit_sha, repo_path, true);
+        const tree_dict = this.ls_tree(s.base_commit_sha, s.repo_path, true);
         const tree_dict_copy = {...tree_dict};
         
         const ls_R = this.PATH_.find(s.repo_path, '', true, true, false, false);

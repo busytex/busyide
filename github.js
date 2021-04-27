@@ -391,7 +391,7 @@ export class Github
         print('OK!');
     }
     
-    async fetch_repo()
+    async fetch_repo(print)
     {
         const s = this.summary();
     }
@@ -639,14 +639,18 @@ export class Github
         print('OK!');
     }
 
-    async fetch_gist()
+    async fetch_gist(print)
     {
         const s = this.summary();
         const gist = await this.api_check(`Gist [${s.repo_url}] <- ...`, print, 'gists', s.repo_url);
         const commit = gist.history[0];
 
         if(commit.version == s.base_commit_sha)
+        {
+            print(`Branch local [${s.remote_branch}] is up-to-date at [${s.local_commit_sha}]!`);
+            print('OK!');
             return;
+        }
 
         for(const file_name in gist.files)
         {
@@ -661,6 +665,9 @@ export class Github
         
         this.commit_tree(repo_path, commit, tree);
         this.update_ref(repo_path, s.origin_branch, commit.version);
+        
+        print(`Branch local [${s.remote_branch}] -> [${commit.version}] ...`);
+        print('OK!');
     }
 
 

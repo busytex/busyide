@@ -286,6 +286,9 @@ export class Github
         const remote_branch = this.PATH.basename(base_branch);
         const remote_url = this.remote_get_url();
         const base_commit_sha = this.rev_parse(base_branch, repo_path);
+        
+        const s = this.summary();
+        
         const tree_dict = this.ls_tree(base_commit_sha, repo_path, true);
         const tree_dict_copy = {...tree_dict};
         

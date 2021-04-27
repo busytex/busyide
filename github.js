@@ -333,7 +333,7 @@ export class Github
         for(const f of files)
             f.abspath_remote = this.cat_file(f.abspath, tree_dict_copy).abspath;
         
-        return {...this.parse_url(s.remote_url), files : files, remote_branch : s.remote_branch, remote_commit : s.base_commit_sha, remote_url : s.remote_url};
+        return {...this.parse_url(s.repo_url), files : files, remote_branch : s.remote_branch, remote_commit : s.base_commit_sha, repo_url : s.repo_url};
     }
     
     async clone_repo(print, auth_token, repo_url, repo_path, remote_branch = null)
@@ -669,13 +669,13 @@ export class Github
         // TODO: check last commit+pull? check binary files? skip empty new files?
         
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
-        const remote_url = this.remote_get_url();
+        const repo_url = this.remote_get_url();
         const remote_branch = this.gist_branch;
         const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
 
         const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {content : s.status == 'deleted' ? null : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
 
-        const gist = await this.api_check(`Gist [${remote_url}] -> ...`, print, 'gists', remote_url, '', 'PATCH', { files : Object.fromEntries(files) });
+        const gist = await this.api_check(`Gist [${repo_url}] -> ...`, print, 'gists', repo_url, '', 'PATCH', { files : Object.fromEntries(files) });
         const commit = gist.history[0];
         const tree = {tree : Object.values(gist.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
         
@@ -693,9 +693,9 @@ export class Github
 
         if(message)
         {
-            const parsed = this.parse_url(remote_url);
+            const parsed = this.parse_url(repo_url);
             const commit_url = this.format_url(parsed.username, parsed.reponame, true, null, commit.version);
-            await this.api_check(`Comment for gist [${remote_url}] -> ...`, print, 'gists', remote_url, '/comments', 'POST', {body : `[Commit](${commit_url}) message: \`${message}\``});
+            await this.api_check(`Comment for gist [${repo_url}] -> ...`, print, 'gists', repo_url, '/comments', 'POST', {body : `[Commit](${commit_url}) message: \`${message}\``});
         }
         
         print('OK!');

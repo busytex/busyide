@@ -606,6 +606,7 @@ export class Shell
     
     git_fetch()
     {
+        this.log_big_header('$ git fetch', this.git_log); 
         return this.github.fetch();
     }
 

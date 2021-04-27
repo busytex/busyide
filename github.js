@@ -151,7 +151,8 @@ export class Github
 
     init(repo_path)
     {
-        this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, 'refs', 'remotes', 'origin'));
+        this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, this.ref_origin));
+        this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, this.ref_heads)));
         this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, 'objects'));
     }
     
@@ -337,6 +338,7 @@ export class Github
         this.remote_set_url(repo_url, repo_path);
         
         const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
+        const local_branch = this.PATH.join(this.ref_heads, remote_branch);
         
         for(const file of tree.tree)
         {
@@ -366,6 +368,7 @@ export class Github
         this.commit_tree(repo_path, commit, tree);
         this.update_ref(repo_path, this.ref_origin_head, 'ref: ' + origin_branch);
         this.update_ref(repo_path, origin_branch, commit.sha);
+        this.update_ref(repo_path, local_branch, commit.sha);
         
         print(`Branch local [${remote_branch}] -> [${commit.sha}]`);
         print('OK!');
@@ -596,6 +599,7 @@ export class Github
         const gist = await this.api_check(`Gist [${repo_url}] <- ...`, print, 'gists', repo_url);
         const remote_branch = this.gist_branch;
         const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
+        const local_branch = this.PATH.join(this.ref_heads, remote_branch);
 
         this.init(repo_path);
         this.remote_set_url(repo_url, repo_path);
@@ -618,7 +622,8 @@ export class Github
         
         this.commit_tree(repo_path, commit, tree);
         this.update_ref(repo_path, this.ref_origin_head, 'ref: ' + origin_branch);
-        this.update_ref(repo_path, s.origin_branch, commit.version);
+        this.update_ref(repo_path, origin_branch, commit.version);
+        this.update_ref(repo_path, local_branch, commit.version);
         
         print(`Branch local [${remote_branch}] -> [${commit.version}]`);
         print('OK!');

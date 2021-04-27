@@ -281,18 +281,12 @@ export class Github
 
     status()
     {
-        const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
-        const base_branch = this.rev_parse(this.ref_origin_head, repo_path);
-        const remote_branch = this.PATH.basename(base_branch);
-        const remote_url = this.remote_get_url();
-        const base_commit_sha = this.rev_parse(base_branch, repo_path);
-        
         const s = this.summary();
         
-        const tree_dict = this.ls_tree(base_commit_sha, repo_path, true);
+        const tree_dict = this.ls_tree(s.base_commit_sha, repo_path, true);
         const tree_dict_copy = {...tree_dict};
         
-        const ls_R = this.PATH_.find(repo_path, '', true, true, false, false);
+        const ls_R = this.PATH_.find(s.repo_path, '', true, true, false, false);
         let files = [];
 
         for(const file of ls_R)
@@ -306,10 +300,10 @@ export class Github
             const sha = (tree_dict[file.path] || {}).sha;
             
             if(!sha)
-                files.push({path : file.path, abspath : this.PATH.join(repo_path, file.path), status : 'new'});
+                files.push({path : file.path, abspath : this.PATH.join(s.repo_path, file.path), status : 'new'});
             else
             {
-                files.push({path : file.path, abspath : this.PATH.join(repo_path, file.path), status : sha != this.blob_sha(file.contents) ? 'modified' : 'not modified', sha_base : sha});
+                files.push({path : file.path, abspath : this.PATH.join(s.repo_path, file.path), status : sha != this.blob_sha(file.contents) ? 'modified' : 'not modified', sha_base : sha});
                 delete tree_dict[file.path];
             }
         }
@@ -319,7 +313,7 @@ export class Github
         for(const f of files)
             f.abspath_remote = this.cat_file(f.abspath, tree_dict_copy).abspath;
         
-        return {...this.parse_url(remote_url), files : files, remote_branch : remote_branch, remote_commit : base_commit_sha, remote_url : remote_url};
+        return {...this.parse_url(remote_url), files : files, remote_branch : s.remote_branch, remote_commit : s.base_commit_sha, remote_url : s.remote_url};
     }
     
     async clone_repo(print, auth_token, repo_url, repo_path, remote_branch = null)

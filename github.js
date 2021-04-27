@@ -333,7 +333,7 @@ export class Github
         for(const f of files)
             f.abspath_remote = this.cat_file(f.abspath, tree_dict_copy).abspath;
         
-        return {...this.parse_url(remote_url), files : files, remote_branch : s.remote_branch, remote_commit : s.base_commit_sha, remote_url : s.remote_url};
+        return {...this.parse_url(s.remote_url), files : files, remote_branch : s.remote_branch, remote_commit : s.base_commit_sha, remote_url : s.remote_url};
     }
     
     async clone_repo(print, auth_token, repo_url, repo_path, remote_branch = null)

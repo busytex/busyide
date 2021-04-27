@@ -152,7 +152,7 @@ export class Github
     init(repo_path)
     {
         this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, this.ref_origin));
-        this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, this.ref_heads)));
+        this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, this.ref_heads));
         this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, 'objects'));
     }
     

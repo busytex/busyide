@@ -156,9 +156,10 @@ export class Github
         this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, 'objects'));
     }
     
-    remote_get_url()
+    remote_get_url(repo_path)
     {
-        return this.FS.readFile(this.PATH.join(this.dot_git, 'config'), {encoding : 'utf8'}).split('\n')[1].split(' ')[2];
+        repo_path = repo_path || this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
+        return this.FS.readFile(this.PATH.join(repo_path, this.dot_git, 'config'), {encoding : 'utf8'}).split('\n')[1].split(' ')[2];
     }
 
     remote_set_url(repo_url, repo_path = '.')
@@ -285,7 +286,7 @@ export class Github
     summary()
     {
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
-        const repo_url = this.remote_get_url();
+        const repo_url = this.remote_get_url(repo_path);
 
         const base_branch = this.rev_parse(this.ref_origin_head, repo_path);
         const remote_branch = this.PATH.basename(base_branch);
@@ -672,7 +673,7 @@ export class Github
         // TODO: check last commit+pull? check binary files? skip empty new files?
         
         const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
-        const repo_url = this.remote_get_url();
+        const repo_url = this.remote_get_url(repo_path);
         const remote_branch = this.gist_branch;
         const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
 

@@ -651,7 +651,7 @@ export class Github
 
         for(const file_name in gist.files)
         {
-            const file_path = this.PATH.join(repo_path, file_name);
+            const file_path = this.PATH.join(s.repo_path, file_name);
             const file = gist.files[file_name];
             file.sha = this.PATH.basename(this.PATH.dirname(file.raw_url));
             
@@ -660,8 +660,8 @@ export class Github
 
         const tree = {tree : Object.values(gist.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
         
-        this.commit_tree(repo_path, commit, tree);
-        this.update_ref(repo_path, s.origin_branch, commit.version);
+        this.commit_tree(s.repo_path, commit, tree);
+        this.update_ref(s.repo_path, s.origin_branch, commit.version);
         
         print(`Branch local [${s.remote_branch}] -> [${commit.version}] ...`);
         print('OK!');

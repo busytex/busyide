@@ -187,7 +187,7 @@
             <button id="refresh_fetch" class="busyui">Refresh &amp; Fetch</button>
             <textarea id="commit_message" class="busyui" placeholder="Please add a commit message"></textarea>
             
-            <strong>Remote branch:</strong><a class="remotebranch"></a>, <strong>commit:</strong><a class="remotecommit"></a>
+            <strong>Remote branch:</strong><a class="remotebranch"></a>, <strong>remote commit:</strong><a class="remotecommit"></a>, <strong>local commit:</strong><a class="localcommit"></a>
             <hr />
             <table>
                 <thead><tr><th>path</th><th>remote</th><th>github</th><th>diff</th></tr></thead>
@@ -423,13 +423,17 @@ const ui =
         const table = container.querySelector('table');
         const tbody = table.querySelector('tbody');
         const a_branch = container.querySelector('.remotebranch');
-        const a_commit = container.querySelector('.remotecommit');
+        const a_rcommit = container.querySelector('.remotecommit');
+        const a_lcommit = container.querySelector('.localcommit');
 
         a_branch.href = format_url(status.username, status.reponame, status.gist, status.remote_branch);
         a_branch.innerText = status.remote_branch;
         
-        a_commit.href = format_url(status.username, status.reponame, status.gist, status.remote_branch, status.remote_commit);
-        a_commit.innerText = status.remote_commit;
+        a_rcommit.href = format_url(status.username, status.reponame, status.gist, status.remote_branch, status.remote_commit);
+        a_rcommit.innerText = status.remote_commit;
+        
+        a_lcommit.href = format_url(status.username, status.reponame, status.gist, status.remote_branch, status.local_commit);
+        a_lcommit.innerText = status.local_commit;
 
         const ignore = h => (evt => {h(evt); return false;});
         

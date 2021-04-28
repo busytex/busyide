@@ -660,6 +660,7 @@ export class Github
             const file = gist.files[file_name];
             file.sha = this.PATH.basename(this.PATH.dirname(file.raw_url));
             
+            //TODO: check loaded OK -> Promise.all
             await this.load_file(print, file_path, file);
         }
 
@@ -668,7 +669,7 @@ export class Github
         this.commit_tree(s.repo_path, commit, tree);
         this.update_ref(s.repo_path, s.origin_branch, commit.version);
         
-        print(`Branch local [${s.remote_branch}] -> [${commit.version}] ...`);
+        print(`Branch remote [${s.remote_branch}] -> [${commit.version}] ...`);
         print('OK!');
     }
 

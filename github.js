@@ -59,6 +59,17 @@ export class Github
         return this.api(...args).then(this.check_response.bind(this));
     }
 
+    fetch_check(log_prefix, print, url, then = 'json')
+    {
+        print(log_prefix);
+        print(`GET ${url}`);
+        return fetch(url).then(resp => resp[then]().then(data => 
+        {
+            print(log_prefix + (resp.ok ? ' OK!' : ' FAILED!'));
+            return resp.ok ? data : null;
+        }));
+    }
+
     check_response(resp, api_http_codes = {too_many_requests : 429, not_fast_forward : 422, conflict : 409})
     {
         if(resp.status == api_http_codes.too_many_requests)
@@ -248,14 +259,9 @@ export class Github
         }
         else if(file.url)
         {
-            print(`Blob [${file_path}] <- [${cached_file_path}] <- [${file.url}]`);
-            const resp = await fetch(file.url);
-            if(!resp.ok)
-            {
-                print(`Dowloading [${file.url}] failed`);
+            const result = this.fetch_check(`Blob [${file_path}] <- [${cached_file_path}] <- [${file.url}]`, print, file.url);
+            if(result === null)
                 return null;
-            }
-            const result = await resp.json();
             console.assert(result.encoding == 'base64');
             contents = Uint8Array.from(atob(result.content), v => v.charCodeAt());
             //const resp = await fetch(file.download_url).then(r => r.arrayBuffer());
@@ -268,15 +274,11 @@ export class Github
         {
             if(file.truncated)
             {
-                print(`Blob [${file_path}] <- [${file.raw_url}] ...`);
-                const resp = await fetch(file.raw_url);
-                if(!resp.ok)
-                {
-                    print(`Dowloading [${file.url}] failed`);
+                const result = this.fetch_check(`Blob [${file_path}] <- [${file.raw_url}] ...`, print, file.raw_url, 'text');
+                if(result === null)
                     return null;
-                }
-                contents = await resp.text();
-                print(`Blob [${file_path}] <- [${file.raw_url}] ...` + ' OK!');
+                
+                contents = result;
             }
             else
                 contents = file.content;

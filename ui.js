@@ -46,6 +46,7 @@ export class Shell
         this.shell_builtins =  ['man', 'help', 'open', 'close', 'download', 'cd', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty'];
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'diff', 'fetch'];
+        this.hub_applets = ['hub'];
         this.viewer_extensions = ['.log', '.svg', '.png', '.jpg', '.pdf'];
         this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
         this.tic_ = 0;
@@ -74,7 +75,8 @@ export class Shell
         this.cors_proxy_fmt = cors_proxy_fmt;
         this.cmd = (...parts) => parts.join(' ');
         this.arg = path => this.expandcollapseuser(path, false);
-        this.chain = (...cmds) => cmds.join(' && ');
+        this.and = (...cmds) => cmds.join(' && ');
+        this.or = (...cmds) => cmds.join(' || ');
 
         this.sha1 = uint8array => this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40);
         this.rm_rf = dirpath => this.busybox.run(['rm', '-rf', dirpath]);
@@ -83,40 +85,40 @@ export class Shell
 
     bind()
     {
-        const {cmd, arg, chain} = this;
+        const {cmd, arg, and, or} = this;
         const qq = (x = '') => '"' + x + '"', qx = (x = '') => '`' + x + '`';
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.onKey(this.onkey.bind(this));
 
-        this.ui.clone.onclick = () => this.commands(chain('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('cd', this.PATH.join('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('open', '.')) );
-        this.ui.download_diff.onclick = () => this.commands(chain(cmd('git', 'diff', '>', arg(this.diff_path)), cmd('download', arg(this.diff_path))));
+        this.ui.clone.onclick = () => this.commands(and('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('cd', this.PATH.join('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('open', '.')) );
+        this.ui.download_diff.onclick = () => this.commands(and(cmd('git', 'diff', '>', arg(this.diff_path)), cmd('download', arg(this.diff_path))));
         this.ui.download_pdf.onclick = () => this.pdf_path && this.commands(cmd('download', arg(this.pdf_path)));
-        this.ui.cache_purge.onclick = () => this.commands(chain(cmd('cache', 'token', 'purge'), cmd('cache', 'object', 'purge')));
+        this.ui.cache_purge.onclick = () => this.commands(and(cmd('cache', 'token', 'purge'), cmd('cache', 'object', 'purge')));
         this.ui.view_log.onclick = () => this.log_path && this.commands(cmd('open', arg(this.log_path)));
         this.ui.view_pdf.onclick = () => this.pdf_path && this.commands(cmd('open', arg(this.pdf_path)));
-        this.ui.publish_pdf.onclick = () => this.pdf_path && this.commands(cmd('echo', 'helloworld'));
+        this.ui.publish_pdf.onclick = () => this.commands( cmd('hub', 'release', 'create', 'busytex'), cmd('hub', 'release', 'edit', '-a', this.pdf_path, 'busytex') ); // or() this.pdf_path && https://hub.github.com/hub-release.1.html
         this.ui.download.onclick = () => this.ui.get_current_file() && !this.isdir(this.ui.get_current_file()) && this.commands(cmd('download', arg(this.ui.get_current_file())));
         this.ui.upload.onclick = async () => await this.commands('upload');
         this.ui.import_project.onclick = this.import_project.bind(this);
-        this.ui.download_zip.onclick = () => this.project_dir() && this.commands(chain('cd', cmd('busyzip', '-r', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
-        this.ui.download_targz.onclick = () => this.project_dir() && this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path))));
+        this.ui.download_zip.onclick = () => this.project_dir() && this.commands(and('cd', cmd('busyzip', '-r', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
+        this.ui.download_targz.onclick = () => this.project_dir() && this.commands(and(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path))));
         this.ui.strip_comments.onclick = () => this.project_dir() && this.commands(cmd( 'sed', '-i', '-e', qq('s/^\\([^\\]*\\)\\(\\(\\\\\\\\\\)*\\)%.*/\\1\\2%/g'), qx('find ' + arg(this.project_dir()) + ' -name ' + qq('*.tex') )));
         this.ui.compile_project.onclick = () => this.project_dir() && this.commands(cmd('latexmk', arg(this.ui.get_current_tex_path())));
         this.ui.compile_current_file.onclick = () => (this.ui.get_current_file() || '').endsWith('.tex') && !this.isdir(this.ui.get_current_file()) && this.commands(cmd('latexmk', arg(this.ui.get_current_file())));
         this.ui.man.onclick = () => this.commands('man');
-        this.ui.share.onclick = () => this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
+        this.ui.share.onclick = () => this.commands(and(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
         this.ui.show_not_modified.onclick = this.ui.toggle_not_modified.bind(this);
 
         this.ui.new_file.onclick = () =>
         {
             const new_path = this.new_file_path(this.new_file_name, this.new_file_ext);
-            this.commands(chain(cmd('echo', '-e', qq(this.hello_world.replaceAll('\\', '\\\\').replaceAll('\n', '\\n')), '>', new_path), cmd('open', new_path)));
+            this.commands(and(cmd('echo', '-e', qq(this.hello_world.replaceAll('\\', '\\\\').replaceAll('\n', '\\n')), '>', new_path), cmd('open', new_path)));
         }
         this.ui.new_folder.onclick = () => 
         {
             const new_path = this.new_file_path(this.new_dir_name);
-            this.commands(chain(cmd('mkdir', new_path), cmd('open', new_path)));
+            this.commands(and(cmd('mkdir', new_path), cmd('open', new_path)));
         }
 
         this.ui.refresh_fetch.onclick = () => this.commands(cmd('git', 'fetch'));
@@ -135,7 +137,7 @@ export class Shell
                 if(samedir)
                     this.refresh();
                 else
-                    this.commands(parentdir ? chain(cmd('open', '..'), cmd('cd', '..')) : chain(cmd('cd', arg(option.value)), cmd('open', '.')));
+                    this.commands(parentdir ? and(cmd('open', '..'), cmd('cd', '..')) : and(cmd('cd', arg(option.value)), cmd('open', '.')));
             }
         };
         this.ui.filetree.onkeydown = ev => ev.key == 'Enter' || ev.key == ' ' ? this.ui.filetree.ondblclick() : null;
@@ -144,7 +146,7 @@ export class Shell
         //this.ui.current_file_rename.onblur = () => this.ui.set_current_file(this.ui.get_current_file()) || this.ui.toggle_current_file_rename();
         //this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value) || this.ui.toggle_current_file_rename()) : ev.key == 'Escape' ? ev.target.onblur() : null;
         
-        this.ui.remove.onclick = () => this.ui.get_current_file() && this.commands(chain(this.isdir(this.ui.get_current_file()) ? cmd('rm', '-rf', this.ui.get_current_file()) : cmd('rm', this.ui.get_current_file()), cmd('open', '.'))); 
+        this.ui.remove.onclick = () => this.ui.get_current_file() && this.commands(and(this.isdir(this.ui.get_current_file()) ? cmd('rm', '-rf', this.ui.get_current_file()) : cmd('rm', this.ui.get_current_file()), cmd('open', '.'))); 
         
 		
         this.editor.onDidFocusEditorText(ev => this.ui.set_current_file(this.PATH.basename(this.edit_path), this.edit_path, 'editing'));
@@ -360,9 +362,9 @@ export class Shell
 
         const expand_subcommand_args = (args, run_busybox_cmd = c => this.busybox.run([c.cmd, ...c.args]).stdout.trim().replaceAll('\n', ' ')) => args.map(a => a.includes('`') ? run_busybox_cmd(parse_cmdline(a.slice(1, a.length - 1))[0]).split(' ') : [a]).flat();
 
-        const chained_commands = parse_cmdline(current_terminal_line);
+        const anded_commands = parse_cmdline(current_terminal_line);
 
-        for(let {cmd, args, stdout_redirect, stdout_redirect_append} of chained_commands)
+        for(let {cmd, args, stdout_redirect, stdout_redirect_append} of anded_commands)
         {
             args = expand_subcommand_args(args);
 
@@ -420,6 +422,11 @@ export class Shell
                 else if(cmd == 'cache' && args.length > 0 && this.cache_applets.includes(args[0]))
                 {
                     print_or_dump(await this['cache_' + args[0]](...args.slice(1)));
+                    this.last_exit_code = this.EXIT_SUCCESS;
+                }
+                else if(cmd == 'hub' && args.length > 0 && this.hub_applets.includes(args[0]))
+                {
+                    print_or_dump(await this['hub_' + args[0]](...args.slice(1)));
                     this.last_exit_code = this.EXIT_SUCCESS;
                 }
                 
@@ -555,7 +562,7 @@ export class Shell
         }
 
         if(cmds)
-            await this.commands(this.chain(...cmds));
+            await this.commands(this.and(...cmds));
     }
 
     async run(busybox_module_constructor, busybox_wasm_module_promise)
@@ -611,6 +618,11 @@ export class Shell
     {
         this.log_big_header('$ git fetch', this.git_log); 
         return this.github.fetch(this.log_big.bind(this));
+    }
+
+    async hub_release(action, ...args)
+    {
+        console.log(action, ...args);
     }
 
     async git_clone(https_path)

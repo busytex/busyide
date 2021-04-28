@@ -95,6 +95,7 @@ export class Shell
         this.ui.cache_purge.onclick = () => this.commands(chain(cmd('cache', 'token', 'purge'), cmd('cache', 'object', 'purge')));
         this.ui.view_log.onclick = () => this.log_path && this.commands(cmd('open', arg(this.log_path)));
         this.ui.view_pdf.onclick = () => this.pdf_path && this.commands(cmd('open', arg(this.pdf_path)));
+        this.ui.publish_pdf.onclick = () => this.pdf_path && this.commands(cmd('echo', 'helloworld'));
         this.ui.download.onclick = () => this.ui.get_current_file() && !this.isdir(this.ui.get_current_file()) && this.commands(cmd('download', arg(this.ui.get_current_file())));
         this.ui.upload.onclick = async () => await this.commands('upload');
         this.ui.import_project.onclick = this.import_project.bind(this);

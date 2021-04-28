@@ -22,7 +22,7 @@ export class Shell
         this.readme_tex = this.readme_dir + '/README.tex';
         this.hello_world = "\\documentclass[11pt]{article}\n\\begin{document}\n\n\\title{Hello}\n\\maketitle\n\n\\section{world}\nindeed!\n\n\\end{document}";
 
-        this.shared_project = '/home/web_user/shared_project';
+        this.shared_project = this.home_dir + '/shared_project';
         this.pdf_path = null;
         this.log_path = null;
         this.edit_path = null;
@@ -98,8 +98,8 @@ export class Shell
         this.ui.download.onclick = () => this.ui.get_current_file() && !this.isdir(this.ui.get_current_file()) && this.commands(cmd('download', arg(this.ui.get_current_file())));
         this.ui.upload.onclick = async () => await this.commands('upload');
         this.ui.import_project.onclick = this.import_project.bind(this);
-        this.ui.download_zip.onclick = () => this.project_dir() && this.commands(chain('cd', cmd('busyzip', '-r', '-x', '.git', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
-        this.ui.download_targz.onclick = () => this.project_dir() && this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path,  '--exclude', '.git', this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path))));
+        this.ui.download_zip.onclick = () => this.project_dir() && this.commands(chain('cd', cmd('busyzip', '-r', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
+        this.ui.download_targz.onclick = () => this.project_dir() && this.commands(chain(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path))));
         this.ui.strip_comments.onclick = () => this.project_dir() && this.commands(cmd( 'sed', '-i', '-e', qq('s/^\\([^\\]*\\)\\(\\(\\\\\\\\\\)*\\)%.*/\\1\\2%/g'), qx('find ' + arg(this.project_dir()) + ' -name ' + qq('*.tex') )));
         this.ui.compile_project.onclick = () => this.project_dir() && this.commands(cmd('latexmk', arg(this.ui.get_current_tex_path())));
         this.ui.compile_current_file.onclick = () => (this.ui.get_current_file() || '').endsWith('.tex') && !this.isdir(this.ui.get_current_file()) && this.commands(cmd('latexmk', arg(this.ui.get_current_file())));
@@ -959,15 +959,10 @@ export class Shell
                     console.log('open', 'default_path', default_path, 'basename', basename, 'file_path', abspath);
                     this.ui.set_current_file(basename, abspath, 'viewing');
 
-                    if(basename == '.git')
-                        this.git_status();
-                    else
-                    {
-                        this.ls_la(abspath, file_path);
-                        
-                        if(file_path != '.')
-                            open_editor_tab('');
-                    }
+                    this.ls_la(abspath, file_path);
+                    
+                    if(file_path != '.')
+                        open_editor_tab('');
                     
                     file_path = null;
                     return;
@@ -1154,7 +1149,7 @@ export class Shell
         return edscript.includes(conflict_left) && edscript.includes(conflict_right);
     }
 
-    find(root = '.', relative_dir_path = '', recurse = true, preserve_directories = false, include_dot_directories = false, read_contents_as_string = true, exclude = ['.git'])
+    find(root = '.', relative_dir_path = '', recurse = true, preserve_directories = false, include_dot_directories = false, read_contents_as_string = true, exclude = [])
     {
         let entries = [];
         if(include_dot_directories)

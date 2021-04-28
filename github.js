@@ -259,7 +259,7 @@ export class Github
         }
         else if(file.url)
         {
-            const result = this.fetch_check(`Blob [${file_path}] <- [${cached_file_path}] <- [${file.url}]`, print, file.url);
+            const result = await this.fetch_check(`Blob [${file_path}] <- [${cached_file_path}] <- [${file.url}]`, print, file.url);
             if(result === null)
                 return null;
             console.assert(result.encoding == 'base64');
@@ -274,7 +274,7 @@ export class Github
         {
             if(file.truncated)
             {
-                const result = this.fetch_check(`Blob [${file_path}] <- [${file.raw_url}] ...`, print, file.raw_url, 'text');
+                const result = await this.fetch_check(`Blob [${file_path}] <- [${file.raw_url}] ...`, print, file.raw_url, 'text');
                 if(result === null)
                     return null;
                 

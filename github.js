@@ -151,9 +151,12 @@ export class Github
 
     init(repo_path)
     {
-        this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, this.ref_origin));
-        this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, this.ref_heads));
-        this.PATH_.mkdir_p(this.PATH.join(repo_path, this.dot_git, 'objects'));
+        const git_dir = this.PATH.join(repo_path, this.dot_git);
+        //const git_dir = repo_path.replace('home', this.dot_git);
+
+        this.PATH_.mkdir_p(this.PATH.join(git_dir, this.ref_origin));
+        this.PATH_.mkdir_p(this.PATH.join(git_dir, this.ref_heads));
+        this.PATH_.mkdir_p(this.PATH.join(git_dir, 'objects'));
     }
     
     remote_get_url(repo_path)

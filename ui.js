@@ -33,6 +33,7 @@ export class Shell
         this.targz_path = '/tmp/archive.tar.gz';
         this.arxiv_path = '/tmp/arxiv.tar';
         this.git_log = '/tmp/git.log';
+        this.git_dir = '/.git/web_user';
         this.diff_path = '/tmp/git.patch';
         this.empty_file = '/etc/empty';
         this.new_file_name = 'newfile';
@@ -569,6 +570,7 @@ export class Shell
         this.FS = this.busybox.Module.FS;
         this.FS.mkdir(this.readme_dir);
         this.FS.mkdir(this.cache_dir);
+        this.mkdir_p(this.git_dir);
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.writeFile(this.git_log, '');

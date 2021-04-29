@@ -731,7 +731,7 @@ export class Github
         return status_res;
     }
 
-    async release(print, tag_name, asset_path = null)
+    async release(print, tag_name, asset_path = null, asset_content_type = 'application/pdf')
     {
         const s = this.summary();
         if(!asset_path)
@@ -741,9 +741,15 @@ export class Github
         }
         else
         {
+            const basename = this.PATH.basename(asset_path);
+            const contents = this.FS.readFile(asset_path);
+            
             const release = await this.api(`Release ->...`, print, 'repos', s.repo_url, '/releases/tags/' + tag_name);
-            console.log(release);
-            return release.upload_url;
+            const upload_url = this.PATH.join(this.PATH.dirname(release.upload_url), 'assets?name=' + basename);
+
+            const blob = new Blob([contents.buffer], {type: asset_content_type});
+            const res = await fetch(upload_url, {method : 'POST', headers : {'Content-Type': asset_content_type}, body : blob}).then(r => r.json());
+            return JSON.stringify(res);
         }
 
         // https://gist.github.com/stefanbuck/ce788fee19ab6eb0b4447a85fc99f447

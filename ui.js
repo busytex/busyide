@@ -43,7 +43,7 @@ export class Shell
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
         this.busybox_applets = ['busyzip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed', 'true', 'false', 'seq'];
-        this.shell_builtins =  ['man', 'help', 'open', 'close', 'download', 'cd', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty'];
+        this.shell_builtins =  ['man', 'help', 'open', 'close', 'download', 'cd', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty', 'hub'];
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'diff', 'fetch'];
         this.hub_applets = ['hub'];
@@ -624,7 +624,7 @@ export class Shell
     {
         console.log(action, ...args);
         this.log_big_header('$ hub release ' + ' '.join(args), this.git_log); 
-        return this.github.release(this.log_big.bind(this), args[0]);
+        return this.github.release(this.log_big.bind(this), args.pop());
     }
 
     async git_clone(https_path)

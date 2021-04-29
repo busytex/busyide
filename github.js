@@ -746,9 +746,10 @@ export class Github
             
             const release = await this.api(`Release ->...`, print, 'repos', s.repo_url, '/releases/tags/' + tag_name);
             const upload_url = this.PATH.join(this.PATH.dirname(release.upload_url), 'assets?name=' + basename);
+            console.log(upload_url);
 
             const blob = new Blob([contents.buffer], {type: asset_content_type});
-            const res = await fetch(upload_url, {method : 'POST', headers : {'Content-Type': asset_content_type}, body : blob}).then(r => r.json());
+            const res = await fetch(upload_url, {method : 'POST', headers : {Authorization : 'Basic ' + btoa(this.auth_token), 'Content-Type': asset_content_type, body : blob}).then(r => r.json());
             return JSON.stringify(res);
         }
 

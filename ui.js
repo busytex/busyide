@@ -620,12 +620,12 @@ export class Shell
         return this.github.fetch(this.log_big.bind(this));
     }
 
-    async hub_release(action, ...args)
+    async hub_release(cmd, ...args)
     {
         this.log_big_header('$ hub release ' + args.join(' '), this.git_log); 
-        if(args[0] == 'create')
+        if(cmd == 'create')
             return this.github.release(this.log_big.bind(this), args.pop());
-        else if(args[0] == 'edit')
+        else if(cmd == 'edit')
             return this.github.release(this.log_big.bind(this), args.pop(), args.pop());
     }
 

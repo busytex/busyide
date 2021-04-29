@@ -623,7 +623,7 @@ export class Shell
     async hub_release(action, ...args)
     {
         console.log(action, ...args);
-        this.log_big_header('$ hub release ' + ' '.join(args), this.git_log); 
+        this.log_big_header('$ hub release ' + args.join(' '), this.git_log); 
         return this.github.release(this.log_big.bind(this), args.pop());
     }
 

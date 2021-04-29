@@ -736,12 +736,12 @@ export class Github
         const s = this.summary();
         if(!asset_path)
         {
-            const release = await this.api_check(`Release ->...`, print, 'repos', s.repo_url, '/releases', 'POST', {tag_name : tag_name, name : tag_name, body : tag_name});
+            const release = await this.api(`Release ->...`, print, 'repos', s.repo_url, '/releases', 'POST', {tag_name : tag_name, name : tag_name, body : tag_name});
             return release.status == 201 || release.status == 422;
         }
         else
         {
-            const release = await this.api_check(`Release ->...`, print, 'repos', s.repo_url, '/releases/tags/' + tag_name);
+            const release = await this.api(`Release ->...`, print, 'repos', s.repo_url, '/releases/tags/' + tag_name);
             return release.upload_url;
             console.log(release);
         }

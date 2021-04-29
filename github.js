@@ -742,8 +742,8 @@ export class Github
         else
         {
             const release = await this.api(`Release ->...`, print, 'repos', s.repo_url, '/releases/tags/' + tag_name);
-            return release.upload_url;
             console.log(release);
+            return release.upload_url;
         }
 
         // https://gist.github.com/stefanbuck/ce788fee19ab6eb0b4447a85fc99f447

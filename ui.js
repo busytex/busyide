@@ -622,9 +622,11 @@ export class Shell
 
     async hub_release(action, ...args)
     {
-        console.log(action, ...args);
         this.log_big_header('$ hub release ' + args.join(' '), this.git_log); 
-        return this.github.release(this.log_big.bind(this), args.pop());
+        if(args[0] == 'create')
+            return this.github.release(this.log_big.bind(this), args.pop());
+        else if(args[0] == 'edit')
+            return this.github.release(this.log_big.bind(this), args.pop(), args.pop());
     }
 
     async git_clone(https_path)

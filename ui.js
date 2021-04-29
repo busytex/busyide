@@ -623,6 +623,8 @@ export class Shell
     async hub_release(action, ...args)
     {
         console.log(action, ...args);
+        this.log_big_header('$ hub release ' + ' '.join(args), this.git_log); 
+        return this.github.release(this.log_big.bind(this), args[0]);
     }
 
     async git_clone(https_path)

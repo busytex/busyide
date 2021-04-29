@@ -731,8 +731,12 @@ export class Github
         return status_res;
     }
 
-    async upload_asset()
+    async release(print, tag_name, asset_path = null)
     {
+        const s = this.summary();
+        const release = await this.api_check(`Release ->...`, print, 'repos', s.repo_url, '/releases', 'POST', {tag_name : tag_name, name : tag_name, body : tag_name});
+        console.log(release);
+
         // https://developer.github.com/v3/repos/releases/#get-a-release-by-tag-name
         // https://developer.github.com/v3/repos/releases/#get-a-release
         // https://developer.github.com/v3/repos/releases/#list-releases

@@ -40,7 +40,7 @@ export class Github
         this.gist_branch = 'gist';
     }
     
-    api(log_prefix, print, realm, repo_url, relative_url = '', method = 'GET', body = null, object_name = '')
+    api(log_prefix, print, realm, repo_url, relative_url = '', method = 'GET', body = null, object_name = '', then = 'json')
     {
         const api = realm != 'gists' ? repo_url.replace('github.com', this.PATH.join(this.api_endpoint, realm)) : ('https://' + this.PATH.join(this.api_endpoint, 'gists', this.parse_url(repo_url).reponame));
         const headers = Object.assign({Authorization : 'Basic ' + btoa(this.auth_token), 'If-None-Match' : ''}, body != null ? {'Content-Type' : 'application/json'} : {});
@@ -48,7 +48,7 @@ export class Github
         
         print(log_prefix);
         print(`${method} ${url}`);
-        return fetch(url, {method : method || 'GET', headers : headers, ...(body != null ? {body : JSON.stringify(body)} : {})}).then(resp => resp.json().then(data => 
+        return fetch(url, {method : method || 'GET', headers : headers, ...(body != null ? {body : JSON.stringify(body)} : {})}).then(resp => resp[then]().then(data => 
         {
             print(log_prefix + (resp.ok ? (' OK! [ ' + (data.sha || (object_name ? data[object_name].sha : '')) + ' ]') : (` FAILED! [ [${resp.status}]: [${resp.statusText}], [${data.message}] ]`)));
             return ({...data, ok : resp.ok, status : resp.status, statusText : resp.statusText}); 
@@ -746,10 +746,10 @@ export class Github
             
             const release = await this.api_check(`Release [${tag_name}] <- ...`, print, 'repos', s.repo_url, '/releases/tags/' + tag_name);
             const upload_url = release.upload_url.split('{')[0] + '?name=' + basename;
-            const asset = release.assets.filter(a => a.name == basename).concat([{}])[0];
+            const asset = [...release.assets.filter(a => a.name == basename), null][0];
 
             if(asset)
-                await this.api_check(`Asset [${basename}] -> deleted ...`, print, 'repos', s.repo_url, '/releases/assets/' + asset.id, 'DELETE');
+                await this.api_check(`Asset [${basename}] -> deleted ...`, print, 'repos', s.repo_url, '/releases/assets/' + asset.id, 'DELETE', null, '', 'text');
 
             await this.fetch_check(`Asset [${basename}] -CORS> ...`, print, upload_url, {method : 'POST', headers : {Authorization : 'Basic ' + btoa(this.auth_token), 'Content-Type': asset_content_type}, body : blob}, 'json', this.fetch_via_cors_proxy.bind(this));
             const res = await resp.json();

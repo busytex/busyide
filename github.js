@@ -294,7 +294,7 @@ export class Github
         const repo_url = this.remote_get_url(repo_path);
 
         const base_branch = this.rev_parse(this.ref_origin_head, repo_path);
-        const remote_branch = this.PATH.basename(base_branch);
+        const remote_branch = this.PATH.basename(base_branch); // this.gist_branch
         const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
         const local_branch = this.PATH.join(this.ref_heads, remote_branch);
         
@@ -677,35 +677,33 @@ export class Github
     async push_gist(print, status, message)
     {
         // TODO: check last commit+pull? check binary files? skip empty new files?
+        // https://github.community/t/deleting-or-renaming-files-in-a-multi-file-gist-using-github-api/170967/2
         
-        const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
-        const repo_url = this.remote_get_url(repo_path);
-        const remote_branch = this.gist_branch;
-        const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
+        const s = this.summary();
 
-        const files = status.files.filter(s => s.status != 'not modified').map(s => [s.path, {content : s.status == 'deleted' ? null : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]);
+        const files = status.files.filter(s => s.status != 'not modified').map(s =>
+        {
+            const new_blob = [s.path, {content : s.status == 'deleted' ? '' : this.FS.readFile(s.abspath, {encoding: 'utf8'})}]; 
+            this.add(new_blob, f.contents, s.repo_path); 
+            print(`Blob [${new_blob.path}] -> [${new_blob.sha}]`); 
+            return new_blob; 
+        });
 
-        const gist = await this.api_check(`Gist [${repo_url}] -> ...`, print, 'gists', repo_url, '', 'PATCH', { files : Object.fromEntries(files) });
+        const gist = await this.api_check(`Gist [${s.repo_url}] -> ...`, print, 'gists', s.repo_url, '', 'PATCH', { files : Object.fromEntries(files) });
         const commit = gist.history[0];
         const tree = {tree : Object.values(gist.files).map(f => ({ type: 'blob', path: f.filename, sha : f.sha })) };
         
-        this.commit_tree(repo_path, commit, tree);
-        this.update_ref(repo_path, this.ref_origin_head, 'ref: ' + origin_branch);
-        this.update_ref(repo_path, origin_branch, commit.version);
+        this.commit_tree(s.repo_path, commit, tree);
+        this.update_ref(s.repo_path, this.ref_origin_head, 'ref: ' + s.origin_branch);
+        this.update_ref(s.repo_path, s.origin_branch, commit.version);
         
-        print(`Branch local [${remote_branch}] -> [${commit.version}]`);
+        print(`Branch local [${s.remote_branch}] -> [${commit.version}]`);
         
-        for(const new_blob of files)
-        {
-            this.add(new_blbo, f.contents, repo_path);
-            print(`Blob [${new_blob.path}] -> [${new_blob.sha}]`);
-        }
-
         if(message)
         {
-            const parsed = this.parse_url(repo_url);
+            const parsed = this.parse_url(s.repo_url);
             const commit_url = this.format_url(parsed.username, parsed.reponame, true, null, commit.version);
-            await this.api_check(`Comment for gist [${repo_url}] -> ...`, print, 'gists', repo_url, '/comments', 'POST', {body : `[Commit](${commit_url}) message: \`${message}\``});
+            await this.api_check(`Comment for gist [${s.repo_url}] -> ...`, print, 'gists', s.repo_url, '/comments', 'POST', {body : `[Commit](${commit_url}) message: \`${message}\``});
         }
         
         print('OK!');

@@ -60,11 +60,11 @@ export class Github
         return this.api(...args).then(this.check_response.bind(this));
     }
 
-    fetch_check(log_prefix, print, url, then = 'json')
+    fetch_check(log_prefix, print, url, opts = {}, then = 'json', fetch_fn = fetch)
     {
         print(log_prefix);
         print(`GET ${url}`);
-        return fetch(url).then(resp => resp[then]().then(data => 
+        return fetch_fn(url, opts).then(resp => resp[then]().then(data => 
         {
             print(log_prefix + (resp.ok ? ' OK!' : ' FAILED!'));
             return resp.ok ? data : null;
@@ -275,7 +275,7 @@ export class Github
         {
             if(file.truncated)
             {
-                const result = await this.fetch_check(`Blob [${file_path}] <- [${file.raw_url}] ...`, print, file.raw_url, 'text');
+                const result = await this.fetch_check(`Blob [${file_path}] <- [${file.raw_url}] ...`, print, file.raw_url, {}, 'text');
                 if(result === null)
                     return null;
                 
@@ -742,12 +742,20 @@ export class Github
         {
             const basename = this.PATH.basename(asset_path);
             const contents = this.FS.readFile(asset_path);
-            
-            const release = await this.api(`Release ->...`, print, 'repos', s.repo_url, '/releases/tags/' + tag_name);
-            const upload_url = release.upload_url.split('{')[0] + '?name=' + basename;
-
             const blob = new Blob([contents.buffer], {type: asset_content_type});
-            const res = await this.fetch_via_cors_proxy(upload_url, {method : 'POST', headers : {Authorization : 'Basic ' + btoa(this.auth_token), 'Content-Type': asset_content_type}, body : blob}).then(r => r.json());
+            
+            const release = await this.api_check(`Release [${tag_name}] <- ...`, print, 'repos', s.repo_url, '/releases/tags/' + tag_name);
+            const upload_url = release.upload_url.split('{')[0] + '?name=' + basename;
+            const asset = release.assets.filter(a => a.name == basename).concat([{}])[0];
+
+            if(asset)
+                await this.api_check(`Asset [${basename}] -> deleted ...`, print, 'repos', s.repo_url, '/releases/assets/' + asset.id, 'DELETE');
+
+            await this.fetch_check(`Asset [${basename}] -CORS> ...`, print, upload_url, {method : 'POST', headers : {Authorization : 'Basic ' + btoa(this.auth_token), 'Content-Type': asset_content_type}, body : blob}, 'json', this.fetch_via_cors_proxy.bind(this));
+            const res = await resp.json();
+            
+            // {"message":"Validation Failed","request_id":"F780:99E4:8120F4:8B7701:608C332D","documentation_url":"https://docs.github.com/rest","errors":[{"resource":"ReleaseAsset","code":"already_exists","field":"name"}]}
+            //
             return JSON.stringify(res);
         }
 

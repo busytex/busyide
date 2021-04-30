@@ -760,16 +760,6 @@ export class Github
             print('OK!\n');
             print('URL: ' + asset.browser_download_url);
         }
-
-        // https://gist.github.com/stefanbuck/ce788fee19ab6eb0b4447a85fc99f447
-        // https://stackoverflow.com/questions/37786539/how-to-upload-github-asset-file-using-curl
-        //
-        // https://developer.github.com/v3/repos/releases/#get-a-release-by-tag-name
-        // https://developer.github.com/v3/repos/releases/#get-a-release
-        // https://developer.github.com/v3/repos/releases/#list-releases
-        // https://developer.github.com/v3/repos/releases/#create-a-release
-        // https://developer.github.com/v3/repos/releases/#upload-a-release-asset
-        // https://developer.github.com/v3/repos/releases/#delete-a-release-asset
     }
 
     diff(status)

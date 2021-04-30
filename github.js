@@ -751,8 +751,7 @@ export class Github
             if(asset)
                 await this.api_check(`Asset [${basename}] -> deleted ...`, print, 'repos', s.repo_url, '/releases/assets/' + asset.id, 'DELETE', null, '', 'text');
 
-            await this.fetch_check(`Asset [${basename}] -CORS> ...`, print, upload_url, {method : 'POST', headers : {Authorization : 'Basic ' + btoa(this.auth_token), 'Content-Type': asset_content_type}, body : blob}, 'json', this.fetch_via_cors_proxy.bind(this));
-            const res = await resp.json();
+            const res = await this.fetch_check(`Asset [${basename}] -CORS> ...`, print, upload_url, {method : 'POST', headers : {Authorization : 'Basic ' + btoa(this.auth_token), 'Content-Type': asset_content_type}, body : blob}, 'json', this.fetch_via_cors_proxy.bind(this));
             
             // {"message":"Validation Failed","request_id":"F780:99E4:8120F4:8B7701:608C332D","documentation_url":"https://docs.github.com/rest","errors":[{"resource":"ReleaseAsset","code":"already_exists","field":"name"}]}
             //

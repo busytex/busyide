@@ -483,11 +483,16 @@ export class Shell
         }
     }
 
+    fetch_via_cors_proxy(url, opts)
+    {
+        //{headers : {'X-Requested-With': 'XMLHttpRequest'}
+        return fetch(this.cors_proxy_fmt.replace('${url}', url), opts);
+    }
+
     async wget(url, _OP = '-O', output_path = null)
     {
         output_path = _OP == '-P' ? this.PATH.join(output_path, this.PATH.basename(url)) : (output_path || this.PATH.basename(url));
-        const proxy_path = this.cors_proxy_fmt.replace('${url}', url);
-        const resp = await fetch(proxy_path, {headers : {'X-Requested-With': 'XMLHttpRequest'}});
+        const resp = await this.fetch_via_cors_proxy(url); 
         console.assert(this.HTTP_OK == resp.status);
         const uint8array = new Uint8Array(await resp.arrayBuffer());
         this.FS.writeFile(output_path, uint8array);
@@ -584,7 +589,7 @@ export class Shell
         this.FS.writeFile(this.git_log, '');
         this.FS.writeFile(this.empty_file, '');
         this.FS.chdir(this.home_dir);
-        this.github = new Github(this.cache_dir, this.merge.bind(this), this.sha1.bind(this), this.rm_rf.bind(this), this.diff.bind(this), this.FS, this.PATH, this);
+        this.github = new Github(this.cache_dir, this.merge.bind(this), this.sha1.bind(this), this.rm_rf.bind(this), this.diff.bind(this), this.fetch_via_cors_proxy.bind(this), this.FS, this.PATH, this);
         
         await this.cache_load();
        

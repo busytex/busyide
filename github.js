@@ -18,7 +18,7 @@ const base64_encode_uint8array = uint8array => btoa(String.fromCharCode.apply(nu
 
 export class Github
 {
-    constructor(cache_dir, diff3, sha1, rm_rf, diff, FS, PATH, PATH_)
+    constructor(cache_dir, diff3, sha1, rm_rf, diff_, fetch_via_cors_proxy, FS, PATH, PATH_)
     {
         this.retry_delay_seconds = 2;
         this.auth_token = '';
@@ -26,7 +26,8 @@ export class Github
         this.diff3 = diff3;
         this.sha1 = sha1;
         this.rm_rf = rm_rf;
-        this.diff_ = diff;
+        this.diff_ = diff_;
+        this.fetch_via_cors_proxy = fetch_via_cors_proxy;
         this.FS = FS;
         this.PATH = PATH;
         this.PATH_ = PATH_;
@@ -746,7 +747,7 @@ export class Github
             const upload_url = release.upload_url.split('{')[0] + '?name=' + basename;
 
             const blob = new Blob([contents.buffer], {type: asset_content_type});
-            const res = await fetch(upload_url, {method : 'POST', headers : {Authorization : 'Basic ' + btoa(this.auth_token), 'Content-Type': asset_content_type}, body : blob}).then(r => r.json());
+            const res = await this.fetch_via_cors_proxy(upload_url, {method : 'POST', headers : {Authorization : 'Basic ' + btoa(this.auth_token), 'Content-Type': asset_content_type}, body : blob}).then(r => r.json());
             return JSON.stringify(res);
         }
 

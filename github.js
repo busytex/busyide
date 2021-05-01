@@ -445,12 +445,20 @@ export class Github
     
     async push_repo(print, status, message, retry)
     {
-        const s = this.summmary();
-        
-        const tree = this.ls_tree(s.base_commit_sha);
-        
         if(status.files.every(s => s == 'not modified'))
             return;
+        
+        this.fetch_repo(print);
+        const s = this.summmary();
+
+        if(s.local_commit_sha != s.base_commit_sha)
+        {
+            print('Local commit [${s.local_commit_sha}] is not up-to-date with remote [${s.base_commit_sha}] on branch [${s.remote_branch}]');
+            print('Please pull the new changes and resolve conflicts if necessary! Then push again.');
+            return false;
+        }
+
+        const tree = this.ls_tree(s.base_commit_sha);
         
         const modified = status.files.filter(s => s.status == 'modified' || s.status == 'new');
         const deleted = status.files.filter(s => s == 'deleted');

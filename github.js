@@ -449,8 +449,11 @@ export class Github
     
     async push_repo(print, status, message, retry)
     {
-        if(status.files.every(s => s == 'not modified'))
+        if(status.files.every(s => s.status == 'not modified'))
+        {
+            print('No modified files. OK!');
             return;
+        }
         
         this.fetch_repo(print);
         const s = this.summary();
@@ -741,6 +744,12 @@ export class Github
             print(`Blob [${new_blob.path}] -> [${new_blob.sha}]`); 
             return new_blob; 
         });
+
+        if(files.length == 0)
+        {
+            print('No modified files. OK!');
+            return;
+        }
 
         const gist = await this.api_check(`Gist [${s.repo_url}] -> ...`, print, 'gists', s.repo_url, '', 'PATCH', { files : Object.fromEntries(files) });
         const commit = gist.history[0];

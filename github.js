@@ -449,7 +449,7 @@ export class Github
             return;
         
         this.fetch_repo(print);
-        const s = this.summmary();
+        const s = this.summary();
 
         if(s.local_commit_sha != s.base_commit_sha)
         {

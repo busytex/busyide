@@ -1,4 +1,3 @@
-// gists https://developer.github.com/v3/gists/#update-a-gist
 // 403 {
 //   "message": "API rate limit exceeded for 84.110.59.167. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)",
 //     "documentation_url": "https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting"
@@ -115,17 +114,6 @@ export class Github
         else
             return `https://github.com/${username}/${reponame}`;
     }
-    
-    git_dir()
-    {
-        for(let cwd = this.FS.cwd(); cwd != '/'; cwd = this.PATH.normalize(this.PATH.join(cwd, '..')))
-        {
-            const dotgit = this.PATH.join(cwd, this.dot_git);
-            if(this.PATH_.exists(dotgit))
-                return dotgit;
-        }
-        return null;
-    }
 
     ls_tree(commit_sha, repo_path, dict = false)
     {
@@ -142,7 +130,7 @@ export class Github
 
     cat_file(abspath, tree_dict = null)
     {
-        const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..')) + '/';
+        const repo_path = this.get_repo_path() + '/';
 
         if(!abspath.startsWith(repo_path))
             return {};
@@ -173,13 +161,29 @@ export class Github
     
     remote_get_url(repo_path)
     {
-        repo_path = repo_path || this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
+        repo_path = repo_path || this.get_repo_path();
         return this.FS.readFile(this.PATH.join(repo_path, this.dot_git, 'config'), {encoding : 'utf8'}).split('\n')[1].split(' ')[2];
     }
 
     remote_set_url(repo_url, repo_path = '.')
     {
         this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, 'config'), `[remote "origin"]\nurl = ${repo_url}`);
+    }
+    
+    git_dir()
+    {
+        for(let cwd = this.FS.cwd(); cwd != '/'; cwd = this.PATH.normalize(this.PATH.join(cwd, '..')))
+        {
+            const dotgit = this.PATH.join(cwd, this.dot_git);
+            if(this.PATH_.exists(dotgit))
+                return dotgit;
+        }
+        return null;
+    }
+    
+    get_repo_path()
+    {
+        return this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
     }
 
     object_path(sha, repo_path = '.')
@@ -291,7 +295,7 @@ export class Github
 
     summary()
     {
-        const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
+        const repo_path = this.get_repo_path();
         const repo_url = this.remote_get_url(repo_path);
 
         const base_branch = this.rev_parse(this.ref_origin_head, repo_path);
@@ -813,7 +817,7 @@ export class Github
     diff(status)
     {
         //TODO: deleted? new?
-        const repo_path = this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
+        const repo_path = this.get_repo_path();
         let res = ''
         for(const {abspath, sha_base} of status.files.filter(f => f.status != 'not modified'))
             res += this.diff_(abspath, sha_base ? this.object_path(sha_base, repo_path) : 'newfile', repo_path) + '\n';

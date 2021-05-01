@@ -410,7 +410,6 @@ export class Github
         
         for(const file of tree.tree)
         {
-            //TODO: assert type only tree or blob - submodules, symbolic links?
             if(file.type == 'tree')
             {
                 this.FS.mkdir(this.PATH.join(s.repo_path, file.path));
@@ -421,8 +420,6 @@ export class Github
                 const contents = await this.load_file(print, file_path, file);
                 if(contents === null)
                 {
-                    //TOOD: move this down to catch-all
-                    this.rm_rf(s.repo_path);
                     return false;
                 }
 

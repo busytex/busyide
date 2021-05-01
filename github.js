@@ -401,6 +401,43 @@ export class Github
     async fetch_repo(print)
     {
         const s = this.summary();
+        
+        const commit = await this.api_check(`Commits of branch [${s.remote_branch}] <- ...`, print, 'repos', s.repo_url, `/commits/${s.remote_branch}`);
+
+        const tree = await this.api_check(`Tree of commit [${commit.commit.tree.sha}] <- ...`, print, 'repos', s.repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
+        if(tree.truncated)
+            throw new Error('Tree retrieved from GitHub is truncated: not supported yet');
+        
+        for(const file of tree.tree)
+        {
+            //TODO: assert type only tree or blob - submodules, symbolic links?
+            if(file.type == 'tree')
+            {
+                this.FS.mkdir(this.PATH.join(s.repo_path, file.path));
+            }
+            else if(file.type == 'blob')
+            {
+                const file_path = this.PATH.join(s.repo_path, file.path);
+                const contents = await this.load_file(print, file_path, file);
+                if(contents === null)
+                {
+                    //TOOD: move this down to catch-all
+                    this.rm_rf(s.repo_path);
+                    return false;
+                }
+
+                this.FS.writeFile(file_path, contents);
+                this.save_object(this.object_path(file, s.repo_path), contents);
+            }
+        }
+        
+        tree.tree = tree.tree.filter(f => f.type == 'blob');
+
+        this.commit_tree(s.repo_path, commit, tree);
+        this.update_ref(s.repo_path, s.origin_branch, commit.sha);
+        
+        print(`Branch remote [${s.remote_branch}] -> [${commit.sha}] ...`);
+        print('OK!');
     }
     
     async push_repo(print, status, message, retry)

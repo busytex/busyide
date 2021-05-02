@@ -151,8 +151,8 @@ export class Github
 
     init(repo_path)
     {
-        const git_dir = this.PATH.join(repo_path, this.dot_git);
-        //const git_dir = repo_path.replace('home', this.dot_git);
+        //const git_dir = this.PATH.join(repo_path, this.dot_git);
+        const git_dir = repo_path.replace('home', this.dot_git);
 
         this.PATH_.mkdir_p(this.PATH.join(git_dir, this.ref_origin));
         this.PATH_.mkdir_p(this.PATH.join(git_dir, this.ref_heads));
@@ -172,18 +172,20 @@ export class Github
     
     git_dir()
     {
-        for(let cwd = this.FS.cwd(); cwd != '/'; cwd = this.PATH.normalize(this.PATH.join(cwd, '..')))
+        for(let repo_path = this.FS.cwd(); repo_path != '/'; repo_path = this.PATH.normalize(this.PATH.join(repo_path, '..')))
         {
-            const dotgit = this.PATH.join(cwd, this.dot_git);
-            if(this.PATH_.exists(dotgit))
-                return dotgit;
+            //const git_dir = this.PATH.join(cwd, this.dot_git);
+            const git_dir = repo_path.replace('home', this.dot_git);
+            if(this.PATH_.exists(git_dir))
+                return git_dir;
         }
         return null;
     }
     
     get_repo_path()
     {
-        return this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
+        //return this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
+        return this.git_dir().replace(this.dot_git, 'home');
     }
 
     object_path(sha, repo_path = '.')

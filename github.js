@@ -195,7 +195,7 @@ export class Github
     object_path(sha, repo_path = '.')
     {
         sha = typeof(sha) == 'string' ? sha : (sha.sha || sha.version); 
-        return this.PATH.join(repo_path, this.dot_git, 'objects', sha.slice(0, 2), sha.slice(2));
+        return this.PATH.join(this.git_dir(repo_path), 'objects', sha.slice(0, 2), sha.slice(2));
     }
 
     save_object(obj_path, contents)
@@ -215,12 +215,12 @@ export class Github
 
     update_ref(repo_path, ref, new_value)
     {
-        this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, ref), new_value);
+        this.FS.writeFile(this.PATH.join(this.git_dir(repo_path), ref), new_value);
     }
 
     rev_parse(ref, repo_path = '.')
     {
-        ref = this.FS.readFile(this.PATH.join(repo_path, this.dot_git, ref), {encoding: 'utf8'})
+        ref = this.FS.readFile(this.PATH.join(this.git_dir(repo_path), ref), {encoding: 'utf8'})
         if(ref.startsWith('ref: '))
             return ref.split(': ').pop();
         return ref;

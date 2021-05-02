@@ -824,7 +824,6 @@ export class Github
                 asset = null;
             }
 
-            //asset = await this.fetch_check(`Asset [${basename}] -CORS> ...`, print, upload_url, {method : 'POST', headers : {Authorization : 'Basic ' + btoa(this.auth_token), 'Content-Type': asset_content_type}, body : blob}, 'json', this.fetch_via_cors_proxy.bind(this));
             asset = await this.fetch_check(`Asset [${basename}] -CORS> ...`, print, upload_url, {method : 'POST', headers : {Authorization : 'Basic ' + btoa(this.auth_token)}, body : blob}, 'json', this.fetch_via_cors_proxy.bind(this));
             
             print('OK!\n');
@@ -840,5 +839,15 @@ export class Github
         for(const {abspath, sha_base} of status.files.filter(f => f.status != 'not modified'))
             res += this.diff_(abspath, sha_base ? this.object_path(sha_base, repo_path) : 'newfile', repo_path) + '\n';
         return res;
+    }
+
+    create_pull_request(print, status, message, source_branch, target_branch)
+    {
+        // https://github.community/t/github-api-to-create-a-branch/14216/2
+        // https://developer.github.com/enterprise/2.10/v3/git/refs/#create-a-reference
+        // https://docs.github.com/en/rest/reference/pulls#create-a-pull-request
+        const pr = await this.api_check(`PR -> ...`, print, 'repos', s.repo_url, '/pulls', 'POST', {title : 'New PR', head : source_branch, base: target_branch, body: message});
+        print(`PR created: ${pr.url}`);
+        print('OK!');
     }
 }

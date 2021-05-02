@@ -526,8 +526,10 @@ export class Shell
         
         if(route0 == 'github')
         {
-            this.ui.github_https_path.value = route1;
-            project_dir = this.github.parse_url(this.ui.github_https_path.value).reponame;
+            const parsed = this.github.parse_url(route1);
+            project_dir = parsed.reponame;
+            this.ui.github_https_path.value = parsed.path;
+            this.ui.github_branch.value = parsed.branch;
             cmds = [this.cmd('git', 'clone', this.ui.github_https_path.value), this.cmd('cd', project_dir), this.cmd('open', '.')];
         }
         else if(route0 == 'arxiv')

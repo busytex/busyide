@@ -94,7 +94,7 @@ export class Github
         const username = route.pop();
         const gist = repo_url.includes('gist.github.com');
 
-        return {reponame : reponame, username : username, gist: gist, path : repo_url};
+        return {reponame : reponame, username : username, gist: gist, path : repo_url, branch : ''};
     }
 
     format_url(username, reponame, gist, branch, commit, path)

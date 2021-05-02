@@ -304,9 +304,9 @@ export class Github
         const local_branch = this.PATH.join(this.ref_heads, remote_branch);
         
         const local_commit_sha = this.rev_parse(local_branch, repo_path);
-        const base_commit_sha = this.rev_parse(base_branch, repo_path);
+        const remote_commit_sha = this.rev_parse(base_branch, repo_path);
         
-        return {remote_branch : remote_branch, repo_path : repo_path, repo_url : repo_url, origin_branch : origin_branch, base_commit_sha : base_commit_sha, local_commit_sha : local_commit_sha};
+        return {remote_branch : remote_branch, repo_path : repo_path, repo_url : repo_url, origin_branch : origin_branch, remote_commit_sha : remote_commit_sha, local_commit_sha : local_commit_sha};
     }
 
     status()
@@ -314,7 +314,7 @@ export class Github
         const s = this.summary();
         console.log(s);
         
-        const tree_dict = this.ls_tree(s.base_commit_sha, s.repo_path, true);
+        const tree_dict = this.ls_tree(s.local_commit_sha, s.repo_path, true);
         const tree_dict_copy = {...tree_dict};
         
         const ls_R = this.PATH_.find(s.repo_path, '', true, true, false, false);
@@ -344,7 +344,7 @@ export class Github
         for(const f of files)
             f.abspath_remote = this.cat_file(f.abspath, tree_dict_copy).abspath;
         
-        return {...this.parse_url(s.repo_url), files : files, remote_branch : s.remote_branch, remote_commit : s.base_commit_sha, local_commit : s.local_commit_sha, repo_url : s.repo_url};
+        return {...this.parse_url(s.repo_url), files : files, remote_branch : s.remote_branch, remote_commit : s.remote_commit_sha, local_commit : s.local_commit_sha, repo_url : s.repo_url};
     }
     
     async clone_repo(print, auth_token, repo_url, repo_path, remote_branch = null)
@@ -407,7 +407,7 @@ export class Github
         const s = this.summary();
         
         const commit = await this.api_check(`Commits of branch [${s.remote_branch}] <- ...`, print, 'repos', s.repo_url, `/commits/${s.remote_branch}`);
-        if(commit.sha == s.base_commit_sha)
+        if(commit.sha == s.remote_commit_sha)
         {
             print(`Branch local [${s.remote_branch}] is up-to-date at [${s.local_commit_sha}]!`);
             print('OK!');
@@ -458,14 +458,14 @@ export class Github
         this.fetch_repo(print);
         const s = this.summary();
 
-        if(s.local_commit_sha != s.base_commit_sha)
+        if(s.local_commit_sha != s.remote_commit_sha)
         {
-            print('Local commit [${s.local_commit_sha}] is not up-to-date with remote [${s.base_commit_sha}] on branch [${s.remote_branch}]');
+            print('Local commit [${s.local_commit_sha}] is not up-to-date with remote [${s.remote_commit_sha}] on branch [${s.remote_branch}]');
             print('Please pull the new changes and resolve conflicts if necessary! Then push again.');
             return false;
         }
 
-        const tree = this.ls_tree(s.base_commit_sha);
+        const tree = this.ls_tree(s.local_commit_sha);
         
         const modified = status.files.filter(s => s.status == 'modified' || s.status == 'new');
         const deleted = status.files.filter(s => s == 'deleted');
@@ -539,7 +539,7 @@ export class Github
             let new_tree = no_deletes ? { base_tree : tree.sha, tree : modified_blobs } : { tree : tree.filter(f => f.type == 'blob' && !deleted_paths.includes(f.path) && !modified_paths.includes(f.path)).concat(modified_blobs) };
             new_tree = await this.api_check(`Tree ->...`, print, 'repos', s.repo_url, '/git/trees', 'POST', new_tree);
 
-            let new_commit = { message : message, parents : [s.base_commit_sha], tree : new_tree.sha };
+            let new_commit = { message : message, parents : [s.local_commit_sha], tree : new_tree.sha };
             new_commit = await this.api_check(`Commit with tree [${new_tree.sha}] -> ...`, print, 'repos', s.repo_url, '/git/commits', 'POST', new_commit);
             print(`Commit [${new_commit.sha}] -> local...`);
             this.commit_tree(s.repo_path, new_commit, new_tree);
@@ -556,7 +556,7 @@ export class Github
     async pull_repo(print, status)
     {
         const s = this.summary();
-        const tree_dict = this.ls_tree(s.base_commit_sha, s.repo_path, true);
+        const tree_dict = this.ls_tree(s.local_commit_sha, s.repo_path, true);
 
         const new_commit = await this.api_check(`Commits of branch [${s.remote_branch}] <- ...`, print, 'repos', s.repo_url, `/commits/${s.remote_branch}`);
 
@@ -703,7 +703,7 @@ export class Github
         const gist = await this.api_check(`Gist [${s.repo_url}] <- ...`, print, 'gists', s.repo_url);
         const commit = gist.history[0];
 
-        if(commit.version == s.base_commit_sha)
+        if(commit.version == s.remote_commit_sha)
         {
             print(`Branch local [${s.remote_branch}] is up-to-date at [${s.local_commit_sha}]!`);
             print('OK!');
@@ -775,7 +775,7 @@ export class Github
     {
         const s = this.summary();
         
-        const tree_dict = this.ls_tree(s.base_commit_sha, repo_path, true);
+        const tree_dict = this.ls_tree(s.local_commit_sha, repo_path, true);
         
         const gist = await this.api_check(`Gist [${s.repo_url}] <- ...`, print, 'gists', s.repo_url);
         const new_commit = gist.history[0];

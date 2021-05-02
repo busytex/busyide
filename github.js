@@ -165,17 +165,18 @@ export class Github
     remote_get_url(repo_path)
     {
         repo_path = repo_path || this.get_repo_path();
-        return this.FS.readFile(this.PATH.join(repo_path, this.dot_git, 'config'), {encoding : 'utf8'}).split('\n')[1].split(' ')[2];
+        return this.FS.readFile(this.PATH.join(this.git_dir(repo_path), 'config'), {encoding : 'utf8'}).split('\n')[1].split(' ')[2];
     }
 
-    remote_set_url(repo_url, repo_path = '.')
+    remote_set_url(repo_path, repo_url)
     {
-        this.FS.writeFile(this.PATH.join(repo_path, this.dot_git, 'config'), `[remote "origin"]\nurl = ${repo_url}`);
+        this.FS.writeFile(this.PATH.join(this.git_dir(repo_path), 'config'), `[remote "origin"]\nurl = ${repo_url}`);
     }
     
-    git_dir()
+    git_dir(repo_path = null)
     {
-        for(let repo_path = this.FS.cwd(); repo_path != '/'; repo_path = this.PATH.normalize(this.PATH.join(repo_path, '..')))
+        repo_path = this.PATH.normalize(repo_path || this.FS.cwd());
+        for(; repo_path != '/'; repo_path = this.PATH.normalize(this.PATH.join(repo_path, '..')))
         {
             //const git_dir = this.PATH.join(cwd, this.dot_git);
             const git_dir = repo_path.replace('home', this.dot_git);
@@ -368,7 +369,7 @@ export class Github
             throw new Error('Tree retrieved from GitHub is truncated: not supported yet');
 
         this.init(repo_path);
-        this.remote_set_url(repo_url, repo_path);
+        this.remote_set_url(repo_path, repo_url);
         
         const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
         const local_branch = this.PATH.join(this.ref_heads, remote_branch);
@@ -675,7 +676,7 @@ export class Github
         const local_branch = this.PATH.join(this.ref_heads, remote_branch);
 
         this.init(repo_path);
-        this.remote_set_url(repo_url, repo_path);
+        this.remote_set_url(repo_path, repo_url);
 
         for(const file_name in gist.files)
         {

@@ -151,6 +151,9 @@ export class Github
 
     init(repo_path)
     {
+        repo_path = this.PATH_.abspath(repo_path);
+        this.PATH_.mkdir_p(repo_path);
+        
         //const git_dir = this.PATH.join(repo_path, this.dot_git);
         const git_dir = repo_path.replace('home', this.dot_git);
 

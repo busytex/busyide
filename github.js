@@ -39,10 +39,15 @@ export class Github
         this.gist_branch = 'gist';
     }
     
+    auth_headers()
+    {
+        return ({Authorization : 'Basic ' + btoa(this.auth_token)});
+    }
+
     api(log_prefix, print, realm, repo_url, relative_url = '', method = 'GET', body = null, object_name = '', then = 'json')
     {
         const api = realm != 'gists' ? repo_url.replace('github.com', this.PATH.join(this.api_endpoint, realm)) : ('https://' + this.PATH.join(this.api_endpoint, 'gists', this.parse_url(repo_url).reponame));
-        const headers = Object.assign({Authorization : 'Basic ' + btoa(this.auth_token), 'If-None-Match' : ''}, body != null ? {'Content-Type' : 'application/json'} : {});
+        const headers = Object.assign({...this.auth_headers(), 'If-None-Match' : ''}, body != null ? {'Content-Type' : 'application/json'} : {});
         const url = api + relative_url;
         
         print(log_prefix);
@@ -824,7 +829,7 @@ export class Github
                 asset = null;
             }
 
-            asset = await this.fetch_check(`Asset [${basename}] -CORS> ...`, print, upload_url, {method : 'POST', headers : {Authorization : 'Basic ' + btoa(this.auth_token)}, body : blob}, 'json', this.fetch_via_cors_proxy.bind(this));
+            asset = await this.fetch_check(`Asset [${basename}] -CORS> ...`, print, upload_url, {method : 'POST', headers : this.auth_headers()}, body : blob}, 'json', this.fetch_via_cors_proxy.bind(this));
             
             print('OK!\n');
             print('URL: ' + asset.browser_download_url);
@@ -847,7 +852,7 @@ export class Github
         // https://developer.github.com/enterprise/2.10/v3/git/refs/#create-a-reference
         // https://docs.github.com/en/rest/reference/pulls#create-a-pull-request
         const pr = await this.api_check(`PR -> ...`, print, 'repos', s.repo_url, '/pulls', 'POST', {title : 'New PR', head : source_branch, base: target_branch, body: message});
-        print(`PR created: ${pr.url}`);
-        print('OK!');
+        print('OK!\n');
+        print(`URL: ${pr.url}`);
     }
 }

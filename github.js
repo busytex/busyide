@@ -846,7 +846,7 @@ export class Github
         return res;
     }
 
-    create_pull_request(print, status, message, source_branch, target_branch)
+    async create_pull_request(print, status, message, source_branch, target_branch)
     {
         // https://github.community/t/github-api-to-create-a-branch/14216/2
         // https://developer.github.com/enterprise/2.10/v3/git/refs/#create-a-reference

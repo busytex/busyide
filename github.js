@@ -175,10 +175,9 @@ export class Github
     
     git_dir(repo_path = null)
     {
-        repo_path = this.PATH.normalize(repo_path || this.FS.cwd());
+        repo_path = this.PATH_.abspath(repo_path || this.FS.cwd());
         for(; repo_path != '/'; repo_path = this.PATH.normalize(this.PATH.join(repo_path, '..')))
         {
-            //const git_dir = this.PATH.join(cwd, this.dot_git);
             const git_dir = repo_path.replace('home', this.dot_git);
             if(this.PATH_.exists(git_dir))
                 return git_dir;
@@ -188,7 +187,6 @@ export class Github
     
     get_repo_path()
     {
-        //return this.PATH.normalize(this.PATH.join(this.git_dir(), '..'));
         return this.git_dir().replace(this.dot_git, 'home');
     }
 

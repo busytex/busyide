@@ -351,12 +351,17 @@ export class Github
         return {...this.parse_url(s.repo_url), files : files, remote_branch : s.remote_branch, remote_commit : s.remote_commit_sha, local_commit : s.local_commit_sha, repo_url : s.repo_url};
     }
     
+    async get_default_branch(print, repo_url)
+    {
+        return (await this.api_check('Default branch <- ...', print, 'repos', repo_url)).default_branch;
+    }
+
     async clone_repo(print, auth_token, repo_url, repo_path, remote_branch = null)
     {
         this.auth_token = auth_token;
         
         if(!remote_branch)
-            remote_branch = (await this.api_check('Default branch <- ...', print, 'repos', repo_url)).default_branch;
+            remote_branch = this.get_default_branch(print, repo_url);
 
         print(`Branch [${remote_branch}]`);
         

@@ -530,7 +530,7 @@ export class Shell
             project_dir = parsed.reponame;
             this.ui.github_https_path.value = parsed.path;
             this.ui.github_branch.value = parsed.branch;
-            cmds = [this.cmd('git', 'clone', this.ui.github_https_path.value), this.cmd('cd', project_dir), this.cmd('open', '.')];
+            cmds = [this.cmd('git', 'clone', this.ui.github_https_path.value, ...(parsed.branch ? ['--branch', parsed.branch] : [])), this.cmd('cd', project_dir), this.cmd('open', '.')];
         }
         else if(route0 == 'arxiv')
         {
@@ -636,7 +636,7 @@ export class Shell
             return this.github.release(this.log_big.bind(this), args.pop(), args.pop());
     }
 
-    async git_clone(https_path)
+    async git_clone(https_path, __branch, branch)
     {
         this.log_big_header('$ git clone ' + https_path, this.git_log); 
         const parsed = this.github.parse_url(https_path);

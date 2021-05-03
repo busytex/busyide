@@ -851,7 +851,9 @@ export class Github
     propose_diff_file_name()
     {
         const s = this.summary();
-        return `diff_${s.username}_${s.reponame}_${s.remote_branch}_${s.remote_commit_sha}.patch`;
+        const now = new Date();
+        const isotime = now.toISOString().replaceAll('-', '').replaceAll(':', '').replaceAll('.', '');
+        return `patch_${isotime}_${s.username}_${s.reponame}_${s.remote_branch}_${s.remote_commit_sha}.patch`;
     }
 
     async create_pull_request(print, status, message, source_branch, target_branch)

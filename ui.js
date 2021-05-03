@@ -638,7 +638,7 @@ export class Shell
 
     async git_clone(https_path, __branch, branch)
     {
-        this.log_big_header('$ git clone ' + https_path, this.git_log); 
+        this.log_big_header('$ git clone ' + (branch ? `--branch ${branch} ` : '') + https_path, this.git_log); 
         const parsed = this.github.parse_url(https_path);
         
         let repo_path = parsed.reponame;

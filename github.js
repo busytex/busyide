@@ -315,7 +315,8 @@ export class Github
         const local_commit_sha = this.rev_parse(local_branch, repo_path);
         const remote_commit_sha = this.rev_parse(base_branch, repo_path);
         
-        return {remote_branch : remote_branch, repo_path : repo_path, repo_url : repo_url, origin_branch : origin_branch, remote_commit_sha : remote_commit_sha, local_commit_sha : local_commit_sha};
+        const parsed = this.parse_url(repo_url); 
+        return {remote_branch : remote_branch, repo_path : repo_path, repo_url : repo_url, origin_branch : origin_branch, remote_commit_sha : remote_commit_sha, local_commit_sha : local_commit_sha, username : parsed.username, reponame : parsed.reponame};
     }
 
     status()
@@ -843,7 +844,14 @@ export class Github
         let res = ''
         for(const {abspath, sha_base} of status.files.filter(f => f.status != 'not modified'))
             res += this.diff_(abspath, sha_base ? this.object_path(sha_base, repo_path) : 'newfile', repo_path) + '\n';
+        console.log(this.propose_diff_file_name());
         return res;
+    }
+
+    propose_diff_file_name()
+    {
+        const s = this.summary();
+        return `diff_${s.username}_${s.reponame}_${s.remote_branch}_${s.remote_commit_sha}.patch`;
     }
 
     async create_pull_request(print, status, message, source_branch, target_branch)

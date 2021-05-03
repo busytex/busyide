@@ -830,7 +830,7 @@ export class Github
                 asset = null;
             }
 
-            asset = await this.fetch_check(`Asset [${basename}] -CORS> ...`, print, upload_url, {method : 'POST', headers : this.auth_headers()}, body : blob}, 'json', this.fetch_via_cors_proxy.bind(this));
+            asset = await this.fetch_check(`Asset [${basename}] -CORS> ...`, print, upload_url, {method : 'POST', headers : this.auth_headers(), body : blob}, 'json', this.fetch_via_cors_proxy.bind(this));
             
             print('OK!\n');
             print('URL: ' + asset.browser_download_url);

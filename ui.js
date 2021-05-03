@@ -661,7 +661,7 @@ export class Shell
         token = token || this.ui.github_token.value;
         
         if(!branch)
-            branch = this.ui.github_branch.value = await this.github.get_default_branch(this.log_bind(this), parsed.path);
+            branch = this.ui.github_branch.value = await this.github.get_default_branch(this.log_big.bind(this), parsed.path);
 
         const exit_code = await this.github.clone(this.log_big.bind(this), token, https_path, repo_path);
         if(exit_code === false)

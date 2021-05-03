@@ -367,7 +367,7 @@ export class Github
         this.auth_token = auth_token;
         
         if(!remote_branch)
-            remote_branch = this.get_default_branch(print, repo_url);
+            remote_branch = await this.get_default_branch(print, repo_url);
 
         print(`Branch [${remote_branch}]`);
         

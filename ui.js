@@ -720,6 +720,7 @@ export class Shell
     git_diff()
     {
         // https://man.openbsd.org/diff.1
+        this.diff_path = this.github.propose_diff_file_name();
         
         this.log_big_header('$ git diff > ' + this.diff_path); 
         

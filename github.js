@@ -462,13 +462,15 @@ export class Github
         print('OK!');
     }
     
-    async push_repo(print, status, message, retry)
+    async push_repo(print, status, message, branch = null)
     {
         if(status.files.every(s => s.status == 'not modified'))
         {
             print('No modified files. OK!');
             return;
         }
+        
+        // https://developer.github.com/enterprise/2.10/v3/git/refs/#create-a-reference
         
         this.fetch_repo(print);
         const s = this.summary();
@@ -851,18 +853,7 @@ export class Github
     propose_diff_file_name()
     {
         const s = this.summary();
-        const now = new Date();
-        const isotime = now.toISOString().replaceAll('-', '').replaceAll(':', '').replaceAll('.', '');
+        const isotime = (new Date()).toISOString().replaceAll('-', '').replaceAll(':', '').replaceAll('.', '');
         return `patch_${isotime}_for_${s.username}_${s.reponame}_${s.remote_branch}_${s.remote_commit_sha}.patch`;
-    }
-
-    async create_pull_request(print, status, message, source_branch, target_branch)
-    {
-        // https://github.community/t/github-api-to-create-a-branch/14216/2
-        // https://developer.github.com/enterprise/2.10/v3/git/refs/#create-a-reference
-        // https://docs.github.com/en/rest/reference/pulls#create-a-pull-request
-        const pr = await this.api_check(`PR -> ...`, print, 'repos', s.repo_url, '/pulls', 'POST', {title : 'New PR', head : source_branch, base: target_branch, body: message});
-        print('OK!\n');
-        print(`URL: ${pr.url}`);
     }
 }

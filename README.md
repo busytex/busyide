@@ -1,4 +1,5 @@
 ### Supported URIs
+- https://busytex.github.io/#github/https://github.com/vadimkantorov/busyidetest/tree/master/
 - https://busytex.github.io/#github/https://github.com/vadimkantorov/busyidetest
 - https://busytex.github.io/#github/https://gist.github.com/vadimkantorov/43590508854c6e1dac58bcee8d940a8d
 - https://busytex.github.io/#arxiv/https://arxiv.org/abs/1808.00158

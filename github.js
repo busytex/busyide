@@ -95,11 +95,14 @@ export class Github
     parse_url(repo_url)
     {
         const route = repo_url.split('/').filter(s => s != '');
-        const reponame = route.pop();
-        const username = route.pop();
         const gist = repo_url.includes('gist.github.com');
+        const domain_ind = route.indexOf((gist ? 'gist.' : '') + 'github.com');
+        
+        const username = route[domain_ind + 1];
+        const reponame = route[domain_ind + 2];
+        const branch = route[domain_ind + 3] == 'tree' ? route[domain_ind + 4] : '';
 
-        return {reponame : reponame, username : username, gist: gist, path : repo_url, branch : ''};
+        return {reponame : reponame, username : username, gist: gist, path : repo_url, branch : branch};
     }
 
     format_url(username, reponame, gist, branch, commit, path)

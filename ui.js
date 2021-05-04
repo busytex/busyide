@@ -674,7 +674,7 @@ export class Shell
         }
         
         await this.cache_save();
-        this.ui.set_route('github', https_path);
+        this.ui.set_route('github', this.github.format_url(parsed.username, parsed.reponame, parsed.gist, branch));
     }
 
     git_status()

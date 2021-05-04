@@ -102,7 +102,9 @@ export class Github
         const reponame = route[domain_ind + 2];
         const branch = route[domain_ind + 3] == 'tree' ? route[domain_ind + 4] : '';
 
-        return {reponame : reponame, username : username, gist: gist, path : repo_url, branch : branch};
+        const canonical_path = `https://${gist ? 'gist.' : ''}github.com/${username}/${reponame}`;
+
+        return {reponame : reponame, username : username, gist: gist, path : canonical_path, branch : branch};
     }
 
     format_url(username, reponame, gist, branch, commit, path)

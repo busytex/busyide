@@ -122,7 +122,7 @@ export class Shell
 
         this.ui.refresh_fetch.onclick = () => this.commands(cmd('git', 'fetch'));
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
-        this.ui.push.onclick = () => this.commands(cmd('git', 'status'));
+        this.ui.gitops.onclick = () => this.github.git_dir() && this.commands(cmd('git', 'status'));
         this.ui.commit_push.onclick = () => this.commands(cmd('git', 'push'));
         this.ui.commit_push_new_branch.onclick = () => this.commands(and(cmd('git', 'checkout', '-b', this.github.propose_new_branch_name()), cmd('git', 'push')));
 

@@ -643,7 +643,7 @@ export class Shell
         await this.github.checkout(this.log_big.bind(this), new_branch_name);
 
         //TODO: factor out updating the URL
-        this.github_branch.value = new_branch_name;
+        this.ui.github_branch.value = new_branch_name;
     }
 
     async git_clone(https_path, __branch, branch)

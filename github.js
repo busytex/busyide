@@ -36,6 +36,7 @@ export class Github
         this.head = 'HEAD';
         this.ref_origin_head = this.PATH.join(this.ref_origin, this.head);
         this.dot_git = '.git';
+        this.git_root = this.PATH_.home_dir.replace('home', this.dot_git);
         this.gist_branch = 'gist';
     }
     
@@ -189,7 +190,7 @@ export class Github
         for(; repo_path != '/'; repo_path = this.PATH.normalize(this.PATH.join(repo_path, '..')))
         {
             const git_dir = repo_path.replace('home', this.dot_git);
-            if(this.PATH_.exists(git_dir))
+            if(this.PATH_.exists(git_dir) && !this.git_root.startsWith(git_dir))
                 return git_dir;
         }
         return null;

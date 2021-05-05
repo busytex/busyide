@@ -732,7 +732,7 @@ export class Shell
     git_diff(__output, output_path)
     {
         // https://man.openbsd.org/diff.1
-        this.log_big_header('$ git diff' + (output_path ? ` --output "${output_path}"` : ''); 
+        this.log_big_header('$ git diff' + (output_path ? ` --output "${output_path}"` : '')); 
         
         const status = this.github.status();
         const diff = this.github.diff(status);

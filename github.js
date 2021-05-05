@@ -873,7 +873,6 @@ export class Github
         let res = ''
         for(const {abspath, sha_base} of status.files.filter(f => f.status != 'not modified'))
             res += this.diff_(abspath, sha_base ? this.object_path(sha_base, repo_path) : 'newfile', repo_path) + '\n';
-        console.log(this.propose_diff_file_name());
         return res;
     }
 

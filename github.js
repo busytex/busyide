@@ -467,7 +467,16 @@ export class Github
         print('OK!');
     }
     
-    async push_repo(print, status, message, branch = null)
+    async checkout(print, remote_branch)
+    {
+        const s = this.summary();
+        const new_branch = await this.api_check(`Branch [${remote_branch}] @ [${s.local_commit_sha}] ->...`, print, 'repos', s.repo_url, '/git/refs', 'POST', {ref : `/refs/heads/{remote_branch}`, sha : s.local_commit_sha });
+        const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
+        this.update_ref(s.repo_path, this.ref_origin_head, 'ref: ' + origin_branch);
+        print('OK!');
+    }
+
+    async push_repo(print, status, message, branch = null, create_new_branch = false)
     {
         if(status.files.every(s => s.status == 'not modified'))
         {
@@ -475,16 +484,23 @@ export class Github
             return;
         }
         
-        // https://developer.github.com/enterprise/2.10/v3/git/refs/#create-a-reference
-        
-        this.fetch_repo(print);
-        const s = this.summary();
-
-        if(s.local_commit_sha != s.remote_commit_sha)
+        let s = null;
+        if(branch !== null && create_new_branch)
         {
-            print('Local commit [${s.local_commit_sha}] is not up-to-date with remote [${s.remote_commit_sha}] on branch [${s.remote_branch}]');
-            print('Please pull the new changes and resolve conflicts if necessary! Then push again.');
-            return false;
+            await this.checkout(branch);
+            s = this.summary();
+        }
+        else
+        {
+            this.fetch_repo(print);
+            s = this.summary();
+
+            if(s.local_commit_sha != s.remote_commit_sha)
+            {
+                print('Local commit [${s.local_commit_sha}] is not up-to-date with remote [${s.remote_commit_sha}] on branch [${s.remote_branch}]');
+                print('Please pull the new changes and resolve conflicts if necessary! Then push again.');
+                return false;
+            }
         }
 
         const tree = this.ls_tree(s.local_commit_sha);

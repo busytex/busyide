@@ -45,7 +45,7 @@ export class Shell
         this.busybox_applets = ['busyzip', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed', 'true', 'false', 'seq'];
         this.shell_builtins =  ['man', 'help', 'open', 'close', 'download', 'cd', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty', 'hub'];
         this.cache_applets = ['object', 'token'];
-        this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'diff', 'fetch'];
+        this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'diff', 'fetch', 'checkout'];
         this.hub_applets = ['release'];
         this.viewer_extensions = ['.log', '.svg', '.png', '.jpg', '.pdf'];
         this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
@@ -634,6 +634,12 @@ export class Shell
             return this.github.release(this.log_big.bind(this), args.pop());
         else if(cmd == 'edit')
             return this.github.release(this.log_big.bind(this), args.pop(), args.pop());
+    }
+
+    async git_checkout(_b, new_branch_name)
+    {
+        this.log_big_header('$ git checkout -b ' + new_branch_name, this.git_log);
+        await this.github.checkout(new_branch_name);
     }
 
     async git_clone(https_path, __branch, branch)

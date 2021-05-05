@@ -470,7 +470,7 @@ export class Github
     async checkout(print, remote_branch)
     {
         const s = this.summary();
-        const new_branch = await this.api_check(`Branch [${remote_branch}] @ [${s.local_commit_sha}] ->...`, print, 'repos', s.repo_url, '/git/refs', 'POST', {ref : this.PATH.join(this.ref_heads, remote_branch).slice(1), sha : s.local_commit_sha });
+        const new_branch = await this.api_check(`Branch [${remote_branch}] @ [${s.local_commit_sha}] ->...`, print, 'repos', s.repo_url, '/git/refs', 'POST', {ref : this.PATH.join(this.ref_heads, remote_branch), sha : s.local_commit_sha });
         const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
         this.update_ref(s.repo_path, this.ref_origin_head, 'ref: ' + origin_branch);
         print('OK!');

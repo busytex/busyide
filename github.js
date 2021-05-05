@@ -412,8 +412,8 @@ export class Github
         }
         
         tree.tree = tree.tree.filter(f => f.type == 'blob');
-
         this.commit_tree(repo_path, commit, tree);
+
         this.update_ref(repo_path, this.ref_origin_head, 'ref: ' + origin_branch);
         this.update_ref(repo_path, origin_branch, commit.sha);
         this.update_ref(repo_path, local_branch, commit.sha);
@@ -476,6 +476,7 @@ export class Github
         const new_branch = await this.api_check(`Branch [${remote_branch}] @ [${s.local_commit_sha}] ->...`, print, 'repos', s.repo_url, '/git/refs', 'POST', { ref : local_branch, sha : s.local_commit_sha });
         
         this.update_ref(s.repo_path, this.ref_origin_head, 'ref: ' + origin_branch);
+        this.update_ref(s.repo_path, origin_branch, s.local_commit_sha);
         this.update_ref(s.repo_path, local_branch, s.local_commit_sha);
         
         print('OK!');

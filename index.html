@@ -126,10 +126,8 @@
             <input type="text" id="github_branch" class="busyui" placeholder="GitHub branch" title="GitHub repo branch"></input>
             <input type="text" id="github_token" class="busyui" placeholder="GitHub token" title="GitHub personal access token (PAT) for private clone/push"></input>
             <button id="clone" class="busyui">Clone</button>
-            <button id="pull" class="busyui">Pull</button>
-            <button id="push" class="busyui">Preview &amp; Push</button>
+            <button id="push" class="busyui">Status, Pull, Push</button>
             <button id="cache_purge" class="busyui">Purge Cache</button>
-            <button id="publish_pdf" class="busyui">Publish PDF</button>
             <button id="download_diff" class="busyui">Download Diff</button>
             <input hidden type="text" style="width: 100px" id="github_release" class="busyui" placeholder="Publish Release Name" title="for publishing a PDF into a release"></input>
         </div>
@@ -183,10 +181,12 @@
         <textarea readonly hidden id="txtpreview" class="busyui"></textarea>
         <figure hidden id="gitstatus" class="busyui">
             <figcaption>$ git status</figcaption>
+            <button id="pull" class="busyui">Pull</button>
             <button id="commit_push" class="busyui">Commit &amp; Push</button>
             <button id="commit_push_new_branch" class="busyui">Commit &amp; Push to new branch</button>
             <button id="show_not_modified" class="busyui">Show [not modified]</button>
             <button id="refresh_fetch" class="busyui">Refresh &amp; Fetch</button>
+            <button id="publish_pdf" class="busyui">Release PDF</button>
             <textarea id="commit_message" class="busyui" placeholder="Please add a commit message"></textarea>
             
             <strong>Remote branch:</strong><a class="remotebranch"></a>, <strong>remote commit:</strong><a class="remotecommit"></a>, <strong>local commit:</strong><a class="localcommit"></a>

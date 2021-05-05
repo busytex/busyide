@@ -640,7 +640,7 @@ export class Shell
     async git_checkout(_b, new_branch_name)
     {
         this.log_big_header('$ git checkout -b ' + new_branch_name, this.git_log);
-        await this.github.checkout(new_branch_name);
+        await this.github.checkout(this.log_big.bind(this), new_branch_name);
 
         //TODO: factor out updating the URL
         this.github_branch.value = new_branch_name;

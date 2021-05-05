@@ -877,4 +877,10 @@ export class Github
         const isotime = (new Date()).toISOString().replaceAll('-', '').replaceAll(':', '').replaceAll('.', '');
         return `patch_${isotime}_for_${s.username}_${s.reponame}_${s.remote_branch}_${s.remote_commit_sha}.patch`;
     }
+
+    propose_new_branch_name()
+    {
+        const isotime = (new Date()).toISOString().replaceAll('-', '').replaceAll(':', '').replaceAll('.', '');
+        return 'branch_' + isotime;
+    }
 }

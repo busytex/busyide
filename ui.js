@@ -125,7 +125,7 @@ export class Shell
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
         this.ui.push.onclick = () => this.commands(cmd('git', 'status'));
         this.ui.commit_push.onclick = () => this.commands(cmd('git', 'push'));
-        this.ui.commit_push_new_branch.onclick = () => this.commands(chain(cmd('git', 'checkout', '-b', this.github.propose_new_branch_name()), cmd('git', 'push')));
+        this.ui.commit_push_new_branch.onclick = () => this.commands(and(cmd('git', 'checkout', '-b', this.github.propose_new_branch_name()), cmd('git', 'push')));
 
         this.ui.github_https_path.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
         this.ui.filetree.onchange = ev => console.log('onchange', this.ui.get_selected_file_path()) || this.open(this.expandcollapseuser(this.ui.get_selected_file_path() || '', false));
@@ -641,6 +641,9 @@ export class Shell
     {
         this.log_big_header('$ git checkout -b ' + new_branch_name, this.git_log);
         await this.github.checkout(new_branch_name);
+
+        //TODO: factor out updating the URL
+        this.github_branch.value = new_branch_name;
     }
 
     async git_clone(https_path, __branch, branch)

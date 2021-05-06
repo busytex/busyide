@@ -749,8 +749,12 @@ export class Shell
             
             this.FS.writeFile(output_path, diff);
         }
-        else        
+        else
+        {
+            this.log_big_header('$ git diff');
+            this.log_big(diff);
             return diff;
+        }
     }
     
     async cache_load()

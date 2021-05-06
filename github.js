@@ -880,10 +880,25 @@ export class Github
 		*/
 
         //TODO: deleted? new?
+        
+        const fix_header = (d, ours_path, theirs_path) =>
+        {
+            const splitted = d.split('\n');
+            if(splitted.length >= 2)
+            {
+                console.log(splitted[0], splitted[1]);
+            }
+            return d;
+        };
+        
         const repo_path = this.get_repo_path();
         let res = ''
         for(const {abspath, sha_base} of status.files.filter(f => f.status != 'not modified'))
-            res += this.diff_(abspath, sha_base ? this.object_path(sha_base, repo_path) : 'newfile', repo_path) + '\n';
+        {
+            const ours_path = abspath;
+            const theirs_path = sha_base ? this.object_path(sha_base, repo_path) : 'newfile';
+            res += fix_header(this.diff_(ours_path, theirs_path, repo_path), ours_path, theirs_path) + '\n';
+        }
         return res;
     }
 

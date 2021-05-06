@@ -751,7 +751,7 @@ export class Shell
         }
         else
         {
-            this.log_big_header('$ git diff');
+            this.log_big_header('');
             this.log_big(diff);
             return diff;
         }

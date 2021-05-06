@@ -869,6 +869,16 @@ export class Github
 
     diff(status)
     {
+        /* modified
+		
+		--- /.git/web_user/busyidetest/objects/f1/2b803ae1fbcc4f56ee97b5c9c4dc24d72032f7	Thu May  6 12:16:57 2021
+		+++ /home/web_user/busyidetest/foo.md	Thu May  6 12:17:06 2021
+		
+		--- a/foo.md	Thu May  6 12:16:57 2021
+		+++ b/foo.md	Thu May  6 12:17:06 2021
+
+		*/
+
         //TODO: deleted? new?
         const repo_path = this.get_repo_path();
         let res = ''

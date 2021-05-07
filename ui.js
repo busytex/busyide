@@ -744,8 +744,8 @@ export class Shell
             this.log_big('');
             this.log_big(`git clone --branch ${status.remote_branch} ${status.repo_url}`);
             this.log_big('cd ' + status.reponame);
-            this.log_big(`git checkout ${status.remote_commit}`);
-            this.log_big('patch -i ' + this.PATH.basename(output_path));
+            this.log_big('git checkout ' + status.remote_commit);
+            this.log_big('git apply ' + this.PATH.basename(output_path));
             
             this.FS.writeFile(output_path, diff);
         }

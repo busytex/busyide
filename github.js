@@ -873,26 +873,23 @@ export class Github
         
         const repo_path = this.get_repo_path();
         
-        const fix_header = (d, ours_path, theirs_path) =>
+        const fix_header = (d, ours_path, theirs_path, path) =>
         {
             const splitted = d.split('\n');
             if(splitted.length >= 2)
             {
-                const path = ours_path.slice(1 + repo_path.length);
-                let line_theirs = splitted[0], line_ours = splitted[1];
-                line_theirs = line_theirs.replace(`--- ${theirs_path}`, `--- a/${path}`);
-                line_ours = line_ours.replace(`+++ ${ours_path}`, `+++ b/${path}`);
+                const fixed_theirs = splitted[0].replace(`--- ${theirs_path}`, `--- a/${path}`), fixed_ours = splitted[1].replace(`+++ ${ours_path}`, `+++ b/${path}`);;
                 d = [`diff --git a/${path} b/${path}`, line_theirs, line_ours, ...splitted.slice(2)].join('\n');
             }
             return d;
         };
         
         let res = ''
-        for(const {abspath, sha_base} of status.files.filter(f => f.status != 'not modified'))
+        for(const {path, abspath, sha_base, status} of status.files.filter(f => f.status != 'not modified'))
         {
-            const ours_path = abspath;
-            const theirs_path = sha_base ? this.object_path(sha_base, repo_path) : 'newfile';
-            res += fix_header(this.diff_(ours_path, theirs_path, repo_path), ours_path, theirs_path) + '\n';
+            const ours_path = status == 'deleted' ? '/dev/null' : abspath;
+            const theirs_path = status == 'new' ? 'newfile' : this.object_path(sha_base, repo_path);
+            res += fix_header(this.diff_(ours_path, theirs_path, repo_path), ours_path, theirs_path, path) + '\n';
         }
         return res;
     }

@@ -891,7 +891,7 @@ export class Github
         for(const {path, abspath, sha_base, status} of status_.files.filter(f => f.status != 'not modified'))
         {
             const ours_path = status == 'deleted' ? '/dev/null' : abspath;
-            const theirs_path = status == 'new' ? '/dev/null' : (sha_base ? this.object_path(sha_base, repo_path) : '/dev/null');
+            const theirs_path = status == 'new' ? '/dev/null' : this.object_path(sha_base, repo_path);
             res += fix_header(this.diff_(ours_path, theirs_path, repo_path), ours_path, theirs_path, path, status);
         }
         return res;

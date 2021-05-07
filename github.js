@@ -888,13 +888,11 @@ export class Github
             const splitted = d.split('\n');
             if(splitted.length >= 2)
             {
-                const path = ours_path.slice(repo_path.length);
+                const path = ours_path.slice(1 + repo_path.length);
                 let line_theirs = splitted[0], line_ours = splitted[1];
-                console.log(path, line_theirs, line_ours);
                 line_theirs = line_theirs.replace(`--- ${theirs_path}`, `--- a/${path}`);
-                line_ours = line_theirs.replace(`+++ ${ours_path}`, `+++ b/${path}`);
-                const d_ = [line_theirs, line_ours, ...d.slice(2)].join('\n');
-                console.log(d_);
+                line_ours = line_ours.replace(`+++ ${ours_path}`, `+++ b/${path}`);
+                d = ['diff --git a/${path} b/${path}', line_theirs, line_ours, ...splitted.slice(2)].join('\n');
             }
             return d;
         };

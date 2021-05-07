@@ -79,7 +79,7 @@ export class Shell
 
         this.sha1 = uint8array => this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40);
         this.rm_rf = dirpath => this.busybox.run(['rm', '-rf', dirpath]);
-        this.diff = (abspath, basepath, cwd) => this.busybox.run(['bsddiff', '-Nu', this.exists(basepath) && basepath != '/dev/null' ? basepath : this.empty_file, abspath]).stdout; // TODO: get newer diff from FreeBSD: https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=233402
+        this.diff = (abspath, basepath, cwd) => this.busybox.run(['bsddiff', '-Nu', this.exists(basepath) && basepath != '/dev/null' ? basepath : this.empty_file, this.exists(abspath) && abspath != '/dev/null' ? abspath : this.empty_file]).stdout; // TODO: get newer diff from FreeBSD: https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=233402
     }
 
     bind()

@@ -328,7 +328,6 @@ export class Github
     status()
     {
         const s = this.summary();
-        console.log(s);
         
         const tree_dict = this.ls_tree(s.local_commit_sha, s.repo_path, true);
         const tree_dict_copy = {...tree_dict};
@@ -355,7 +354,7 @@ export class Github
             }
         }
         
-        files.push(...Object.keys(tree_dict).map(file_path => ({path : file_path, status : 'deleted'}))); 
+        files.push(...Object.values(tree_dict).map(file => ({path : file.path, abspath : this.PATH.join(s.repo_path, file.path), sha_base : file.sha, status : 'deleted'}))); 
         
         for(const f of files)
         {

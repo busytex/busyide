@@ -893,7 +893,7 @@ export class Github
                 console.log(path, line_theirs, line_ours);
                 line_theirs = line_theirs.replace(`--- ${theirs_path}`, `--- a/${path}`);
                 line_ours = line_theirs.replace(`+++ ${ours_path}`, `+++ b/${path}`);
-                d_ = [line_theirs, line_ours, ...d.slice(2)].join('\n');
+                const d_ = [line_theirs, line_ours, ...d.slice(2)].join('\n');
                 console.log(d_);
             }
             return d;

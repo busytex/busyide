@@ -892,7 +892,7 @@ export class Github
                 let line_theirs = splitted[0], line_ours = splitted[1];
                 line_theirs = line_theirs.replace(`--- ${theirs_path}`, `--- a/${path}`);
                 line_ours = line_ours.replace(`+++ ${ours_path}`, `+++ b/${path}`);
-                d = ['diff --git a/${path} b/${path}', line_theirs, line_ours, ...splitted.slice(2)].join('\n');
+                d = [`diff --git a/${path} b/${path}`, line_theirs, line_ours, ...splitted.slice(2)].join('\n');
             }
             return d;
         };

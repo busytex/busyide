@@ -358,8 +358,8 @@ export class Github
         
         for(const f of files)
         {
-            // for deleted objects for some reason sha is not there, abspath as well
-            f.abspath_remote = ''; //TODO: this.cat_file(f.abspath, tree_dict_copy).abspath;
+            // for deleted objects for some reason sha is not there
+            f.abspath_remote = this.cat_file(f.abspath, tree_dict_copy).abspath;
         }
         
         return {...this.parse_url(s.repo_url), files : files, remote_branch : s.remote_branch, remote_commit : s.remote_commit_sha, local_commit : s.local_commit_sha, repo_url : s.repo_url};

@@ -882,7 +882,7 @@ export class Github
             {
                 const fixed_theirs = splitted[0].replace(`--- ${theirs_path}`, `--- a/${path}`), fixed_ours = splitted[1].replace(`+++ ${ours_path}`, `+++ b/${path}`);
                 const file_status = status == 'deleted' ? ['deleted file'] : status == 'new' ? ['new file'] : [];
-                d = [`diff --git a/${path} b/${path}`, ...file_status, line_theirs, line_ours, ...splitted.slice(2)].join('\n');
+                d = [`diff --git a/${path} b/${path}`, ...file_status, fixed_theirs, fixed_ours, ...splitted.slice(2)].join('\n');
             }
             return d;
         };

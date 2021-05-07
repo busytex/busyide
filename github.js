@@ -869,7 +869,7 @@ export class Github
         }
     }
 
-    diff(status)
+    diff(status_)
     {
         //TODO: deleted? new?
         
@@ -888,7 +888,7 @@ export class Github
         };
         
         let res = ''
-        for(const {path, abspath, sha_base, status} of status.files.filter(f => f.status != 'not modified'))
+        for(const {path, abspath, sha_base, status} of status_.files.filter(f => f.status != 'not modified'))
         {
             const ours_path = status == 'deleted' ? '/dev/null' : abspath;
             const theirs_path = status == 'new' ? '/dev/null' : this.object_path(sha_base, repo_path);

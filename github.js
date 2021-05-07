@@ -871,8 +871,6 @@ export class Github
 
     diff(status_)
     {
-        //TODO: deleted? new?
-        
         const repo_path = this.get_repo_path();
         
         const fix_header = (d, ours_path, theirs_path, path, status) =>
@@ -900,12 +898,14 @@ export class Github
     propose_diff_file_name()
     {
         const s = this.summary();
+        // change to local time
         const isotime = (new Date()).toISOString().replaceAll('-', '').replaceAll(':', '').replaceAll('.', '');
         return `patch_${isotime}_for_${s.username}_${s.reponame}_${s.remote_branch}_${s.remote_commit_sha}.patch`;
     }
 
     propose_new_branch_name()
     {
+        // change to local time
         const isotime = (new Date()).toISOString().replaceAll('-', '').replaceAll(':', '').replaceAll('.', '');
         return 'branch_' + isotime;
     }

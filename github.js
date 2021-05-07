@@ -358,7 +358,9 @@ export class Github
         files.push(...Object.keys(tree_dict).map(file_path => ({path : file_path, status : 'deleted'}))); 
         
         for(const f of files)
-            f.abspath_remote = this.cat_file(f.abspath, tree_dict_copy).abspath;
+        {
+            f.abspath_remote = ''; //TODO: this.cat_file(f.abspath, tree_dict_copy).abspath;
+        }
         
         return {...this.parse_url(s.repo_url), files : files, remote_branch : s.remote_branch, remote_commit : s.remote_commit_sha, local_commit : s.local_commit_sha, repo_url : s.repo_url};
     }

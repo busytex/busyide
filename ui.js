@@ -103,7 +103,7 @@ export class Shell
         this.ui.download_zip.onclick = () => this.project_dir() && this.commands(and('cd', cmd('busyzip', '-r', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
         this.ui.download_targz.onclick = () => this.project_dir() && this.commands(and(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.tar_path, this.PATH.basename(this.project_dir())), cmd('gzip', arg(this.tar_path)), cmd('download', arg(this.targz_path))));
         this.ui.strip_comments.onclick = () => this.project_dir() && this.commands(cmd( 'sed', '-i', '-e', qq('s/^\\([^\\]*\\)\\(\\(\\\\\\\\\\)*\\)%.*/\\1\\2%/g'), qx('find ' + arg(this.project_dir()) + ' -name ' + qq('*.tex') )));
-        this.ui.compile_project.onclick = () => this.project_dir() && this.commands(cmd('latexmk', arg(this.ui.get_current_tex_path())));
+        this.ui.compile_project.onclick = () => this.project_dir() && this.ui.get_current_tex_path() && this.commands(cmd('latexmk', arg(this.ui.get_current_tex_path())));
         this.ui.compile_current_file.onclick = () => (this.ui.get_current_file() || '').endsWith('.tex') && !this.isdir(this.ui.get_current_file()) && this.commands(cmd('latexmk', arg(this.ui.get_current_file())));
         this.ui.man.onclick = () => this.commands('man');
         this.ui.share.onclick = () => this.commands(and(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
@@ -1093,21 +1093,24 @@ export class Shell
     async latexmk(tex_path)
     {
         let cwd = this.FS.cwd();
+        
         //if(!tex_path)
         //{
         //    const basename = this.tex_path.lastIndexOf('/');
         //    [cwd, tex_path] = [this.tex_path.slice(0, basename), this.tex_path.slice(1 + basename)];
         //}
         
-        if(tex_path.length == 0)
+        if(!tex_path)
             return;
         
         const verbose = this.ui.verbose.value, tex_driver = this.ui.tex_driver.value;
 
         this.terminal_print(`Running in background (verbosity = [${verbose}], TeX driver = [${tex_driver}])...`);
         this.tic();
+        
         this.pdf_path = tex_path.replace('.tex', '.pdf').replace(this.project_dir(), this.project_tmp_dir());
         this.ui.set_current_pdf(this.pdf_path);
+        
         this.log_path = tex_path.replace('.tex', '.log').replace(this.project_dir(), this.project_tmp_dir());
         this.ui.set_current_log(this.log_path);
         
@@ -1115,7 +1118,7 @@ export class Shell
         console.assert(cwd.startsWith(this.home_dir));
         
         const project_dir = this.project_dir(cwd);
-        const source_path = tex_path.startsWith('/') ? tex_path : this.PATH.join(cwd, tex_path);
+        const source_path = this.abspath(tex_path);
         const main_tex_path = source_path.slice(project_dir.length + 1);
 
         this.compiler.postMessage({files : this.find(project_dir), main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver});

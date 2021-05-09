@@ -175,7 +175,6 @@ export class Github
     
     remote_get_url(repo_path)
     {
-        repo_path = repo_path || this.get_repo_path();
         return this.FS.readFile(this.PATH.join(this.git_dir(repo_path), 'config'), {encoding : 'utf8'}).split('\n')[1].split(' ')[2];
     }
 
@@ -238,7 +237,7 @@ export class Github
 
     fetch(print)
     {
-        return this.parse_url(this.remote_get_url()).gist ? this.fetch_gist(print) : this.fetch_repo(print);
+        return this.parse_url(this.remote_get_url(this.get_repo_path())).gist ? this.fetch_gist(print) : this.fetch_repo(print);
     }
 
     clone(print, auth_token, repo_url, repo_path, branch = null)
@@ -248,12 +247,12 @@ export class Github
     
     async push(print, status, message)
     {
-        return this.parse_url(this.remote_get_url()).gist ? this.push_gist(print, status, message) : this.push_repo(print, status, message);
+        return this.parse_url(this.remote_get_url(this.get_repo_path())).gist ? this.push_gist(print, status, message) : this.push_repo(print, status, message);
     }
     
     async pull(print, status)
     {
-        return this.parse_url(this.remote_get_url()).gist ? this.pull_gist(print, status) : this.pull_repo(print, status);
+        return this.parse_url(this.remote_get_url(this.get_repo_path())).gist ? this.pull_gist(print, status) : this.pull_repo(print, status);
     }
     
     cached_path(file)

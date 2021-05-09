@@ -90,7 +90,7 @@ export class Shell
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.onKey(this.onkey.bind(this));
 
-        this.ui.clone.onclick = () => this.commands(and('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('cd', this.PATH.join('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('open', '.')) );
+        this.ui.clone.onclick = () => this.ui.github_https_path.value && this.commands(and('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('cd', this.PATH.join('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('open', '.')) );
         this.ui.download_diff.onclick = () => { if(!this.github.git_dir()) return null; const diff_path = this.PATH.join(this.tmp_dir, this.github.propose_diff_file_name()); return this.commands(and(cmd('git', 'diff', 'HEAD', '--output', arg(diff_path)), cmd('download', arg(diff_path)))); };
         this.ui.download_pdf.onclick = () => this.pdf_path && this.commands(cmd('download', arg(this.pdf_path)));
         this.ui.cache_purge.onclick = () => this.commands(and(cmd('cache', 'token', 'purge'), cmd('cache', 'object', 'purge')));

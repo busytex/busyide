@@ -1301,11 +1301,7 @@ export class Shell
         this.dirty('timer_off');
         this.FS.rename(src_file_path, dst_file_path);
 
-        //if(this.tabs[dst_abspath])
-        //    this.tabs[dst_abspath].dispose();
-        //this.tabs[dst_abspath] = this.tabs[src_abspath];
-        //delete this.tabs[src_abspath];
-        
+        //TODO: handle reopen of current file?
         this.refresh();
         this.dirty('timer_save');
     }

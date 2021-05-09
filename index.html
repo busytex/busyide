@@ -192,7 +192,14 @@
             <button id="publish_pdf" class="busyui">Release PDF</button>
             <textarea id="commit_message" class="busyui" placeholder="Please add a commit message"></textarea>
             
-            <strong>Repo:</strong> <a class="remoteurl"></a>, remote branch:</strong><a class="remotebranch"></a>, <strong>remote commit:</strong><a class="remotecommit"></a>, <strong>local commit:</strong><a class="localcommit"></a>, <strong>status:</strong><span class="gitsummary"></span>
+            <hr />
+            <table>
+                <tr><th>repo:</th><td><a id="remoteurl"></a></td></tr>
+                <tr><th>remote branch:</th><td><a id="remotebranch"></a></td></tr>
+                <tr><th>remote commit:</th><td><a id="remotecommit"></a></td></tr>
+                <tr><th>local commit:</th><td><a id="localcommit"></a></td></tr>
+                <tr><th>status:</th><td id="gitsummary"></td></tr>
+            </table>
             <hr />
             <table>
                 <thead><tr><th>path</th><th>remote</th><th>github</th><th>diff</th></tr></thead>
@@ -429,11 +436,12 @@ const ui =
     {
         const table = container.querySelector('table');
         const tbody = table.querySelector('tbody');
-        const a_url = container.querySelector('.remoteurl');
-        const a_branch = container.querySelector('.remotebranch');
-        const a_rcommit = container.querySelector('.remotecommit');
-        const a_lcommit = container.querySelector('.localcommit');
-        
+        const a_url = container.querySelector('#remoteurl');
+        const a_branch = container.querySelector('#remotebranch');
+        const a_rcommit = container.querySelector('#remotecommit');
+        const a_lcommit = container.querySelector('#localcommit');
+        const gistummary = container.querySelector('#gitsummary');
+
         a_url.href = format_url(status.username, status.reponame, status.gist);
         a_url.innerText = `${status.username}/${status.reponame}`;
 
@@ -446,7 +454,7 @@ const ui =
         a_lcommit.href = format_url(status.username, status.reponame, status.gist, status.remote_branch, status.local_commit);
         a_lcommit.innerText = status.local_commit;
 
-        container.querySelector('.gitsummary').innerText = (status.local_commit == status.remote_commit ? 'local commit up-to-date' : 'local commit is behind') + ';' + (status.files.some(f => f.status != 'not modified') ? ( status.files.filter(f => f.status == 'new').length + ' files new | ' + status.files.filter(f => f.status == 'modified').length + ' files modified | ' + status.files.filter(f => f.status == 'deleted').length + ' files deleted' ) : 'nothing modified');
+        gitsummary.innerText = (status.local_commit == status.remote_commit ? 'local commit up-to-date' : 'local commit is behind') + ';' + (status.files.some(f => f.status != 'not modified') ? ( status.files.filter(f => f.status == 'new').length + ' files new | ' + status.files.filter(f => f.status == 'modified').length + ' files modified | ' + status.files.filter(f => f.status == 'deleted').length + ' files deleted' ) : 'nothing modified');
 
         const ignore = h => (evt => {h(evt); return false;});
         

@@ -220,7 +220,7 @@
             <table id="gitstatustable">
                 <thead><tr><th>path</th><th>remote</th><th>github</th><th>diff</th></tr></thead>
                 <tbody></tbody>
-                <tfoot hidden><tr><td colspan="4">nothing to commit</td></tr></tfoot>
+                <!--<tfoot hidden><tr><td colspan="4">nothing to commit</td></tr></tfoot>-->
             </table>
         </figure>
         <figure hidden id="gitpull" class="busyui">
@@ -482,9 +482,8 @@ const ui =
         
         this.update_tbody(tbody, status.files, format_path, onclick_open, onclick_open_remote, onclick_diff);
         
-        container = container.querySelector('tfoot');
-        if(container)
-            container.hidden = status.files.filter(f => f.status != 'not modified').length > 0;
+        //container = container.querySelector('tfoot');
+        //if(container) container.hidden = status.files.filter(f => f.status != 'not modified').length > 0;
     },
     
     update_git_pull(modified, notmodified)

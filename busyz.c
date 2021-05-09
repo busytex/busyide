@@ -129,7 +129,11 @@ int busyz_main(int argc, char *argv[])
     }
     else if(do_unzip)
     {
-
+        ptr_zip = &zip;
+        memset(ptr_zip, 0, sizeof(zip));
+        mz_zip_writer_init_file(ptr_zip, input[0], 0);
+        // https://github.com/richgel999/miniz/blob/master/examples/example2.c
+        mz_zip_reader_end(&ptr_zip);
     }
 	
     return 0;

@@ -359,7 +359,7 @@ const ui =
         console.log('toggle_current_file_rename', basename);
         const input = ui.current_file_rename;
         input.value = basename;
-        input.hidden = !input.hidden;
+        input.hidden = basename ? false : true;
     },
 
     toggle_not_modified()

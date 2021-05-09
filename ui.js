@@ -624,10 +624,11 @@ export class Shell
             this.FS.writeFile(this.log_sink_path, this.read_all_text(this.log_sink_path) + text + '\n');
     }
     
-    git_fetch()
+    async git_fetch()
     {
         this.log_big_header('$ git fetch', this.git_log); 
-        return this.github.fetch(this.log_big.bind(this));
+        await this.github.fetch(this.log_big.bind(this));
+        await this.git_status();
     }
 
     async hub_release(cmd, ...args)

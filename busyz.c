@@ -1,15 +1,15 @@
-//config:config BUSYZIP
-//config:	bool "BUSYZIP"
+//config:config BUSYZ
+//config:	bool "BUSYZ"
 //config:	default y
 //config:	help
 //config:	Returns an indeterminate value.
 
-//kbuild:lib-$(CONFIG_BUSYZIP) += busyzip.o
-//applet:IF_BUSYZIP(APPLET(busyzip, BB_DIR_USR_BIN, BB_SUID_DROP))
-//usage:#define busyzip_trivial_usage
-//usage:				 "busyzip [-r] [[-x EXCLUDED_PATH] ...] OUTPUT_NAME.zip INPUT_PATH [...]"
+//kbuild:lib-$(CONFIG_BUSYZ) += busyz.o
+//applet:IF_BUSYZ(APPLET(busyz, BB_DIR_USR_BIN, BB_SUID_DROP))
+//usage:#define busyz_trivial_usage
+//usage:				 "busyz [-r] [[-x EXCLUDED_PATH] ...] OUTPUT_NAME.zip INPUT_PATH [...]"
 
-//usage:#define busyzip_full_usage  "\n\n"
+//usage:#define busyz_full_usage  "\n\n"
 //usage:         "Only terse usage"
 
 #if defined(__GNUC__)
@@ -26,7 +26,7 @@
 #include <libbb.h>
 #include "miniz.c"
 
-int busyzip_main(int argc, char *argv[]);
+int busyz_main(int argc, char *argv[]);
 int proc_entry(const char *file_path_src, const struct stat *info, const int typeflag, struct FTW *pathinfo);
 
 enum { MAX_FILE_PATH_LENGTH = 1024, MAX_EXCLUDE_PATHS = 16, MAX_INPUT_PATHS = 16, USE_FDS = 15 };
@@ -73,13 +73,19 @@ int proc_entry(const char *file_path_src, const struct stat *info, const int typ
     return 0;
 }
 
-int busyzip_main(int argc, char *argv[])
+int busyz_main(int argc, char *argv[])
 {
     mz_zip_archive zip;
     struct stat st;
 
     recurse = num_input = num_exclude = 0;
-    for(int i = 1; i < argc; i++)
+
+    if(argc < 4)
+        return 1;
+
+    int do_zip = 0 == strcmp("zip", argv[1]) == 0, do_unzip = 0 == strcmp("unzip", argv[1]);
+
+    for(int i = 2; i < argc; i++)
     {
         if(0 == strcmp("-r", argv[i]))
             recurse = 1;
@@ -94,25 +100,32 @@ int busyzip_main(int argc, char *argv[])
             input[num_input++] = argv[i];
     }
 
-	remove(output);
+    if(do_zip)
+    {
+        remove(output);
 
-    ptr_zip = &zip;
-	memset(ptr_zip, 0, sizeof(zip));
-    mz_zip_writer_init_file(ptr_zip, output, 0);
+        ptr_zip = &zip;
+        memset(ptr_zip, 0, sizeof(zip));
+        mz_zip_writer_init_file(ptr_zip, output, 0);
 
-    for (int i = 0; i < num_input; i++)
-	{
-        if(stat(input[i], &st) == 0 && (st.st_mode & S_IFDIR) != 0)
+        for (int i = 0; i < num_input; i++)
         {
-            if(recurse == 1)
-                nftw(input[i], proc_entry, USE_FDS, FTW_PHYS);
+            if(stat(input[i], &st) == 0 && (st.st_mode & S_IFDIR) != 0)
+            {
+                if(recurse == 1)
+                    nftw(input[i], proc_entry, USE_FDS, FTW_PHYS);
+            }
+            else
+                proc_entry(input[i], NULL, FTW_F, NULL);
         }
-        else
-            proc_entry(input[i], NULL, FTW_F, NULL);
-	}
 
-    mz_zip_writer_finalize_archive(ptr_zip);
-    mz_zip_writer_end(ptr_zip);
+        mz_zip_writer_finalize_archive(ptr_zip);
+        mz_zip_writer_end(ptr_zip);
+    }
+    else if(do_unzip)
+    {
+
+    }
 	
     return 0;
 }

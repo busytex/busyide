@@ -441,11 +441,12 @@ const ui =
     {
         const table = container.querySelector('#gitstatustable');
         const tbody = table.querySelector('tbody');
+
         const a_url = container.querySelector('#remoteurl');
         const a_branch = container.querySelector('#remotebranch');
         const a_rcommit = container.querySelector('#remotecommit');
         const a_lcommit = container.querySelector('#localcommit');
-        const gistummary = container.querySelector('#gitsummarystatus');
+        const gitsummary = container.querySelector('#gitsummarystatus');
 
         a_url.href = format_url(status.username, status.reponame, status.gist);
         a_url.innerText = `${status.username}/${status.reponame}`;

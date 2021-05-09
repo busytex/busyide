@@ -165,10 +165,13 @@
         </select>
 
         <div style="display: flex; margin-left:auto">
-            <span id="verb" class="busyui"></span>
-            <span id="current_file" class="busyui" title="Click to rename"></span>
             <input hidden type="text" class="busyui" id="current_file_rename" title="Press [Enter] to complete renaming"></input>
-            <span id="dirty" class="busyui" hidden title="file is changed. wait for autosave">*</span>
+            <button>
+                Rename
+                <span id="verb" class="busyui"></span>
+                <span id="current_file" class="busyui" title="Click to rename"></span>
+                <span id="dirty" class="busyui" hidden title="file is changed. wait for autosave">*</span>
+            </button>
         </div>
     </div>
     <div style="display: flex; height: 75%">

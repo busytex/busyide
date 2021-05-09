@@ -94,6 +94,11 @@ int busyz_main(int argc, char *argv[])
             assert(i + 1 < argc);
             exclude[num_exclude++] = argv[++i];
         }
+        else if(0 == strcmp("-d", argv[i]))
+        {
+            assert(i + 1 < argc);
+            output = argv[++i];
+        }
         else if(output == NULL)
             output = argv[i];
         else

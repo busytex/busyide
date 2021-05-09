@@ -142,7 +142,7 @@ export class Shell
         };
         this.ui.filetree.onkeydown = ev => ev.key == 'Enter' || ev.key == ' ' ? this.ui.filetree.ondblclick() : null;
         
-        this.ui.rename.onclick = () => this.ui.current_file_rename.value ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || /*this.ui.set_current_file(this.ui.current_file_rename.value) ||*/ this.ui.toggle_current_file_rename()) : (this.ui.toggle_current_file_rename() || this.ui.current_file_rename.focus());
+        this.ui.rename.onclick = () => this.ui.current_file_rename.value ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || /*this.ui.set_current_file(this.ui.current_file_rename.value) ||*/ this.ui.toggle_current_file_rename('')) : (this.ui.toggle_current_file_rename(this.ui.get_current_file()) || this.ui.current_file_rename.focus());
         this.ui.current_file_rename.onblur = () => { this.ui.current_file_rename.value = ''; /* this.ui.set_current_file(this.ui.get_current_file()); this.ui.toggle_current_file_rename() */ };
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? this.ui.rename.onclick() : ev.key == 'Escape' ? ev.target.onblur() : null;
         

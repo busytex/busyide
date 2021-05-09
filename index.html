@@ -344,8 +344,8 @@ const ui =
         if((!abspath) || (!abspath.startsWith('/')))
             throw 'set_current_file';
 
-        let span = ui.current_file, input = ui.current_file_rename;
-        span.textContent = input.value = basename;
+        let span = ui.current_file;
+        span.textContent = basename;
         
         span = ui.verb;
         span.textContent = `[${verb}]: `;
@@ -354,9 +354,11 @@ const ui =
         ui.filetree.selectedIndex = Array.from(ui.filetree.options).findIndex(option => option.value == abspath);
     },
 
-    toggle_current_file_rename()
+    toggle_current_file_rename(basename)
     {
+        console.log('toggle_current_file_rename', basename);
         const input = ui.current_file_rename;
+        input.value = basename;
         input.hidden = !input.hidden;
     },
 

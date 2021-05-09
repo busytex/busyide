@@ -1280,6 +1280,7 @@ export class Shell
     
     mkdir_p(dirpath, dirs = new Set(['/']))
     {
+        //TODO: do not add dirpath
         if(!dirs.has(dirpath) && !this.FS.analyzePath(dirpath).exists)
         {
             this.mkdir_p(this.PATH.dirname(dirpath), dirs);
@@ -1290,9 +1291,6 @@ export class Shell
 
     mv(src_file_path, dst_file_path)
     {
-        console.log('mv', src_file_path, dst_file_path);
-        return false;
-
         const src_abspath = this.abspath(src_file_path), dst_abspath = this.abspath(dst_file_path);
         if(src_abspath == dst_abspath)
             return;

@@ -1290,6 +1290,8 @@ export class Shell
 
     mv(src_file_path, dst_file_path)
     {
+        console.log('mv', src_file_path, dst_file_path);
+
         const src_abspath = this.abspath(src_file_path), dst_abspath = this.abspath(dst_file_path);
         if(src_abspath == dst_abspath)
             return;

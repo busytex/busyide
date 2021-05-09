@@ -133,6 +133,7 @@ int busyz_main(int argc, char *argv[])
         memset(ptr_zip, 0, sizeof(zip));
         mz_zip_writer_init_file(ptr_zip, input[0], 0);
         // https://github.com/richgel999/miniz/blob/master/examples/example2.c
+        //mz_zip_reader_extract_to_file(ptr_zip, mz_uint file_index, const char *pDst_filename, mz_uint flags);
         mz_zip_reader_end(&ptr_zip);
     }
 	

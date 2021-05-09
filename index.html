@@ -356,8 +356,8 @@ const ui =
 
     toggle_current_file_rename()
     {
-        let span = ui.current_file, input = ui.current_file_rename;
-        [span.hidden, input.hidden] = [!span.hidden, !input.hidden];
+        const input = ui.current_file_rename;
+        input.hidden = !input.hidden;
     },
 
     toggle_not_modified()

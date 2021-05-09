@@ -201,7 +201,7 @@
                 <tr><th>status:</th><td id="gitsummary"></td></tr>
             </table>
             <hr />
-            <table>
+            <table id="gitstatustable">
                 <thead><tr><th>path</th><th>remote</th><th>github</th><th>diff</th></tr></thead>
                 <tbody></tbody>
                 <tfoot hidden><tr><td colspan="4">nothing to commit</td></tr></tfoot>
@@ -434,7 +434,7 @@ const ui =
 
     update_git_status(container, status, format_url, git_difftool, open)
     {
-        const table = container.querySelector('table');
+        const table = container.querySelector('#gitstatustable');
         const tbody = table.querySelector('tbody');
         const a_url = container.querySelector('#remoteurl');
         const a_branch = container.querySelector('#remotebranch');

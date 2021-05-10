@@ -110,6 +110,12 @@ export class Github
 
     format_url(username, reponame, gist, branch, commit, path)
     {
+        if(!username && !reponame)
+        {
+            const s = this.summary();
+            return this.format_url(s.username, s.reponame, s.gist, s.remote_branch);
+        }
+        
         if(gist && !commit)
             return `https://gist.github.com/${username}/${reponame}`;
         if(gist && commit && !path)
@@ -321,7 +327,7 @@ export class Github
         const remote_commit_sha = this.rev_parse(base_branch, repo_path);
         
         const parsed = this.parse_url(repo_url); 
-        return {remote_branch : remote_branch, repo_path : repo_path, repo_url : repo_url, origin_branch : origin_branch, remote_commit_sha : remote_commit_sha, local_commit_sha : local_commit_sha, username : parsed.username, reponame : parsed.reponame};
+        return {remote_branch : remote_branch, repo_path : repo_path, repo_url : repo_url, origin_branch : origin_branch, remote_commit_sha : remote_commit_sha, local_commit_sha : local_commit_sha, username : parsed.username, reponame : parsed.reponame, gist : parsed.gist};
     }
 
     status()

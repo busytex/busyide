@@ -120,6 +120,9 @@
         #gitstatustable {
             width: 100%
         }
+
+        .tl {text-align: left}
+        .tr {text-align: right}
         
         /*figure, details, table {
             width: 95%;
@@ -218,7 +221,7 @@
             </table>
             <hr />
             <table id="gitstatustable">
-                <thead><tr><th>path</th><th>remote</th><th>github</th><th>diff</th></tr></thead>
+                <thead><tr><th class="tl">path</th><th>remote</th><th>github</th><th class="tr">diff</th></tr></thead>
                 <tbody></tbody>
                 <!--<tfoot hidden><tr><td colspan="4">nothing to commit</td></tr></tfoot>-->
             </table>
@@ -401,6 +404,7 @@ const ui =
             tr.className = status.replace(' ', '');
             
             let tc = tr.insertCell();
+            tc.className = 'tl';
             {
                 const a = document.createElement('a');
                 tc.appendChild(a);
@@ -435,6 +439,7 @@ const ui =
             }
             
             tc = tr.insertCell();
+            tc.className = 'tr';
             if(status != 'not modified')
             {
                 const a = document.createElement('a');

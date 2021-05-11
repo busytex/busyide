@@ -140,7 +140,7 @@ export class Shell
                     this.commands(parentdir ? and(cmd('open', '..'), cmd('cd', '..')) : and(cmd('cd', arg(option.value)), cmd('open', '.')));
             }
         };
-        this.ui.filetree.onkeydown = ev => ev.key == 'Enter' || ev.key == ' ' ? this.ui.filetree.ondblclick() : ev.key == 'Delete' ? this.remove.onclick() : null;
+        this.ui.filetree.onkeydown = ev => ev.key == 'Enter' || ev.key == ' ' ? this.ui.filetree.ondblclick() : ev.key == 'Delete' ? this.ui.remove.onclick() : null;
         
         this.ui.rename.onclick = () => this.ui.current_file_rename.value
             ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value, this.abspath(this.ui.current_file_rename.value)) || this.ui.toggle_current_file_rename(''))

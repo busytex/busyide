@@ -239,9 +239,6 @@
     <div style="display: flex; flex-direction: row; height: 5%">
         <button id="compile_current_file" class="busyui">Compile Current File</button>
         <button id="compile_project" class="busyui">Compile Project</button>
-        <select id="tex_path" class="busyui">
-            <option value="" disabled selected>TeX file:</option>
-        </select>
         <select id="tex_driver" class="busyui">
             <option value="" disabled>TeX pipeline:</option>
             <option value="xetex_bibtex8_dvipdfmx" selected>XeTeX + bibtex8 + dvipdfmx</option>
@@ -253,6 +250,9 @@
             <option value="silent" selected="selected">Silent</option>
             <option value="info">Info</option>
             <option value="debug">Debug</option>
+        </select>
+        <select id="tex_path" class="busyui">
+            <option value="" disabled selected>TeX file:</option>
         </select>
 
         <div style="display: flex; margin-left:auto">

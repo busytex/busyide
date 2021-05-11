@@ -258,8 +258,7 @@
         <div style="display: flex; margin-left:auto">
             <input hidden type="text" class="busyui" id="current_file_rename" title="Press [Enter] to complete renaming"></input>
             <button id="rename" class="busyui">
-                Rename
-                <span id="verb" class="busyui"></span>
+                Rename [<span id="verb" class="busyui"></span>]:&nbsp;
                 <span id="current_file" class="busyui" title="Click to rename"></span>
                 <span id="dirty" class="busyui" hidden title="file is changed. wait for autosave">*</span>
             </button>
@@ -443,11 +442,14 @@ const ui =
         if((!abspath) || (!abspath.startsWith('/')))
             throw 'set_current_file';
 
+
         let span = ui.current_file;
         span.textContent = basename;
         
         span = ui.verb;
-        span.textContent = `[${verb}]: `;
+        if(!verb)
+            verb = span.textContent;
+        span.textContent = verb;
         span.title = abspath;
         
         ui.filetree.selectedIndex = Array.from(ui.filetree.options).findIndex(option => option.value == abspath);

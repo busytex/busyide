@@ -146,7 +146,7 @@ export class Shell
             ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value, this.abspath(this.ui.current_file_rename.value)) || this.ui.toggle_current_file_rename(''))
             : (this.ui.toggle_current_file_rename(this.ui.current_file_rename.hidden ? this.ui.get_current_file() : '') || this.ui.current_file_rename.focus());
 
-        this.ui.current_file_rename.onblur = () => {  /* this.ui.set_current_file(this.ui.get_current_file()); */ this.ui.toggle_current_file_rename(''); };
+        this.ui.current_file_rename.onblur = () => this.ui.toggle_current_file_rename('');
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? this.ui.rename.onclick() : ev.key == 'Escape' ? ev.target.onblur() : null;
         
         this.ui.remove.onclick = () => this.ui.get_current_file() && this.commands(and(this.isdir(this.ui.get_current_file()) ? cmd('rm', '-rf', this.ui.get_current_file()) : cmd('rm', this.ui.get_current_file()), cmd('open', '.'))); 
@@ -1301,12 +1301,16 @@ export class Shell
 
         this.dirty('timer_off');
         this.FS.rename(src_file_path, dst_file_path);
+        
         if(src_abspath == this.edit_path)
             this.edit_path = dst_abspath;
         if(src_abspath == this.view_path)
             this.view_path = dst_abspath;
+        if(src_abspath == this.pdf_path)
+            this.pdf_path = dst_abspath;
+        if(src_abspath == this.tex_path)
+            this.tex_path = dst_abspath;
 
-        //TODO: handle reopen of current file?
         this.refresh();
         this.dirty('timer_save');
     }

@@ -1301,6 +1301,10 @@ export class Shell
 
         this.dirty('timer_off');
         this.FS.rename(src_file_path, dst_file_path);
+        if(src_file_path == this.edit_path)
+            this.edit_path = dst_file_path;
+        if(src_file_path == this.view_path)
+            this.view_path = dst_file_path;
 
         //TODO: handle reopen of current file?
         this.refresh();

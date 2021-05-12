@@ -142,14 +142,15 @@ export class Shell
             }
         };
         
-        this.ui.rename.onclick = () => this.ui.current_file_rename.value
+        const is_special_dir = abspath => [this.FS.cwd(), this.PATH.normalize(this.PATH.join(this.FS.cwd(), '..'))].includes(abspath);
+        
+        this.ui.rename.onclick = () => (!is_special_dir(this.ui.get_current_file(true))) && (this.ui.current_file_rename.value
             ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value, this.abspath(this.ui.current_file_rename.value)) || this.ui.toggle_current_file_rename(''))
-            : (this.ui.toggle_current_file_rename(this.ui.current_file_rename.hidden ? this.ui.get_current_file() : '') || this.ui.current_file_rename.focus());
+            : (this.ui.toggle_current_file_rename(this.ui.current_file_rename.hidden ? this.ui.get_current_file() : '') || this.ui.current_file_rename.focus()));
 
         this.ui.current_file_rename.onblur = () => this.ui.toggle_current_file_rename('');
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? this.ui.rename.onclick() : ev.key == 'Escape' ? ev.target.onblur() : null;
         
-        const is_special_dir = abspath => [this.FS.cwd(), this.PATH.normalize(this.PATH.join(this.FS.cwd(), '..'))].includes(abspath);
 
         
         this.ui.remove.onclick = () => (!is_special_dir(this.ui.get_current_file(true))) && this.ui.get_current_file() && this.commands(and(this.isdir(this.ui.get_current_file()) ? cmd('rm', '-rf', this.ui.get_current_file()) : cmd('rm', this.ui.get_current_file()), cmd('open', '.'))); 

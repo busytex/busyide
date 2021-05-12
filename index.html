@@ -415,7 +415,7 @@ const ui =
         }
     },
 
-    get_current_file : () => ui.current_file.textContent,
+    get_current_file : abspath => abspath === true ? ui.current_file.title : ui.current_file.textContent,
 
     isdir : option => option.className == 'filetreedirectory',
     

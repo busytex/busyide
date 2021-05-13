@@ -494,13 +494,14 @@ export class Shell
     fetch_via_cors_proxy(url, opts)
     {
         //{headers : {'X-Requested-With': 'XMLHttpRequest'}
-        return fetch(this.cors_proxy_fmt.replace('${url}', url), opts);
+        return fetch(this.cors_proxy_fmt.replace('${url}', url), {...opts, redirect : 'manual'});
     }
 
     async wget(url, _OP = '-O', output_path = null)
     {
         output_path = _OP == '-P' ? this.PATH.join(output_path, this.PATH.basename(url)) : (output_path || this.PATH.basename(url));
-        const resp = await this.fetch_via_cors_proxy(url); 
+        const resp = await this.fetch_via_cors_proxy(url);
+        console.log('wget', resp.status, resp.headers);
         console.assert(this.HTTP_OK == resp.status);
         const uint8array = new Uint8Array(await resp.arrayBuffer());
         this.FS.writeFile(output_path, uint8array);

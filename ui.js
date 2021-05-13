@@ -551,7 +551,7 @@ export class Shell
         {
             const file_https_path = route1;
             const basename = this.PATH.basename(file_https_path);
-            const file_path = this.PATH.join(this.tmp_dir, basename);
+            let file_path = this.PATH.join(this.tmp_dir, basename);
             project_dir = this.PATH.join('~', basename.slice(0, basename.indexOf('.')));
             
             let download_cmds = [];

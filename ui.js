@@ -41,7 +41,7 @@ export class Shell
         this.log_sink_path = null;
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
-        this.busybox_applets = ['busyz', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'unzip', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed', 'true', 'false', 'seq'];
+        this.busybox_applets = ['busyz', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'mv', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed', 'true', 'false', 'seq'];
         this.shell_builtins =  ['man', 'help', 'open', 'close', 'download', 'cd', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty', 'hub'];
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'diff', 'fetch', 'checkout'];
@@ -558,7 +558,7 @@ export class Shell
                 file_path = file_https_path;
             else
                 download_cmds = [this.cmd('wget', file_https_path, '-O', file_path)]
-            const decompress_cmds = file_https_path.endsWith('.tar.gz') ? [this.cmd('gzip', '-d', file_path), this.cmd('tar', '-xf', file_path.replace('.gz', ''), '-C', project_dir)] : file_https_path.endsWith('.zip') ? [this.cmd('unzip', file_path, '-d', project_dir)] : []; 
+            const decompress_cmds = file_https_path.endsWith('.tar.gz') ? [this.cmd('gzip', '-d', file_path), this.cmd('tar', '-xf', file_path.replace('.gz', ''), '-C', project_dir)] : file_https_path.endsWith('.zip') ? [this.cmd('busyz', 'unzip', file_path, '-d', project_dir)] : []; 
 
             cmds = [...download_cmds, this.cmd('mkdir', project_dir), ...decompress_cmds, this.cmd('cd', project_dir), this.cmd('open', '.')];
         }

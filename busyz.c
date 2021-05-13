@@ -29,7 +29,7 @@
 int busyz_main(int argc, char *argv[]);
 int proc_entry(const char *file_path_src, const struct stat *info, const int typeflag, struct FTW *pathinfo);
 
-enum { MAX_FILE_PATH_LENGTH = 1024, MAX_EXCLUDE_PATHS = 16, MAX_INPUT_PATHS = 16, USE_FDS = 15 };
+enum { MAX_FILE_PATH_LENGTH = 1024, MAX_EXCLUDE_PATHS = 16, MAX_INPUT_PATHS = 16, USE_FDS = 15, MKDIR_FLAGS = S_IWOTH | S_IROTH | S_IXOTH  };
 
 char* exclude[MAX_EXCLUDE_PATHS];
 char* input[MAX_INPUT_PATHS];
@@ -83,7 +83,7 @@ int busyz_main(int argc, char *argv[])
     if(argc < 4)
         return 1;
 
-    int do_zip = 0 == strcmp("zip", argv[1]) == 0, do_unzip = 0 == strcmp("unzip", argv[1]);
+    int do_zip = 0 == strcmp("zip", argv[1]), do_unzip = 0 == strcmp("unzip", argv[1]);
 
     for(int i = 2; i < argc; i++)
     {
@@ -97,14 +97,13 @@ int busyz_main(int argc, char *argv[])
         else if(0 == strcmp("-d", argv[i]))
         {
             assert(i + 1 < argc);
-            output = argv[++i];
+            input[num_input++] = argv[++i];
         }
         else if(output == NULL)
             output = argv[i];
         else
             input[num_input++] = argv[i];
     }
-
     if(do_zip)
     {
         remove(output);
@@ -131,9 +130,21 @@ int busyz_main(int argc, char *argv[])
     {
         ptr_zip = &zip;
         memset(ptr_zip, 0, sizeof(zip));
-        mz_zip_writer_init_file(ptr_zip, input[0], 0);
-        // https://github.com/richgel999/miniz/blob/master/examples/example2.c
-        //mz_zip_reader_extract_to_file(ptr_zip, mz_uint file_index, const char *pDst_filename, mz_uint flags);
+        const char* inp = output, *outp = num_input > 0 ? input[0] : ".";
+        mkdir(outp, MKDIR_FLAGS);
+        mz_zip_reader_init_file(ptr_zip, inp, 0);
+        int num_files = (int)mz_zip_reader_get_num_files(ptr_zip);
+        for (int file_index = 0; file_index < num_files; file_index++)
+        {
+            mz_zip_archive_file_stat file_stat;
+            mz_zip_reader_file_stat(ptr_zip, file_index, &file_stat);
+            sprintf(file_path_buffer, "%s/%s", outp, file_stat.m_filename);
+            printf("inflating [%s] -> [%s]\n", file_stat.m_filename, file_path_buffer); 
+            if(mz_zip_reader_is_file_a_directory(ptr_zip, file_index))
+                mkdir(file_path_buffer, MKDIR_FLAGS);
+            else
+                mz_zip_reader_extract_to_file(ptr_zip, file_index, file_path_buffer, 0);
+        }
         mz_zip_reader_end(&ptr_zip);
     }
 	

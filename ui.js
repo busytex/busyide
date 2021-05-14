@@ -574,7 +574,7 @@ export class Shell
             const src_path = this.tmp_decompressed;
             console.log(this.find(this.tmp_decompressed));
 
-            const cmds2 = [this.cmd('mv', arg(src_path), arg(project_dir)), this.cmd('cd', project_dir), this.cmd('open', '.')];
+            const cmds2 = [this.cmd('mv', src_path, project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')];
             await this.commands(this.and(...cmds2));
         }
         else if(route0 == 'file')

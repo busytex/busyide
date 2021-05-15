@@ -571,8 +571,7 @@ export class Shell
             const cmds1 = [...download_cmds, ...decompress_cmds]
             await this.commands(this.and(...cmds1));
             
-            const src_path = this.tmp_decompressed;
-            console.log(this.find(this.tmp_decompressed));
+            const src_path = this.strip_components(this.tmp_decompressed);
 
             const cmds2 = [this.cmd('mv', src_path, project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')];
             await this.commands(this.and(...cmds2));
@@ -1217,6 +1216,22 @@ export class Shell
         this.busybox.run(['ed', ours_path], edscript);
         
         return edscript.includes(conflict_left) && edscript.includes(conflict_right);
+    }
+
+    strip_components(path)
+    {
+        const a = this.FS.analyzePath(path);
+        if(!a.exists)
+            return null;
+
+        if(!a.object.isFolder)
+            return path;
+
+        const children = Object.values(a.object.contents);
+        if(children.length != 1 || !children[0].isFolder)
+            return path;
+
+        return this.PATH.join(path, children[0].name);
     }
 
     find(root = '.', relative_dir_path = '', recurse = true, preserve_directories = false, include_dot_directories = false, read_contents_as_string = true, exclude = [])

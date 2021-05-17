@@ -331,10 +331,8 @@ export class Shell
                     [cmdline, stdout_redirect] = cmdline.split('>');
 
                 let [cmd, ...args] = cmdline.trim().split(' ');
-                console.log('CMD ARGS', cmd, args);
                 args = args.map(a => this.expandcollapseuser(a));
-                args = args.map(a => a.startsWith('"') ? a.slice(1) : a).map(a => a.endsWith('"') ? a.slice(0, a.length - 1) : a);
-                console.log('CMD ARGS 2', cmd, args);
+                //args = args.map(a => a.startsWith('"') ? a.slice(1) : a).map(a => a.endsWith('"') ? a.slice(0, a.length - 1) : a);
 
                 cmds.push({cmd : cmd, args : args, stdout_redirect : stdout_redirect, stdout_redirect_append : stdout_redirect_append, subcommand : false});
             }
@@ -359,9 +357,9 @@ export class Shell
                 for(const a of c.args)
                 {
                     if(join)
-                        argsqq[argsqq.length - 1] += ' ' + a;
+                        argsqq[argsqq.length - 1] += ' ' + (a.endsWith('"') ? a.slice(0, a.length - 1) : a);
                     else
-                        argsqq.push(a);
+                        argsqq.push(a.startsWith('"') ? a.slice(1) : a);
 
                     if((!a.includes('`')) && (a.startsWith('"') ^ a.endsWith('"')))
                         join = !join;

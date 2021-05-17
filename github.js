@@ -482,6 +482,8 @@ export class Github
         const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
         
         const new_branch = await this.api_check(`Branch [${remote_branch}] @ [${s.local_commit_sha}] ->...`, print, 'repos', s.repo_url, '/git/refs', 'POST', { ref : local_branch, sha : s.local_commit_sha });
+        // remote: Create a pull request for '{branchname}' on GitHub by visiting:
+        // remote:      https://github.com/{username}/{reponame}/pull/new/feature/{branchname}
         
         this.update_ref(s.repo_path, this.ref_origin_head, 'ref: ' + origin_branch);
         this.update_ref(s.repo_path, origin_branch, s.local_commit_sha);

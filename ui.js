@@ -566,7 +566,7 @@ export class Shell
             this.rm_rf(this.tmp_decompressed);
             this.mkdir_p(this.tmp_decompressed);
 
-            const decompress_cmds = file_https_path.endsWith('.tar.gz') ? [this.cmd('gzip', '-d', file_path), this.cmd('tar', '-xf', file_path.replace('.gz', ''), '-C', project_dir)] : file_https_path.endsWith('.zip') ? [this.cmd('busyz', 'unzip', file_path, '-d', this.tmp_decompressed)] : []; 
+            const decompress_cmds = file_https_path.endsWith('.tar.gz') ? [this.cmd('gzip', '-d', this.arg(file_path)), this.cmd('tar', '-xf', this.arg(file_path.replace('.gz', '')), '-C', this.tmp_decompressed)] : file_https_path.endsWith('.zip') ? [this.cmd('busyz', 'unzip', this.arg(file_path), '-d', this.tmp_decompressed)] : []; 
 
             const cmds1 = [...download_cmds, ...decompress_cmds]
             await this.commands(this.and(...cmds1));
@@ -1155,7 +1155,7 @@ export class Shell
 
         const path = paths[0];
         const extname = this.PATH.extname(path);
-        await this.commands(this.cmd('init', extname_archive.includes(extname) ? 'archive' : 'file', path));
+        await this.commands(this.cmd('init', extname_archive.includes(extname) ? 'archive' : 'file', this.arg(path)));
     }
 
     async upload(file_path = null, ext = [])

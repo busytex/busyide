@@ -564,7 +564,7 @@ export class Shell
             if(this.exists(file_https_path))
                 file_path = file_https_path;
             else
-                download_cmds = [this.cmd('wget', file_https_path, '-O', file_path)]
+                download_cmds = [this.cmd('wget', this.arg(file_https_path), '-O', this.arg(file_path))]
 
             this.rm_rf(this.tmp_decompressed);
             this.mkdir_p(this.tmp_decompressed);
@@ -576,7 +576,7 @@ export class Shell
             
             const src_path = this.strip_components(this.tmp_decompressed);
 
-            const cmds2 = [this.cmd('mv', src_path, project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')];
+            const cmds2 = [this.cmd('mv', this.arg(src_path), this.arg(project_dir)), this.cmd('cd', this.arg(project_dir)), this.cmd('open', '.')];
             await this.commands(this.and(...cmds2));
         }
         else if(route0 == 'file')
@@ -585,7 +585,7 @@ export class Shell
             const basename = this.PATH.basename(path);
             const file_path = this.PATH.join(this.tmp_dir, basename);
             const project_dir = this.PATH.join('~', basename.slice(0, basename.indexOf('.')));
-            const cmds = [this.cmd('mkdir', project_dir), path.startsWith('http://') || path.startsWith('https://') ? this.cmd('wget', path, '-P', project_dir) : this.cmd('cp', path, project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')];
+            const cmds = [this.cmd('mkdir', this.arg(project_dir)), path.startsWith('http://') || path.startsWith('https://') ? this.cmd('wget', this.arg(path), '-P', this.arg(project_dir)) : this.cmd('cp', this.arg(path), this.arg(project_dir)), this.cmd('cd', this.arg(project_dir)), this.cmd('open', '.')];
             await this.commands(this.and(...cmds));
         }
         else if(route0 == 'base64targz')

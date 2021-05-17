@@ -374,6 +374,8 @@ export class Shell
 
         const anded_commands = parse_cmdline(current_terminal_line);
 
+        console.log('ANDED COMMANDS', anded_commands);
+
         for(let {cmd, args, stdout_redirect, stdout_redirect_append} of anded_commands)
         {
             args = expand_subcommand_args(args);

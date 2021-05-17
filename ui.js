@@ -359,7 +359,7 @@ export class Shell
                     if(join)
                         argsqq[argsqq.length - 1] += ' ' + (a.endsWith('"') ? a.slice(0, a.length - 1) : a);
                     else
-                        argsqq.push(a.startsWith('"') ? a.slice(1) : a);
+                        argsqq.push(a.startsWith('"') ? (a.endsWith('"') ? a.slice(1, a.length - 1) : a.slice(1)) : a);
 
                     if((!a.includes('`')) && (a.startsWith('"') ^ a.endsWith('"')))
                         join = !join;

@@ -320,6 +320,7 @@ export class Shell
 
         const parse_cmdline = current_terminal_line =>
         {
+            console.log('PARSE_CMDLINE', current_terminal_line);
             let cmds = [];
             for(let cmdline of current_terminal_line.split('&&'))
             {
@@ -330,6 +331,7 @@ export class Shell
                     [cmdline, stdout_redirect] = cmdline.split('>');
 
                 let [cmd, ...args] = cmdline.trim().split(' ');
+                console.log('CMD ARGS', cmd, args);
                 args = args.map(a => this.expandcollapseuser(a));
                 args = args.map(a => a.startsWith('"') ? a.slice(1) : a).map(a => a.endsWith('"') ? a.slice(0, a.length - 1) : a);
 

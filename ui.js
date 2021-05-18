@@ -317,7 +317,6 @@ export class Shell
 
         const parse_cmdline = current_terminal_line =>
         {
-            console.log('PARSE_CMDLINE', current_terminal_line);
             let cmds = [];
             for(let cmdline of current_terminal_line.split('&&'))
             {
@@ -371,8 +370,6 @@ export class Shell
         const expand_subcommand_args = (args, run_busybox_cmd = c => this.busybox.run([c.cmd, ...c.args]).stdout.trim().replaceAll('\n', ' ')) => args.map(a => a.includes('`') ? run_busybox_cmd(parse_cmdline(a.slice(1, a.length - 1))[0]).split(' ') : [a]).flat();
 
         const anded_commands = parse_cmdline(current_terminal_line);
-
-        console.log('ANDED COMMANDS', anded_commands);
 
         for(let {cmd, args, stdout_redirect, stdout_redirect_append} of anded_commands)
         {

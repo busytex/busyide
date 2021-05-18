@@ -1159,7 +1159,8 @@ export class Shell
 
         const path = paths[0];
         const extname = this.PATH.extname(path);
-        await this.commands(this.cmd('init', extname_archive.includes(extname) ? 'archive' : 'file', this.arg(path)));
+        
+        await this.init(extname_archive.includes(extname) ? 'archive' : 'file', this.arg(path));
     }
 
     async upload(file_path = null, ext = [])

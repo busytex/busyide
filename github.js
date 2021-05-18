@@ -494,6 +494,7 @@ export class Github
 
     async push_repo(print, status, message, branch = null, create_new_branch = false)
     {
+        // git push --set-upstream origin branch_name
         if(status.files.every(s => s.status == 'not modified'))
         {
             print('No modified files. OK!');

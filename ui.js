@@ -559,7 +559,6 @@ export class Shell
             const basename_noext = basename.slice(0, basename.indexOf('.'));
 
             let file_path = this.PATH.join(this.tmp_dir, basename);
-            const project_dir = this.PATH.join('~', basename_noext);
             
             let download_cmds = [];
             if(this.exists(file_https_path))
@@ -577,6 +576,7 @@ export class Shell
             
             const src_path = this.strip_components(this.tmp_decompressed);
 
+            const project_dir = this.PATH.join('~', (src_path && src_path != this.tmp_decompressed) ? this.PATH.basename(src_path) : basename_noext);
             const cmds2 = [this.cmd('mv', this.arg(src_path), this.arg(project_dir)), this.cmd('cd', this.arg(project_dir)), this.cmd('open', '.')];
             await this.commands(this.and(...cmds2));
         }

@@ -1126,7 +1126,7 @@ export class Shell
         //    [cwd, tex_path] = [this.tex_path.slice(0, basename), this.tex_path.slice(1 + basename)];
         //}
         
-        if(!tex_path)
+        if(!tex_path || !tex_path.endsWith('.tex'))
             return;
         
         const verbose = this.ui.verbose.value, tex_driver = this.ui.tex_driver.value;
@@ -1140,7 +1140,6 @@ export class Shell
         this.log_path = tex_path.replace('.tex', '.log').replace(this.project_dir(), this.project_tmp_dir());
         this.ui.set_current_log(this.log_path);
         
-        console.assert(tex_path.endsWith('.tex'));
         console.assert(cwd.startsWith(this.home_dir));
         
         const project_dir = this.project_dir(cwd);
@@ -1160,7 +1159,7 @@ export class Shell
         const path = paths[0];
         const extname = this.PATH.extname(path);
         
-        await this.init(extname_archive.includes(extname) ? 'archive' : 'file', this.arg(path));
+        await this.init(extname_archive.includes(extname) ? 'archive' : 'file', path);
     }
 
     async upload(file_path = null, ext = [])

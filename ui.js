@@ -940,8 +940,9 @@ export class Shell
 
     ls_la(abspath, file_path)
     {
-        this.log_big_header('$ ls -la ' + this.arg(abspath));
-        this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
+        this.log_big_header('');
+        //this.log_big_header('$ ls -la ' + this.arg(abspath));
+        //this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
     }
 
     open(file_path, contents, readonly, language_id_path)

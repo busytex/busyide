@@ -847,6 +847,7 @@ export class Shell
         const {pdf, log, print} = e.data;
         if(pdf)
         {
+            consol.log('ONCOMPILERMESSAGE', this.pdf_path);
             this.toc();
             this.mkdir_p(this.PATH.dirname(this.pdf_path));
             this.FS.writeFile(this.pdf_path, pdf);
@@ -854,7 +855,9 @@ export class Shell
         }
         if(log)
         {
+            consol.log('ONCOMPILERMESSAGE', this.log_path);
             this.toc();
+            this.FS.writeFile(this.pdf_path, pdf);
             this.mkdir_p(this.PATH.dirname(this.log_path));
             this.FS.writeFile(this.log_path, log);
         }
@@ -1136,6 +1139,7 @@ export class Shell
         this.log_path = tex_path.replace('.tex', '.log').replace(this.project_dir(), this.project_tmp_dir());
         this.ui.set_current_log(this.log_path);
         
+        console.log('COMPILE', this.pdf_path, this.log_path);
         console.assert(cwd.startsWith(this.home_dir));
         
         const project_dir = this.project_dir(cwd);

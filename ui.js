@@ -28,11 +28,11 @@ export class Shell
         this.edit_path = null;
         this.view_path = null;
         this.tex_path = '';
-        this.zip_path = '/tmp/archive.zip';
-        this.tar_path = '/tmp/archive.tar';
-        this.targz_path = '/tmp/archive.tar.gz';
-        this.arxiv_path = '/tmp/arxiv.tar';
-        this.git_log = '/tmp/git.log';
+        this.zip_path = this.tmp_dir + '/archive.zip';
+        this.tar_path = this.tmp_dir + '/archive.tar';
+        this.targz_path = this.tmp_dir + '/archive.tar.gz';
+        this.arxiv_path = this.tmp_dir + '/arxiv.tar';
+        this.git_log = this.tmp_dir + '/git.log';
         this.git_dir = this.home_dir.replace('home', '.git');
         this.empty_file = '/etc/empty';
         this.new_file_name = 'newfile';
@@ -857,7 +857,6 @@ export class Shell
         {
             console.log('ONCOMPILERMESSAGE', this.log_path);
             this.toc();
-            this.FS.writeFile(this.pdf_path, pdf);
             this.mkdir_p(this.PATH.dirname(this.log_path));
             this.FS.writeFile(this.log_path, log);
         }

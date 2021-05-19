@@ -1,5 +1,3 @@
-// tex_path: latexmk, open, project_dir
-
 import { Github } from '/github.js'
 import { Busybox } from '/busybox.js'
 
@@ -21,6 +19,7 @@ export class Shell
         this.tex_ext = '.tex';
         this.readme_dir = this.home_dir + '/readme';
         this.readme_tex = this.readme_dir + '/README.tex';
+        this.versions_txt = this.readme_dir + '/versions.txt';
         this.hello_world = "\\documentclass[11pt]{article}\n\\begin{document}\n\n\\title{Hello}\n\\maketitle\n\n\\section{world}\nindeed!\n\n\\end{document}";
 
         this.shared_project = this.home_dir + '/shared_project';

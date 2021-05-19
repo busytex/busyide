@@ -1128,7 +1128,7 @@ export class Shell
         if(!tex_path || !tex_path.endsWith('.tex'))
             return;
         
-        const abspath = this.PATH.abspath(tex_path);
+        const abspath = this.abspath(tex_path);
 
         const verbose = this.ui.verbose.value, tex_driver = this.ui.tex_driver.value;
 

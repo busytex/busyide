@@ -3,7 +3,7 @@ import { Busybox } from '/busybox.js'
 
 export class Shell
 {
-    constructor(monaco, ui, paths, readme, terminal, editor, difftool, cors_proxy_fmt = 'https://withered-shape-3305.vadimkantorov.workers.dev/?${url}')
+    constructor(monaco, ui, paths, readme, versions, terminal, editor, difftool, cors_proxy_fmt = 'https://withered-shape-3305.vadimkantorov.workers.dev/?${url}')
     {
         this.monaco = monaco;
         this.share_link_log = '/tmp/share_link.log';
@@ -62,6 +62,7 @@ export class Shell
         this.compiler = new Worker(paths.busytex_worker_js);
         this.log_small = this.ui.log_small;
         this.readme = readme;
+        this.versions = versions;
         this.busybox = null;
         this.refresh_cwd = null;
         this.terminal_reset_sequence = '\x1bc';
@@ -606,6 +607,7 @@ export class Shell
         this.mkdir_p(this.git_dir);
         this.FS.mount(this.FS.filesystems.IDBFS, {}, this.cache_dir);
         this.FS.writeFile(this.readme_tex, this.readme);
+        this.FS.writeFile(this.versions_txt, this.versions);
         this.FS.writeFile(this.git_log, '');
         this.FS.writeFile(this.empty_file, '');
         this.FS.chdir(this.home_dir);

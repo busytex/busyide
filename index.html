@@ -767,6 +767,7 @@ function init_terminal(Terminal, terminal_element, FitAddon)
 const monarch_promises = [paths.lang_monarch_json, paths.latex_monarch_json, paths.bibtex_monarch_json].map(x => fetch(x).then(r => r.json()));
 
 const readme_tex_promise = fetch(paths.readme_tex).then(r => r.text());
+const versions_txt_promise = fetch(paths.versions_txt).then(r => r.text());
 const busybox_wasm_module_promise = fetch(paths.busybox_wasm).then(WebAssembly.compileStreaming);
 
 require(['vs/editor/editor.main', 'xterm/xterm', './dist/busybox_unstripped.js'], async (Monaco, Terminal, busybox_module_constructor) =>
@@ -774,7 +775,7 @@ require(['vs/editor/editor.main', 'xterm/xterm', './dist/busybox_unstripped.js']
     const {editor, difftool} = init_editor(Monaco, ui.editor, ui.difftool, ...(await Promise.all(monarch_promises)));
     const terminal = init_terminal(Terminal, ui.terminal, FitAddon);
         
-    window.busyshell = new Shell(monaco, ui, paths, await readme_tex_promise, terminal, editor, difftool);
+    window.busyshell = new Shell(monaco, ui, paths, await readme_tex_promise, await versions_txt_promise, terminal, editor, difftool);
     window.onresize = ui.onresize;
     window.onresize();
 

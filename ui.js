@@ -1128,23 +1128,23 @@ export class Shell
         if(!tex_path || !tex_path.endsWith('.tex'))
             return;
         
+        const abspath = this.PATH.abspath(tex_path);
+
         const verbose = this.ui.verbose.value, tex_driver = this.ui.tex_driver.value;
 
         this.terminal_print(`Running in background (verbosity = [${verbose}], TeX driver = [${tex_driver}])...`);
         this.tic();
         
-        this.pdf_path = tex_path.replace('.tex', '.pdf').replace(this.project_dir(), this.project_tmp_dir());
+        this.pdf_path = abspath.replace('.tex', '.pdf').replace(this.project_dir(), this.project_tmp_dir());
         this.ui.set_current_pdf(this.pdf_path);
         
-        this.log_path = tex_path.replace('.tex', '.log').replace(this.project_dir(), this.project_tmp_dir());
+        this.log_path = abspath.replace('.tex', '.log').replace(this.project_dir(), this.project_tmp_dir());
         this.ui.set_current_log(this.log_path);
         
-        console.log('COMPILE', tex_path, this.pdf_path, this.log_path, this.project_dir(), this.project_tmp_dir());
         console.assert(cwd.startsWith(this.home_dir));
         
         const project_dir = this.project_dir(cwd);
-        const source_path = this.abspath(tex_path);
-        const main_tex_path = source_path.slice(project_dir.length + 1);
+        const main_tex_path = abspath.slice(project_dir.length + 1);
 
         this.compiler.postMessage({files : this.find(project_dir), main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver});
     }

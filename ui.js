@@ -1139,7 +1139,7 @@ export class Shell
         this.log_path = tex_path.replace('.tex', '.log').replace(this.project_dir(), this.project_tmp_dir());
         this.ui.set_current_log(this.log_path);
         
-        console.log('COMPILE', this.pdf_path, this.log_path);
+        console.log('COMPILE', this.pdf_path, this.log_path, this.project_dir());
         console.assert(cwd.startsWith(this.home_dir));
         
         const project_dir = this.project_dir(cwd);

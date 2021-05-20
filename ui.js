@@ -89,7 +89,7 @@ export class Shell
     {
         const {cmd, arg, and, or, qq, qx} = this;
         const is_special_dir = abspath => [this.FS.cwd(), this.PATH.normalize(this.PATH.join(this.FS.cwd(), '..'))].includes(abspath);
-        const is_user_dir = abspath => abspath.startsWith(this.home_dir + '/');
+        const is_user_dir = (abspath, strict = true) => abspath.startsWith(this.home_dir + '/') && (strict || abspath == this.home_dir);
         
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);
@@ -116,7 +116,7 @@ export class Shell
 
         this.ui.new_file.onclick = () =>
         {
-            if(!is_user_dir(this.FS.cwd())
+            if(!is_user_dir(this.FS.cwd()))
                 return;
 
             const new_path = this.new_file_path(this.new_file_name, this.new_file_ext);
@@ -124,7 +124,7 @@ export class Shell
         }
         this.ui.new_folder.onclick = () => 
         {
-            if(!is_user_dir(this.FS.cwd())
+            if(!is_user_dir(this.FS.cwd()), false)
                 return;
 
             const new_path = this.new_file_path(this.new_dir_name);

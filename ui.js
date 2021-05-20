@@ -88,6 +88,9 @@ export class Shell
     bind()
     {
         const {cmd, arg, and, or, qq, qx} = this;
+        const is_special_dir = abspath => [this.FS.cwd(), this.PATH.normalize(this.PATH.join(this.FS.cwd(), '..'))].includes(abspath);
+        const is_user_dir = abspath => abspath.startsWith(this.home_dir + '/');
+        
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.onKey(this.onkey.bind(this));
@@ -113,11 +116,17 @@ export class Shell
 
         this.ui.new_file.onclick = () =>
         {
+            if(!is_user_dir(this.FS.cwd())
+                return;
+
             const new_path = this.new_file_path(this.new_file_name, this.new_file_ext);
             this.commands(and(cmd('echo', '-e', qq(this.hello_world.replaceAll('\\', '\\\\').replaceAll('\n', '\\n')), '>', new_path), cmd('open', new_path)));
         }
         this.ui.new_folder.onclick = () => 
         {
+            if(!is_user_dir(this.FS.cwd())
+                return;
+
             const new_path = this.new_file_path(this.new_dir_name);
             this.commands(and(cmd('mkdir', new_path), cmd('open', new_path)));
         }
@@ -143,9 +152,6 @@ export class Shell
                     this.commands(parentdir ? and(cmd('open', '..'), cmd('cd', '..')) : and(cmd('cd', arg(option.value)), cmd('open', '.')));
             }
         };
-        
-        const is_special_dir = abspath => [this.FS.cwd(), this.PATH.normalize(this.PATH.join(this.FS.cwd(), '..'))].includes(abspath);
-        const is_user_dir = abspath => abspath.startsWith(this.home_dir + '/');
         
         this.ui.rename.onclick = () => (!is_special_dir(this.ui.get_current_file(true)) && is_user_dir(this.ui.get_current_file(true))) && (this.ui.current_file_rename.value
             ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value, this.abspath(this.ui.current_file_rename.value)) || this.ui.toggle_current_file_rename(''))

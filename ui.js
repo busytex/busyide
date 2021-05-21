@@ -89,7 +89,7 @@ export class Shell
     {
         const {cmd, arg, and, or, qq, qx} = this;
         const is_special_dir = abspath => [this.FS.cwd(), this.PATH.normalize(this.PATH.join(this.FS.cwd(), '..'))].includes(abspath);
-        const is_user_dir = (abspath, strict = true) => abspath.startsWith(this.home_dir + '/') && (strict || abspath == this.home_dir);
+        const is_user_dir = (abspath, strict = true) => abspath.startsWith(this.home_dir + '/') || (!strict && abspath == this.home_dir);
         
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);

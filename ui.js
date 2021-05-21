@@ -124,7 +124,7 @@ export class Shell
         }
         this.ui.new_folder.onclick = () => 
         {
-            if(!is_user_dir(this.FS.cwd()), false)
+            if(!is_user_dir(this.FS.cwd(), false))
                 return;
 
             const new_path = this.new_file_path(this.new_dir_name);

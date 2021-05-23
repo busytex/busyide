@@ -1227,6 +1227,14 @@ export class Shell
         return edscript.includes(conflict_left) && edscript.includes(conflict_right);
     }
 
+    enable_tex_package(package_name)
+    {
+    }
+
+    patch(project_dir, patch_path)
+    {
+    }
+
     strip_components(path)
     {
         const a = this.FS.analyzePath(path);

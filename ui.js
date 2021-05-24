@@ -1151,7 +1151,7 @@ export class Shell
         const project_dir = this.project_dir(cwd);
         const main_tex_path = abspath.slice(project_dir.length + 1);
 
-        this.compiler.postMessage({files : this.find(project_dir), main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver});
+        this.compiler.postMessage({files : this.find(project_dir), main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, texlive_js : [this.paths.texlive_js[0]] });
     }
 
     async import_project()

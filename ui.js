@@ -853,7 +853,6 @@ export class Shell
         const {pdf, log, print} = e.data;
         if(pdf)
         {
-            console.log('ONCOMPILERMESSAGE', this.pdf_path);
             this.toc();
             this.mkdir_p(this.PATH.dirname(this.pdf_path));
             this.FS.writeFile(this.pdf_path, pdf);
@@ -861,7 +860,6 @@ export class Shell
         }
         if(log)
         {
-            console.log('ONCOMPILERMESSAGE', this.log_path);
             this.toc();
             this.mkdir_p(this.PATH.dirname(this.log_path));
             this.FS.writeFile(this.log_path, log);

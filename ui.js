@@ -1151,7 +1151,9 @@ export class Shell
         const project_dir = this.project_dir(cwd);
         const main_tex_path = abspath.slice(project_dir.length + 1);
 
-        this.compiler.postMessage({files : this.find(project_dir), main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, texlive_js : [this.paths.texlive_js[0]] });
+        const texlive_js = this.ui.get_enabled_data_packages().map(data_package => this.paths.data_packages_js[data_package]);
+        console.log('ENABLED PACKAGES', texlive_js);
+        this.compiler.postMessage({files : this.find(project_dir), main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, texlive_js : texlive_js });
     }
 
     async import_project()

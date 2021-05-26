@@ -239,8 +239,10 @@
     <div style="display: flex; flex-direction: row; height: 5%">
         <button id="compile_current_file" class="busyui">Compile Current File</button>
         <button id="compile_project" class="busyui">Compile Project</button>
-        <input type="checkbox" id="enable_latex_science" class="busyui" checked>Enable [latex-science]</input>
-        <!--texlive_js : ['/dist/texlive-basic.js', '/dist/ubuntu-texlive-latex-recommended.js', '/dist/ubuntu-texlive-latex-extra.js'],-->
+        <input type="checkbox" value="texlive_basic" class="data_package" checked>Enable [basic]</input>
+        <input type="checkbox" value="texlive_latex_recommended" class="data_package" checked>Enable [latex-recommended]</input>
+        <input type="checkbox" value="texlive_latex_science" class="data_package" checked>Enable [latex-science]</input>
+        <input type="checkbox" value="texlive_latex_extra" class="data_package" checked>Enable [latex-extra]</input>
         <select id="tex_driver" class="busyui">
             <option value="" disabled>TeX pipeline:</option>
             <option value="xetex_bibtex8_dvipdfmx" selected>XeTeX + bibtex8 + dvipdfmx</option>
@@ -675,6 +677,11 @@ const ui =
         return route_parts.length > 1 ? [route_parts[0], route_parts.slice(1).join('/')] : route_parts;
     },
 
+    get_enabled_data_packages()
+    {
+        return Array.from(document.querySelectorAll('.data_package')).filter(input => input.checked).map(input => input.value);
+    },
+
     toggle_editor(mode)
     {
         [ui.editor.hidden, ui.difftool.hidden] = [mode != 'editor', mode != 'difftool'];
@@ -711,7 +718,14 @@ const paths =
     busytex_pipeline_js : '/dist/busytex_pipeline.js',
     busybox_wasm : '/dist/busybox_unstripped.wasm',
     texmf_local : ['./texmf'],
-    texlive_js : ['/dist/texlive-basic.js', '/dist/ubuntu-texlive-latex-recommended.js', '/dist/ubuntu-texlive-latex-extra.js', '/dist/ubuntu-texlive-science.js'],
+    
+    data_packages_js : {
+        texlive_basic : '/dist/texlive-basic.js', 
+        texlive_latex_recommended : '/dist/ubuntu-texlive-latex-recommended.js',
+        texlive_latex_extra : '/dist/ubuntu-texlive-latex-extra.js', 
+        texlive_science : '/dist/ubuntu-texlive-science.js',
+    }
+    
     lang_monarch_json : './monarch_lang.json',
     latex_monarch_json : './monarch_latex.json',
     bibtex_monarch_json : './monarch_bibtex.json',

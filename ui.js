@@ -32,6 +32,7 @@ export class Shell
         this.tar_path = this.tmp_dir + '/archive.tar';
         this.targz_path = this.tmp_dir + '/archive.tar.gz';
         this.arxiv_path = this.tmp_dir + '/arxiv.tar';
+        this.patch_path = this.tmp_dir + '/uploaded.patch';
         this.git_log = this.tmp_dir + '/git.log';
         this.git_dir = this.home_dir.replace('home', '.git');
         this.empty_file = '/etc/empty';
@@ -91,10 +92,10 @@ export class Shell
         const is_special_dir = abspath => [this.FS.cwd(), this.PATH.normalize(this.PATH.join(this.FS.cwd(), '..'))].includes(abspath);
         const is_user_dir = (abspath, strict = true) => abspath.startsWith(this.home_dir + '/') || (!strict && abspath == this.home_dir);
         
-        
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.onKey(this.onkey.bind(this));
 
+        this.ui.apply_patch.onclick = async () => await this.commands(and(cmd('upload', this.patch_path), cmd('patch', this.patch_path)));
         this.ui.clone.onclick = () => this.ui.github_https_path.value && this.commands(and('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('cd', this.PATH.join('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('open', '.')) );
         this.ui.download_diff.onclick = () => { if(!this.github.git_dir()) return null; const diff_path = this.PATH.join(this.tmp_dir, this.github.propose_diff_file_name()); return this.commands(and(cmd('git', 'diff', 'HEAD', '--output', arg(diff_path)), cmd('download', arg(diff_path)))); };
         this.ui.download_pdf.onclick = () => this.pdf_path && this.commands(cmd('download', arg(this.pdf_path)));

@@ -11,6 +11,7 @@
 3. packaging of everything into one large HTML file to run from file://
 
 ### TODO
+0. https://github.com/mozilla/pdf.js/issues/11359#issuecomment-558841393 https://github.com/allefeld/atom-pdfjs-viewer
 1. https://developers.cloudflare.com/workers/examples/cors-header-proxy, https://github.com/Zibri/cloudflare-cors-anywhere
 2. Store file sha hashes in .git directory
 8. Ctrl+V, command history

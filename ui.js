@@ -1196,6 +1196,8 @@ export class Shell
             fileupload.setAttribute('accept', ext.join(','));
         return new Promise((resolve, reject) =>
         {
+            // TODO: handle cancel somehow
+            // https://stackoverflow.com/questions/4628544/how-to-detect-when-cancel-is-clicked-on-file-input/32386308
             fileupload.onchange = async () =>
             {
                 const uploads = Array.from(fileupload.files).map(file => upload_file(file));

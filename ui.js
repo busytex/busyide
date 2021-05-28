@@ -668,7 +668,7 @@ export class Shell
 
     rgrep(query)
     {
-        this.log_big_header('$ rgrep "' + query + '"');
+        this.log_big_header('$ rgrep ' + this.qq(query));
         this.log_big(this.busybox.run(['grep', query, '-r', this.project_dir()]).stdout);
     }
 

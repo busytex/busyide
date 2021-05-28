@@ -244,16 +244,6 @@
     <div style="display: flex; flex-direction: row; height: 5%">
         <button id="compile_current_file" class="busyui">Compile Current File</button>
         <button id="compile_project" class="busyui">Compile Project</button>
-        <table>
-            <tr>
-                <td><input type="checkbox" value="texlive_basic" class="data_package" checked>Enable [basic]</input></td>
-                <td><input type="checkbox" value="texlive_science" class="data_package">Enable [science]</input></td>
-            </tr>
-            <tr>
-                <td><input type="checkbox" value="texlive_latex_recommended" class="data_package">Enable [latex-recommended]</input></td>
-                <td><input type="checkbox" value="texlive_latex_extra" class="data_package">Enable [latex-extra]</input></td>
-            </tr>
-        </table>
         <select id="tex_driver" class="busyui">
             <option value="" disabled>TeX pipeline:</option>
             <option value="xetex_bibtex8_dvipdfmx" selected>XeTeX + bibtex8 + dvipdfmx</option>
@@ -269,6 +259,17 @@
         <select id="tex_path" class="busyui">
             <option value="" disabled selected>TeX file:</option>
         </select>
+        
+        <table>
+            <tr>
+                <td><input type="checkbox" value="texlive_basic" class="data_package" checked>Enable [basic]</input></td>
+                <td><input type="checkbox" value="texlive_science" class="data_package">Enable [science]</input></td>
+            </tr>
+            <tr>
+                <td><input type="checkbox" value="texlive_latex_recommended" class="data_package">Enable [latex-recommended]</input></td>
+                <td><input type="checkbox" value="texlive_latex_extra" class="data_package">Enable [latex-extra]</input></td>
+            </tr>
+        </table>
 
         <div style="display: flex; margin-left:auto">
             <input hidden type="text" class="busyui" id="current_file_rename" title="Press [Enter] to complete renaming"></input>

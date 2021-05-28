@@ -669,7 +669,7 @@ export class Shell
     rgrep(query)
     {
         this.log_big_header('$ rgrep ' + this.qq(query));
-        this.log_big(this.busybox.run(['grep', query, '-n', '-r', this.project_dir()]).stdout);
+        this.log_big(this.busybox.run(['grep', query, '-n', '-i', '-r', this.project_dir()]).stdout);
     }
 
     async git_checkout(_b, new_branch_name)

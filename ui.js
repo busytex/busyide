@@ -42,8 +42,8 @@ export class Shell
         this.log_sink_path = null;
         this.current_terminal_line = '';
         this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
-        this.busybox_applets = ['busyz', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed', 'true', 'false', 'seq', 'patch'];
-        this.shell_builtins =  ['cd', 'mv', 'man', 'help', 'open', 'close', 'download', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty', 'hub'];
+        this.busybox_applets = ['busyz', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed', 'true', 'false', 'seq', 'patch', 'grep'];
+        this.shell_builtins =  ['cd', 'mv', 'man', 'help', 'open', 'close', 'download', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty', 'hub', 'rgrep'];
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'diff', 'fetch', 'checkout'];
         this.hub_applets = ['release'];
@@ -95,6 +95,7 @@ export class Shell
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.onKey(this.onkey.bind(this));
 
+        this.ui.search.onclick = () => this.project_dir() && this.ui.search_query.value && this.commands(cmd('rgrep', qq(this.search_query)));
         this.ui.apply_patch.onclick = () => this.project_dir() && this.commands(and(cmd('upload', arg(this.patch_path)), cmd('cd', arg(this.project_dir())), cmd('patch', '-i', arg(this.patch_path)), cmd('cd', '-')));
         this.ui.clone.onclick = () => this.ui.github_https_path.value && this.commands(and('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('cd', this.PATH.join('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('open', '.')) );
         this.ui.download_diff.onclick = () => { if(!this.github.git_dir()) return null; const diff_path = this.PATH.join(this.tmp_dir, this.github.propose_diff_file_name()); return this.commands(and(cmd('git', 'diff', 'HEAD', '--output', arg(diff_path)), cmd('download', arg(diff_path)))); };
@@ -161,6 +162,7 @@ export class Shell
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? this.ui.rename.onclick() : ev.key == 'Escape' ? ev.target.onblur() : null;
         this.ui.remove.onclick = () => (!is_special_dir(this.ui.get_current_file(true)) && is_user_dir(this.ui.get_current_file(true))) && this.ui.get_current_file() && this.commands(and(this.isdir(this.ui.get_current_file()) ? cmd('rm', '-rf', arg(this.ui.get_current_file())) : cmd('rm', arg(this.ui.get_current_file())), cmd('open', '.'))); 
         
+        this.ui.search_query.onkeydown = ev => ev.key == 'Enter' ? this.ui.search.onclick() : ev.key == 'Escape' ? (this.ui.search_query.value = '') : null;
 		
         this.editor.onDidFocusEditorText(ev => this.ui.set_current_file(this.PATH.basename(this.edit_path), this.edit_path, 'editing'));
         this.ui.txtpreview.onfocus = this.ui.imgpreview.onclick = () => this.ui.set_current_file(this.PATH.basename(this.view_path), this.view_path, 'viewing');
@@ -662,6 +664,12 @@ export class Shell
             return this.github.release(this.log_big.bind(this), args.pop());
         else if(cmd == 'edit')
             return this.github.release(this.log_big.bind(this), args.pop(), args.pop());
+    }
+
+    rgrep(query)
+    {
+        this.log_big_header('$ rgrep "' + query + "'");
+        this.log_big(this.busybox.run(['grep', this.qq(query), '-r', this.qq(this.project_dir())]).stdout);
     }
 
     async git_checkout(_b, new_branch_name)

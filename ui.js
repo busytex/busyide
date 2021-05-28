@@ -95,7 +95,7 @@ export class Shell
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.onKey(this.onkey.bind(this));
 
-        this.ui.search.onclick = () => this.project_dir() && this.ui.search_query.value && this.commands(cmd('rgrep', qq(this.search_query)));
+        this.ui.search.onclick = () => this.project_dir() && this.ui.search_query.value && this.commands(cmd('rgrep', qq(this.ui.search_query.value)));
         this.ui.apply_patch.onclick = () => this.project_dir() && this.commands(and(cmd('upload', arg(this.patch_path)), cmd('cd', arg(this.project_dir())), cmd('patch', '-i', arg(this.patch_path)), cmd('cd', '-')));
         this.ui.clone.onclick = () => this.ui.github_https_path.value && this.commands(and('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('cd', this.PATH.join('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('open', '.')) );
         this.ui.download_diff.onclick = () => { if(!this.github.git_dir()) return null; const diff_path = this.PATH.join(this.tmp_dir, this.github.propose_diff_file_name()); return this.commands(and(cmd('git', 'diff', 'HEAD', '--output', arg(diff_path)), cmd('download', arg(diff_path)))); };
@@ -668,7 +668,7 @@ export class Shell
 
     rgrep(query)
     {
-        this.log_big_header('$ rgrep "' + query + "'");
+        this.log_big_header('$ rgrep "' + query + '"');
         this.log_big(this.busybox.run(['grep', this.qq(query), '-r', this.qq(this.project_dir())]).stdout);
     }
 

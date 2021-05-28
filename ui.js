@@ -169,6 +169,7 @@ export class Shell
         //this.ui.pdfpreview.onclick = ev => console.log('pdfpreview', ev);
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyCode.Enter, this.ui.compile_current_file.onclick);
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyMod.ShiftCmd | this.monaco.KeyCode.Enter, this.ui.compile_project.onclick);
+		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyMod.ShiftCmd | this.monaco.KeyCode.KEY_F, () => this.ui.search_query.focus());
 		this.difftool.addCommand(this.monaco.KeyCode.Escape, () => this.ui.toggle_editor('editor'), '!findWidgetVisible && !inReferenceSearchEditor && !editorHasSelection'); 
         this.ui.filetree.onkeydown = ev => ev.key == 'Enter' || ev.key == ' ' ? this.ui.filetree.ondblclick() : ev.key == 'Delete' ? this.ui.remove.onclick() : null;
     }

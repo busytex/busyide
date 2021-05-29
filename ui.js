@@ -1179,6 +1179,7 @@ export class Shell
 
     async upload(file_path = null, ext = [])
     {
+        // https://github.com/GoogleChromeLabs/browser-fs-access
         const upload_file = file =>
         {
             const src_name = file.name;

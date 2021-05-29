@@ -11,6 +11,7 @@
 3. packaging of everything into one large HTML file to run from file://
 
 ### TODO
+0. https://stackoverflow.com/questions/4628544/how-to-detect-when-cancel-is-clicked-on-file-input https://stackoverflow.com/questions/34855400/cancel-event-on-input-type-file
 0. https://github.com/microsoft/monaco-editor/issues/102
 0. https://github.com/ochachacha/ps-wasm https://codepen.io/sivadass/details/XZEVmM https://stackoverflow.com/questions/33063213/pdf-js-with-text-selection/43345096 https://github.com/mozilla/pdf.js/issues/11359#issuecomment-558841393 https://github.com/allefeld/atom-pdfjs-viewer
 1. https://developers.cloudflare.com/workers/examples/cors-header-proxy, https://github.com/Zibri/cloudflare-cors-anywhere

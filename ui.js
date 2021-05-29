@@ -497,7 +497,7 @@ export class Shell
             catch(err)
             {
                 this.last_exit_code = (this.last_exit_code === '' || this.last_exit_code === this.EXIT_SUCCESS) ? this.EXIT_FAILURE : this.last_exit_code;
-                const msg = `[${cmd}] last error code: [${this.last_exit_code}], error message: [${err.message}]`
+                const msg = `[${cmd}] last error code: [${this.last_exit_code}], error message: [${err.message || "no message"}]`
                 this.terminal_print(msg);
                 this.ui.set_error(msg);
                 break;

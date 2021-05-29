@@ -571,7 +571,7 @@ const ui =
         a_lcommit.innerText = status.local_commit;
 
         gitsummarystatus.innerText = status.local_commit == status.remote_commit ? 'local commit up-to-date' : 'local commit is behind';
-        gitsummarychanges.innerText = (status.files.some(f => f.status != 'not modified') ? ( status.files.filter(f => f.status == 'new').length + ' files new | ' + status.files.filter(f => f.status == 'modified').length + ' files modified | ' + status.files.filter(f => f.status == 'deleted').length + ' files deleted' ) : 'nothing modified');
+        gitsummarychanges.innerText = (status.files.some(f => f.status != 'not modified') ? ( status.files.filter(f => f.status == 'new').length + ' files new | ' + status.files.filter(f => f.status == 'modified').length + ' files modified | ' + status.files.filter(f => f.status == 'deleted').length + ' files deleted' ) : 'no changes');
 
         const ignore = h => (evt => {h(evt); return false;});
         

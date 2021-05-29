@@ -1214,6 +1214,7 @@ export class Shell
                 const paths = await Promise.all(uploads);
                 resolve(paths);
             };
+            console.log('UPLOADSHOW');
             fileupload.click();
         });
     }

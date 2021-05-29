@@ -307,6 +307,7 @@
                 <tr><th>remote commit:</th><td><a id="remotecommit"></a></td></tr>
                 <tr><th>local commit:</th><td><a id="localcommit"></a></td></tr>
                 <tr><th>status:</th><td id="gitsummarystatus"></td></tr>
+                <tr><th>changes:</th><td id="gitsummarychanges"></td></tr>
             </table>
             <hr />
             <table id="gitstatustable">
@@ -554,7 +555,8 @@ const ui =
         const a_branch = container.querySelector('#remotebranch');
         const a_rcommit = container.querySelector('#remotecommit');
         const a_lcommit = container.querySelector('#localcommit');
-        const gitsummary = container.querySelector('#gitsummarystatus');
+        const gitsummarystatus = container.querySelector('#gitsummarystatus');
+        const gitsummarychanges = container.querySelector('#gitsummarychanges');
 
         a_url.href = format_url(status.username, status.reponame, status.gist);
         a_url.innerText = `${status.username}/${status.reponame}`;
@@ -568,7 +570,8 @@ const ui =
         a_lcommit.href = format_url(status.username, status.reponame, status.gist, status.remote_branch, status.local_commit);
         a_lcommit.innerText = status.local_commit;
 
-        gitsummary.innerText = (status.local_commit == status.remote_commit ? 'local commit up-to-date' : 'local commit is behind') + ';' + (status.files.some(f => f.status != 'not modified') ? ( status.files.filter(f => f.status == 'new').length + ' files new | ' + status.files.filter(f => f.status == 'modified').length + ' files modified | ' + status.files.filter(f => f.status == 'deleted').length + ' files deleted' ) : 'nothing modified');
+        gitsummarystatus.innerText = status.local_commit == status.remote_commit ? 'local commit up-to-date' : 'local commit is behind';
+        gitsummarychanges.innerText = (status.files.some(f => f.status != 'not modified') ? ( status.files.filter(f => f.status == 'new').length + ' files new | ' + status.files.filter(f => f.status == 'modified').length + ' files modified | ' + status.files.filter(f => f.status == 'deleted').length + ' files deleted' ) : 'nothing modified');
 
         const ignore = h => (evt => {h(evt); return false;});
         

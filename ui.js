@@ -74,6 +74,9 @@ export class Shell
         this.EXIT_FAILURE = '1';
         this.last_exit_code = this.EXIT_SUCCESS;
         this.cors_proxy_fmt = cors_proxy_fmt;
+        
+        this.cancel_file_upload = null;
+        
         this.cmd = (...parts) => parts.join(' ');
         this.qq = (x = '') => '"' + x + '"';
         this.qx = (x = '') => '`' + x + '`';
@@ -94,6 +97,8 @@ export class Shell
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.onKey(this.onkey.bind(this));
+
+        self.onfocus = () => this.cancel_file_upload ? this.cancel_file_upload() : null;
 
         this.ui.search.onclick = () => this.project_dir() && this.ui.search_query.value && this.commands(cmd('rgrep', qq(this.ui.search_query.value)));
         this.ui.apply_patch.onclick = () => this.project_dir() && this.commands(and(cmd('upload', arg(this.patch_path)), cmd('cd', arg(this.project_dir())), cmd('patch', '-i', arg(this.patch_path)), cmd('cd', '-')));
@@ -1210,11 +1215,17 @@ export class Shell
             // https://stackoverflow.com/questions/4628544/how-to-detect-when-cancel-is-clicked-on-file-input/32386308
             fileupload.onchange = async () =>
             {
+                this.cancel_file_upload = null; 
                 const uploads = Array.from(fileupload.files).map(file => upload_file(file));
                 const paths = await Promise.all(uploads);
                 resolve(paths);
             };
-            console.log('UPLOADSHOW');
+            this.cancel_file_upload = () =>
+            {
+                this.cancel_file_upload = null; 
+                reject(this.EXIT_FAILURE); 
+                console.log('CANCELED'); 
+            };
             fileupload.click();
         });
     }

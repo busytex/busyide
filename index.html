@@ -807,7 +807,6 @@ require(['vs/editor/editor.main', 'xterm/xterm', './dist/busybox_unstripped.js']
     window.busyshell = new Shell(monaco, ui, paths, await readme_tex_promise, await versions_txt_promise, terminal, editor, difftool);
     window.onresize = ui.onresize;
     window.onresize();
-    window.onfocus = () => console.log('CANCELED');
 
     await window.busyshell.run(busybox_module_constructor, busybox_wasm_module_promise);
 });

@@ -11,6 +11,7 @@
 3. packaging of everything into one large HTML file to run from file://
 
 ### TODO
+0. https://chromium.googlesource.com/apps/libapps/+/master/hterm/
 0. https://github.com/Microsoft/monaco-editor/issues/44 https://stackoverflow.com/questions/57246356/how-to-highlight-merge-conflict-blocks-in-monaco-editor-like-vscode https://github.com/Symbolk/IntelliMerge-UI
 0. https://stackoverflow.com/questions/4628544/how-to-detect-when-cancel-is-clicked-on-file-input https://stackoverflow.com/questions/34855400/cancel-event-on-input-type-file
 0. https://github.com/microsoft/monaco-editor/issues/102

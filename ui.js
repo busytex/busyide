@@ -681,6 +681,7 @@ export class Shell
         const search_results = lines.map(splitted => ({path : splitted[0], line_number : parseInt(splitted[1]), line : splitted.slice(2).join(':')}));
         console.log('RESULTS', search_results);
         this.ui.update_search_results(query, search_results);
+        this.ui.toggle_viewer('searchresults');
         //this.log_big(stdout);
     }
 

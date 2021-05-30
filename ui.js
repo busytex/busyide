@@ -678,7 +678,7 @@ export class Shell
         const stdout = this.busybox.run(['grep', query, '-n', '-i', '-r', this.project_dir()]).stdout;
         const lines = stdout.split('\n').map(l => l.split(':'));
         console.log('LINES', lines)
-        const search_results = lines.map(spliited => ({path : splitted[0], line_number = parseInt(splitted[1]), line : splitted.slice(2).join(':')}));
+        const search_results = lines.map(spliited => ({path : splitted[0], line_number : parseInt(splitted[1]), line : splitted.slice(2).join(':')}));
         console.log('RESULTS', search_results);
         this.ui.update_search_results(query, search_results);
         //this.log_big(stdout);

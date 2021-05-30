@@ -556,6 +556,7 @@ const ui =
     update_search_results(search_query, search_results, open)
     {
         const ignore = h => (evt => {h(evt); return false;});
+        const onclick = ignore(evt => open(evt.target.dataset.abspath, parseInt(evt.target.innerText)));
         
         const figure = document.getElementById('searchresults');
         const span = figure.querySelector('span'), tbody = figure.querySelector('tbody');
@@ -566,10 +567,12 @@ const ui =
             const tr = tbody.insertRow();
             
             let tc = tr.insertCell();
-            tc.dataset.abspath = abspath;
-            tc.dataset.line_number = line_number;
-            tc.innerText = '' + line_number;
-            tc.onclick = ignore(evt => open(evt.target.dataset.abspath, evt.target.dataset.line_number));
+            const a = document.createElement('a');
+            a.href = "#";
+            a.dataset.abspath = abspath;
+            a.innerText = '' + line_number;
+            a.onclick = onclick; 
+            tc.appendChild(a);
             
             tc = tr.insertCell();
             tc.innerText = path;

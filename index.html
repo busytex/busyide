@@ -291,8 +291,8 @@
         <textarea readonly hidden id="txtpreview" class="busyui"></textarea>
         <figure hidden id="searchresults" class="busyui">
             <figcaption>$ rgrep "<span></span>"</figcaption>
-            <table>
-                <thead><th>path</th><th>#line</th><th>line</th></thead>
+            <table style="width:100%">
+                <thead><th>#line</th><th>path</th><th>line</th></thead>
                 <tbody></tbody>
             </table>
         </figure>
@@ -553,23 +553,28 @@ const ui =
         }
     },
 
-    update_search_results(search_query, search_results)
+    update_search_results(search_query, search_results, open)
     {
+        const ignore = h => (evt => {h(evt); return false;});
+        
         const figure = document.getElementById('searchresults');
         const span = figure.querySelector('span'), tbody = figure.querySelector('tbody');
         span.innerText = search_query;
         tbody.innerHTML = '';
-        for(const {path, line_number, line} of search_results)
+        for(const {path, abspath, line_number, line} of search_results)
         {
             const tr = tbody.insertRow();
             tr.hidden = status == 'not modified';
             tr.className = status.replace(' ', '');
             
+            tc = tr.insertCell();
+            tc.dataset.abspath = abspath;
+            tc.dataset.line_number = line_number;
+            tc.innerText = '' + line_number;
+            tc.onclick = ignore(evt => open(evt.target.dataset.abspath, evt.target.dataset.line_number));
+            
             let tc = tr.insertCell();
             tc.innerText = path;
-
-            tc = tr.insertCell();
-            tc.innerText = '' + line_number;
 
             tc = tr.insertCell();
             tc.innerText = line;

@@ -674,15 +674,11 @@ export class Shell
 
     rgrep(query)
     {
-        //this.log_big_header('$ rgrep ' + this.qq(query));
         const stdout = this.busybox.run(['grep', query, '-n', '-i', '-r', this.project_dir()]).stdout;
-        const lines = stdout.split('\n').map(l => l.split(':'));
-        console.log('LINES', lines)
-        const search_results = lines.map(splitted => ({path : splitted[0], line_number : parseInt(splitted[1]), line : splitted.slice(2).join(':')}));
-        console.log('RESULTS', search_results);
-        this.ui.update_search_results(query, search_results);
+        const lines = stdout.split('\n').filter(l => l.length > 0).map(l => l.split(':'));
+        const search_results = lines.map(splitted => ({path : splitted[0], abspath : splitted[0], line_number : parseInt(splitted[1]), line : splitted.slice(2).join(':')}));
+        this.ui.update_search_results(query, search_results, this.open.bind(this));
         this.ui.toggle_viewer('searchresults');
-        //this.log_big(stdout);
     }
 
     async git_checkout(_b, new_branch_name)

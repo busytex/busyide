@@ -556,8 +556,7 @@ const ui =
     update_search_results(search_query, search_results)
     {
         const figure = document.getElementById('searchresults');
-        const span = figure.querySelector('span');
-        const tbody = table.querySelector('tbody');
+        const span = figure.querySelector('span'), tbody = figure.querySelector('tbody');
         span.innerText = search_query;
         tbody.innerHTML = '';
         for(const {path, line_number, line} of search_results)

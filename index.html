@@ -289,6 +289,13 @@
         <iframe id="pdfpreview" class="busyui"></iframe>
         <img hidden id="imgpreview" class="busyui"></img>
         <textarea readonly hidden id="txtpreview" class="busyui"></textarea>
+        <figure hidden id="searchresults" class="busyui">
+            <figcaption>$ rgrep "<span></span>"</figcaption>
+            <table>
+                <thead><th>path</th><th>#line</th><th>line</th></thead>
+                <tbody></tbody>
+            </table>
+        </figure>
         <figure hidden id="gitstatus" class="busyui">
             <figcaption>$ git status</figcaption>
             <button id="pull" class="busyui">Pull</button>
@@ -546,6 +553,30 @@ const ui =
         }
     },
 
+    update_search_results(search_query, search_results)
+    {
+        const figure = document.getElementById('searchresults');
+        const span = figure.querySelector('span');
+        const tbody = table.querySelector('tbody');
+        span.innerText = search_query;
+        tbody.innerHTML = '';
+        for(const {path, line_number, line} of search_results)
+        {
+            const tr = tbody.insertRow();
+            tr.hidden = status == 'not modified';
+            tr.className = status.replace(' ', '');
+            
+            let tc = tr.insertCell();
+            tc.innerText = path;
+
+            tc = tr.insertCell();
+            tc.innerText = '' + line_number;
+
+            tc = tr.insertCell();
+            tc.innerText = line;
+        }
+    },
+    
     update_git_status(container, status, format_url, git_difftool, open)
     {
         const table = container.querySelector('#gitstatustable');

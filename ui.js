@@ -1140,13 +1140,7 @@ export class Shell
     {
         let cwd = this.FS.cwd();
         
-        //if(!tex_path)
-        //{
-        //    const basename = this.tex_path.lastIndexOf('/');
-        //    [cwd, tex_path] = [this.tex_path.slice(0, basename), this.tex_path.slice(1 + basename)];
-        //}
-        
-        if(!tex_path || !tex_path.endsWith('.tex'))
+        if(!cwd.startsWith(this.home_dir) || !tex_path || !tex_path.endsWith('.tex'))
             return;
         
         const abspath = this.abspath(tex_path);
@@ -1162,8 +1156,6 @@ export class Shell
         this.log_path = abspath.replace('.tex', '.log').replace(this.project_dir(), this.project_tmp_dir());
         this.ui.set_current_log(this.log_path);
         
-        console.assert(cwd.startsWith(this.home_dir));
-        
         const project_dir = this.project_dir(cwd);
         const main_tex_path = abspath.slice(project_dir.length + 1);
 
@@ -1171,11 +1163,12 @@ export class Shell
         const files = this.find(project_dir);
 
         const regex_package = /\\usepackage(\[.*?\])?\{(.+?)\}/g;
+        
         const texmf_packages = new Set(files.filter(f => f.path.startsWith('texmf/texmf-dist/tex/latex')).map(f => f.path.split('/')[4]));
         const tex_packages = new Set(files.filter(f => typeof(f.contents) == 'string').map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.trim().startsWith('\\usepackage')).map(l => Array.from(l.matchAll(regex_package)).filter(groups => groups.length >= 2).map(groups => groups.pop().split(',')  )  )).flat().flat().flat().filter(tex_package => !texmf_packages.has(tex_package)));
         
-        console.log('FILES PACKAGES', tex_packages, texmf_packages);
-
+        const find_needed_data_packages = data_package_js_script => fetch(data_package_js_script).then(r => r.text()).then(data_package_js_script => Array.from(data_package_js_script.matchAll(/Module\['FS_createPath'\]\('(.+)', '(.+)', /g)).map(groups => (groups[1] + '/' + groups[2]).replace('//', '/')));
+        
         this.compiler.postMessage({files : files, main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, data_packages_js : data_packages_js });
     }
 
@@ -1260,14 +1253,6 @@ export class Shell
         this.busybox.run(['ed', ours_path], edscript);
         
         return edscript.includes(conflict_left) && edscript.includes(conflict_right);
-    }
-
-    enable_tex_package(package_name)
-    {
-    }
-
-    patch(project_dir, patch_path)
-    {
     }
 
     strip_components(path)

@@ -1168,8 +1168,12 @@ export class Shell
         const main_tex_path = abspath.slice(project_dir.length + 1);
 
         const data_packages_js = this.ui.get_enabled_data_packages().map(data_package => this.paths.data_packages_js[data_package]);
-        console.log('ENABLED PACKAGES', data_packages_js);
-        this.compiler.postMessage({files : this.find(project_dir), main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, data_packages_js : data_packages_js });
+        const files = this.find(project_dir);
+        const tex_packages = new Set(files.filter(f => f.content).map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.includes('\\usepackage'))).flat());
+        
+        console.log('FILES PACKAGES', tex_packages, files.filter(f => f.path.startsWith('texmf/')).map(f => f.path.split('/')[1]));
+
+        this.compiler.postMessage({files : files, main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, data_packages_js : data_packages_js });
     }
 
     async import_project()

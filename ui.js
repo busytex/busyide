@@ -1169,9 +1169,10 @@ export class Shell
 
         const data_packages_js = this.ui.get_enabled_data_packages().map(data_package => this.paths.data_packages_js[data_package]);
         const files = this.find(project_dir);
-        const tex_packages = new Set(files.filter(f => typeof(f.contents) == 'string').map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.trim().startsWith('\\usepackage'))).flat());
+        const regex_package = /\\usepackage(\[.*?\])?\{(.+?)\}/g;
+        const tex_packages = new Set(files.filter(f => typeof(f.contents) == 'string').map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.trim().startsWith('\\usepackage')).map(l => l.matchAll(regex_package).filter(groups => groups.length >= 2).map(groups => groups.pop())  )).flat());
         
-        console.log('FILES PACKAGES', tex_packages, files.filter(f => f.path.startsWith('texmf/texmf-dist')).map(f => f.path.split('/')[2]));
+        console.log('FILES PACKAGES', tex_packages, files.filter(f => f.path.startsWith('texmf/texmf-dist/tex/latex')).map(f => f.path.split('/')[4]));
 
         this.compiler.postMessage({files : files, main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, data_packages_js : data_packages_js });
     }

@@ -612,6 +612,7 @@ export class Shell
         
         this.compiler.postMessage(this.paths);
         this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, this.log_small.bind(this));
+        this.data_packages = Object.values(this.paths.data_packages_js).map(data_package_js => [data_package_js, fetch(data_package_js).then(r => r.text()).then(data_package_js_script => Array.from(data_package_js_script.matchAll(/Module\['FS_createPath'\]\('(.+)', '(.+)', /g)).map(groups => (groups[1] + '/' + groups[2]).replace('//', '/')))]);
         
         await this.busybox.load()
         
@@ -1167,8 +1168,8 @@ export class Shell
         const texmf_packages = new Set(files.filter(f => f.path.startsWith('texmf/texmf-dist/tex/latex')).map(f => f.path.split('/')[4]));
         const tex_packages = new Set(files.filter(f => typeof(f.contents) == 'string').map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.trim().startsWith('\\usepackage')).map(l => Array.from(l.matchAll(regex_package)).filter(groups => groups.length >= 2).map(groups => groups.pop().split(',')  )  )).flat().flat().flat().filter(tex_package => !texmf_packages.has(tex_package)));
         
-        const find_needed_data_packages = data_package_js_script => fetch(data_package_js_script).then(r => r.text()).then(data_package_js_script => Array.from(data_package_js_script.matchAll(/Module\['FS_createPath'\]\('(.+)', '(.+)', /g)).map(groups => (groups[1] + '/' + groups[2]).replace('//', '/')));
-        
+        const data_packages_js_ = new Set(tex_packages.map(tex_package => this.data_packages.find(([data_package_js, tex_packages]) => tex_packages.has(tex_package))[0]));
+        console.log('DATAPACKAGES_', data_packages_js_);
         this.compiler.postMessage({files : files, main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, data_packages_js : data_packages_js });
     }
 

@@ -726,6 +726,9 @@ const ui =
 
     get_enabled_data_packages()
     {
+        if(document.getElementById('data_package_auto').checked)
+            return null;
+
         return Array.from(document.querySelectorAll('.data_package')).filter(input => input.checked).map(input => input.value);
     },
 

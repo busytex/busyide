@@ -1168,7 +1168,7 @@ export class Shell
         const texmf_packages = new Set(files.filter(f => f.path.startsWith('texmf/texmf-dist/tex/latex')).map(f => f.path.split('/')[4]));
         const tex_packages = new Set(files.filter(f => typeof(f.contents) == 'string').map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.trim().startsWith('\\usepackage')).map(l => Array.from(l.matchAll(regex_package)).filter(groups => groups.length >= 2).map(groups => groups.pop().split(',')  )  )).flat().flat().flat().filter(tex_package => !texmf_packages.has(tex_package)));
         
-        const data_packages_js_ = new Set(tex_packages.map(tex_package => this.data_packages.find(([data_package_js, tex_packages]) => tex_packages.has(tex_package))[0]));
+        const data_packages_js_ = new Set(tex_packages.map(tex_package => this.data_packages.find(([data_package_js, tex_packages]) => (await tex_packages).has(tex_package))[0]));
         console.log('DATAPACKAGES_', data_packages_js_);
         this.compiler.postMessage({files : files, main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, data_packages_js : data_packages_js });
     }

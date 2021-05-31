@@ -612,7 +612,7 @@ export class Shell
         
         this.compiler.postMessage(this.paths);
         this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, this.log_small.bind(this));
-        this.data_packages = Object.values(this.paths.data_packages_js).map(data_package_js => [data_package_js, fetch(data_package_js).then(r => r.text()).then(data_package_js_script => Array.from(data_package_js_script.matchAll(/Module\['FS_createPath'\]\('(.+)', '(.+)', /g)).map(groups => (groups[1] + '/' + groups[2]).replace('//', '/')))]);
+        this.data_packages = Object.values(this.paths.data_packages_js).map(data_package_js => [data_package_js, fetch(data_package_js).then(r => r.text()).then(data_package_js_script => new Set(Array.from(data_package_js_script.matchAll(/Module\['FS_createPath'\]\('(.+)', '(.+)', /g)).map(groups => (groups[1] + '/' + groups[2]).replace('//', '/')).map( this.PATH.basename.bind(this.PATH) )  ))]);
         
         await this.busybox.load()
         

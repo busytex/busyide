@@ -1165,7 +1165,6 @@ export class Shell
         const usepackage = /\\usepackage(\[.*?\])?\{(.+?)\}/g;
         const texmf_packages = new Set(files.filter(f => f.path.startsWith('texmf/texmf-dist/tex/latex')).map(f => f.path.split('/')[4]));
         const tex_packages = new Set(files.filter(f => typeof(f.contents) == 'string').map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.trim().startsWith('\\usepackage')).map(l => Array.from(l.matchAll(usepackage)).filter(groups => groups.length >= 2).map(groups => groups.pop().split(',')  )  )).flat().flat().flat().filter(tex_package => !texmf_packages.has(tex_package)));
-        
         const data_packages_js = this.ui.get_enabled_data_packages().map(data_package => this.paths.data_packages_js[data_package]);
         const data_packages_js_ = new Set();
         for(const tex_package of tex_packages)
@@ -1180,7 +1179,7 @@ export class Shell
             }
         }
         
-        this.compiler.postMessage({files : files, main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, data_packages_js : data_packages_js_ });
+        this.compiler.postMessage({files : files, main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, data_packages_js : Array.from(data_packages_js_) });
     }
 
     async import_project()

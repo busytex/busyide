@@ -1,6 +1,40 @@
 import { Github } from '/github.js'
 import { Busybox } from '/busybox.js'
 
+class DataPackageSelector
+{
+    constructor(data_packages_js, basename)
+    {
+        const basename = path => path.slice(0, path.lastIndexOf('/'));
+        
+        this.data_packages = Object.values(data_packages_js).map(data_package_js => [data_package_js, fetch(data_package_js).then(r => r.text()).then(data_package_js_script => new Set(Array.from(data_package_js_script.matchAll(/Module\['FS_createPath'\]\('(.+)', '(.+)', /g)).map(groups => (groups[1] + '/' + groups[2]).replace('//', '/')).map( basename )  ))]);
+    }
+    
+    async find_required_data_packages_js(files)
+    {
+        const usepackage = /\\usepackage(\[.*?\])?\{(.+?)\}/g;
+        
+        const texmf_packages = new Set(files.filter(f => f.path.startsWith('texmf/texmf-dist/tex/latex')).map(f => f.path.split('/')[4]));
+        
+        const tex_packages = new Set(files.filter(f => typeof(f.contents) == 'string').map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.trim().startsWith('\\usepackage')).map(l => Array.from(l.matchAll(usepackage)).filter(groups => groups.length >= 2).map(groups => groups.pop().split(',')  )  )).flat().flat().flat().filter(tex_package => !texmf_packages.has(tex_package)));
+
+        const data_packages_js = new Set();
+        for(const tex_package of tex_packages)
+        {
+            for(const [data_package_js, tex_packages] of this.data_packages)
+            {
+                if((await tex_packages).has(tex_package))
+                {
+                    data_packages_js_.add(data_package_js);
+                    break;
+                }
+            }
+        }
+
+        return Array.from(data_packages_js);
+    }
+}
+
 export class Shell
 {
     constructor(monaco, ui, paths, readme, versions, terminal, editor, difftool, cors_proxy_fmt = 'https://withered-shape-3305.vadimkantorov.workers.dev/?${url}')

@@ -5,9 +5,14 @@ class DataPackageSelector
 {
     constructor(data_packages_js)
     {
+        this.data_packages = Object.values(data_packages_js).map(data_package_js => [data_package_js, fetch(data_package_js).then(r => r.text()).then(data_package_js_script => new Set(Array.from(data_package_js_script.matchAll(/Module\['FS_createPath'\]\('(.+)', '(.+)', /g)).map(groups => this.extract_tex_package_name((groups[1] + '/' + groups[2]).replace('//', '/')) )  ))]);
+    }
+    
+    extract_tex_package_name(path)
+    {
         const basename = path => path.slice(0, path.lastIndexOf('/'));
         
-        this.data_packages = Object.values(data_packages_js).map(data_package_js => [data_package_js, fetch(data_package_js).then(r => r.text()).then(data_package_js_script => new Set(Array.from(data_package_js_script.matchAll(/Module\['FS_createPath'\]\('(.+)', '(.+)', /g)).map(groups => (groups[1] + '/' + groups[2]).replace('//', '/')).map( basename )  ))]);
+        return basename(path);
     }
     
     async find_required_data_packages_js(files)

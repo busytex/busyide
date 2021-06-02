@@ -720,7 +720,7 @@ export class Shell
     {
         const stdout = this.busybox.run(['grep', query, '-n', '-i', '-r', this.project_dir()]).stdout;
         const lines = stdout.split('\n').filter(l => l.length > 0).map(l => l.split(':'));
-        const search_results = lines.map(splitted => ({path : splitted[0], abspath : splitted[0], line_number : parseInt(splitted[1]), line : splitted.slice(2).join(':')}));
+        const search_results = lines.map(splitted => ({path : this.expandcollapseuser(splitted[0], false), abspath : splitted[0], line_number : parseInt(splitted[1]), line : splitted.slice(2).join(':')}));
         this.ui.update_search_results(query, search_results, this.open.bind(this));
         this.ui.toggle_viewer('searchresults');
     }

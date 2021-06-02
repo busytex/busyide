@@ -1199,7 +1199,7 @@ export class Shell
 
         const files = this.find(project_dir);
 
-        const data_packages_js = this.ui.get_enabled_data_packages() !== null ? this.ui.get_enabled_data_packages().map(data_package => this.paths.data_packages_js[data_package]) : this.data_package_selector.find_required_data_packages_js(files);
+        const data_packages_js = this.ui.get_enabled_data_packages() !== null ? this.ui.get_enabled_data_packages().map(data_package => this.paths.data_packages_js[data_package]) : (await this.data_package_selector.find_required_data_packages_js(files));
         
         this.compiler.postMessage({ files : files, main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, data_packages_js : data_packages_js });
     }

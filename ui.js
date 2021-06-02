@@ -3,7 +3,7 @@ import { Busybox } from '/busybox.js'
 
 class DataPackageSelector
 {
-    constructor(data_packages_js, basename)
+    constructor(data_packages_js)
     {
         const basename = path => path.slice(0, path.lastIndexOf('/'));
         

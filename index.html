@@ -291,7 +291,7 @@
         <figure hidden id="searchresults" class="busyui">
             <figcaption>$ rgrep "<span></span>"</figcaption>
             <table style="width:100%">
-                <thead><th class="tl">#line</th><th>path</th><th class="tr">line</th></thead>
+                <thead><th class="tl">#line</th><th class="tl">path</th><th class="tr">line</th></thead>
                 <tbody></tbody>
             </table>
         </figure>
@@ -577,6 +577,7 @@ const ui =
             tc.innerText = path;
 
             tc = tr.insertCell();
+            tc.className = 'tr';
             tc.innerText = line;
         }
     },

@@ -121,8 +121,8 @@ export class Shell
         this.rm_rf = dirpath => this.busybox.run(['rm', '-rf', dirpath]);
         this.diff = (abspath, basepath, cwd) => this.busybox.run(['bsddiff', '-Nu', this.exists(basepath) && basepath != '/dev/null' ? basepath : this.empty_file, this.exists(abspath) && abspath != '/dev/null' ? abspath : this.empty_file]).stdout; // TODO: get newer diff from FreeBSD: https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=233402
         
-        this.compiler = new Worker(paths.busytex_worker_js);
         this.data_package_selector = new DataPackageSelector(paths.data_packages_js);
+        this.compiler = new Worker(paths.busytex_worker_js);
     }
 
     bind()

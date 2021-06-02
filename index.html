@@ -619,10 +619,6 @@ const ui =
         //if(container) container.hidden = status.files.filter(f => f.status != 'not modified').length > 0;
     },
     
-    update_git_pull(modified, notmodified)
-    {
-    },
-
     update_file_tree(files, selected_file_path = null)
     {
         console.log('update_file_tree', files);
@@ -769,6 +765,8 @@ const paths =
     busybox_wasm : '/dist/busybox_unstripped.wasm',
     texmf_local : ['./texmf'],
     
+    pleload_data_packages_js : ['/dist/texlive-basic.js'],
+
     data_packages_js : {
         texlive_basic : '/dist/texlive-basic.js', 
         texlive_science : '/dist/ubuntu-texlive-science.js',

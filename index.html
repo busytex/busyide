@@ -244,6 +244,7 @@
     <div style="display: flex; flex-direction: row; height: 5%">
         <button id="compile_current_file" class="busyui">Compile Current File</button>
         <button id="compile_project" class="busyui">Compile Project</button>
+        <button id="show_tex_packages" class="busyui">TeX Packages</button>
         <select id="tex_driver" class="busyui">
             <option value="" disabled>TeX pipeline:</option>
             <option value="xetex_bibtex8_dvipdfmx" selected>XeTeX + bibtex8 + dvipdfmx</option>
@@ -259,8 +260,6 @@
         <select id="tex_path" class="busyui">
             <option value="" disabled selected>TeX file:</option>
         </select>
-        
-        <button id="show_tex_packages" class="busyui">TeX Packages</button>
 
         <div style="display: flex; margin-left:auto">
             <input hidden type="text" class="busyui" id="current_file_rename" title="Press [Enter] to complete renaming"></input>

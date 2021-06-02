@@ -94,7 +94,6 @@ export class Shell
         this.difftool = difftool;
         this.ui = ui;
         this.paths = paths;
-        this.compiler = new Worker(paths.busytex_worker_js);
         this.log_small = this.ui.log_small;
         this.readme = readme;
         this.versions = versions;
@@ -121,6 +120,9 @@ export class Shell
         this.sha1 = uint8array => this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40);
         this.rm_rf = dirpath => this.busybox.run(['rm', '-rf', dirpath]);
         this.diff = (abspath, basepath, cwd) => this.busybox.run(['bsddiff', '-Nu', this.exists(basepath) && basepath != '/dev/null' ? basepath : this.empty_file, this.exists(abspath) && abspath != '/dev/null' ? abspath : this.empty_file]).stdout; // TODO: get newer diff from FreeBSD: https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=233402
+        
+        this.compiler = new Worker(paths.busytex_worker_js);
+        this.data_package_selector = new DataPackageSelector(paths.data_packages_js);
     }
 
     bind()
@@ -1196,36 +1198,10 @@ export class Shell
         const main_tex_path = abspath.slice(project_dir.length + 1);
 
         const files = this.find(project_dir);
-        const data_packages_js = this.find_required_data_packages_js(files);
+
+        const data_packages_js = this.ui.get_enabled_data_packages() !== null ? this.ui.get_enabled_data_packages().map(data_package => this.paths.data_packages_js[data_package]) : this.data_package_selector.find_required_data_packages_js(files);
         
         this.compiler.postMessage({ files : files, main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, data_packages_js : data_packages_js });
-    }
-
-    async find_required_data_packages_js(files)
-    {
-        if(this.ui.get_enabled_data_packages() !== null)
-            return this.ui.get_enabled_data_packages().map(data_package => this.paths.data_packages_js[data_package]);
-        
-        const usepackage = /\\usepackage(\[.*?\])?\{(.+?)\}/g;
-        
-        const texmf_packages = new Set(files.filter(f => f.path.startsWith('texmf/texmf-dist/tex/latex')).map(f => f.path.split('/')[4]));
-        
-        const tex_packages = new Set(files.filter(f => typeof(f.contents) == 'string').map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.trim().startsWith('\\usepackage')).map(l => Array.from(l.matchAll(usepackage)).filter(groups => groups.length >= 2).map(groups => groups.pop().split(',')  )  )).flat().flat().flat().filter(tex_package => !texmf_packages.has(tex_package)));
-
-        const data_packages_js = new Set();
-        for(const tex_package of tex_packages)
-        {
-            for(const [data_package_js, tex_packages] of this.data_packages)
-            {
-                if((await tex_packages).has(tex_package))
-                {
-                    data_packages_js_.add(data_package_js);
-                    break;
-                }
-            }
-        }
-
-        return Array.from(data_packages_js);
     }
 
     async import_project()

@@ -28,15 +28,17 @@ class DataPackageResolver
         const tex_packages_not_resolved = [];
         
         let update_data_packages_js = false;
+        let data_packages = [];
         
         if(data_packages_js === null)
         {
             update_data_packages_js = true;
-            data_packages_js = new Set();
             data_packages = this.data_packages;
+            data_packages_js = new Set();
         }
         else
         {
+            update_data_packages_js = false;
             data_packages = this.data_packages.filter(([data_package_js, tex_packages]) => data_packages_js.includes(data_package_js));
         }
 

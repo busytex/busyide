@@ -1,7 +1,7 @@
 import { Github } from '/github.js'
 import { Busybox } from '/busybox.js'
 
-class DataPackageSelector
+class DataPackageResolver
 {
     constructor(data_packages_js)
     {
@@ -146,7 +146,7 @@ export class Shell
         this.diff = (abspath, basepath, cwd) => this.busybox.run(['bsddiff', '-Nu', this.exists(basepath) && basepath != '/dev/null' ? basepath : this.empty_file, this.exists(abspath) && abspath != '/dev/null' ? abspath : this.empty_file]).stdout; // TODO: get newer diff from FreeBSD: https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=233402
         
         this.paths_data_packages_js = paths.preload_data_packages_js.concat(paths.other_data_packages_js);
-        this.data_package_selector = new DataPackageSelector(this.paths_data_packages_js);
+        this.data_package_resolver = new DataPackageResolver(this.paths_data_packages_js);
         this.compiler = new Worker(paths.busytex_worker_js);
     }
 
@@ -1233,7 +1233,7 @@ export class Shell
 
         const files = this.find(project_dir);
 
-        const [data_packages_js, tex_packages_not_resolved] = await this.data_package_selector.resolve(files, this.ui.get_enabled_data_packages() !== null ? this.ui.get_enabled_data_packages().map(data_package => this.paths_data_packages_js.find(p => p.includes(data_package))) : null);
+        const [data_packages_js, tex_packages_not_resolved] = await this.data_package_resolver.resolve(files, this.ui.get_enabled_data_packages() !== null ? this.ui.get_enabled_data_packages().map(data_package => this.paths_data_packages_js.find(p => p.includes(data_package))) : null);
         console.log('NOT RESOLVED', tex_packages_not_resolved);
         
         this.compiler.postMessage({ files : files, main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, data_packages_js : this.paths.preload_data_packages_js.concat(data_packages_js) });

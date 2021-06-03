@@ -5,8 +5,10 @@ class DataPackageSelector
 {
     constructor(data_packages_js)
     {
-        const regex_createPath = /Module\['FS_createPath'\]\('(.+)', '(.+)', /g;
-        this.data_packages = data_packages_js.map(data_package_js => [data_package_js, fetch(data_package_js).then(r => r.text()).then(data_package_js_script => new Set(Array.from(data_package_js_script.matchAll(regex_createPath)).map(groups => this.extract_tex_package_name((groups[1] + '/' + groups[2]).replace('//', '/')) )  ))]);
+        this.regex_createPath = /Module\['FS_createPath'\]\('(.+)', '(.+)', /g;
+        this.regex_usepackage = /\\usepackage(\[.*?\])?\{(.+?)\}/g;
+        
+        this.data_packages = data_packages_js.map(data_package_js => [data_package_js, fetch(data_package_js).then(r => r.text()).then(data_package_js_script => new Set(Array.from(data_package_js_script.matchAll(this.regex_createPath)).map(groups => this.extract_tex_package_name((groups[1] + '/' + groups[2]).replace('//', '/')) )  ))]);
     }
     
     extract_tex_package_name(path)
@@ -18,11 +20,10 @@ class DataPackageSelector
     
     async find_required_data_packages_js(files)
     {
-        const regex_usepackage = /\\usepackage(\[.*?\])?\{(.+?)\}/g;
         
         const texmf_packages = new Set(files.filter(f => f.path.startsWith('texmf/texmf-dist/')).map(this.extract_tex_package_name.bind(this)));
         
-        const tex_packages = new Set(files.filter(f => typeof(f.contents) == 'string').map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.trim().startsWith('\\usepackage')).map(l => Array.from(l.matchAll(regex_usepackage)).filter(groups => groups.length >= 2).map(groups => groups.pop().split(',')  )  )).flat().flat().flat().filter(tex_package => !texmf_packages.has(tex_package)));
+        const tex_packages = new Set(files.filter(f => typeof(f.contents) == 'string').map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.trim().startsWith('\\usepackage')).map(l => Array.from(l.matchAll(this.regex_usepackage)).filter(groups => groups.length >= 2).map(groups => groups.pop().split(',')  )  )).flat().flat().flat().filter(tex_package => !texmf_packages.has(tex_package)));
 
         const data_packages_js = new Set();
         for(const tex_package of tex_packages)

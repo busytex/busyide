@@ -149,9 +149,9 @@ export class Shell
         this.ui.download_diff.onclick = () => { if(!this.github.git_dir()) return null; const diff_path = this.PATH.join(this.tmp_dir, this.github.propose_diff_file_name()); return this.commands(and(cmd('git', 'diff', 'HEAD', '--output', arg(diff_path)), cmd('download', arg(diff_path)))); };
         this.ui.download_pdf.onclick = () => this.pdf_path && this.commands(cmd('download', arg(this.pdf_path)));
         this.ui.cache_purge.onclick = () => this.commands(and(cmd('cache', 'token', 'purge'), cmd('cache', 'object', 'purge')));
-        this.ui.view_log.onclick = () => this.log_path && this.commands(cmd('open', arg(this.log_path)));
-        this.ui.view_pdf.onclick = () => this.pdf_path && this.commands(cmd('open', arg(this.pdf_path)));
-        this.ui.publish_pdf.onclick = () => this.pdf_path && this.commands( cmd('hub', 'release', 'create', 'busytex'), cmd('hub', 'release', 'edit', '-a', this.pdf_path, 'busytex') ); // or() this.pdf_path && https://hub.github.com/hub-release.1.html
+        this.ui.view_log.onclick = () => this.exists(this.log_path) && this.commands(cmd('open', arg(this.log_path)));
+        this.ui.view_pdf.onclick = () => this.exists(this.pdf_path) && this.commands(cmd('open', arg(this.pdf_path)));
+        this.ui.publish_pdf.onclick = () => this.exists(this.pdf_path) && this.commands( cmd('hub', 'release', 'create', 'busytex'), cmd('hub', 'release', 'edit', '-a', this.pdf_path, 'busytex') ); // or() this.pdf_path && https://hub.github.com/hub-release.1.html
         this.ui.download.onclick = () => this.ui.get_current_file() && !this.isdir(this.ui.get_current_file()) && this.commands(cmd('download', arg(this.ui.get_current_file())));
         this.ui.upload.onclick = async () => await this.commands('upload');
         this.ui.import_project.onclick = this.import_project.bind(this);
@@ -236,7 +236,7 @@ export class Shell
 
     exists(path)
     {
-        return this.FS.analyzePath(path).exists;
+        return path ? this.FS.analyzePath(path).exists : false;
     }
 
     abspath(path)

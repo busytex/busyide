@@ -31,7 +31,7 @@ class DataPackageSelector
             {
                 if((await tex_packages).has(tex_package))
                 {
-                    data_packages_js_.add(data_package_js);
+                    data_packages_js.add(data_package_js);
                     break;
                 }
             }

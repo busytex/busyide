@@ -1072,6 +1072,7 @@ export class Shell
             line_number = contents;
             contents = null;
         }
+        console.log('LINENUMBER', line_number);
         
         if(file_path === null)
             file_path = '.';

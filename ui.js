@@ -20,7 +20,7 @@ class DataPackageSelector
     
     async find_required_data_packages_js(files)
     {
-        const texmf_packages = new Set(files.filter(f => f.path.startsWith('texmf/texmf-dist/')).map(this.extract_tex_package_name.bind(this)));
+        const texmf_packages = new Set(files.filter(f => f.path.startsWith('texmf/texmf-dist/')).map(f => this.extract_tex_package_name(f.path)));
         
         const tex_packages = new Set(files.filter(f => typeof(f.contents) == 'string').map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.trim().startsWith('\\usepackage')).map(l => Array.from(l.matchAll(this.regex_usepackage)).filter(groups => groups.length >= 2).map(groups => groups.pop().split(',')  )  )).flat().flat().flat().filter(tex_package => !texmf_packages.has(tex_package)));
 

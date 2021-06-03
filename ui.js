@@ -13,7 +13,7 @@ class DataPackageSelector
     
     extract_tex_package_name(path)
     {
-        const basename = path => path.slice(0, path.lastIndexOf('/'));
+        const basename = path => path.slice(path.lastIndexOf('/') + 1);
         
         return basename(path);
     }

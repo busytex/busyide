@@ -5,7 +5,8 @@ class DataPackageSelector
 {
     constructor(data_packages_js)
     {
-        this.data_packages = data_packages_js.map(data_package_js => [data_package_js, fetch(data_package_js).then(r => r.text()).then(data_package_js_script => new Set(Array.from(data_package_js_script.matchAll(/Module\['FS_createPath'\]\('(.+)', '(.+)', /g)).map(groups => this.extract_tex_package_name((groups[1] + '/' + groups[2]).replace('//', '/')) )  ))]);
+        const regex_createPath = /Module\['FS_createPath'\]\('(.+)', '(.+)', /g;
+        this.data_packages = data_packages_js.map(data_package_js => [data_package_js, fetch(data_package_js).then(r => r.text()).then(data_package_js_script => new Set(Array.from(data_package_js_script.matchAll(regex_createPath)).map(groups => this.extract_tex_package_name((groups[1] + '/' + groups[2]).replace('//', '/')) )  ))]);
     }
     
     extract_tex_package_name(path)
@@ -17,11 +18,11 @@ class DataPackageSelector
     
     async find_required_data_packages_js(files)
     {
-        const usepackage = /\\usepackage(\[.*?\])?\{(.+?)\}/g;
+        const regex_usepackage = /\\usepackage(\[.*?\])?\{(.+?)\}/g;
         
-        const texmf_packages = new Set(files.filter(f => f.path.startsWith('texmf/texmf-dist/tex/latex')).map(f => f.path.split('/')[4]));
+        const texmf_packages = new Set(files.filter(f => f.path.startsWith('texmf/texmf-dist/')).map(this.extract_tex_package_name.bind(this)));
         
-        const tex_packages = new Set(files.filter(f => typeof(f.contents) == 'string').map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.trim().startsWith('\\usepackage')).map(l => Array.from(l.matchAll(usepackage)).filter(groups => groups.length >= 2).map(groups => groups.pop().split(',')  )  )).flat().flat().flat().filter(tex_package => !texmf_packages.has(tex_package)));
+        const tex_packages = new Set(files.filter(f => typeof(f.contents) == 'string').map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.trim().startsWith('\\usepackage')).map(l => Array.from(l.matchAll(regex_usepackage)).filter(groups => groups.length >= 2).map(groups => groups.pop().split(',')  )  )).flat().flat().flat().filter(tex_package => !texmf_packages.has(tex_package)));
 
         const data_packages_js = new Set();
         for(const tex_package of tex_packages)
@@ -126,7 +127,8 @@ export class Shell
         this.rm_rf = dirpath => this.busybox.run(['rm', '-rf', dirpath]);
         this.diff = (abspath, basepath, cwd) => this.busybox.run(['bsddiff', '-Nu', this.exists(basepath) && basepath != '/dev/null' ? basepath : this.empty_file, this.exists(abspath) && abspath != '/dev/null' ? abspath : this.empty_file]).stdout; // TODO: get newer diff from FreeBSD: https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=233402
         
-        this.data_package_selector = new DataPackageSelector(paths.preload_data_packages_js.concat(paths.other_data_packages_js));
+        this.paths_data_packages_js = paths.preload_data_packages_js.concat(paths.other_data_packages_js);
+        this.data_package_selector = new DataPackageSelector(this.paths_data_packages_js);
         this.compiler = new Worker(paths.busytex_worker_js);
     }
 
@@ -1205,7 +1207,7 @@ export class Shell
 
         const files = this.find(project_dir);
 
-        const data_packages_js = this.ui.get_enabled_data_packages() !== null ? this.ui.get_enabled_data_packages().map(data_package => this.paths.preload_data_packages_js.concat(this.paths.other_data_packages_js).find(p => p.includes(data_package)) : (await this.data_package_selector.find_required_data_packages_js(files));
+        const data_packages_js = this.ui.get_enabled_data_packages() !== null ? this.ui.get_enabled_data_packages().map(data_package => this.paths_data_packages_js.find(p => p.includes(data_package))) : (await this.data_package_selector.find_required_data_packages_js(files));
         
         this.compiler.postMessage({ files : files, main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, data_packages_js : data_packages_js });
     }

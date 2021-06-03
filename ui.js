@@ -1217,7 +1217,7 @@ export class Shell
 
         const data_packages_js = this.ui.get_enabled_data_packages() !== null ? this.ui.get_enabled_data_packages().map(data_package => this.paths_data_packages_js.find(p => p.includes(data_package))) : (await this.data_package_selector.find_required_data_packages_js(files));
         
-        this.compiler.postMessage({ files : files, main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, data_packages_js : data_packages_js });
+        this.compiler.postMessage({ files : files, main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, data_packages_js : this.paths.preload_data_packages_js.concat(data_packages_js) });
     }
 
     async import_project()

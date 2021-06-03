@@ -24,18 +24,24 @@ class DataPackageSelector
         
         const tex_packages = new Set(files.filter(f => typeof(f.contents) == 'string').map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.trim().startsWith('\\usepackage')).map(l => Array.from(l.matchAll(this.regex_usepackage)).filter(groups => groups.length >= 2).map(groups => groups.pop().split(',')  )  )).flat().flat().flat().filter(tex_package => !texmf_packages.has(tex_package)));
 
+        const tex_packages_not_resolved = [];
         const data_packages_js = new Set();
         for(const tex_package of tex_packages)
         {
-            for(const [data_package_js, tex_packages] of this.data_packages)
+            for(const [data_package_js, tex_packages] of [...this.data_packages, [null, null]])
             {
-                if((await tex_packages).has(tex_package))
+                if(tex_packages === null)
+                    tex_packages_not_resolved.push(tex_package);
+
+                else if((await tex_packages).has(tex_package))
                 {
                     data_packages_js.add(data_package_js);
                     break;
                 }
             }
         }
+
+        console.log('TEX PACKAGES NOT RESOLVED', tex_packages_not_resolved);
 
         return Array.from(data_packages_js);
     }

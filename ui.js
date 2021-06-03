@@ -1066,6 +1066,13 @@ export class Shell
             this.ui.toggle_viewer(this.PATH.extname(file_path).slice(1), contents);
         };
 
+        let line_number = -1;
+        if(typeof(contents) == 'number')
+        {
+            line_number = contents;
+            contents = null;
+        }
+        
         if(file_path === null)
             file_path = '.';
         

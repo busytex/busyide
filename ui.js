@@ -20,7 +20,6 @@ class DataPackageSelector
     
     async find_required_data_packages_js(files)
     {
-        
         const texmf_packages = new Set(files.filter(f => f.path.startsWith('texmf/texmf-dist/')).map(this.extract_tex_package_name.bind(this)));
         
         const tex_packages = new Set(files.filter(f => typeof(f.contents) == 'string').map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.trim().startsWith('\\usepackage')).map(l => Array.from(l.matchAll(this.regex_usepackage)).filter(groups => groups.length >= 2).map(groups => groups.pop().split(',')  )  )).flat().flat().flat().filter(tex_package => !texmf_packages.has(tex_package)));
@@ -719,9 +718,11 @@ export class Shell
 
     rgrep(query)
     {
+        const strip_project_dir = (path, project_dir = this.project_dir()) => path.startsWith(project_dir + '/') ? path.slice(project_dir.length + 1) : path;
+
         const stdout = this.busybox.run(['grep', query, '-n', '-i', '-r', this.project_dir()]).stdout;
         const lines = stdout.split('\n').filter(l => l.length > 0).map(l => l.split(':'));
-        const search_results = lines.map(splitted => ({path : this.expandcollapseuser(splitted[0], false), abspath : splitted[0], line_number : parseInt(splitted[1]), line : splitted.slice(2).join(':')}));
+        const search_results = lines.map(splitted => ({path : strip_project_dir(splitted[0]), abspath : splitted[0], line_number : parseInt(splitted[1]), line : splitted.slice(2).join(':')}));
         this.ui.update_search_results(query, search_results, this.open.bind(this));
         this.ui.toggle_viewer('searchresults');
     }

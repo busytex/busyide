@@ -5,10 +5,10 @@ class DataPackageSelector
 {
     constructor(data_packages_js)
     {
-        this.regex_createPath = /Module\['FS_createPath'\]\('(.+)', '(.+)', /g;
+        this.regex_createPath = /"filename": "(.+?)"/g 
         this.regex_usepackage = /\\usepackage(\[.*?\])?\{(.+?)\}/g;
         
-        this.data_packages = data_packages_js.map(data_package_js => [data_package_js, fetch(data_package_js).then(r => r.text()).then(data_package_js_script => new Set(Array.from(data_package_js_script.matchAll(this.regex_createPath)).map(groups => this.extract_tex_package_name((groups[1] + '/' + groups[2]).replace('//', '/')) )  ))]);
+        this.data_packages = data_packages_js.map(data_package_js => [data_package_js, fetch(data_package_js).then(r => r.text()).then(data_package_js_script => new Set(Array.from(data_package_js_script.matchAll(this.regex_createPath)).map(groups => this.extract_tex_package_name(groups[1]))))]);
     }
     
     extract_tex_package_name(path)

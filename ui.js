@@ -213,8 +213,8 @@ export class Shell
         
         this.ui.search_query.onkeydown = ev => ev.key == 'Enter' ? this.ui.search.onclick() : ev.key == 'Escape' ? (this.ui.search_query.value = '') : null;
 		
-        this.editor.onDidFocusEditorText(ev => this.ui.set_current_file(this.PATH.basename(this.edit_path), this.edit_path, 'editing'));
-        this.ui.txtpreview.onfocus = this.ui.imgpreview.onclick = () => this.ui.set_current_file(this.PATH.basename(this.view_path), this.view_path, 'viewing');
+        this.editor.onDidFocusEditorText(ev => this.edit_path && this.ui.set_current_file(this.PATH.basename(this.edit_path), this.edit_path, 'editing'));
+        this.ui.txtpreview.onfocus = this.ui.imgpreview.onclick = () => this.view_path && this.ui.set_current_file(this.PATH.basename(this.view_path), this.view_path, 'viewing');
         //this.ui.pdfpreview.onclick = ev => console.log('pdfpreview', ev);
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyCode.Enter, this.ui.compile_current_file.onclick);
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyMod.Shift | this.monaco.KeyCode.Enter, this.ui.compile_project.onclick);

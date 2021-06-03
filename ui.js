@@ -15,7 +15,8 @@ class DataPackageSelector
     {
         const basename = path => path.slice(path.lastIndexOf('/') + 1);
         
-        return basename(path);
+        const file_name = basename(path);
+        return file_name.endsWith('.sty') ? file_name.slice(0, file_name.length - '.sty'.length) : file_name;
     }
     
     async find_required_data_packages_js(files)

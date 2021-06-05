@@ -244,7 +244,7 @@
     <div style="display: flex; flex-direction: row; height: 5%">
         <button id="compile_current_file" class="busyui">Compile Current File</button>
         <button id="compile_project" class="busyui">Compile Project</button>
-        <button id="show_tex_packages" class="busyui">TeX Packages</button>
+        <button id="show_tex_settings" class="busyui">TeX Settings</button>
         <select id="tex_driver" class="busyui">
             <option value="" disabled>TeX pipeline:</option>
             <option value="xetex_bibtex8_dvipdfmx" selected>XeTeX + bibtex8 + dvipdfmx</option>
@@ -279,14 +279,20 @@
         <iframe id="pdfpreview" class="busyui"></iframe>
         <img hidden id="imgpreview" class="busyui"></img>
         <textarea readonly hidden id="txtpreview" class="busyui"></textarea>
-        <figure hidden id="texpackages" class="busyui">
-            <figcaption>$ # enabled packages</figcaption>
+        <figure hidden id="texsettings" class="busyui">
+            <figcaption>$ # TeX Settings</figcaption>
+            Packages:
             <ul>
                 <li><input type="checkbox" id="data_package_auto" checked>auto selection</input></li>
                 <li><input type="checkbox" value="texlive-basic" class="data_package">[texlive-basic]</input></li>
                 <li><input type="checkbox" value="texlive-science" class="data_package">[texlive-science]</input></li>
                 <li><input type="checkbox" value="texlive-latex-recommended" class="data_package">[texlive-latex-recommended]</input></li>
                 <li><input type="checkbox" value="texlive-latex-extra" class="data_package">[texlive-latex-extra]</input></li>
+            </ul>
+            BibTeX:
+            <ul>
+                <li><input type="checkbox" id="bibtex_auto" checked>auto selection</input></li>
+                <li><input type="checkbox" value="bibtex_enabled">BibTeX enabled</input></li>
             </ul>
         </figure>
         <figure hidden id="searchresults" class="busyui">
@@ -744,7 +750,7 @@ const ui =
             ui.txtpreview.value = '';
             mode = 'text';
         }
-        [ui.imgpreview.hidden, ui.pdfpreview.hidden, ui.txtpreview.hidden, ui.gitstatus.hidden, ui.gitpull.hidden, ui.searchresults.hidden, ui.texpackages.hidden] = [mode != 'svg' && mode != 'jpg' && mode != 'png', mode != 'pdf', mode != 'log' && mode != 'text', mode != 'gitstatus', mode != 'gitpull', mode != 'searchresults', mode != 'texpackages'];
+        [ui.imgpreview.hidden, ui.pdfpreview.hidden, ui.txtpreview.hidden, ui.gitstatus.hidden, ui.gitpull.hidden, ui.searchresults.hidden, ui.texsettings.hidden] = [mode != 'svg' && mode != 'jpg' && mode != 'png', mode != 'pdf', mode != 'log' && mode != 'text', mode != 'gitstatus', mode != 'gitpull', mode != 'searchresults', mode != 'texsettings'];
 
         const b64encode = uint8array => btoa(uint8array.reduce((acc, i) => acc += String.fromCharCode.apply(null, [i]), ''));
         if(mode == 'log' || mode == 'text')

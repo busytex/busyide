@@ -65,7 +65,7 @@ class DataPackageResolver
 function BibtexResolver(files)
 {
     const bib_commands = ['\\bibliography', '\\printbibliography'];
-    return files.some(f => f.endsWith('.tex') && typeof(f.contents) == 'string' && bib_commands.some(b => f.contents.includes(b)));
+    return files.some(f => f.path.endsWith('.tex') && typeof(f.contents) == 'string' && bib_commands.some(b => f.contents.includes(b)));
 }
 
 export class Shell

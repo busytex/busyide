@@ -188,7 +188,7 @@ export class Shell
         this.ui.compile_project.onclick = () => this.project_dir() && this.ui.get_current_tex_path() && this.commands(cmd('latexmk', arg(this.ui.get_current_tex_path())));
         this.ui.compile_current_file.onclick = () => (this.ui.get_current_file() || '').endsWith('.tex') && !this.isdir(this.ui.get_current_file()) && this.commands(cmd('latexmk', arg(this.ui.get_current_file())));
         this.ui.man.onclick = () => this.commands('man');
-        this.ui.share.onclick = () => this.github.git_dir() ? [this.log_big_header(''), this.log_big(this.ui.get_origin() + '/#github/' + this.github.format_url() )] : this.commands(and(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log))));
+        this.ui.share.onclick = () => this.github.git_dir() ? [this.log_big_header(''), this.log_big(this.ui.get_origin() + '/#github/' + this.github.format_url() )] : this.project_dir() ? this.commands(and(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log)))) : null;
         this.ui.show_not_modified.onclick = this.ui.toggle_not_modified.bind(this);
         this.ui.show_tex_settings.onclick = () => this.ui.toggle_viewer('texsettings');
 
@@ -1390,7 +1390,10 @@ export class Shell
         console.log('refresh', '(', selected_file_path, ')');
         this.ui.update_file_tree(this.find(this.pwd(), '', false, true, true, true, []), selected_file_path);
 
-        this.ui.update_tex_paths(this.project_dir() ? this.find(this.project_dir(), '', false, true, true, true, []).filter(f => f.path.endsWith('.tex')) : [], selected_file_path);
+        const project_dir = this.project_dir();
+
+        this.ui.update_tex_paths(project_dir ? this.find(project_dir, '', false, true, true, true, []).filter(f => f.path.endsWith('.tex')) : [], selected_file_path);
+        this.ui.set_project_name(project_dir ? this.PATH.basename(project_dir) : 'N/A');
 
         
         if(!this.exists(this.edit_path))

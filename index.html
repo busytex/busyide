@@ -235,7 +235,7 @@
         <button id="search" class="busyui" title="using grep">Search in Files</button>
         <input type="text" id="search_query" class="busyui" placeholder="Search terms"></input>
         <div style="display: flex; margin-left:auto">
-            <button id="share" class="busyui">Share Project</button>
+            <button id="share" class="busyui">Share Project: [<span id="project_name" class="busyui"></span>]</button>
             <button id="view_log" class="busyui ok">View LOG</button>
             <button id="view_pdf" class="busyui">View PDF</button>
             <button id="download_pdf" class="busyui">Download PDF</button>
@@ -427,46 +427,26 @@ const ui =
     ...Object.fromEntries(Array.from(document.querySelectorAll('.busyui')).map(el => [el.id, el] )),
     
     log_reset_sequence : '\x1bc',
-
-    set_dirty(dirty)
-    {
-        ui.dirty.hidden = !dirty;
-    },
-
-    set_error(error)
-    {
-        if(error)
-        {
-            ui.view_log.className = 'error';
-            ui.view_log.title = error;
-        }
-        else
-        {
-            ui.view_log.className = 'ok';
-            ui.view_log.title = 'All OK!';
-        }
-    },
+    
+    isdir : option => option.className == 'filetreedirectory',
 
     get_current_file : abspath => abspath === true ? ui.verb.title : ui.current_file.textContent,
 
-    isdir : option => option.className == 'filetreedirectory',
-    
     get_origin : () => window.location.origin,
-
+    
     get_current_tex_path : () => ui.tex_path.value,
 
     get_selected_file_path : () => ui.filetree.selectedIndex >= 0 ? ui.filetree.options[ui.filetree.selectedIndex].value : null,
     
-    set_current_pdf(abspath)
-    {
-        ui.download_pdf.title = abspath;
-        ui.view_pdf.title = abspath;
-    },
+    set_current_log : abspath => (ui.view_log.title = abspath),
+    
+    set_dirty : dirty => (ui.dirty.hidden = !dirty),
 
-    set_current_log(abspath)
-    {
-        ui.view_log.title = abspath;
-    },
+    set_error : error => ([ui.view_log.className, ui.view_log.title] = error ? ['error', error] : ['ok', 'All OK!']),
+
+    set_current_pdf : abspath => (ui.download_pdf.title = ui.view_pdf.title = abspath),
+
+    set_project_name : basename => (ui.project_name.innerText = basename),
     
     set_current_file(basename, abspath, verb = '')
     {

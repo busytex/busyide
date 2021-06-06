@@ -1244,7 +1244,7 @@ export class Shell
         const [data_packages_js, tex_packages_not_resolved] = await this.data_package_resolver.resolve(files, this.ui.get_enabled_data_packages() !== null ? this.ui.get_enabled_data_packages().map(data_package => this.paths_data_packages_js.find(p => p.includes(data_package))) : null);
         console.log('NOT RESOLVED', tex_packages_not_resolved);
 
-        const bibtex = this.ui.bibtex_auto.checked ? BibtexResolver(files) : this.ui.bibtex_enabled.checked;
+        const bibtex = this.ui.bibtex.value == 'auto' ? BibtexResolver(files) : (this.ui.bibtex.value == 'enabled');
         
         this.compiler.postMessage({ files : files, main_tex_path : main_tex_path, verbose : verbose, bibtex : bibtex, driver : tex_driver, data_packages_js : this.paths.preload_data_packages_js.concat(data_packages_js) });
     }

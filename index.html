@@ -290,10 +290,11 @@
                 <li><input type="checkbox" value="texlive-latex-extra" class="data_package">[texlive-latex-extra]</input></li>
             </ul>
             BibTeX:
-            <ul>
-                <li><input type="checkbox" id="bibtex_auto" checked>auto selection</input></li>
-                <li><input type="checkbox" value="bibtex_enabled">enabled</input></li>
-            </ul>
+            <select id="bibtex">
+                <option value="auto" selected>auto selection</option>
+                <option value="enabled">enabled</option>
+                <option value="disabled">disabled</option>
+            </select>
         </figure>
         <figure hidden id="searchresults" class="busyui">
             <figcaption>$ rgrep "<span></span>"</figcaption>

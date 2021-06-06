@@ -251,11 +251,11 @@
             <option value="pdftex_bibtex8">PdfTeX + bibtex8</option>
             <option value="luatex_bibtex8">LuaTeX + bibtex8</option>
         </select>
-        <select id="verbose" class="busyui">
-            <option value="" disabled>Verbosity:</option>
-            <option value="silent" selected="selected">Silent</option>
-            <option value="info">Info</option>
-            <option value="debug">Debug</option>
+        <select id="bibtex" class="busyui">
+            <option value="" disabled>BibTeX:</option>
+            <option value="auto" selected title="scans files for bibliography commands">BibTeX: auto detection</option>
+            <option value="enabled">BibTeX: enabled</option>
+            <option value="disabled" title="runs much faster">BibTeX: disabled</option>
         </select>
         <select id="tex_path" class="busyui">
             <option value="" disabled selected>TeX file:</option>
@@ -289,11 +289,11 @@
                 <li><input type="checkbox" value="texlive-latex-recommended" class="data_package">[texlive-latex-recommended]</input></li>
                 <li><input type="checkbox" value="texlive-latex-extra" class="data_package">[texlive-latex-extra]</input></li>
             </ul>
-            BibTeX:
-            <select id="bibtex" class="busyui">
-                <option value="auto" selected title="scans files for bibliography commands">auto selection</option>
-                <option value="enabled">enabled</option>
-                <option value="disabled" title="runs much faster">disabled</option>
+            Verbosity:
+            <select id="verbose" class="busyui">
+                <option value="silent" selected="selected">Silent</option>
+                <option value="info">Info</option>
+                <option value="debug">Debug</option>
             </select>
         </figure>
         <figure hidden id="searchresults" class="busyui">

@@ -62,6 +62,11 @@ class DataPackageResolver
     }
 }
 
+function BibtexResolver(files)
+{
+    return null;
+}
+
 export class Shell
 {
     constructor(monaco, ui, paths, readme, versions, terminal, editor, difftool, cors_proxy_fmt = 'https://withered-shape-3305.vadimkantorov.workers.dev/?${url}')
@@ -1238,8 +1243,10 @@ export class Shell
 
         const [data_packages_js, tex_packages_not_resolved] = await this.data_package_resolver.resolve(files, this.ui.get_enabled_data_packages() !== null ? this.ui.get_enabled_data_packages().map(data_package => this.paths_data_packages_js.find(p => p.includes(data_package))) : null);
         console.log('NOT RESOLVED', tex_packages_not_resolved);
+
+        const bibtex = this.ui.bibtex_auto.checked ? BibtexResolver(files) : this.ui.bibtex_enabled.checked;
         
-        this.compiler.postMessage({ files : files, main_tex_path : main_tex_path, verbose : verbose, driver : tex_driver, data_packages_js : this.paths.preload_data_packages_js.concat(data_packages_js) });
+        this.compiler.postMessage({ files : files, main_tex_path : main_tex_path, verbose : verbose, bibtex : bibtex, driver : tex_driver, data_packages_js : this.paths.preload_data_packages_js.concat(data_packages_js) });
     }
 
     async import_project()

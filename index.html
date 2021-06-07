@@ -294,6 +294,7 @@
         <iframe id="pdfpreview" class="busyui"></iframe>
         <img hidden id="imgpreview" class="busyui"></img>
         <textarea readonly hidden id="txtpreview" class="busyui"></textarea>
+        <figure hidden id="cantopen" class="busyui">Can't open file type [<span id="file_ext"></span>], path: [<span id="file_path"></span>]</figure>
         <figure hidden id="texsettings" class="busyui">
             <figcaption>$ # TeX Settings</figcaption>
             Packages:
@@ -746,7 +747,7 @@ const ui =
             ui.txtpreview.value = '';
             mode = 'text';
         }
-        [ui.imgpreview.hidden, ui.pdfpreview.hidden, ui.txtpreview.hidden, ui.gitstatus.hidden, ui.gitpull.hidden, ui.searchresults.hidden, ui.texsettings.hidden] = [mode != 'svg' && mode != 'jpg' && mode != 'png', mode != 'pdf', mode != 'log' && mode != 'text', mode != 'gitstatus', mode != 'gitpull', mode != 'searchresults', mode != 'texsettings'];
+        [ui.imgpreview.hidden, ui.pdfpreview.hidden, ui.txtpreview.hidden, ui.gitstatus.hidden, ui.gitpull.hidden, ui.searchresults.hidden, ui.texsettings.hidden, ui.cantopen.hidden] = [mode != 'svg' && mode != 'jpg' && mode != 'png', mode != 'pdf', mode != 'log' && mode != 'text', mode != 'gitstatus', mode != 'gitpull', mode != 'searchresults', mode != 'texsettings', mode != 'cantopen'];
 
         const b64encode = uint8array => btoa(uint8array.reduce((acc, i) => acc += String.fromCharCode.apply(null, [i]), ''));
         if(mode == 'log' || mode == 'text')

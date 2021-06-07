@@ -1040,7 +1040,7 @@ export class Shell
     open(file_path, contents, readonly, language_id_path)
     {
         // readonly https://github.com/microsoft/monaco-editor/issues/54
-        const open_editor_tab = (file_path, contents = '', readonly = false, language_id_path = null) =>
+        const open_editor_tab = (file_path, contents = '', readonly = false, language_id_path = null, line_number = -1) =>
         {
             let abspath = file_path == '' ? '' : this.abspath(file_path);
             
@@ -1071,10 +1071,13 @@ export class Shell
                 
                 this.editor.setModel(this.tab);
                 this.edit_path = abspath;
-                var decorations = this.editor.deltaDecorations([], [
-	{ range: new monaco.Range(3,1,5,1), options: { isWholeLine: true, linesDecorationsClassName: 'myLineDecoration' }},
-	{ range: new monaco.Range(7,1,7,24), options: { inlineClassName: 'myInlineDecoration' }},
-]);
+
+                if(line_number >= 0)
+                {
+                    this.monaco.editor.revealLineInCenter(line_number);
+                    this.monaco.editor.setPosition({column: 1, lineNumber: line_number});
+                }
+                //var decorations = this.editor.deltaDecorations([], [	{ range: new monaco.Range(3,1,5,1), options: { isWholeLine: true, linesDecorationsClassName: 'myLineDecoration' }},	{ range: new monaco.Range(7,1,7,24), options: { inlineClassName: 'myInlineDecoration' }},]);
 
 
                 
@@ -1172,7 +1175,7 @@ export class Shell
         }
         else
         {
-            open_editor_tab(abspath, contents || this.read_all_text(abspath), readonly, language_id_path);
+            open_editor_tab(abspath, contents || this.read_all_text(abspath), readonly, language_id_path, line_number);
             
             this.ui.set_current_file(basename, abspath, 'editing');
         }

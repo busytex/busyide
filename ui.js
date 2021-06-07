@@ -115,7 +115,7 @@ export class Shell
         this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'diff', 'fetch', 'checkout'];
         this.hub_applets = ['release'];
         this.viewer_extensions = ['.log', '.svg', '.png', '.jpg', '.pdf'];
-        this.editor_extensions = ['', '.tex', '.sty', '.bib', '.txt', '.xml', '.json', '.md', '.py', '.sh', '.r'];
+        this.editor_extensions = ['', '.tex', '.sty', '.bib', '.txt', '.eps', '.xml', '.json', '.md', '.py', '.sh', '.r'];
         this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
         this.tic_ = 0;
         this.timer_delay_millisec = 1000;

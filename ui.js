@@ -1,73 +1,6 @@
 import { Github } from '/github.js'
 import { Busybox } from '/busybox.js'
 
-class DataPackageResolver
-{
-    constructor(data_packages_js)
-    {
-        this.regex_createPath = /"filename": "(.+?)"/g 
-        this.regex_usepackage = /\\usepackage(\[.*?\])?\{(.+?)\}/g;
-        
-        this.data_packages = data_packages_js.map(data_package_js => [data_package_js, fetch(data_package_js).then(r => r.text()).then(data_package_js_script => new Set(Array.from(data_package_js_script.matchAll(this.regex_createPath)).map(groups => this.extract_tex_package_name(groups[1]))))]);
-    }
-    
-    extract_tex_package_name(path)
-    {
-        const basename = path => path.slice(path.lastIndexOf('/') + 1);
-        
-        const file_name = basename(path);
-        return file_name.endsWith('.sty') ? file_name.slice(0, file_name.length - '.sty'.length) : file_name;
-    }
-    
-    async resolve(files, data_packages_js = null)
-    {
-        const texmf_packages = new Set(files.filter(f => f.path.startsWith('texmf/texmf-dist/')).map(f => this.extract_tex_package_name(f.path)));
-        
-        const tex_packages = new Set(files.filter(f => typeof(f.contents) == 'string').map(f => f.contents.split('\n').filter(l => l.trim()[0] != '%' && l.trim().startsWith('\\usepackage')).map(l => Array.from(l.matchAll(this.regex_usepackage)).filter(groups => groups.length >= 2).map(groups => groups.pop().split(',')  )  )).flat().flat().flat().filter(tex_package => !texmf_packages.has(tex_package)));
-
-        const tex_packages_not_resolved = [];
-        
-        let update_data_packages_js = false;
-        let data_packages = [];
-        
-        if(data_packages_js === null)
-        {
-            update_data_packages_js = true;
-            data_packages = this.data_packages;
-            data_packages_js = new Set();
-        }
-        else
-        {
-            update_data_packages_js = false;
-            data_packages = this.data_packages.filter(([data_package_js, tex_packages]) => data_packages_js.includes(data_package_js));
-        }
-
-        for(const tex_package of tex_packages)
-        {
-            for(const [data_package_js, tex_packages] of [...data_packages, [null, null]])
-            {
-                if(tex_packages === null)
-                    tex_packages_not_resolved.push(tex_package);
-
-                else if((await tex_packages).has(tex_package))
-                {
-                    if(update_data_packages_js)
-                        data_packages_js.add(data_package_js);
-                    break;
-                }
-            }
-        }
-
-        return [Array.from(data_packages_js), tex_packages_not_resolved];
-    }
-}
-
-function BibtexResolver(files)
-{
-    const bib_commands = ['\\bibliography', '\\printbibliography'];
-    return files.some(f => f.path.endsWith('.tex') && typeof(f.contents) == 'string' && bib_commands.some(b => f.contents.includes(b)));
-}
-
 export class Shell
 {
     constructor(monaco, ui, paths, readme, versions, terminal, editor, difftool, cors_proxy_fmt = 'https://withered-shape-3305.vadimkantorov.workers.dev/?${url}')
@@ -108,14 +41,14 @@ export class Shell
         this.new_dir_name = 'newfolder';
         this.log_sink_path = null;
         this.current_terminal_line = '';
-        this.text_extensions = ['.tex', '.bib', '.txt', '.md', '.svg', '.sh', '.py', '.csv'];
+        this.text_extensions = ['.tex', '.bib', '.sty', '.bst', '.bbl', '.txt', '.md', '.svg', '.sh', '.py', '.csv', '.tsv', '.eps', '.xml', '.json', '.md', '.r'];
         this.busybox_applets = ['busyz', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed', 'true', 'false', 'seq', 'patch', 'grep', 'test', 'xxd', 'hexdump'];
         this.shell_builtins =  ['cd', 'mv', 'man', 'help', 'open', 'close', 'download', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty', 'hub', 'rgrep'];
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'diff', 'fetch', 'checkout'];
         this.hub_applets = ['release'];
         this.viewer_extensions = ['.log', '.svg', '.png', '.jpg', '.pdf'];
-        this.editor_extensions = ['', '.svg', '.tex', '.sty', '.bib', '.txt', '.eps', '.xml', '.json', '.md', '.py', '.sh', '.r'];
+        this.editor_extensions = ['', '.svg', ...this.text_extensions];
         this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
         this.tic_ = 0;
         this.timer_delay_millisec = 1000;
@@ -996,7 +929,7 @@ export class Shell
         }
         if(default_path == null)
         {
-            const text_files = this.find(file_path, '', false).filter(f => f.contents != null && this.text_extensions.map(ext => f.path.endsWith(ext)).includes(true));
+            const text_files = this.find(file_path, '', false).filter(f => f.contents != null && this.text_extensions.some(ext => f.path.toLowerCase().endsWith(ext)));
             if(text_files.length == 1)
                 default_path = text_files[0].path;
             else if(text_files.length > 1)

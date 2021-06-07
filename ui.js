@@ -1072,11 +1072,6 @@ export class Shell
                 this.editor.setModel(this.tab);
                 this.edit_path = abspath;
 
-                if(line_number >= 0)
-                {
-                    this.monaco.editor.revealLineInCenter(line_number);
-                    this.monaco.editor.setPosition({column: 1, lineNumber: line_number});
-                }
                 //var decorations = this.editor.deltaDecorations([], [	{ range: new monaco.Range(3,1,5,1), options: { isWholeLine: true, linesDecorationsClassName: 'myLineDecoration' }},	{ range: new monaco.Range(7,1,7,24), options: { inlineClassName: 'myInlineDecoration' }},]);
 
 
@@ -1086,7 +1081,14 @@ export class Shell
 
                 console.log('open_editor_tab models after', this.monaco.editor.getModels());
             }
+            
             this.editor.updateOptions({ readOnly: readonly });
+            
+            if(line_number >= 0)
+            {
+                this.monaco.editor.revealLineInCenter(line_number);
+                this.monaco.editor.setPosition({column: 1, lineNumber: line_number});
+            }
 
             //var currentState = this.editor.saveViewState();
             //this.editor.restoreViewState(data[desiredModelId].state);

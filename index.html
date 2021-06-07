@@ -746,20 +746,20 @@ const ui =
         if(mode == 'empty')
         {
             ui.txtpreview.value = '';
-            mode = 'text';
+            mode = '.log';
         }
-        [ui.imgpreview.hidden, ui.pdfpreview.hidden, ui.txtpreview.hidden, ui.gitstatus.hidden, ui.gitpull.hidden, ui.searchresults.hidden, ui.texsettings.hidden] = [mode != 'svg' && mode != 'jpg' && mode != 'png', mode != 'pdf', mode != 'log' && mode != 'text', mode != 'gitstatus', mode != 'gitpull', mode != 'searchresults', mode != 'texsettings'];
+        [ui.imgpreview.hidden, ui.pdfpreview.hidden, ui.txtpreview.hidden, ui.gitstatus.hidden, ui.gitpull.hidden, ui.searchresults.hidden, ui.texsettings.hidden] = [mode != '.svg' && mode != '.jpg' && mode != '.png', mode != '.pdf', mode != '.log', mode != 'gitstatus', mode != 'gitpull', mode != 'searchresults', mode != 'texsettings'];
 
         const b64encode = uint8array => btoa(uint8array.reduce((acc, i) => acc += String.fromCharCode.apply(null, [i]), ''));
-        if(mode == 'log' || mode == 'text')
+        if(mode == '.log')
             ui.txtpreview.value = contents;
-        else if(mode == 'pdf')
+        else if(mode == '.pdf')
             ui.pdfpreview.src = URL.createObjectURL(new Blob([contents], {type: 'application/pdf'}));
-        else if(mode == 'svg')
+        else if(mode == '.svg')
             ui.imgpreview.src = 'data:image/svg+xml;base64,' + b64encode(contents);
-        else if(mode == 'png')
+        else if(mode == '.png')
             ui.imgpreview.src = 'data:image/png;base64,' + b64encode(contents);
-        else if(mode == 'jpg')
+        else if(mode == '.jpg')
             ui.imgpreview.src = 'data:image/jpg;base64,' + b64encode(contents);
     }
 };

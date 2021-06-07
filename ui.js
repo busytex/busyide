@@ -1086,8 +1086,9 @@ export class Shell
             
             if(line_number >= 0)
             {
-                this.monaco.editor.revealLineInCenter(line_number);
-                this.monaco.editor.setPosition({column: 1, lineNumber: line_number});
+                // https://stackoverflow.com/questions/57246356/how-to-highlight-merge-conflict-blocks-in-monaco-editor-like-vscode
+                this.editor.revealLineInCenter(line_number);
+                this.editor.setPosition({column: 1, lineNumber: line_number});
             }
 
             //var currentState = this.editor.saveViewState();

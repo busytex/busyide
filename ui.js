@@ -158,6 +158,7 @@ export class Shell
         this.paths_data_packages_js = paths.preload_data_packages_js.concat(paths.other_data_packages_js);
         this.data_package_resolver = new DataPackageResolver(this.paths_data_packages_js);
         this.compiler = new Worker(paths.busytex_worker_js);
+        console.log('HI', BusytexPipeline);
     }
 
     bind()

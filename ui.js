@@ -1071,6 +1071,12 @@ export class Shell
                 
                 this.editor.setModel(this.tab);
                 this.edit_path = abspath;
+                var decorations = this.editor.deltaDecorations([], [
+	{ range: new monaco.Range(3,1,5,1), options: { isWholeLine: true, linesDecorationsClassName: 'myLineDecoration' }},
+	{ range: new monaco.Range(7,1,7,24), options: { inlineClassName: 'myInlineDecoration' }},
+]);
+
+
                 
                 if(oldtab)
                     oldtab.dispose();

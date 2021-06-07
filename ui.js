@@ -115,7 +115,7 @@ export class Shell
         this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'diff', 'fetch', 'checkout'];
         this.hub_applets = ['release'];
         this.viewer_extensions = ['.log', '.svg', '.png', '.jpg', '.pdf'];
-        this.editor_extensions = ['', '.tex', '.sty', '.bib', '.txt', '.eps', '.xml', '.json', '.md', '.py', '.sh', '.r'];
+        this.editor_extensions = ['', '.svg', '.tex', '.sty', '.bib', '.txt', '.eps', '.xml', '.json', '.md', '.py', '.sh', '.r'];
         this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
         this.tic_ = 0;
         this.timer_delay_millisec = 1000;
@@ -1172,8 +1172,15 @@ export class Shell
         
         if(extname == '.tex')
             this.tex_path = abspath; // file_path.startsWith('/') ? file_path : (this.FS.cwd() + '/' + file_path);
-
-        if(this.viewer_extensions.includes(extname))
+        
+        if(this.viewer_extensions.includes(extname) && this.editor_extensions.includes(extname))
+        {
+            open_editor_tab(abspath, contents || this.read_all_text(abspath), readonly, language_id_path, line_number);
+            open_viewer_tab(abspath, this.read_all_bytes(abspath));
+            
+            this.ui.set_current_file(basename, abspath, 'viewing');
+        }
+        else if(this.viewer_extensions.includes(extname))
         {
             open_viewer_tab(abspath, contents || (extname == '.log' ? this.read_all_text(abspath) : this.read_all_bytes(abspath)));
             

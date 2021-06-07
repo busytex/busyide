@@ -1103,7 +1103,7 @@ export class Shell
         const open_viewer_tab = (file_path, contents) =>
         {
             const abspath = file_path == '' ? '' : this.abspath(file_path);
-            const viewer_mode = this.viewer_extensions.include(this.PATH.extname(file_path)) ? this.PATH.extname(file_path) : '.log';
+            const viewer_mode = this.viewer_extensions.includes(this.PATH.extname(abspath)) ? this.PATH.extname(abspath) : '.log';
             this.view_path = abspath;
             this.ui.toggle_viewer(viewer_mode, contents);
         };

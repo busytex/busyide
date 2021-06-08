@@ -1333,7 +1333,7 @@ export class Shell
                 if(!exclude.includes(name))
                 {
                     if(preserve_directories)
-                        entries.push({path : relative_path, abspath : absolute_path, name : name});
+                        entries.push({path : relative_path, abspath : absolute_path, name : name, isdir : true});
                     if(recurse)
                         entries.push(...this.find(root, relative_path, recurse, preserve_directories, include_dot_directories, read_contents_as_string, exclude));
                 }
@@ -1351,7 +1351,11 @@ export class Shell
         console.log('refresh', '[', selected_file_path, ']');
         selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd && this.ui.filetree.selectedIndex >= 0 ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : null);
         console.log('refresh', '(', selected_file_path, ')');
-        this.ui.update_file_tree(this.find(this.pwd(), '', false, true, true, true, []), selected_file_path);
+        const files = this.find(this.pwd(), '', false, true, true, true, []);
+
+        files.sort((fa, fb) => (fa.isdir ^ fb.isdir) ? (fa.isdir ? -1 : 1) : fa.name.localeCompare(fb.name));
+
+        this.ui.update_file_tree(files, selected_file_path);
 
         const project_dir = this.project_dir();
 

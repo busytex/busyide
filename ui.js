@@ -1318,10 +1318,10 @@ export class Shell
         if(include_dot_directories)
         {
             const abspath = this.abspath(root);
-            entries.push({ path : relative_dir_path || root, name : '.', abspath : abspath });
+            entries.push({ path : relative_dir_path || root, name : '.', abspath : abspath, isdir : true});
 
             if(abspath != '/')
-                entries.push({ path : this.PATH.dirname(relative_dir_path || root), name : '..', abspath : this.PATH.normalize(this.PATH.join(root, '..')) });
+                entries.push({ path : this.PATH.dirname(relative_dir_path || root), name : '..', abspath : this.PATH.normalize(this.PATH.join(root, '..')), isdir : true });
         }
         const absolute_dir_path = this.expandcollapseuser(this.PATH.join(root, relative_dir_path))
         for(const [name, entry] of Object.entries(this.FS.lookupPath(absolute_dir_path, {parent : false}).node.contents))

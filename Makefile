@@ -5,6 +5,7 @@ URL_busybox ?= https://busybox.net/downloads/busybox-1.33.0.tar.bz2
 URL_miniz ?= https://github.com/richgel999/miniz/releases/download/2.1.0/miniz-2.1.0.zip
 URL_bsddiff3prog ?= https://raw.githubusercontent.com/openbsd/src/master/usr.bin/diff3/
 URL_bsddiff ?= https://raw.githubusercontent.com/openbsd/src/master/usr.bin/diff/
+URL_freebsddiff ?= https://raw.githubusercontent.com/freebsd/freebsd-src/master/usr.bin/diff/
 
 URL_RELEASE_busytex_wasm ?= https://github.com/busytex/busytex/releases/tag/build_b16fdf28019d93ccfd8f09776e4191835acea5dc
 URL_RELEASE_ubuntu_packages ?= https://github.com/busytex/busytex/releases/tag/release_88f12c721278c652c9fb69c6a097af9481a2ae7e
@@ -45,6 +46,15 @@ source/diff3prog.c:
 source/diff.c source/diff.h source/diffdir.c source/diffreg.c source/xmalloc.c source/xmalloc.h:
 	mkdir -p source
 	wget -nc "$(URL_bsddiff)/$(notdir $@)" -O $@
+
+source/freebsd/diff.c source/freebsd/diff.h source/freebsd/diffdir.c source/freebsd/diffreg.c source/freebsd/xmalloc.c source/freebsd/xmalloc.h source/freebsd/pr.c source/freebsd/pr.h:
+	mkdir -p source/freebsd
+	wget -nc "$(URL_freebsddiff)/$(notdir $@)" -O $@
+
+source/freebsd_diff.c:
+	cat bsddiff.h source/freebsd/xmalloc.h source/freebsd/pr.h source/freebsd/diff.h > $@
+	cat source/freebsd/pr.c source/freebsd/xmalloc.c source/freebsd/diffreg.c source/freebsd/diffdir.c source/freebsd/diff.c >> $@
+	sed -i '$(BSDDIFF_SED)' $@
 
 .PHONY: dist
 dist: build/wasm/busybox_unstripped.js

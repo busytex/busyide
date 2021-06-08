@@ -1147,7 +1147,7 @@ export class Shell
 
     tabs_save(busyshell)
     {
-        if(busyshell.edit_path && busyshell.tab) // do not save readonly
+        if(busyshell.edit_path && busyshell.tab) // TODO: do not save readonly
             busyshell.FS.writeFile(busyshell.edit_path, busyshell.tab.getValue());
         busyshell.ui.set_dirty(false);
     }

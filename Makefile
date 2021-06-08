@@ -15,7 +15,7 @@ CFLAGS_wasm_busyide = -Oz -s ERROR_ON_UNDEFINED_SYMBOLS=0 -lidbfs.js -s INVOKE_R
 BSDDIFF_SED = s/xmalloc(/bsddiff_xmalloc(/g; s/xcalloc(/bsddiff_xcalloc(/g; s/xreallocarray(/bsddiff_xreallocarray(/g; s/xstrdup(/bsddiff_xstrdup(/g; s/xasprintf(/bsddiff_xasprintf(/g; s/splice(/bsddiff_splice(/g
 
 build/wasm/busybox_unstripped.js: source/busybox.tar.bz2 source/miniz.zip openbsd_diff3prog.c openbsd_diff.c
-	mkdir -p build/wasm/arch/em build/wasm/bsd
+	mkdir -p build/wasm/arch/em build/wasm
 	tar -xf source/busybox.tar.bz2 --strip-components=1 --directory=build/wasm
 	cp busyz.c build/wasm/archival && unzip -d build/wasm/archival -o source/miniz.zip miniz.h miniz.c
 	cp openbsd_diff3prog.c build/wasm/miscutils/bsddiff3prog.c
@@ -50,9 +50,7 @@ source/freebsd_diff.c:
 	sed -i '$(BSDDIFF_SED)' $@
 
 openbsd_diff.c: source/xmalloc.h source/diff.h source/diff.c source/diffreg.c source/diffdir.c source/xmalloc.c
-	cat bsddiff.h source/xmalloc.h source/diff.h > $@
-	cat source/diff.c source/diffreg.c source/diffdir.c source/xmalloc.c | grep -v '#include "' >> $@ 
-	sed -i '$(BSDDIFF_SED)' $@
+	cat bsddiff.h source/xmalloc.h source/diff.h source/diff.c source/diffreg.c source/diffdir.c source/xmalloc.c | grep -v '#include "' | sed -e '$(BSDDIFF_SED)' > $@
 
 openbsd_diff3prog.c: source/diff3prog.c
 	cat bsddiff3prog.h source/diff3prog.c > $@

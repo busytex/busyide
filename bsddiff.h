@@ -4,7 +4,7 @@
 //config:	help
 //config:	Returns an indeterminate value.
 
-//kbuild:lib-$(CONFIG_BSDDIFF) += bsddiff.o bsdxmalloc.o bsddiffreg.o bsddiffdir.o
+//kbuild:lib-$(CONFIG_BSDDIFF) += bsddiff.o
 //applet:IF_BSDDIFF(APPLET(bsddiff, BB_DIR_USR_BIN, BB_SUID_DROP))
 //usage:#define bsddiff_trivial_usage
 //usage:				 "bsddiff ..."
@@ -16,6 +16,7 @@
 #include <string.h>
 #include <time.h>
 
+// bsdxmalloc.o bsddiffreg.o bsddiffdir.o
 #define __dead __attribute__((noreturn))
 #define pledge(promises, execpromises) (0)
 #define warnc(code, fmt, ...) (0)

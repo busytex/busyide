@@ -56,6 +56,11 @@ source/freebsd_diff.c:
 	cat source/freebsd/pr.c source/freebsd/xmalloc.c source/freebsd/diffreg.c source/freebsd/diffdir.c source/freebsd/diff.c >> $@
 	sed -i '$(BSDDIFF_SED)' $@
 
+source/openbsd_diff.c:
+	cat bsddiff.h source/xmalloc.h source/diff.h > $@
+	cat source/diff.c source/diffreg.c source/diffdir.c source/xmalloc.c >> $@ 
+	sed -i '$(BSDDIFF_SED)' $@
+
 .PHONY: dist
 dist: build/wasm/busybox_unstripped.js
 	mkdir -p dist

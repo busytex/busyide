@@ -50,10 +50,10 @@ source/freebsd_diff.c:
 	sed -i '$(BSDDIFF_SED)' $@
 
 openbsd_diff.c: source/xmalloc.h source/diff.h source/diff.c source/diffreg.c source/diffdir.c source/xmalloc.c
-	cat bsddiff.h source/xmalloc.h source/diff.h source/diff.c source/diffreg.c source/diffdir.c source/xmalloc.c | grep -v '#include "' | sed -e '$(BSDDIFF_SED)' > $@
+	cat openbsd_diff.h source/xmalloc.h source/diff.h source/diff.c source/diffreg.c source/diffdir.c source/xmalloc.c | grep -v '#include "' | sed -e '$(BSDDIFF_SED)' > $@
 
 openbsd_diff3prog.c: source/diff3prog.c
-	cat bsddiff3prog.h source/diff3prog.c > $@
+	cat openbsd_diff3prog.h source/diff3prog.c > $@
 
 .PHONY: dist
 dist: build/wasm/busybox_unstripped.js

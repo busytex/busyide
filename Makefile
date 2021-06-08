@@ -14,19 +14,12 @@ CFLAGS_wasm_busyide = -Oz -s ERROR_ON_UNDEFINED_SYMBOLS=0 -lidbfs.js -s INVOKE_R
 
 BSDDIFF_SED = s/xmalloc(/bsddiff_xmalloc(/g; s/xcalloc(/bsddiff_xcalloc(/g; s/xreallocarray(/bsddiff_xreallocarray(/g; s/xstrdup(/bsddiff_xstrdup(/g; s/xasprintf(/bsddiff_xasprintf(/g; s/splice(/bsddiff_splice(/g
 
-build/wasm/busybox_unstripped.js: source/busybox.tar.bz2 source/miniz.zip source/diff3prog.c source/diff.c source/diff.h source/diffdir.c source/diffreg.c source/xmalloc.c source/xmalloc.h source/openbsd_diff3prog.c source/openbsd_diff.c
+build/wasm/busybox_unstripped.js: source/busybox.tar.bz2 source/miniz.zip openbsd_diff3prog.c openbsd_diff.c
 	mkdir -p build/wasm/arch/em build/wasm/bsd
 	tar -xf source/busybox.tar.bz2 --strip-components=1 --directory=build/wasm
 	cp busyz.c build/wasm/archival && unzip -d build/wasm/archival -o source/miniz.zip miniz.h miniz.c
-	cp source/openbsd_diff3prog.c build/wasm/miscutils/bsddiff3prog.c
-	cp source/openbsd_diff.c build/wasm/miscutils/bsddiff.c
-	#cp bsddiff.h build/wasm/miscutils/bsddiff.h
-	#sed '$(BSDDIFF_SED)' source/xmalloc.h > build/wasm/miscutils/xmalloc.h
-	#sed '$(BSDDIFF_SED)' source/diff.h > build/wasm/miscutils/diff.h
-	#(cat bsddiff.h; sed '$(BSDDIFF_SED)' source/diff.c) > build/wasm/miscutils/bsddiff.c
-	#sed '$(BSDDIFF_SED); 1i #include "bsddiff.h"' source/diffreg.c > build/wasm/miscutils/bsddiffreg.c
-	#sed '$(BSDDIFF_SED); 1i #include "bsddiff.h"' source/diffdir.c > build/wasm/miscutils/bsddiffdir.c
-	#sed '$(BSDDIFF_SED); 1i #include "bsddiff.h"' source/xmalloc.c > build/wasm/miscutils/bsdxmalloc.c
+	cp openbsd_diff3prog.c build/wasm/miscutils/bsddiff3prog.c
+	cp openbsd_diff.c build/wasm/miscutils/bsddiff.c
 	cp .config build/wasm 
 	echo 'cmd_busybox__ = $$(CC) -o $$@.js -Wl,--start-group $(CFLAGS_wasm_busyide) $(CURDIR)/em-shell.c -include $(CURDIR)/em-shell.h --js-library $(CURDIR)/em-shell.js $$(CFLAGS) $$(CFLAGS_busybox) $$(LDFLAGS) $$(EM_LDFLAGS) $$(EXTRA_LDFLAGS) $$(core-y) $$(libs-y) $$(patsubst %,-l%,$$(subst :, ,$$(LDLIBS))) -Wl,--end-group && cp $$@.js $$@' > build/wasm/arch/em/Makefile
 	ln -s $(shell which emcc.py) build/wasm/emgcc || true
@@ -51,18 +44,17 @@ source/diff.c source/diff.h source/diffdir.c source/diffreg.c source/xmalloc.c s
 source/freebsd/diff.c source/freebsd/diff.h source/freebsd/diffdir.c source/freebsd/diffreg.c source/freebsd/xmalloc.c source/freebsd/xmalloc.h source/freebsd/pr.c source/freebsd/pr.h:
 	mkdir -p source/freebsd
 	wget -nc "$(URL_freebsddiff)/$(notdir $@)" -O $@
-
 source/freebsd_diff.c:
 	cat bsddiff.h source/freebsd/xmalloc.h source/freebsd/pr.h source/freebsd/diff.h > $@
 	cat source/freebsd/pr.c source/freebsd/xmalloc.c source/freebsd/diffreg.c source/freebsd/diffdir.c source/freebsd/diff.c >> $@
 	sed -i '$(BSDDIFF_SED)' $@
 
-source/openbsd_diff.c: source/xmalloc.h source/diff.h source/diff.c source/diffreg.c source/diffdir.c source/xmalloc.c
+openbsd_diff.c: source/xmalloc.h source/diff.h source/diff.c source/diffreg.c source/diffdir.c source/xmalloc.c
 	cat bsddiff.h source/xmalloc.h source/diff.h > $@
 	cat source/diff.c source/diffreg.c source/diffdir.c source/xmalloc.c | grep -v '#include "' >> $@ 
 	sed -i '$(BSDDIFF_SED)' $@
 
-source/openbsd_diff3prog.c: source/diff3prog.c
+openbsd_diff3prog.c: source/diff3prog.c
 	cat bsddiff3prog.h source/diff3prog.c > $@
 
 .PHONY: dist

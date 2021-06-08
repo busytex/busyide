@@ -18,7 +18,7 @@ build/wasm/busybox_unstripped.js: source/busybox.tar.bz2 source/miniz.zip source
 	mkdir -p build/wasm/arch/em build/wasm/bsd
 	tar -xf source/busybox.tar.bz2 --strip-components=1 --directory=build/wasm
 	cp busyz.c build/wasm/archival && unzip -d build/wasm/archival -o source/miniz.zip miniz.h miniz.c
-	cp source/openbsd_diff3prog > build/wasm/miscutils/bsddiff3prog.c
+	cp source/openbsd_diff3prog.c > build/wasm/miscutils/bsddiff3prog.c
 	cp bsddiff.h build/wasm/miscutils/bsddiff.h
 	sed '$(BSDDIFF_SED)' source/xmalloc.h > build/wasm/miscutils/xmalloc.h
 	sed '$(BSDDIFF_SED)' source/diff.h > build/wasm/miscutils/diff.h

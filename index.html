@@ -453,7 +453,9 @@ const ui =
     
     get_current_tex_path : () => ui.tex_path.value,
 
-    get_selected_file_path : () => ui.filetree.selectedIndex >= 0 ? ui.filetree.options[ui.filetree.selectedIndex].value : null,
+    //get_selected_file_path : () => ui.filetree.selectedIndex >= 0 ? ui.filetree.options[ui.filetree.selectedIndex].value : null,
+    
+    get_selected_file_path : () => ui.filetree.value || ui.filetree.dataset.value,
     
     set_current_log : abspath => (ui.view_log.title = abspath),
     

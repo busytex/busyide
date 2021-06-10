@@ -481,7 +481,10 @@ const ui =
         span.textContent = verb;
         span.title = abspath;
         
-        ui.filetree.selectedIndex = Array.from(ui.filetree.options).findIndex(option => option.value == abspath);
+        //ui.filetree.selectedIndex = Array.from(ui.filetree.options).findIndex(option => option.value == abspath);
+        
+        ui.filetree.value = abspath;
+        ui.filetree.dataset.value = abspath;
     },
 
     toggle_current_file_rename(basename)

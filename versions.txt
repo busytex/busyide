@@ -1,4 +1,4 @@
-xterm@4.9.0
-monaco-editor@latest
-https://busybox.net/downloads/busybox-1.33.0.tar.bz2
-https://github.com/richgel999/miniz/releases/download/2.1.0/miniz-2.1.0.zip
+Dependencies versions:
+Busybox: https://busybox.net/downloads/busybox-1.33.0.tar.bz2
+miniz: https://github.com/richgel999/miniz/releases/download/2.1.0/miniz-2.1.0.zip
+OpenBSD diff/diff3prog: https://raw.githubusercontent.com/openbsd/src/master/usr.bin/diff/

@@ -55,6 +55,13 @@ openbsd_diff.c: source/xmalloc.h source/diff.h source/diff.c source/diffreg.c so
 openbsd_diff3prog.c: source/diff3prog.c
 	cat openbsd_diff3prog.h source/diff3prog.c > $@
 
+.PHONY: versions.txt
+versions.txt:
+	echo 'Dependencies versions:' > $@
+	echo Busybox: $(URL_busybox) >> $@
+	echo miniz: $(URL_miniz) >> $@
+	echo OpenBSD diff/diff3prog: $(URL_bsddiff) >> $@
+
 .PHONY: dist
 dist: build/wasm/busybox_unstripped.js
 	mkdir -p dist

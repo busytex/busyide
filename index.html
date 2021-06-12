@@ -277,7 +277,7 @@
             Packages:
             <ul>
                 <li><input type="checkbox" id="data_package_auto" checked>auto selection</input></li>
-                <li><input type="checkbox" value="texlive-small" class="data_package">[texlive-small]</input></li>
+                <li><input type="checkbox" value="texlive-basic" class="data_package">[texlive-basic]</input></li>
                 <li><input type="checkbox" value="texlive-science" class="data_package">[texlive-science]</input></li>
                 <li><input type="checkbox" value="texlive-latex-recommended" class="data_package">[texlive-latex-recommended]</input></li>
                 <li><input type="checkbox" value="texlive-latex-extra" class="data_package">[texlive-latex-extra]</input></li>
@@ -756,7 +756,7 @@ const paths =
     busybox_wasm : '/dist/busybox_unstripped.wasm',
     texmf_local : ['./texmf'],
     
-    preload_data_packages_js : ['/dist/texlive-small.js'],
+    preload_data_packages_js : ['/dist/texlive-basic.js'],
 
     other_data_packages_js : ['/dist/ubuntu-texlive-science.js', '/dist/ubuntu-texlive-latex-recommended.js', '/dist/ubuntu-texlive-latex-extra.js'],
     

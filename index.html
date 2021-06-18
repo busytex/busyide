@@ -281,8 +281,10 @@
                 <option value="debug">Debug</option>
             </select>
             <table>
-                <thead><tr><th class="tl">ubuntu package</th><th class="tr">tex packages</th></tr></thead>
-                <tr><td><input type="checkbox" id="data_package_auto" checked>auto selection</input></td></tr>
+                <thead>
+                    <tr><th class="tl">ubuntu package</th><th class="tr">tex packages</th></tr>
+                    <tr><td><input type="checkbox" id="data_package_auto" checked>auto selection</input></td></tr>
+                </thead>
                 <tbody id="data_packages">
                     <!--<tr><td><input type="checkbox" value="texlive-basic" class="data_package">[texlive-basic]</input></td></tr>
                     <tr><td><input type="checkbox" value="texlive-science" class="data_package">[texlive-science]</input></td></tr>
@@ -549,11 +551,12 @@ const ui =
         {
             const tr = tbody.insertRow();
             let tc = tr.insertCell();
-            const checkbox = document.createElement('checkbox');
-            checkbox.value = k;
-            checkbox.className = 'data_package';
-            checkbox.innerText = k;
-            tc.appendChild(checkbox);
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.value = k;
+            input.className = 'data_package';
+            input.innerText = k;
+            tc.appendChild(input);
             
             tc = tr.insertCell();
             tc.innerText = '' + Array.from(v);

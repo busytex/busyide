@@ -274,6 +274,12 @@
         <textarea readonly hidden id="txtpreview" class="busyui"></textarea>
         <figure hidden id="texsettings" class="busyui">
             <figcaption>$ # TeX Settings</figcaption>
+            Verbosity:
+            <select id="verbose" class="busyui">
+                <option value="silent" selected="selected">Silent</option>
+                <option value="info">Info</option>
+                <option value="debug">Debug</option>
+            </select>
             Packages:
             <ul>
                 <li><input type="checkbox" id="data_package_auto" checked>auto selection</input></li>
@@ -282,12 +288,6 @@
                 <li><input type="checkbox" value="texlive-latex-recommended" class="data_package">[texlive-latex-recommended]</input></li>
                 <li><input type="checkbox" value="texlive-latex-extra" class="data_package">[texlive-latex-extra]</input></li>
             </ul>
-            Verbosity:
-            <select id="verbose" class="busyui">
-                <option value="silent" selected="selected">Silent</option>
-                <option value="info">Info</option>
-                <option value="debug">Debug</option>
-            </select>
         </figure>
         <figure hidden id="searchresults" class="busyui">
             <figcaption>$ rgrep "<span></span>"</figcaption>

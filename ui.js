@@ -646,6 +646,7 @@ export class Shell
 
         this.bind();
         this.dirty('timer_save');
+        console.log(await this.data_package_resolver.resolve_data_packages());
     }
    
     log_big_header(text = '', log_sink_path = null)

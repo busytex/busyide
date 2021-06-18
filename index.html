@@ -555,8 +555,15 @@ const ui =
             input.type = 'checkbox';
             input.value = k;
             input.className = 'data_package';
-            input.innerText = k;
+            input.id = k;
+            //input.innerText = k;
+
+            const label = document.createElement('label');
+            label.htmlFor = k;
+            label.appendChild(document.createTextNode(k));
+            
             tc.appendChild(input);
+            tc.appendChild(label);
             
             tc = tr.insertCell();
             tc.innerText = '' + Array.from(v);

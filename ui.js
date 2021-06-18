@@ -876,7 +876,7 @@ export class Shell
 
     oncompilermessage(e)
     {
-        const {pdf, log, print} = e.data;
+        const {pdf, log, print, exit_code} = e.data;
         if(pdf)
         {
             this.toc();
@@ -889,6 +889,7 @@ export class Shell
             this.toc();
             this.mkdir_p(this.PATH.dirname(this.log_path));
             this.FS.writeFile(this.log_path, log);
+            this.ui.set_error(exit_code != 0 ? `[latexmk] error code: [${exit_code}]` : '');
         }
         if(print)
         {

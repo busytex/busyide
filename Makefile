@@ -58,9 +58,9 @@ openbsd_diff3prog.c: source/diff3prog.c
 .PHONY: versions.txt
 versions.txt:
 	echo 'busyide dependencies:' > $@
-	echo busybox: $(URL_busybox) >> $@
-	echo miniz: $(URL_miniz) >> $@
-	echo openbsd diff/diff3prog: $(URL_bsddiff) >> $@
+	echo busybox: \\url{$(URL_busybox)} >> $@
+	echo miniz: \\url{$(URL_miniz)} >> $@
+	echo openbsd diff/diff3prog: \\url{$(URL_bsddiff)} >> $@
 
 .PHONY: dist
 dist: build/wasm/busybox_unstripped.js

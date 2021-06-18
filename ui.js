@@ -124,8 +124,7 @@ export class Shell
         this.ui.man.onclick = () => this.commands('man');
         this.ui.share.onclick = () => this.github.git_dir() ? [this.log_big_header(''), this.log_big(this.ui.get_origin() + '/#github/' + this.github.format_url() )] : this.project_dir() ? this.commands(and(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log)))) : null;
         this.ui.show_not_modified.onclick = this.ui.toggle_not_modified.bind(this);
-        this.ui.show_tex_settings.onclick = () => this.ui.toggle_viewer('texsettings');
-        //console.log(await this.data_package_resolver.resolve_data_packages());
+        this.ui.show_tex_settings.onclick = async () => this.ui.update_tex_settings(await this.data_package_resolver.resolve_data_packages()) || this.ui.toggle_viewer('texsettings');
 
         this.ui.new_file.onclick = () =>
         {

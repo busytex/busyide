@@ -284,10 +284,10 @@
                 <thead><tr><th class="tl">ubuntu package</th><th class="tr">tex packages</th></tr></thead>
                 <tr><td><input type="checkbox" id="data_package_auto" checked>auto selection</input></td></tr>
                 <tbody id="data_packages">
-                    <tr><td><input type="checkbox" value="texlive-basic" class="data_package">[texlive-basic]</input></td></tr>
+                    <!--<tr><td><input type="checkbox" value="texlive-basic" class="data_package">[texlive-basic]</input></td></tr>
                     <tr><td><input type="checkbox" value="texlive-science" class="data_package">[texlive-science]</input></td></tr>
                     <tr><td><input type="checkbox" value="texlive-latex-recommended" class="data_package">[texlive-latex-recommended]</input></td></tr>
-                    <tr><td><input type="checkbox" value="texlive-latex-extra" class="data_package">[texlive-latex-extra]</input></td></tr>
+                    <tr><td><input type="checkbox" value="texlive-latex-extra" class="data_package">[texlive-latex-extra]</input></td></tr>-->
                 </tbody>
             </table>
         </figure>
@@ -542,6 +542,22 @@ const ui =
 
     update_tex_settings(data_packages)
     {
+        const figure = document.getElementById('texsettings');
+        const tbody = figure.querySelector('tbody');
+        tbody.innerHTML = '';
+        for(const [k, v] of data_packages)
+        {
+            const tr = tbody.insertRow();
+            let tc = tr.insertCell();
+            const checkbox = document.createElement('checkbox');
+            checkbox.value = k;
+            checkbox.className = 'data_package';
+            checkbox.innerText = k;
+            tc.appendChild(checkbox);
+            
+            tc = tr.insertCell();
+            tc.innerText = '' + v;
+        }
         console.log(data_packages);
     },
 

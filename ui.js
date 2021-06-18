@@ -91,7 +91,6 @@ export class Shell
         this.paths_data_packages_js = paths.preload_data_packages_js.concat(paths.other_data_packages_js);
         this.data_package_resolver = new BusytexDataPackageResolver(this.paths_data_packages_js);
         this.compiler = new Worker(paths.busytex_worker_js);
-        console.log('HI', BusytexPipeline);
     }
 
     bind()
@@ -113,7 +112,7 @@ export class Shell
         this.ui.cache_purge.onclick = () => this.commands(and(cmd('cache', 'token', 'purge'), cmd('cache', 'object', 'purge')));
         this.ui.view_log.onclick = () => this.exists(this.log_path) && this.commands(cmd('open', arg(this.log_path)));
         this.ui.view_pdf.onclick = () => this.exists(this.pdf_path) && this.commands(cmd('open', arg(this.pdf_path)));
-        this.ui.publish_pdf.onclick = () => this.exists(this.pdf_path) && this.commands( cmd('hub', 'release', 'create', 'busytex'), cmd('hub', 'release', 'edit', '-a', this.pdf_path, 'busytex') ); // or() this.pdf_path && https://hub.github.com/hub-release.1.html
+        this.ui.release_pdf.onclick = () => this.exists(this.pdf_path) && this.commands( cmd('hub', 'release', 'create', 'busytex'), cmd('hub', 'release', 'edit', '-a', this.pdf_path, 'busytex') ); // or() this.pdf_path && https://hub.github.com/hub-release.1.html
         this.ui.download.onclick = () => this.ui.get_current_file() && !this.isdir(this.ui.get_current_file()) && this.commands(cmd('download', arg(this.ui.get_current_file())));
         this.ui.upload.onclick = async () => await this.commands('upload');
         this.ui.import_project.onclick = this.import_project.bind(this);
@@ -126,6 +125,7 @@ export class Shell
         this.ui.share.onclick = () => this.github.git_dir() ? [this.log_big_header(''), this.log_big(this.ui.get_origin() + '/#github/' + this.github.format_url() )] : this.project_dir() ? this.commands(and(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#base64targz/', '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log)))) : null;
         this.ui.show_not_modified.onclick = this.ui.toggle_not_modified.bind(this);
         this.ui.show_tex_settings.onclick = () => this.ui.toggle_viewer('texsettings');
+        //console.log(await this.data_package_resolver.resolve_data_packages());
 
         this.ui.new_file.onclick = () =>
         {
@@ -646,7 +646,6 @@ export class Shell
 
         this.bind();
         this.dirty('timer_save');
-        console.log(await this.data_package_resolver.resolve_data_packages());
     }
    
     log_big_header(text = '', log_sink_path = null)

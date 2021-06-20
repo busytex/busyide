@@ -11,6 +11,7 @@
 3. packaging of everything into one large HTML file to run from file://
 
 ### TODO
+0. view log + search (bad rename)
 0. https://stackoverflow.com/questions/34632839/checkbox-marked-with-click-in-link
 0. https://github.com/Darkseal/CORSflare
 0. https://gist.github.com/jimmywarting/ac1be6ea0297c16c477e17f8fbe51347

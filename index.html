@@ -250,6 +250,11 @@
             <option value="enabled">BibTeX: enabled</option>
             <option value="disabled" title="runs much faster">BibTeX: disabled</option>
         </select>
+        <select id="verbose" class="busyui">
+            <option value="silent" selected="selected">Silent</option>
+            <option value="info">Info</option>
+            <option value="debug">Debug</option>
+        </select>
         <select id="tex_path" class="busyui">
             <option value="" disabled selected>TeX file:</option>
         </select>
@@ -274,12 +279,6 @@
         <textarea readonly hidden id="txtpreview" class="busyui"></textarea>
         <figure hidden id="texsettings" class="busyui">
             <figcaption>$ # TeX Settings</figcaption>
-            Verbosity:
-            <select id="verbose" class="busyui">
-                <option value="silent" selected="selected">Silent</option>
-                <option value="info">Info</option>
-                <option value="debug">Debug</option>
-            </select>
             <table>
                 <thead>
                     <tr><th class="tl">ubuntu package</th><th class="tr">tex packages</th></tr>

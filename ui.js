@@ -105,6 +105,7 @@ export class Shell
 
         self.onfocus = () => this.cancel_file_upload ? this.cancel_file_upload() : null;
 
+        this.ui.man.onclick = () => this.commands('man');
         this.ui.search.onclick = () => this.project_dir() && this.ui.search_query.value && this.commands(cmd('rgrep', qq(this.ui.search_query.value)));
         this.ui.apply_patch.onclick = () => this.project_dir() && this.commands(and(cmd('upload', arg(this.patch_path)), cmd('cd', arg(this.project_dir())), cmd('patch', '-p1', '-i', arg(this.patch_path)), cmd('cd', '-')));
         this.ui.clone.onclick = () => this.ui.github_https_path.value && this.commands(and('cd', cmd('git', 'clone', this.ui.github_https_path.value), cmd('cd', this.PATH.join('~', this.PATH.basename(this.ui.github_https_path.value))), cmd('open', '.')) );
@@ -122,8 +123,7 @@ export class Shell
         this.ui.strip_comments.onclick = () => this.project_dir() && this.commands(cmd( 'sed', '-i', '-e', qq('s/^\\([^\\]*\\)\\(\\(\\\\\\\\\\)*\\)%.*/\\1\\2%/g'), qx('find ' + arg(this.project_dir()) + ' -name ' + qq('*.tex') )));
         this.ui.compile_project.onclick = () => this.project_dir() && this.ui.get_current_tex_path() && this.commands(cmd('latexmk', arg(this.ui.get_current_tex_path())));
         this.ui.compile_current_file.onclick = () => (this.ui.get_current_file() || '').endsWith('.tex') && !this.isdir(this.ui.get_current_file()) && this.commands(cmd('latexmk', arg(this.ui.get_current_file())));
-        this.ui.man.onclick = () => this.commands('man');
-        this.ui.share.onclick = () => this.github.git_dir() ? [this.log_big_header(''), this.log_big(this.ui.get_origin() + '/#github/' + this.github.format_url() )] : this.project_dir() ? this.commands(and(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#' + this.data_uri_prefix_tar_gz, '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log)))) : null;
+        this.ui.share.onclick = () => this.github.git_dir() ? [this.log_big_header(''), this.log_big(this.ui.get_origin() + '/#' + this.github.format_url() )] : this.project_dir() ? this.commands(and(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#' + this.data_uri_prefix_tar_gz, '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log)))) : null;
         this.ui.show_not_modified.onclick = this.ui.toggle_not_modified.bind(this);
         this.ui.show_tex_settings.onclick = async () => this.ui.update_tex_settings(await this.data_package_resolver.resolve_data_packages()) || this.ui.toggle_viewer('texsettings');
 
@@ -660,7 +660,7 @@ export class Shell
     log_big_header(text = '', log_sink_path = null)
     {
         this.log_big(this.ui.log_reset_sequence);
-        this.ui.toggle_viewer('log', text + '\n');
+        this.ui.toggle_viewer('.log', text + '\n');
         this.log_sink_path = log_sink_path;
     }
 
@@ -1067,7 +1067,7 @@ export class Shell
             this.tex_path = '';
             this.ui.set_current_file('');
             open_editor_tab('');
-            this.ui.toggle_viewer('log', '');
+            this.ui.toggle_viewer('.log', '');
             return;
         }
         else if(file_path != null)

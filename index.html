@@ -443,7 +443,7 @@ const ui =
 
     set_current_pdf : abspath => (ui.download_pdf.title = ui.view_pdf.title = abspath),
 
-    set_project_name : basename => (ui.project_name.innerText = basename),
+    set_project_name : basename => (ui.project_name.innerText = basename || 'N/A'),
     
     log_big : text => ui.log(text, ui.txtpreview),
     

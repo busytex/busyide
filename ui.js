@@ -428,7 +428,7 @@ export class Shell
                 print_or_dump = arg => this.FS.writeFile(stdout_redirect.trim(), toString_redirect(arg));
             }
 
-            const urlarg = [...this.ui.get_route(), ''][1];
+            const urlarg = [...this.ui.get_route(), ''][0];
             args = args.map(a => a.replaceAll('$@', urlarg).replaceAll('$?', '' + this.last_exit_code));
             
             const exit_code = res => res === false ? this.EXIT_FAILURE : Number.isInteger(res) ? ('' + res) : this.EXIT_SUCCESS;
@@ -617,7 +617,7 @@ export class Shell
         if(route0 == this.data_uri_prefix_tar_gz)
         {
             const project_dir = '~';
-            const cmds = [this.cmd('echo', '$@', '>', this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_targz), this.cmd('gzip', this.shared_project_targz), 'cd', this.cmd('tar', '-xf', this.share_project_tar), this.cmd('open', '.')];
+            const cmds = [this.cmd('echo', '$@', '>', this.share_link_log), this.cmd('sed', '-i', '-e', this.qq(`s#$${this.data_uri_prefix_tar_gz}##`), this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_targz), this.cmd('gzip', this.shared_project_targz), 'cd', this.cmd('tar', '-xf', this.share_project_tar), this.cmd('open', '.')];
             await this.commands(this.and(...cmds));
         }
     }

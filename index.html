@@ -721,8 +721,7 @@ const ui =
     get_route()
     {
         const hash = window.location.hash.length > 0 ? window.location.hash.substring(1) : '';
-        const route_parts = hash.split('/');
-        return route_parts.length > 1 ? [route_parts[0], route_parts.slice(1).join('/')] : route_parts;
+        return [hash];
     },
 
     get_enabled_data_packages()

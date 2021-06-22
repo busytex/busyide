@@ -428,7 +428,7 @@ export class Shell
                 print_or_dump = arg => this.FS.writeFile(stdout_redirect.trim(), toString_redirect(arg));
             }
 
-            const urlarg = [...this.ui.get_route(), '', ''][1];
+            const urlarg = [...this.ui.get_route(), ''][1];
             args = args.map(a => a.replaceAll('$@', urlarg).replaceAll('$?', '' + this.last_exit_code));
             
             const exit_code = res => res === false ? this.EXIT_FAILURE : Number.isInteger(res) ? ('' + res) : this.EXIT_SUCCESS;
@@ -551,13 +551,14 @@ export class Shell
     async init(route0, route1)
     {
         //TODO: do not reset error
-        if(route0 == 'url')
+        if(!route0)
         {
-            if(route1.includes('://github.com') || route1.includes('://gist.github.com'))
+            const url = new URL(route1);
+            if(['github.com', 'gist.github.com'].includes(url.host))
                 route0 = 'github';
-            else if(route1.includes('://arxiv.org'))
+            else if('arxiv.org' == url.host)
                 route0 = 'arxiv';
-            else if(route1.includes(this.data_uri_prefix_tar_gz))
+            else if('data:' == url.protocol && url.pathname.startsWith(this.data_uri_prefix_tar_gz.slice('data:'.length)))
                 [route0, route1] = [this.data_uri_prefix_tar_gz, route1.slice(this.data_uri_prefix_tar_gz.length)];
         }
         
@@ -649,7 +650,7 @@ export class Shell
        
         this.terminal_prompt();
         if(route.length > 1)
-            await this.init(...route);
+            await this.init(null, ...route);
         else
             await this.commands('man');
 
@@ -745,7 +746,7 @@ export class Shell
         }
         
         await this.cache_save();
-        this.ui.set_route('github', this.github.format_url(parsed.username, parsed.reponame, parsed.gist, branch));
+        this.ui.set_route(this.github.format_url(parsed.username, parsed.reponame, parsed.gist, branch));
     }
 
     git_status()

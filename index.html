@@ -449,6 +449,10 @@ const ui =
     
     log_small : text => ui.log(text, ui.status),
     
+    set_route : (...route_parts) => (window.location.hash = route_parts.join('/')),
+
+    get_route : () => window.location.hash.length > 0 ? [window.location.hash.substring(1)] : [],
+
     set_current_file(basename, abspath, verb = '')
     {
         console.log('set_current_file', 'name: [', basename, ']', 'path: [', abspath, ']', 'verb: [', verb, ']');
@@ -714,14 +718,6 @@ const ui =
             textarea.value += text + '\n';
             textarea.scrollTop = textarea.scrollHeight;
         }
-    },
-
-    set_route : (...route_parts) => (window.location.hash = route_parts.join('/')),
-
-    get_route()
-    {
-        const hash = window.location.hash.length > 0 ? window.location.hash.substring(1) : '';
-        return [hash];
     },
 
     get_enabled_data_packages()

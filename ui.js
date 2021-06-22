@@ -649,7 +649,7 @@ export class Shell
         const route = this.ui.get_route();
        
         this.terminal_prompt();
-        if(route.length > 1)
+        if(route.length > 0)
             await this.init(null, ...route);
         else
             await this.commands('man');

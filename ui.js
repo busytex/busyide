@@ -151,7 +151,7 @@ export class Shell
         this.ui.commit_push_new_branch.onclick = () => this.commands(and(cmd('git', 'checkout', '-b', this.github.propose_new_branch_name()), cmd('git', 'push')));
 
         this.ui.github_https_path.onkeypress = this.ui.github_branch.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
-        this.ui.filetree.onchange = ev => console.log('onchange', this.ui.get_selected_file_path()) || this.open(this.expandcollapseuser(this.ui.get_selected_file_path() || '', false));
+        this.ui.filetree.onchange = ev => this.open(this.expandcollapseuser(this.ui.get_selected_file_path() || '', false));
 
         this.ui.filetree.ondblclick = ev =>
         {
@@ -1015,6 +1015,8 @@ export class Shell
                 }
                 
                 this.editor.setModel(this.tab);
+
+                console.log('edit_path = ', '[', abspath, ']');
                 this.edit_path = abspath;
 
                 //var decorations = this.editor.deltaDecorations([], [	{ range: new monaco.Range(3,1,5,1), options: { isWholeLine: true, linesDecorationsClassName: 'myLineDecoration' }},	{ range: new monaco.Range(7,1,7,24), options: { inlineClassName: 'myInlineDecoration' }},]);
@@ -1057,7 +1059,6 @@ export class Shell
             line_number = contents;
             contents = null;
         }
-        console.log('LINENUMBER', line_number);
         
         if(file_path === null)
             file_path = '.';
@@ -1374,13 +1375,14 @@ export class Shell
         
         if(!this.exists(this.edit_path))
         {
-            console.log('refresh', 'does not exist', this.edit_path);
+            console.log('refresh', 'does not exist', '[', this.edit_path, ']');
             if(this.tab)
             {
                 this.tab.dispose();
                 this.tab = null;
             }
             this.edit_path = null;
+            console.log('edit_path = ', '[', abspath, ']');
         }
 
         this.refresh_cwd = this.FS.cwd();

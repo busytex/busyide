@@ -1381,7 +1381,7 @@ export class Shell
                 this.tab = null;
             }
             this.edit_path = null;
-            console.log('edit_path = ', '[', abspath, ']');
+            console.log('edit_path = ', '[', this.edit_path, ']');
         }
 
         this.refresh_cwd = this.FS.cwd();

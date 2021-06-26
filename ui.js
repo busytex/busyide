@@ -1372,7 +1372,6 @@ export class Shell
         this.ui.update_tex_paths(project_dir ? files.filter(f => f.path.endsWith('.tex')) : [], selected_file_path);
         this.ui.set_project_name(project_dir ? this.PATH.basename(project_dir) : 'N/A');
 
-        
         if(!this.exists(this.edit_path))
         {
             console.log('refresh', 'does not exist', '[', this.edit_path, ']');

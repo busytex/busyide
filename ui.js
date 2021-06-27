@@ -1091,8 +1091,8 @@ export class Shell
 
                     this.ls_la(abspath, file_path);
                     
-                    if(file_path != '.')
-                        open_editor_tab('');
+                    //if(file_path != '.')
+                    //    open_editor_tab('');
                     
                     file_path = null;
                     return;

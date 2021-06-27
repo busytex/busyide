@@ -2,6 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="busytex" type="text/javascript" href="/dist/busytex.js" id="busytex_js" />
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>busytex</title>
     <link rel="stylesheet" href="https://unpkg.com/xterm@4.9.0/css/xterm.css" />
@@ -752,7 +754,9 @@ const ui =
             ui.imgpreview.src = 'data:image/jpg;base64,' + b64encode(contents);
     }
 };
-  
+
+console.log('LINKS', Array.from(document.head.getElementsByTagName('link')).filter(link => link.rel == 'busytex'));
+
 const paths = 
 {
     busytex_js : '/dist/busytex.js', 

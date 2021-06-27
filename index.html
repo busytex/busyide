@@ -2,7 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="busytex" type="text/javascript" href="/dist/busytex.js" id="busytex_js" />
+    
+    <link rel="busytex" type="text/javascript" id="busytex_js" href="/dist/busytex.js"  />
+    <link rel="busytex" type="application/wasm" id="busytex_wasm" href="/dist/busytex.wasm" />
+    <link rel="busytex" type="text/javascript" id="busytex_worker_js" href="/dist/busytex_worker.js" /> 
+    <link rel="busytex" type="text/javascript" id="busytex_pipeline_js" href="/dist/busytex_pipeline.js" />
+    <link rel="busytex" type="application/wasm" id="busybox_wasm" href="/dist/busybox_unstripped.wasm" />
+    <link rel="busytex" type="application/json" id="lang_monarch_json" href="./monarch_lang.json" />
+    <link rel="busytex" type="application/json" id="latex_monarch_json" href="./monarch_latex.json" />
+    <link rel="busytex" type="application/json" id="bibtex_monarch_json" href="./monarch_bibtex.json" />
+    <link rel="busytex" type="text" id="readme_tex" href="/README.tex" />
+    <link rel="busytex" type="text" id="versions_txt" href="/versions.txt" />
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>busytex</title>
@@ -755,26 +765,16 @@ const ui =
     }
 };
 
-console.log('LINKS', Array.from(document.head.getElementsByTagName('link')).filter(link => link.rel == 'busytex'));
+const paths_ = Object.fromEntries(Array.from(document.head.getElementsByTagName('link')).filter(link => link.rel == 'busytex').map(link => [link.id, link.href]));
 
 const paths = 
 {
-    busytex_js : '/dist/busytex.js', 
-    busytex_wasm : '/dist/busytex.wasm',
-    busytex_worker_js : '/dist/busytex_worker.js', 
-    busytex_pipeline_js : '/dist/busytex_pipeline.js',
-    busybox_wasm : '/dist/busybox_unstripped.wasm',
-    texmf_local : ['./texmf'],
+    ...paths_,
     
+    texmf_local : ['./texmf'],
     preload_data_packages_js : ['/dist/texlive-basic.js'],
-
     other_data_packages_js : ['/dist/ubuntu-texlive-science.js', '/dist/ubuntu-texlive-latex-recommended.js', '/dist/ubuntu-texlive-latex-extra.js'],
     
-    lang_monarch_json : './monarch_lang.json',
-    latex_monarch_json : './monarch_latex.json',
-    bibtex_monarch_json : './monarch_bibtex.json',
-    readme_tex : '/README.tex',
-    versions_txt : '/versions.txt',
     unpkg_monaco_editor : 'https://unpkg.com/monaco-editor@latest/min/vs',
     unpkg_xterm : 'https://unpkg.com/xterm@4.9.0/lib'
 };

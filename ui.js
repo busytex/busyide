@@ -43,6 +43,7 @@ export class Shell
         this.current_terminal_line = '';
         this.data_uri_prefix_tar_gz = 'data:application/tar+gzip;base64,';
         this.text_extensions = ['.tex', '.bib', '.sty', '.bst', '.bbl', '.txt', '.md', '.svg', '.sh', '.py', '.csv', '.tsv', '.eps', '.xml', '.json', '.md', '.r'];
+        this.search_extensions = ['', '.tex', '.bib', '.sty', '.txt', '.md', '.sh', '.py', '.xml', '.json', '.md', '.r'];
         this.busybox_applets = ['busyz', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed', 'true', 'false', 'seq', 'patch', 'grep', 'test', 'xxd', 'hexdump'];
         this.shell_builtins =  ['cd', 'mv', 'man', 'help', 'open', 'close', 'download', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty', 'hub', 'rgrep'];
         this.cache_applets = ['object', 'token'];
@@ -693,7 +694,7 @@ export class Shell
 
         const stdout = this.busybox.run(['grep', query, '-n', '-i', '-r', this.project_dir()]).stdout;
         const lines = stdout.split('\n').filter(l => l.length > 0).map(l => l.split(':'));
-        const search_results = lines.map(splitted => ({path : strip_project_dir(splitted[0]), abspath : splitted[0], line_number : parseInt(splitted[1]), line : splitted.slice(2).join(':')})).filter(f => this.text_extensions.some(ext => f.abspath.toLowerCase().endsWith(ext)));
+        const search_results = lines.map(splitted => ({path : strip_project_dir(splitted[0]), abspath : splitted[0], line_number : parseInt(splitted[1]), line : splitted.slice(2).join(':')})).filter(f => this.search_extensions.some(ext => f.abspath.toLowerCase().endsWith(ext)));
         this.ui.update_search_results(query, search_results, this.open.bind(this));
         this.ui.toggle_viewer('searchresults');
     }

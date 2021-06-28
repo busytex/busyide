@@ -438,7 +438,9 @@ export class Shell
                 if (cmd == '')
                     continue;
 
-                else if(cmd == 'help')
+                this.log_small(`$ ${cmd} ` + args.join(' '));
+
+                if(cmd == 'help')
                 {
                     print_or_dump(this.shell_commands);
                     this.last_exit_code = this.EXIT_SUCCESS;
@@ -562,7 +564,9 @@ export class Shell
             else if('data:' == url.protocol && url.pathname.startsWith(this.data_uri_prefix_tar_gz.slice('data:'.length)))
                 [route0, route1] = [this.data_uri_prefix_tar_gz, route1.slice(this.data_uri_prefix_tar_gz.length)];
         }
-        
+       
+        this.log_big_header(`Loading from ${route0}...`);
+
         if(route0 == 'github')
         {
             const parsed = this.github.parse_url(route1);
@@ -620,6 +624,8 @@ export class Shell
             const cmds = [this.cmd('echo', '$@', '>', this.share_link_log), this.cmd('sed', '-i', '-e', this.qq(`s#${this.data_uri_prefix_tar_gz}##`), this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_targz), this.cmd('gzip', '-d', this.shared_project_targz), 'cd', this.cmd('tar', '-xf', this.shared_project_tar), this.cmd('open', '.')];
             await this.commands(this.and(...cmds));
         }
+
+        this.log_big('OK!');
     }
 
     async run(busybox_module_constructor, busybox_wasm_module_promise)

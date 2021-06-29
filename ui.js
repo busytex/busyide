@@ -565,8 +565,6 @@ export class Shell
                 [route0, route1] = [this.data_uri_prefix_tar_gz, route1.slice(this.data_uri_prefix_tar_gz.length)];
         }
        
-        this.log_big_header(`Loading from ${route0}...`);
-
         if(route0 == 'github')
         {
             const parsed = this.github.parse_url(route1);
@@ -580,6 +578,9 @@ export class Shell
             const arxiv_https_path = route1.replace('/abs/', '/e-print/');
             const project_dir = this.PATH.join('~', this.PATH.basename(arxiv_https_path));
             const cmds = [this.cmd('wget', arxiv_https_path, '-O', this.arxiv_path), this.cmd('mkdir', project_dir), this.cmd('tar', '-xf', this.arxiv_path, '-C', project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')];
+            
+            this.log_big_header(`Opening project from ${route0}...`);
+
             await this.commands(this.and(...cmds));
         }
         if(route0 == 'archive')
@@ -635,7 +636,9 @@ export class Shell
         this.compiler.postMessage(this.paths);
         this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, this.log_small.bind(this));
         
+        this.log_big_header('Loading BusyBox...');
         await this.busybox.load()
+        this.log_big_header('OK!');
         
         this.PATH = this.busybox.Module.PATH;
         this.FS = this.busybox.Module.FS;

@@ -639,7 +639,7 @@ export class Shell
         
         this.log_big_header('Loading BusyBox...');
         await this.busybox.load()
-        this.log_big_header('OK!');
+        this.log_big('OK!');
         
         this.PATH = this.busybox.Module.PATH;
         this.FS = this.busybox.Module.FS;

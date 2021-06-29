@@ -659,10 +659,7 @@ export class Shell
         const route = this.ui.get_route();
        
         this.terminal_prompt();
-        if(route.length > 0)
-            await this.init(null, ...route);
-        else
-            await this.commands('man');
+        await (route.length > 0 ? this.init(null, ...route) : this.commands('man'));
 
         this.bind();
         this.dirty('timer_save');
@@ -670,6 +667,7 @@ export class Shell
    
     log_big_header(text = '', log_sink_path = null)
     {
+        console.log('log_big_header', '[', text, ']');
         this.log_big(this.ui.log_reset_sequence);
         this.ui.toggle_viewer('.log', text + '\n');
         this.log_sink_path = log_sink_path;
@@ -677,6 +675,7 @@ export class Shell
 
     log_big(text)
     {
+        console.log('log_big', '[', text, ']');
         this.ui.log_big(text);
         if(this.log_sink_path)
             this.FS.writeFile(this.log_sink_path, this.read_all_text(this.log_sink_path) + text + '\n');

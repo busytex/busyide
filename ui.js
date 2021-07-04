@@ -733,8 +733,7 @@ export class Shell
         if(!token)
         {
             this.log_big(`Searching token cache for '${https_path}'...`);
-            token = await this.cache_token('get', https_path);
-            this.ui.github_token.value = token;
+            this.ui.github_token.value = token = await this.cache_token('get', https_path)
             token_cached = token != '';
             this.log_big(token_cached ? `Token found [${token}] in cache...` : 'Token not found in cache...');
         }

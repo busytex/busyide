@@ -3,21 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     
-    <link rel="busytex" type="text/javascript" id="busytex_js" href="/dist/busytex.js"  />
-    <link rel="busytex" type="application/wasm" id="busytex_wasm" href="/dist/busytex.wasm" />
-    <link rel="busytex" type="text/javascript" id="busytex_worker_js" href="/dist/busytex_worker.js" /> 
-    <link rel="busytex" type="text/javascript" id="busytex_pipeline_js" href="/dist/busytex_pipeline.js" />
-    <link rel="busytex" type="application/wasm" id="busybox_wasm" href="/dist/busybox_unstripped.wasm" />
-    <link rel="busytex" type="application/json" id="lang_monarch_json" href="./monarch_lang.json" />
-    <link rel="busytex" type="application/json" id="latex_monarch_json" href="./monarch_latex.json" />
-    <link rel="busytex" type="application/json" id="bibtex_monarch_json" href="./monarch_bibtex.json" />
     <link rel="busytex" type="text" id="readme_tex" href="/README.tex" />
     <link rel="busytex" type="text" id="versions_txt" href="/versions.txt" />
     
+    <link rel="busytex" id="require_monaco_editor" href="https://unpkg.com/monaco-editor@latest/min/vs" />
+    <link rel="busytex" id="require_xterm" href="https://unpkg.com/xterm@4.9.0/lib" />
+    
+    <link rel="busytex" type="text/javascript" id="busybox_js" href="./dist/busybox_unstripped.js" />
+    <link rel="busytex" type="application/wasm" id="busybox_wasm" href="/dist/busybox_unstripped.wasm" />
+    <link rel="busytex" type="text/javascript" id="busytex_js" href="/dist/busytex.js"  />
+    <link rel="busytex" type="application/wasm" id="busytex_wasm" href="/dist/busytex.wasm" />
+
+    <link rel="busytex" type="text/javascript" id="busytex_worker_js" href="/dist/busytex_worker.js" /> 
+    <link rel="busytex" type="text/javascript" id="busytex_pipeline_js" href="/dist/busytex_pipeline.js" />
+    
+    <link rel="busytex" type="application/json" id="lang_monarch_json" href="./monarch_lang.json" />
+    <link rel="busytex" type="application/json" id="latex_monarch_json" href="./monarch_latex.json" />
+    <link rel="busytex" type="application/json" id="bibtex_monarch_json" href="./monarch_bibtex.json" />
+    
+    <link rel="busytex" id="texlive_basic" href="/dist/texlive-basic.js" />
+    <link rel="busytex" id="texlive_ubuntu_science" href="/dist/ubuntu-texlive-science.js" />
+    <link rel="busytex" id="texlive_ubuntu_recommended" href="/dist/ubuntu-texlive-latex-recommended.js" />
+    <link rel="busytex" id="texlive_ubuntu_extra" href="/dist/ubuntu-texlive-latex-extra.js" />
+    
+
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>busytex</title>
     <link rel="stylesheet" href="https://unpkg.com/xterm@4.9.0/css/xterm.css" />
     <link rel="icon" type="image/png" href="logo.png" />
+
+
 
     <style>
         body {
@@ -752,6 +768,7 @@ const ui =
         [ui.imgpreview.hidden, ui.pdfpreview.hidden, ui.txtpreview.hidden, ui.gitstatus.hidden, ui.gitpull.hidden, ui.searchresults.hidden, ui.texsettings.hidden] = [mode != '.svg' && mode != '.jpg' && mode != '.png', mode != '.pdf', mode != '.log', mode != 'gitstatus', mode != 'gitpull', mode != 'searchresults', mode != 'texsettings'];
 
         const b64encode = uint8array => btoa(uint8array.reduce((acc, i) => acc += String.fromCharCode.apply(null, [i]), ''));
+
         if(mode == '.log')
             ui.txtpreview.value = contents;
         else if(mode == '.pdf')
@@ -765,21 +782,13 @@ const ui =
     }
 };
 
-const paths_ = Object.fromEntries(Array.from(document.head.getElementsByTagName('link')).filter(link => link.rel == 'busytex').map(link => [link.id, link.href]));
+const paths = Array.from(document.head.getElementsByTagName('link')).filter(link => link.rel == 'busytex').map(link => [link.id, link.href])
 
-const paths = 
-{
-    ...paths_,
-    
-    texmf_local : ['./texmf'],
-    preload_data_packages_js : ['/dist/texlive-basic.js'],
-    other_data_packages_js : ['/dist/ubuntu-texlive-science.js', '/dist/ubuntu-texlive-latex-recommended.js', '/dist/ubuntu-texlive-latex-extra.js'],
-    
-    unpkg_monaco_editor : 'https://unpkg.com/monaco-editor@latest/min/vs',
-    unpkg_xterm : 'https://unpkg.com/xterm@4.9.0/lib'
-};
+const texlive_data_packages_js = paths.filter(([id, href]) => id.startsWith('texlive_')).map(([id, href]) => href);
 
-require.config({ paths: { vs: paths.unpkg_monaco_editor , xterm: paths.unpkg_xterm } });
+const paths = { ...Object.fromEntries(paths), texlive_data_packages_js : texlive_data_packages_js };
+
+require.config({ paths: { vs: paths.require_monaco_editor , xterm: paths.require_xterm } });
 
 window.MonacoEnvironment = 
 {
@@ -832,7 +841,7 @@ const readme_tex_promise = fetch(paths.readme_tex).then(r => r.text());
 const versions_txt_promise = fetch(paths.versions_txt).then(r => r.text());
 const busybox_wasm_module_promise = fetch(paths.busybox_wasm).then(WebAssembly.compileStreaming);
 
-require(['vs/editor/editor.main', 'xterm/xterm', './dist/busybox_unstripped.js'], async (Monaco, Terminal, busybox_module_constructor) =>
+require(['vs/editor/editor.main', 'xterm/xterm', paths.busybox_js], async (Monaco, Terminal, busybox_module_constructor) =>
 {
     const {editor, difftool} = init_editor(Monaco, ui.editor, ui.difftool, ...(await Promise.all(monarch_promises)));
     const terminal = init_terminal(Terminal, ui.terminal, FitAddon);

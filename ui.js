@@ -42,6 +42,7 @@ export class Shell
         this.log_sink_path = null;
         this.current_terminal_line = '';
         this.data_uri_prefix_tar_gz = 'data:application/tar+gzip;base64,';
+        this.texmf_local = ['./texmf', './.texmf'];
         this.archive_extensions = ['.zip', '.tar.gz', '.tar'];
         this.text_extensions = ['.tex', '.bib', '.sty', '.bst', '.bbl', '.txt', '.md', '.svg', '.sh', '.py', '.csv', '.tsv', '.eps', '.xml', '.json', '.md', '.r'];
         this.search_extensions = ['', '.tex', '.bib', '.sty', '.txt', '.md', '.sh', '.py', '.xml', '.json', '.md', '.r'];
@@ -91,8 +92,8 @@ export class Shell
         this.rm_rf = dirpath => this.busybox.run(['rm', '-rf', dirpath]);
         this.diff = (abspath, basepath, cwd) => this.busybox.run(['bsddiff', '-Nu', this.exists(basepath) && basepath != '/dev/null' ? basepath : this.empty_file, this.exists(abspath) && abspath != '/dev/null' ? abspath : this.empty_file]).stdout; // TODO: get newer diff from FreeBSD: https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=233402
         
-        this.paths_data_packages_js = paths.preload_data_packages_js.concat(paths.other_data_packages_js);
-        this.data_package_resolver = new BusytexDataPackageResolver(this.paths_data_packages_js);
+        this.data_package_resolver = new BusytexDataPackageResolver(this.paths.texlive_data_packages_js);
+
         this.compiler = new Worker(paths.busytex_worker_js);
     }
 
@@ -655,7 +656,14 @@ export class Shell
     {
         this.ui.set_error('');
         
-        this.compiler.postMessage(this.paths);
+        this.compiler.postMessage({
+            ...this.paths,
+
+            texmf_local : this.texmf_local, 
+            preload_data_packages_js : this.paths.texlive_data_packages_js.slice(0, 1), 
+            other_data_packages_js : this.paths.texlive_data_packages_js.slice(1) 
+        });
+
         this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, this.log_small.bind(this));
         
         this.log_big_header('Loading BusyBox...');
@@ -1246,7 +1254,7 @@ export class Shell
 
         const files = this.find(project_dir);
 
-        const [data_packages_js, tex_packages_not_resolved] = await this.data_package_resolver.resolve(files, this.ui.get_enabled_data_packages() !== null ? this.ui.get_enabled_data_packages().map(data_package => this.paths_data_packages_js.find(p => p.includes(data_package))) : null);
+        const [data_packages_js, tex_packages_not_resolved] = await this.data_package_resolver.resolve(files, this.ui.get_enabled_data_packages() !== null ? this.ui.get_enabled_data_packages().map(data_package => this.paths.texlive_data_packages_js.find(p => p.includes(data_package))) : null);
         console.log('NOT RESOLVED', tex_packages_not_resolved);
 
         const bibtex = this.ui.bibtex.value == 'auto' ? BusytexBibtexResolver(files) : (this.ui.bibtex.value == 'enabled');

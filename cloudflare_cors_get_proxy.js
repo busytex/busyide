@@ -1,3 +1,5 @@
+// inspired by https://github.com/Darkseal/CORSflare/blob/master/CORSflare.js and https://github.com/Zibri/cloudflare-cors-anywhere/blob/master/index.js
+
 addEventListener('fetch', event => event.respondWith(fetch_and_transform(event.request)));
 
 /****************************************************************************************/

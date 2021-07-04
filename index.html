@@ -799,6 +799,7 @@ window.MonacoEnvironment =
         // HTML5 does not allow cross-domain web workers, so we need to proxy the instantiation of
         // a web worker through a same-domain script
         return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
+            console.log('WORKER', document.getElementById('require_monaco_editor'));
             self.MonacoEnvironment = { baseUrl: 'https://unpkg.com/monaco-editor@latest/min/' };
             importScripts('https://unpkg.com/monaco-editor@latest/min/vs/base/worker/workerMain.js');`)}`
     }

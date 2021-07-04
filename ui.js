@@ -42,6 +42,7 @@ export class Shell
         this.log_sink_path = null;
         this.current_terminal_line = '';
         this.data_uri_prefix_tar_gz = 'data:application/tar+gzip;base64,';
+        this.archive_extensions = ['.zip', '.tar.gz', '.tar'];
         this.text_extensions = ['.tex', '.bib', '.sty', '.bst', '.bbl', '.txt', '.md', '.svg', '.sh', '.py', '.csv', '.tsv', '.eps', '.xml', '.json', '.md', '.r'];
         this.search_extensions = ['', '.tex', '.bib', '.sty', '.txt', '.md', '.sh', '.py', '.xml', '.json', '.md', '.r'];
         this.busybox_applets = ['busyz', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed', 'true', 'false', 'seq', 'patch', 'grep', 'test', 'xxd', 'hexdump'];
@@ -553,14 +554,23 @@ export class Shell
 
     async init(route0, route1)
     {
-        //TODO: do not reset error
+        //TODO: do not reset github error
         if(!route0)
         {
             const url = new URL(route1);
-            if(['github.com', 'gist.github.com'].includes(url.host))
+            
+            if(this.archive_extensions.some(ext => url.pathname.endsWith(ext)))
+                route0 = 'archive';
+ 
+            else if(this.text_extensions.some(ext => url.pathname.endsWith(ext)))
+                route0 = 'file';
+
+            else if(this.github.hosts.includes(url.host))
                 route0 = 'github';
+            
             else if('arxiv.org' == url.host)
                 route0 = 'arxiv';
+            
             else if('data:' == url.protocol && url.pathname.startsWith(this.data_uri_prefix_tar_gz.slice('data:'.length)))
                 [route0, route1] = [this.data_uri_prefix_tar_gz, route1.slice(this.data_uri_prefix_tar_gz.length)];
         }

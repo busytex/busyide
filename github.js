@@ -38,6 +38,7 @@ export class Github
         this.dot_git = '.git';
         this.git_root = this.PATH_.home_dir.replace('home', this.dot_git);
         this.gist_branch = 'gist';
+        this.hosts = ['github.com', 'gist.github.com'];
     }
     
     auth_headers()

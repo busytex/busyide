@@ -2,12 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="logo.png" />
     
     <link rel="busytex" type="text" id="readme_tex" href="/README.tex" />
     <link rel="busytex" type="text" id="versions_txt" href="/versions.txt" />
-    
-    <link rel="busytex" id="require_monaco_editor" href="https://unpkg.com/monaco-editor@latest/min/vs" />
-    <link rel="busytex" id="require_xterm" href="https://unpkg.com/xterm@4.9.0/lib" />
     
     <link rel="busytex" type="text/javascript" id="busybox_js" href="./dist/busybox_unstripped.js" />
     <link rel="busytex" type="application/wasm" id="busybox_wasm" href="/dist/busybox_unstripped.wasm" />
@@ -26,14 +25,12 @@
     <link rel="busytex" id="texlive_ubuntu_recommended" href="/dist/ubuntu-texlive-latex-recommended.js" />
     <link rel="busytex" id="texlive_ubuntu_extra" href="/dist/ubuntu-texlive-latex-extra.js" />
     
-
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link  href="https://unpkg.com/xterm@4.9.0/css/xterm.css" rel="stylesheet" />
+    <link  href="https://unpkg.com/xterm@4.9.0/lib" id="require_xterm" rel="busytex" />
+    <link  href="https://unpkg.com/monaco-editor@latest/min/vs" rel="busytex" id="require_monaco_editor" />
+    <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
+    
     <title>busytex</title>
-    <link rel="stylesheet" href="https://unpkg.com/xterm@4.9.0/css/xterm.css" />
-    <link rel="icon" type="image/png" href="logo.png" />
-
-
 
     <style>
         body {
@@ -371,8 +368,6 @@
 
 
 <script src="/dist/busytex_pipeline.js"></script>
-
-<script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
 
 <script type="module">
 
@@ -802,10 +797,6 @@ window.MonacoEnvironment =
         const baseUrl = document.getElementById('require_monaco_editor').href.replace('/vs', '');
         const worker_code = `self.MonacoEnvironment = { baseUrl: '${baseUrl}/' }; importScripts('${baseUrl}/vs/base/worker/workerMain.js');`;
         return `data:text/javascript;charset=utf-8,${encodeURIComponent(worker_code)}`;
-        
-        //return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
-        //    self.MonacoEnvironment = { baseUrl: 'https://unpkg.com/monaco-editor@latest/min/' };
-        //    importScripts('https://unpkg.com/monaco-editor@latest/min/vs/base/worker/workerMain.js');`)}`
     }
 };
 

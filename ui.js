@@ -1233,7 +1233,7 @@ export class Shell
     {
         let cwd = this.FS.cwd();
         
-        if(!cwd.startsWith(this.home_dir) || !tex_path || !tex_path.endsWith('.tex'))
+        if(!cwd.startsWith(this.home_dir) || !tex_path || !tex_path.endsWith(this.tex_ext))
             return;
         
         const abspath = this.abspath(tex_path);
@@ -1243,10 +1243,10 @@ export class Shell
         this.terminal_print(`Running in background (verbosity = [${verbose}], TeX driver = [${tex_driver}])...`);
         this.tic();
         
-        this.pdf_path = abspath.replace('.tex', '.pdf').replace(this.project_dir(), this.project_tmp_dir());
+        this.pdf_path = abspath.replace(this.tex_ext, '.pdf').replace(this.project_dir(), this.project_tmp_dir());
         this.ui.set_current_pdf(this.pdf_path);
         
-        this.log_path = abspath.replace('.tex', '.log').replace(this.project_dir(), this.project_tmp_dir());
+        this.log_path = abspath.replace(this.tex_ext, '.log').replace(this.project_dir(), this.project_tmp_dir());
         this.ui.set_current_log(this.log_path);
         
         const project_dir = this.project_dir(cwd);
@@ -1264,15 +1264,13 @@ export class Shell
 
     async import_project()
     {
-        const extname_archive = ['.tar', '.tar.gz', '.zip'], extname_file = ['.tex', '.bib'];
-        const paths = await this.upload(this.tmp_dir, [...extname_archive, ...extname_file]);
+        const paths = await this.upload(this.tmp_dir, [...this.archive_extensions, ...this.text_extensions]);
         if(paths.length == 0)
             return;
 
         const path = paths[0];
-        const extname = this.PATH.extname(path);
         
-        await this.init(extname_archive.includes(extname) ? 'archive' : 'file', path);
+        await this.init(this.archive_extensions.includes(this.PATH.extname(path)) ? 'archive' : 'file', path);
     }
 
     async upload(file_path = null, ext = [])
@@ -1323,12 +1321,12 @@ export class Shell
         });
     }
 
-    download(file_path, mime)
+    download(file_path, mime = 'application/octet-stream')
     {
         if(!this.exists(file_path))
             return;
 
-        this.ui.create_and_click_download_link(this.PATH.basename(file_path), this.FS.readFile(file_path), mime || 'application/octet-stream');
+        this.ui.create_and_click_download_link(this.PATH.basename(file_path), this.FS.readFile(file_path), mime);
     }
     
     merge(ours_path, theirs_path, parent_path, df13_diff = '/tmp/df13.diff', df23_diff = '/tmp/df23.diff', conflict_left = '<<<<<<<', conflict_right = '>>>>>>>')

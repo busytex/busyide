@@ -782,11 +782,11 @@ const ui =
     }
 };
 
-const paths = Array.from(document.head.getElementsByTagName('link')).filter(link => link.rel == 'busytex').map(link => [link.id, link.href])
+const paths_list = Array.from(document.head.getElementsByTagName('link')).filter(link => link.rel == 'busytex').map(link => [link.id, link.href])
 
-const texlive_data_packages_js = paths.filter(([id, href]) => id.startsWith('texlive_')).map(([id, href]) => href);
+const texlive_data_packages_js = paths_list.filter(([id, href]) => id.startsWith('texlive_')).map(([id, href]) => href);
 
-const paths = { ...Object.fromEntries(paths), texlive_data_packages_js : texlive_data_packages_js };
+const paths = { ...Object.fromEntries(paths_list), texlive_data_packages_js : texlive_data_packages_js };
 
 require.config({ paths: { vs: paths.require_monaco_editor , xterm: paths.require_xterm } });
 

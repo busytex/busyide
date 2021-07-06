@@ -596,6 +596,8 @@ export class Shell
         }
         if(route0 == 'archive')
         {
+            // TODO: before fixing the worker, find why this does not fail: https://busytex.github.io/#https://github.com/vadimkantorov/busyidetest/archive/refs/heads/master.zip
+            //
             const file_https_path = route1;
             const basename = this.PATH.basename(file_https_path);
             const basename_noext = basename.slice(0, basename.indexOf('.'));

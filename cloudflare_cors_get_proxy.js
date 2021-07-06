@@ -2,20 +2,27 @@
 
 addEventListener('fetch', event => event.respondWith((async () =>
 {
+    
     const url = new URL(event.request.url);
+    const origin = event.request.headers.get('Origin');
 
     if (url.search.startsWith('?'))
     {
         const url_href = unescape(unescape(url.search.substr(1)));
 
-        const response = await fetch(url_href, { method: 'GET', redirect: 'manual' });
+        const response = await fetch(url_href, { method: 'GET' } );
 
-        return new Response(response.body, { status: response.status, headers: response.headers });
+        const headers = new Headers(response.headers);
+
+        headers.set('Access-Control-Allow-Origin', origin);
+
+        return new Response(response.body, { status: response.status, headers: headers });
     }
     else
     {
         return new Response('', { status: 403 });
     }
+
 })()));
 
 

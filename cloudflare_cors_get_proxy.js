@@ -1,20 +1,21 @@
 // inspired by https://github.com/Darkseal/CORSflare/blob/master/CORSflare.js and https://github.com/Zibri/cloudflare-cors-anywhere/blob/master/index.js
 
-addEventListener('fetch', event => event.respondWith(fetch_and_transform(event.request)));
-
-/****************************************************************************************/
-
-async function fetch_and_transform(request)
+addEventListener('fetch', async event => 
 {
-	const new_request_headers = new Headers(request.headers);
+    
+    const url = new URL(event.request.url);
 
-	const params = { method: 'GET', redirect: 'manual', headers: new_request_headers };
+    if (url.search.startsWith('?'))
+    {
+        const url_href = unescape(unescape(url.search.substr(1)));
 
-    const url = new URL(request.url);
+        const response = await fetch(url_href, { method: 'GET', redirect: 'manual' });
 
-	const original_response = await fetch(url.href, params);
+        event.respondWith(new Response(response.body, { status: response.status, headers: response.headers }));
+    }
+    else
+    {
+        event.respondWith(new Response('', { status: 403 }));
+    }
 
-	const new_response = new Response(original_response.body, { status: original_response.status, headers: original_response.headers });
-
-	return new_response;
-}
+});

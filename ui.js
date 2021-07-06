@@ -309,6 +309,8 @@ export class Shell
        
         this.tabs_load(this);
         this.dirty('timer_save');
+
+        return this.last_exit_code;
     }
 
     async shell(current_terminal_line)
@@ -626,11 +628,13 @@ export class Shell
                 
                 : []; 
 
-            const cmds1 = [...download_cmds, ...decompress_cmds]
-            
             this.log_big(`Opening project from archive [${route1}]...`);
             
+            const cmds1 = [...download_cmds, ...decompress_cmds]
             await this.commands(this.and(...cmds1));
+
+            if(this.last_exit_code != this.EXIT_SUCCESS)
+                return this.last_exit_code;
             
             const src_path = this.strip_components(this.tmp_decompressed);
 
@@ -655,6 +659,8 @@ export class Shell
         }
 
         this.log_big('OK!');
+
+        return this.last_exit_code;
     }
 
     async run(busybox_module_constructor, busybox_wasm_module_promise)

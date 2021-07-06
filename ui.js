@@ -590,7 +590,7 @@ export class Shell
             const project_dir = this.PATH.join('~', this.PATH.basename(arxiv_https_path));
             const cmds = [this.cmd('wget', arxiv_https_path, '-O', this.arxiv_path), this.cmd('mkdir', project_dir), this.cmd('tar', '-xf', this.arxiv_path, '-C', project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')];
             
-            this.log_big(`Opening project from arxiv...`);
+            this.log_big(`Opening project from arxiv [${route1}]...`);
 
             await this.commands(this.and(...cmds));
         }
@@ -627,6 +627,9 @@ export class Shell
                 : []; 
 
             const cmds1 = [...download_cmds, ...decompress_cmds]
+            
+            this.log_big(`Opening project from archive [${route1}]...`);
+            
             await this.commands(this.and(...cmds1));
             
             const src_path = this.strip_components(this.tmp_decompressed);

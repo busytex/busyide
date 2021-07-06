@@ -557,7 +557,6 @@ export class Shell
 
     async init(route0, route1)
     {
-        //TODO: do not reset github error
         if(!route0)
         {
             const url = new URL(route1);
@@ -598,8 +597,6 @@ export class Shell
         }
         if(route0 == 'archive')
         {
-            // TODO: before fixing the worker, find why this does not fail: https://busytex.github.io/#https://github.com/vadimkantorov/busyidetest/archive/refs/heads/master.zip
-            //
             const file_https_path = route1;
             const basename = this.PATH.basename(file_https_path);
             const basename_noext = basename.slice(0, basename.indexOf('.'));
@@ -648,13 +645,15 @@ export class Shell
             const basename = this.PATH.basename(path);
             const file_path = this.PATH.join(this.tmp_dir, basename);
             const project_dir = this.PATH.join('~', basename.slice(0, basename.indexOf('.')));
+            
+            this.log_big(`Opening project from file [${route1}]...`);
             const cmds = [this.cmd('mkdir', this.arg(project_dir)), path.startsWith('http://') || path.startsWith('https://') ? this.cmd('wget', this.arg(path), '-P', this.arg(project_dir)) : this.cmd('cp', this.arg(path), this.arg(project_dir)), this.cmd('cd', this.arg(project_dir)), this.cmd('open', '.')];
             await this.commands(this.and(...cmds));
         }
         if(route0 == this.data_uri_prefix_tar_gz)
         {
-            const cmds = [this.cmd('echo', '$@', '>', this.share_link_log), this.cmd('sed', '-i', '-e', this.qq(`s#${this.data_uri_prefix_tar_gz}##`), this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_targz), this.cmd('gzip', '-d', this.shared_project_targz), 'cd', this.cmd('tar', '-xf', this.shared_project_tar), this.cmd('open', '.')];
             this.log_big(`Opening project from data URI (*.tar.gz)...`);
+            const cmds = [this.cmd('echo', '$@', '>', this.share_link_log), this.cmd('sed', '-i', '-e', this.qq(`s#${this.data_uri_prefix_tar_gz}##`), this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_targz), this.cmd('gzip', '-d', this.shared_project_targz), 'cd', this.cmd('tar', '-xf', this.shared_project_tar), this.cmd('open', '.')];
             await this.commands(this.and(...cmds));
         }
 

@@ -571,6 +571,7 @@ const ui =
         const figure = document.getElementById('texsettings');
         const tbody = figure.querySelector('tbody');
         tbody.innerHTML = '';
+        // https://packages.ubuntu.com/groovy/all/texlive-latex-extra/filelist
         for(const [k, v] of data_packages)
         {
             const tr = tbody.insertRow();

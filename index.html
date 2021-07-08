@@ -599,6 +599,7 @@ const ui =
                 a.target = '_blank';
                 a.href = 'https://ctan.org/pkg/' + tex_package;
                 tc.appendChild(a);
+                tc.appendChild(document.createTextNode(', '));
             }
         }
         console.log(data_packages);

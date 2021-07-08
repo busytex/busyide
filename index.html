@@ -588,6 +588,7 @@ const ui =
             tc.appendChild(input);
             
             tc = tr.insertCell();
+            let a = document.createElement('a');
             a.innerText = basename(k);
             a.target = '_blank';
             a.href = 'https://packages.ubuntu.com/groovy/all/' + basename(k).replace('.js', '') + '/filelist';
@@ -596,7 +597,7 @@ const ui =
             tc = tr.insertCell();
             for(const tex_package of v)
             {
-                const a = document.createElement('a');
+                a = document.createElement('a');
                 a.innerText = tex_package;
                 a.target = '_blank';
                 a.href = 'https://ctan.org/pkg/' + tex_package;
@@ -604,7 +605,6 @@ const ui =
                 tc.appendChild(document.createTextNode(', '));
             }
         }
-        console.log(data_packages);
     },
 
     update_search_results(search_query, search_results, open)

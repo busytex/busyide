@@ -572,6 +572,7 @@ const ui =
         const tbody = figure.querySelector('tbody');
         tbody.innerHTML = '';
         // https://packages.ubuntu.com/groovy/all/texlive-latex-extra/filelist
+        // https://ctan.org/pkg/xparse
         for(const [k, v] of data_packages)
         {
             const tr = tbody.insertRow();
@@ -591,7 +592,14 @@ const ui =
             tc.appendChild(label);
             
             tc = tr.insertCell();
-            tc.innerText = '' + Array.from(v);
+            for(const tex_package of v)
+            {
+                const a = document.createElement('a');
+                a.innerText = tex_package;
+                a.target = '_blank';
+                a.href = 'https://ctan.org/pkg/' + tex_package;
+                tc.appendChild(a);
+            }
         }
         console.log(data_packages);
     },

@@ -584,15 +584,21 @@ const ui =
             input.value = k;
             input.className = 'data_package';
             input.id = k;
-            //input.innerText = k;
             tc.appendChild(input);
             
             tc = tr.insertCell();
             let a = document.createElement('a');
-            a.innerText = basename(k);
-            a.target = '_blank';
-            a.href = 'https://packages.ubuntu.com/groovy/all/' + basename(k).replace('.js', '') + '/filelist';
-            tc.appendChild(a);
+            if(basename(k).startsWith('ubuntu-'))
+            {
+                a.innerText = basename(k);
+                a.target = '_blank';
+                a.href = 'https://packages.ubuntu.com/groovy/all/' + basename(k).replace('ubuntu-', '').replace('.js', '') + '/filelist';
+                tc.appendChild(a);
+            }
+            else
+            {
+                tc.appendChild(document.createTextNode(basename(k)));
+            }
             
             tc = tr.insertCell();
             for(const tex_package of v)

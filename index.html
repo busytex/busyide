@@ -304,7 +304,7 @@
             <figcaption>$ # TeX Settings</figcaption>
             <table>
                 <thead>
-                    <tr><th class="tl">ubuntu package</th><th class="tr">tex packages</th></tr>
+                    <tr><th class="tl">selected</th><th>ubuntu package</th><th class="tr">tex packages</th></tr>
                     <tr><td><input type="checkbox" id="data_package_auto" checked>auto selection</input></td></tr>
                 </thead>
                 <tbody id="data_packages">
@@ -585,13 +585,7 @@ const ui =
             input.className = 'data_package';
             input.id = k;
             //input.innerText = k;
-
-            const label = document.createElement('label');
-            label.htmlFor = k;
-            label.appendChild(document.createTextNode(basename(k)));
-            
             tc.appendChild(input);
-            tc.appendChild(label);
             
             tc = tr.insertCell();
             a.innerText = basename(k);

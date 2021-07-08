@@ -677,7 +677,18 @@ export class Shell
         this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, this.log_small.bind(this));
         
         this.log_big_header('Loading BusyBox...');
-        await this.busybox.load()
+        try
+        {
+            await this.busybox.load();
+        }
+        catch(err)
+        {
+            this.last_exit_code = this.EXIT_FAILURE;
+            const msg = `[${cmd}] last error code: [${this.last_exit_code}], error message: [${err.message || "no message"}]`
+            this.ui.set_error(msg);
+            this.log_big(msg);
+            return;
+        }
         this.log_big('OK!');
         
         this.PATH = this.busybox.Module.PATH;
@@ -695,9 +706,9 @@ export class Shell
         
         await this.cache_load();
        
-        const route = this.ui.get_route();
-       
         this.terminal_prompt();
+        
+        const route = this.ui.get_route();
         await (route.length > 0 ? this.init(null, ...route) : this.commands('man'));
 
         this.bind();

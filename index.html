@@ -573,9 +573,11 @@ const ui =
         tbody.innerHTML = '';
         // https://packages.ubuntu.com/groovy/all/texlive-latex-extra/filelist
         // https://ctan.org/pkg/xparse
+        const basename = path => path.slice(path.lastIndexOf('/') + 1);
         for(const [k, v] of data_packages)
         {
             const tr = tbody.insertRow();
+            
             let tc = tr.insertCell();
             const input = document.createElement('input');
             input.type = 'checkbox';
@@ -586,10 +588,16 @@ const ui =
 
             const label = document.createElement('label');
             label.htmlFor = k;
-            label.appendChild(document.createTextNode(k));
+            label.appendChild(document.createTextNode(basename(k)));
             
             tc.appendChild(input);
             tc.appendChild(label);
+            
+            tc = tr.insertCell();
+            a.innerText = basename(k);
+            a.target = '_blank';
+            a.href = 'https://packages.ubuntu.com/groovy/all/' + basename(k).replace('.js', '') + '/filelist';
+            tc.appendChild(a);
             
             tc = tr.insertCell();
             for(const tex_package of v)

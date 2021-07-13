@@ -14,7 +14,7 @@ export class Busybox
     async load() 
     {
         const {print, printErr, verbose} = this;
-        const wasm_module = WebAssembly.compileStreaming ? (await this.wasm_module_promise) : this.wasm_module_promise;
+        const wasm_module = await (WebAssembly.compileStreaming ? this.wasm_module_promise : this.wasm_module_promise.then(r => r.arrayBuffer()));
         const Module =
         {
             thisProgram : '/bin/busybox',

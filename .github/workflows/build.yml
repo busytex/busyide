@@ -4,6 +4,7 @@ on: workflow_dispatch
 
 env:
     MAKEFLAGS: -j2
+    EMSCRIPTEN_VERSION: 2.0.26
 
 jobs:
 
@@ -13,7 +14,7 @@ jobs:
       - name: Setup Emscripten
         uses: mymindstorm/setup-emsdk@v10
         with:
-          version: 2.0.26
+          version: ${{env.EMSCRIPTEN_VERSION}}
       
       - uses: actions/checkout@v2
         with:

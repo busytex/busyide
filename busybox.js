@@ -30,10 +30,7 @@ export class Busybox
 
             instantiateWasm(imports, successCallback)
             {
-                if(WebAssembly.compileStreaming)
-                    WebAssembly.instantiate(wasm_module, imports).then(successCallback);
-                else // Safari 14
-                    WebAssembly.instantiateStreaming(wasm_module, imports).then(successCallback);
+                WebAssembly.instantiate(wasm_module, imports).then(successCallback);
             },
             
             stdin()

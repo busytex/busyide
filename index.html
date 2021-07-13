@@ -853,7 +853,7 @@ const monarch_promises = [paths.lang_monarch_json, paths.latex_monarch_json, pat
 
 const readme_tex_promise = fetch(paths.readme_tex).then(r => r.text());
 const versions_txt_promise = fetch(paths.versions_txt).then(r => r.text());
-const busybox_wasm_module_promise = fetch(paths.busybox_wasm).then(WebAssembly.compileStreaming);
+const busybox_wasm_module_promise = fetch(paths.busybox_wasm);
 
 require(['vs/editor/editor.main', 'xterm/xterm', paths.busybox_js], async (Monaco, Terminal, busybox_module_constructor) =>
 {

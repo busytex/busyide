@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Setup Emscripten
-        uses: mymindstorm/setup-emsdk@v7
+        uses: mymindstorm/setup-emsdk@v10
         with:
-          version: 2.0.5
+          version: 2.0.26
       
       - uses: actions/checkout@v2
         with:

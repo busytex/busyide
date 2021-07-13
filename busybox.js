@@ -3,7 +3,7 @@ export class Busybox
     constructor(busybox_module_constructor, busybox_wasm_module_promise, printErr = null, print = null, verbose = false)
     {
         this.mem_header_size = 2 ** 25;
-        this.wasm_module_promise = busybox_wasm_module_promise;
+        this.wasm_module_promise = busybox_wasm_module_promise.then(WebAssembly.compileStreaming);
         this.busybox_module_constructor = busybox_module_constructor;
         this.print = print;
         this.printErr = printErr;

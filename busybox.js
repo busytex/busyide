@@ -14,6 +14,7 @@ export class Busybox
     async load() 
     {
         const {print, printErr, verbose} = this;
+        const wasm_module = WebAssembly.compileStreaming ? (await this.wasm_module_promise) : this.wasm_module_promise;
         const Module =
         {
             thisProgram : '/bin/busybox',
@@ -30,9 +31,9 @@ export class Busybox
             instantiateWasm(imports, successCallback)
             {
                 if(WebAssembly.compileStreaming)
-                    WebAssembly.instantiate(await this.wasm_module_promise, imports).then(successCallback);
+                    WebAssembly.instantiate(wasm_module, imports).then(successCallback);
                 else // Safari 14
-                    WebAssembly.instantiateStreaming(this.wasm_module_promise, imports).then(successCallback);
+                    WebAssembly.instantiateStreaming(wasm_module, imports).then(successCallback);
             },
             
             stdin()

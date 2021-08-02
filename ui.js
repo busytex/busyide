@@ -670,8 +670,8 @@ export class Shell
             ...this.paths,
 
             texmf_local : this.texmf_local, 
-            preload_data_packages_js : this.paths.texlive_data_packages_js.slice(0, 1), 
-            other_data_packages_js : this.paths.texlive_data_packages_js.slice(1)
+            preload_data_packages_js : this.paths.texlive_data_packages_js,//.slice(0, 1), 
+            other_data_packages_js : [] //this.paths.texlive_data_packages_js.slice(1)
         });
 
         this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, this.log_small.bind(this));

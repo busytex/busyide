@@ -571,8 +571,6 @@ const ui =
         const figure = document.getElementById('texsettings');
         const tbody = figure.querySelector('tbody');
         tbody.innerHTML = '';
-        // https://packages.ubuntu.com/groovy/all/texlive-latex-extra/filelist
-        // https://ctan.org/pkg/xparse
         const basename = path => path.slice(path.lastIndexOf('/') + 1);
         for(const [k, v] of data_packages)
         {

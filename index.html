@@ -588,17 +588,10 @@ const ui =
             
             tc = tr.insertCell();
             let a = document.createElement('a');
-            if(basename(k).startsWith('ubuntu-'))
-            {
-                a.innerText = basename(k);
-                a.target = '_blank';
-                a.href = 'https://packages.ubuntu.com/groovy/all/' + basename(k).replace('ubuntu-', '').replace('.js', '') + '/filelist';
-                tc.appendChild(a);
-            }
-            else
-            {
-                tc.appendChild(document.createTextNode(basename(k)));
-            }
+            a.innerText = basename(k);
+            a.target = '_blank';
+            a.href = basename(k).startsWith('ubuntu-') ? ('https://packages.ubuntu.com/groovy/all/' + basename(k).replace('ubuntu-', '').replace('.js', '') + '/filelist') : 'https://tug.org/svn/texlive/trunk/Master/tlpkg/tlpsrc/collection-basic.tlpsrc?view=markup';
+            tc.appendChild(a);
             
             tc = tr.insertCell();
             for(const tex_package of v)

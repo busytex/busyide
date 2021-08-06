@@ -569,6 +569,7 @@ const ui =
 
     update_tex_settings(data_packages)
     {
+        window.msgurls = [];
         const figure = document.getElementById('texsettings');
         const tbody = figure.querySelector('tbody');
         tbody.innerHTML = '';
@@ -601,6 +602,7 @@ const ui =
                 a.innerText = tex_package;
                 a.target = '_blank';
                 a.href = 'https://ctan.org/pkg/' + tex_package;
+                window.msgurls.push(a.href);
                 tc.appendChild(a);
                 tc.appendChild(document.createTextNode(', '));
             }

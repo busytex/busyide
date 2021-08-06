@@ -689,7 +689,7 @@ export class Shell
             this.log_big(msg);
             return;
         }
-        this.log_big('OK!');
+        this.log_big('Loading BusyBox... OK!');
         
         this.PATH = this.busybox.Module.PATH;
         this.FS = this.busybox.Module.FS;

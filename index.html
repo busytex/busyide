@@ -128,7 +128,6 @@
         .tl {text-align: left}
         .tr {text-align: right}
         .vt {vertical-align: top}
-        .data_package {vertical-align: top}
         
         /*figure, details, table {
             width: 95%;
@@ -579,6 +578,7 @@ const ui =
             const tr = tbody.insertRow();
             
             let tc = tr.insertCell();
+            tc.className = 'vt';
             const input = document.createElement('input');
             input.type = 'checkbox';
             input.value = k;
@@ -587,10 +587,10 @@ const ui =
             tc.appendChild(input);
             
             tc = tr.insertCell();
+            tc.className = 'vt';
             let a = document.createElement('a');
             a.innerText = basename(k);
             a.target = '_blank';
-            a.className = 'vt';
             a.href = basename(k).startsWith('ubuntu-') ? ('https://packages.ubuntu.com/groovy/all/' + basename(k).replace('ubuntu-', '').replace('.js', '') + '/filelist') : 'https://tug.org/svn/texlive/trunk/Master/tlpkg/tlpsrc/collection-basic.tlpsrc?view=markup';
             tc.appendChild(a);
             

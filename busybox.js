@@ -31,6 +31,7 @@ export class Busybox
             instantiateWasm(imports, successCallback)
             {
                 WebAssembly.instantiate(wasm_module, imports).then(successCallback);
+                return {};
             },
             
             stdin()

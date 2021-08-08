@@ -1280,7 +1280,7 @@ export class Shell
 
         const bibtex = this.ui.bibtex.value == 'auto' ? null : (this.ui.bibtex.value == 'enabled');
         
-        this.compiler.postMessage({ files : files, main_tex_path : main_tex_path, verbose : verbose, bibtex : bibtex, driver : tex_driver, data_packages_js : this.paths.preload_data_packages_js.concat(data_packages_js) });
+        this.compiler.postMessage({ files : files, main_tex_path : main_tex_path, verbose : verbose, bibtex : bibtex, driver : tex_driver, data_packages_js : this.paths.texlive_data_packages_js });
     }
 
     async import_project()

@@ -30,7 +30,7 @@ export class Busybox
 
             instantiateWasm(imports, successCallback)
             {
-                WebAssembly.instantiate(wasm_module, imports).then(output => successCallback(output.instance)).catch(err => {throw new Error('Error while initializing BusyBox!\n\n' + err.toString())});
+                WebAssembly.instantiate(wasm_module, imports).then(output => successCallback(output.instance || output)).catch(err => {throw new Error('Error while initializing BusyBox!\n\n' + err.toString())});
                 return {};
             },
             

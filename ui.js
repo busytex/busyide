@@ -1262,7 +1262,6 @@ export class Shell
         const verbose = this.ui.verbose.value, tex_driver = this.ui.tex_driver.value;
 
         this.terminal_print(`Running in background (verbosity = [${verbose}], TeX driver = [${tex_driver}])...`);
-        this.tic();
         
         this.pdf_path = abspath.replace(this.tex_ext, '.pdf').replace(this.project_dir(), this.project_tmp_dir());
         this.ui.set_current_pdf(this.pdf_path);
@@ -1272,15 +1271,13 @@ export class Shell
         
         const project_dir = this.project_dir(cwd);
         const main_tex_path = abspath.slice(project_dir.length + 1);
-
         const files = this.find(project_dir);
 
-        const [data_packages_js, tex_packages_not_resolved] = await this.data_package_resolver.resolve(files, this.ui.get_enabled_data_packages() !== null ? this.ui.get_enabled_data_packages().map(data_package => this.paths.texlive_data_packages_js.find(p => p.includes(data_package))) : null);
-        console.log('NOT RESOLVED', tex_packages_not_resolved);
-
+        const data_packages_js = this.ui.get_enabled_data_packages() === null ? null : this.ui.get_enabled_data_packages().map(data_package => this.paths.texlive_data_packages_js.find(p => p.includes(data_package))); 
         const bibtex = this.ui.bibtex.value == 'auto' ? null : (this.ui.bibtex.value == 'enabled');
         
-        this.compiler.postMessage({ files : files, main_tex_path : main_tex_path, verbose : verbose, bibtex : bibtex, driver : tex_driver, data_packages_js : this.paths.texlive_data_packages_js });
+        this.tic();
+        this.compiler.postMessage({ files : files, main_tex_path : main_tex_path, verbose : verbose, bibtex : bibtex, driver : tex_driver, data_packages_js : data_packages_js });
     }
 
     async import_project()

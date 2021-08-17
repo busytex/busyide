@@ -722,6 +722,7 @@ export class Shell
                 if(exit_code == this.EXIT_SUCCESS)
                     exit_code = this.EXIT_FAILURE;
                 this.ui.set_error(`[init] error code: [${exit_code}], exception: [${err.toString()}]`);
+                await this.commands('man');
             }
         }
         else

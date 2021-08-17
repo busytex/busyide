@@ -451,7 +451,7 @@ const ui =
     
     isdir : option => option.className == 'filetreedirectory',
 
-    get_current_file : abspath => abspath === true ? ui.verb.title : ui.current_file.textContent,
+    get_current_file : abspath => abspath === true ? ui.rename.title : ui.current_file.textContent,
 
     get_origin : () => window.location.origin,
     

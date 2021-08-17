@@ -709,6 +709,7 @@ export class Shell
         this.terminal_prompt();
         
         const route = this.ui.get_route();
+        //TODO: handle errors in init / url parse / clean up if error
         await (route.length > 0 ? this.init(null, ...route) : this.commands('man'));
 
         this.bind();

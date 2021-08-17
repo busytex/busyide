@@ -853,6 +853,7 @@ const busybox_wasm_module_promise = fetch(paths.busybox_wasm);
 
 require(['vs/editor/editor.main', 'xterm/xterm', paths.busybox_js], async (Monaco, Terminal, busybox_module_constructor) =>
 {
+    //TODO: handle errors
     const {editor, difftool} = init_editor(Monaco, ui.editor, ui.difftool, ...(await Promise.all(monarch_promises)));
     const terminal = init_terminal(Terminal, ui.terminal, FitAddon);
         

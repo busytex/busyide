@@ -66,6 +66,8 @@
 
 ### Links
 
+http://gitlet.maryrosecook.com/docs/gitlet.html
+
 https://mincong.io/2018/04/28/git-index/
 
 https://medium.com/hackernoon/understanding-git-index-4821a0765cf

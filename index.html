@@ -280,7 +280,7 @@
             <option value="debug">Verbosity: Debug</option>
         </select>
         <select id="tex_path" class="busyui">
-            <option value="" disabled selected>TeX file:</option>
+            <option value="" disabled selected>Project TeX file:</option>
         </select>
 
         <div style="display: flex; margin-left:auto">
@@ -479,9 +479,6 @@ const ui =
 
     set_current_file(basename, abspath, verb = '')
     {
-        console.log('set_current_file', 'name: [', basename, ']', 'path: [', abspath, ']', 'verb: [', verb, ']');
-        console.assert(abspath && abspath.startsWith('/'));
-
         let span = ui.current_file;
         span.textContent = basename;
         
@@ -489,7 +486,7 @@ const ui =
         if(!verb)
             verb = span.textContent;
         span.textContent = verb;
-        span.title = abspath;
+        ui.rename.title = abspath;
         
         ui.filetree.value = abspath;
         ui.filetree.dataset.value = abspath;

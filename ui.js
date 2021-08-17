@@ -945,7 +945,7 @@ export class Shell
 
     oncompilermessage(e)
     {
-        const {pdf, log, print, exit_code} = e.data;
+        const {pdf, log, print, exit_code, exception} = e.data;
         if(pdf)
         {
             this.toc();
@@ -963,6 +963,10 @@ export class Shell
         if(print)
         {
             this.log_small(print);
+        }
+        if(exception)
+        {
+            this.ui.set_error(`[latexmk] exception: [${exception}]`);
         }
     }
 

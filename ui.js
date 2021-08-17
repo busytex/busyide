@@ -557,6 +557,7 @@ export class Shell
 
     async init(route0, route1)
     {
+        //TODO: clean up if error?
         if(!route0)
         {
             const url = new URL(route1);
@@ -709,8 +710,22 @@ export class Shell
         this.terminal_prompt();
         
         const route = this.ui.get_route();
-        //TODO: handle errors in init / url parse / clean up if error
-        await (route.length > 0 ? this.init(null, ...route) : this.commands('man'));
+        if(route.length > 0)
+        {
+            let exit_code = this.EXIT_SUCCESS;
+            try
+            {
+                exit_code = await this.init(null, ...route);
+            }
+            catch(err)
+            {
+                if(exit_code == this.EXIT_SUCCESS)
+                    exit_code = this.EXIT_FAILURE;
+                this.ui.set_error(`[init] error code: [${exit_code}], exception: [${err.toString()}]`);
+            }
+        }
+        else
+            await this.commands('man');
 
         this.bind();
         this.dirty('timer_save');

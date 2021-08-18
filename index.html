@@ -136,6 +136,8 @@
 
         td {padding: 0px; border: 0px}
 
+        .busyui {height:fit-content}
+
 .myInlineDecoration {
 	color: red !important;
 	cursor: pointer;
@@ -716,7 +718,7 @@ const ui =
                 option = document.createElement('option');
                 select.options.add(option);
             }
-            option.text = select.options[0].text + files[i].name;
+            option.text = select.options[0].text + ' ' + files[i].name;
             option.value = option.title = files[i].abspath;
             option.selected = selected_file_path === option.value;
         }

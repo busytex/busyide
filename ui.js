@@ -47,7 +47,7 @@ export class Shell
         this.text_extensions = ['.tex', '.bib', '.sty', '.bst', '.bbl', '.txt', '.md', '.svg', '.sh', '.py', '.csv', '.tsv', '.eps', '.xml', '.json', '.md', '.r'];
         this.search_extensions = ['', '.tex', '.bib', '.sty', '.txt', '.md', '.sh', '.py', '.xml', '.json', '.md', '.r'];
         this.busybox_applets = ['busyz', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed', 'true', 'false', 'seq', 'patch', 'grep', 'test', 'xxd', 'hexdump'];
-        this.shell_builtins =  ['cd', 'mv', 'man', 'help', 'open', 'close', 'download', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty', 'hub', 'rgrep'];
+        this.shell_builtins =  ['cd', 'mv', 'man', 'help', 'open', 'close', 'download', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty', 'hub', 'rgrep', 'tlmgr'];
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'diff', 'fetch', 'checkout'];
         this.hub_applets = ['release'];
@@ -1273,7 +1273,11 @@ export class Shell
 
     async tlmgr(install, __no_depends_at_all, ...pkgs)
     {
-
+        for(const pkg of pkgs)
+        {
+            const j = await fetch('https://www.ctan.org/json/2.0/pkg/' + pkg).then(r => r.json());
+            console.log('https://mirrors.ctan.org' + j.ctan.path);
+        }
     }
    
     async latexmk(tex_path)

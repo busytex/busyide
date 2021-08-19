@@ -154,10 +154,14 @@ export class Busybox
             this.Module.FS.chdir(cwd);
         const exit_code = NOCLEANUP_callMain(this.Module, cmd, this.print);
         this.Module.FS.chdir(OLDPWD);
+        
+        //TODO: need?
         this.Module.FS.quit();
         for(const dev_path of ['/dev/stdin', '/dev/stdout', '/dev/stderr'])
             this.Module.FS.unlink(dev_path);
         this.Module.FS.createStandardStreams();
+        //
+        
         this.Module.HEAPU8.fill(0);
         this.Module.HEAPU8.set(mem_header);
 

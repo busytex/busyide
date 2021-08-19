@@ -1270,6 +1270,11 @@ export class Shell
         this.open(this.readme_tex);
         this.refresh(this.readme_tex);
     }
+
+    async tlmgr(install, __no_depends_at_all, ...pkgs)
+    {
+
+    }
    
     async latexmk(tex_path)
     {

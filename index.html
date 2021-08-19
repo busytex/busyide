@@ -488,7 +488,7 @@ const ui =
         if(!verb)
             verb = span.textContent;
         span.textContent = verb;
-        ui.rename.title = abspath;
+        ui.remove.title = ui.rename.title = abspath;
         
         ui.filetree.value = abspath;
         ui.filetree.dataset.value = abspath;

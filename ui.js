@@ -1275,7 +1275,7 @@ export class Shell
     {
         for(const pkg of pkgs)
         {
-            const j = await fetch('https://www.ctan.org/json/2.0/pkg/' + pkg).then(r => r.json());
+            const j = await fetch_via_cors_proxy('https://www.ctan.org/json/2.0/pkg/' + pkg).then(r => r.json());
             console.log('https://mirrors.ctan.org' + j.ctan.path);
         }
     }

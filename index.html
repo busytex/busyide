@@ -282,7 +282,7 @@
             <option value="debug">Verbosity: Debug</option>
         </select>
         <select id="tex_path" class="busyui">
-            <option value="" disabled selected>TeX Project File: </option>
+            <option value="" disabled selected hidden>TeX Project File: N/A</option>
         </select>
 
         <div style="display: flex; margin-left:auto">
@@ -707,7 +707,12 @@ const ui =
             selected_file_path = select.value;
 
         if(selected_file_path === '' || files.length == 0)
+        {
+            select.options[0].hidden = false;
             select.options[0].selected = true;
+        }
+        else
+            select.options[0].hidden = true;
 
         let i = 0; 
         for(; i < files.length; i++)
@@ -718,7 +723,7 @@ const ui =
                 option = document.createElement('option');
                 select.options.add(option);
             }
-            option.text = select.options[0].text + ' ' + files[i].name;
+            option.text = select.options[0].text.replace('N/A', files[i].name);
             option.value = option.title = files[i].abspath;
             option.selected = selected_file_path === option.value;
         }

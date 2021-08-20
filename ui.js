@@ -30,6 +30,7 @@ export class Shell
         this.tex_path = '';
         this.zip_path = this.tmp_dir + '/archive.zip';
         this.tar_path = this.tmp_dir + '/archive.tar';
+        this.xz_path = this.tmp_dir + '/archive.xz';
         this.targz_path = this.tmp_dir + '/archive.tar.gz';
         this.arxiv_path = this.tmp_dir + '/arxiv.tar';
         this.patch_path = this.tmp_dir + '/uploaded.patch';
@@ -1276,8 +1277,13 @@ export class Shell
         for(const pkg of pkgs)
         {
             const j = await this.fetch_via_cors_proxy('https://www.ctan.org/json/2.0/pkg/' + pkg).then(r => r.json());
-            console.log('https://mirrors.ctan.org' + j.ctan.path + '.zip');
-            console.log('https://mirrors.ctan.org/systems/texlive/tlnet/archive/' + pkg + '.tar.xz')
+            //console.log('https://mirrors.ctan.org' + j.ctan.path + '.zip');
+            const https_path = 'https://mirrors.ctan.org/systems/texlive/tlnet/archive/' + pkg + '.tar.xz';
+            
+            const project_dir = '/tmp/asd';
+            const cmds = [this.cmd('wget', https_path, '-O', this.xz_path), this.cmd('unxz', '-d', this.xz_path), this.cmd('tar', '-xf', this.xz_path, '-C', project_dir)];
+            await this.commands(cmds);
+
         }
     }
    

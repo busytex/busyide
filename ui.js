@@ -340,12 +340,9 @@ export class Shell
                 return arg.map(toString).join('\t');
             else
             {
-                console.log('Exit code:', arg.exit_code);
-                console.log('Stdout orig:', arg.stdout.length, '[', arg.stdout, ']');
                 let res = arg.stdout.replaceAll('\r\n', '\n').replaceAll('\n', '\r\n');
                 //if(res.length > 0 && res[res.length - 1] != '\n')
                 //    res += '\r\n';
-                console.log('Stdout repl:', res.length, '[', res, ']');
                 return res;
             };
         };
@@ -744,7 +741,6 @@ export class Shell
    
     log_big_header(text = '', log_sink_path = null)
     {
-        console.log('log_big_header', '[', text, ']');
         this.log_big(this.ui.log_reset_sequence);
         this.ui.toggle_viewer('.log', text + '\n');
         this.log_sink_path = log_sink_path;
@@ -752,7 +748,6 @@ export class Shell
 
     log_big(text)
     {
-        console.log('log_big', '[', text, ']');
         this.ui.log_big(text);
         if(this.log_sink_path)
             this.FS.writeFile(this.log_sink_path, this.read_all_text(this.log_sink_path) + text + '\n');
@@ -1469,6 +1464,7 @@ export class Shell
         console.log('refresh', '(', selected_file_path, ')');
 
         this.ui.update_file_tree(files, selected_file_path);
+        // TODO: keep old tex project path when adding new
         this.ui.update_tex_paths(project_dir ? files.filter(f => f.path.endsWith('.tex')) : [], selected_file_path);
         this.ui.set_project_name(project_dir ? this.PATH.basename(project_dir) : 'N/A');
 

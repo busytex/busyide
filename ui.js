@@ -1297,7 +1297,7 @@ export class Shell
         const cmds = [this.cmd('wget', https_path, '-O', this.tar_xz_path), this.cmd('unxz', this.tar_xz_path), this.cmd('tar', '-xf', this.tar_path, '-C', texmf_dist)];
         this.log_big(`[${this.tar_xz_path}] <- [${https_path}]...`);
         await this.commands(this.and(...cmds));
-        this.log_big(`[${texmf_dist}] <- [${this.tar_xz_path}]...`);
+        this.log_big(`[${this.tar_xz_path}] -> [${texmf_dist}]...`);
     }
    
     async latexmk(tex_path)

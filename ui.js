@@ -179,7 +179,7 @@ export class Shell
         
         this.ui.search_query.onkeydown = ev => ev.key == 'Enter' ? this.ui.search.onclick() : ev.key == 'Escape' ? (this.ui.search_query.value = '') : null;
         
-        this.ui.install_tex_package.onclick = () => this.ui.current_tex_package.value != '' && this.commands(cmd('tlmgr', 'install', '--no-depends-at-all', this.current_tex_package.value));
+        this.ui.install_tex_package.onclick = () => this.ui.current_tex_package.value && this.commands(cmd('tlmgr', 'install', '--no-depends-at-all', this.ui.current_tex_package.value));
         this.ui.current_tex_package.onkeydown = ev => ev.key == 'Enter' ? this.ui.install_tex_package.onclick() : ev.key == 'Escape' ? (this.ui.current_tex_package.value = '') : null;
 		
         this.editor.onDidFocusEditorText(ev => this.edit_path && this.ui.set_current_file(this.PATH.basename(this.edit_path), this.edit_path, 'editing'));

@@ -1282,7 +1282,7 @@ export class Shell
             
             const https_path = 'https://mirrors.ctan.org/systems/texlive/tlnet/archive/' + pkg + '.tar.xz';
             
-            const cmds = [this.cmd('wget', https_path, '-O', this.xz_path), this.cmd('unxz', '-d', this.xz_path), this.cmd('tar', '-xf', this.xz_path.replace('.xz', '-C', this.tmp_decompressed)];
+            const cmds = [this.cmd('wget', https_path, '-O', this.xz_path), this.cmd('unxz', '-d', this.xz_path), this.cmd('tar', '-xf', this.xz_path.replace('.xz', ''), '-C', this.tmp_decompressed)];
             await this.commands(this.and(...cmds));
 
         }

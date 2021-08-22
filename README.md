@@ -11,6 +11,7 @@
 3. packaging of everything into one large HTML file to run from file://
 
 ### TODO
+0. https://github.com/GoogleChromeLabs/browser-fs-access
 0. https://developpaper.com/monaco-uses-vscode-related-syntax-to-highlight-on-the-browser/
 0. view log + search (bad rename)
 0. https://stackoverflow.com/questions/34632839/checkbox-marked-with-click-in-link
@@ -30,7 +31,6 @@
 13. do not download all artefacts, not just a single pdfpath/logpath -> move artefacts to /tmp
 14. Typing is not shown until commands finished processing
 15. Splitter: https://codepen.io/rstrahl/pen/eJZQej
-16. Compress files before sharing
 5. Broken texpath
 6. autosave
 8. pseudo-shell quotes

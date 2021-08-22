@@ -1106,7 +1106,6 @@ export class Shell
                 
                 this.editor.setModel(this.tab);
 
-                console.log('edit_path = ', '[', abspath, ']');
                 this.edit_path = abspath;
 
                 //var decorations = this.editor.deltaDecorations([], [	{ range: new monaco.Range(3,1,5,1), options: { isWholeLine: true, linesDecorationsClassName: 'myLineDecoration' }},	{ range: new monaco.Range(7,1,7,24), options: { inlineClassName: 'myInlineDecoration' }},]);
@@ -1170,7 +1169,6 @@ export class Shell
                 const abspath = this.abspath(file_path);
                 const basename = this.PATH.basename(abspath);
                 const default_path = file_path == '.' ? this.open_find_default_path(file_path) : null;
-                console.log('open default_path', default_path);
                 
                 contents = null;
                 
@@ -1286,8 +1284,7 @@ export class Shell
         this.log_big_header('$ tlmgr install --no-depends-at-all ' + pkg);
         const j = await this.fetch_via_cors_proxy('https://www.ctan.org/json/2.0/pkg/' + pkg).then(r => r.json());
         const texlive_package_name = j.texlive;
-        console.log('TLMGR', texlive_package_name, j);
-        //console.log('https://mirrors.ctan.org' + j.ctan.path + '.zip');
+        console.log('TLMGR', texlive_package_name, j, 'https://mirrors.ctan.org' + j.ctan.path + '.zip');
         
         const https_path = 'https://mirrors.ctan.org/systems/texlive/tlnet/archive/' + pkg + '.tar.xz';
         
@@ -1343,7 +1340,6 @@ export class Shell
 
     async upload(file_path = null, ext = [])
     {
-        // https://github.com/GoogleChromeLabs/browser-fs-access
         const upload_file = file =>
         {
             const src_name = file.name;

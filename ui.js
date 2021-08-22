@@ -492,7 +492,7 @@ export class Shell
                     print_or_dump(res, '');
 
                     if(this.last_exit_code != this.EXIT_SUCCESS)
-                        throw new Error(res.output_stderr);
+                        throw new Error(res.stderr);
                 }
                 
                 else

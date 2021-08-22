@@ -1281,26 +1281,23 @@ export class Shell
         this.refresh(this.readme_tex);
     }
 
-    async tlmgr(install, __no_depends_at_all, ...pkgs)
+    async tlmgr(install, __no_depends_at_all, pkg)
     {
-        this.log_big_header('$ tlmgr install --no-depends-at-all ' + pkgs.join(' '));
-        for(const pkg of pkgs)
-        {
-            const j = await this.fetch_via_cors_proxy('https://www.ctan.org/json/2.0/pkg/' + pkg).then(r => r.json());
-            const texlive_package_name = j.texlive;
-            console.log('TLMGR', texlive_package_name, j);
-            //console.log('https://mirrors.ctan.org' + j.ctan.path + '.zip');
-            
-            const https_path = 'https://mirrors.ctan.org/systems/texlive/tlnet/archive/' + pkg + '.tar.xz';
-            
-            const texmf_dist = this.PATH.join(this.project_dir(), this.texmf_local[0], 'texmf-dist');
-            this.mkdir_p(texmf_dist);
+        this.log_big_header('$ tlmgr install --no-depends-at-all ' + pkg);
+        const j = await this.fetch_via_cors_proxy('https://www.ctan.org/json/2.0/pkg/' + pkg).then(r => r.json());
+        const texlive_package_name = j.texlive;
+        console.log('TLMGR', texlive_package_name, j);
+        //console.log('https://mirrors.ctan.org' + j.ctan.path + '.zip');
+        
+        const https_path = 'https://mirrors.ctan.org/systems/texlive/tlnet/archive/' + pkg + '.tar.xz';
+        
+        const texmf_dist = this.PATH.join(this.project_dir(), this.texmf_local[0], 'texmf-dist');
+        this.mkdir_p(texmf_dist);
 
-            const cmds = [this.cmd('wget', https_path, '-O', this.tar_xz_path), this.cmd('unxz', this.tar_xz_path), this.cmd('tar', '-xf', this.tar_path, '-C', texmf_dist)];
-            this.log_big(`[${this.tar_xz_path}] <- [${https_path}]...`);
-            await this.commands(this.and(...cmds));
-            this.log_big(`[${tex_mf_dist}] <- [${this.tar_xz_path}]...`);
-        }
+        const cmds = [this.cmd('wget', https_path, '-O', this.tar_xz_path), this.cmd('unxz', this.tar_xz_path), this.cmd('tar', '-xf', this.tar_path, '-C', texmf_dist)];
+        this.log_big(`[${this.tar_xz_path}] <- [${https_path}]...`);
+        await this.commands(this.and(...cmds));
+        this.log_big(`[${tex_mf_dist}] <- [${this.tar_xz_path}]...`);
     }
    
     async latexmk(tex_path)

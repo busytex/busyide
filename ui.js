@@ -178,6 +178,9 @@ export class Shell
         this.ui.remove.onclick = () => (!is_special_dir(this.ui.get_current_file(true)) && is_user_dir(this.ui.get_current_file(true))) && this.ui.get_current_file() && this.commands(and(this.isdir(this.ui.get_current_file()) ? cmd('rm', '-rf', arg(this.ui.get_current_file())) : cmd('rm', arg(this.ui.get_current_file())), cmd('open', '.'))); 
         
         this.ui.search_query.onkeydown = ev => ev.key == 'Enter' ? this.ui.search.onclick() : ev.key == 'Escape' ? (this.ui.search_query.value = '') : null;
+        
+        this.ui.rename.onclick = () => this.ui.current_tex_package.value != '' && this.commands(cmd('tlmgr', 'install', '--no-depends-at-all', this.current_tex_package.value));
+        this.ui.current_tex_package.onkeydown = ev => ev.key == 'Enter' ? this.ui.install_tex_package.onclick() : ev.key == 'Escape' ? (this.ui.current_tex_package.value = '') : null;
 		
         this.editor.onDidFocusEditorText(ev => this.edit_path && this.ui.set_current_file(this.PATH.basename(this.edit_path), this.edit_path, 'editing'));
         this.ui.txtpreview.onfocus = this.ui.imgpreview.onclick = () => this.view_path && this.ui.set_current_file(this.PATH.basename(this.view_path), this.view_path, 'viewing');
@@ -1289,7 +1292,6 @@ export class Shell
 
             const cmds = [this.cmd('wget', https_path, '-O', this.tar_xz_path), this.cmd('unxz', this.tar_xz_path), this.cmd('tar', '-xf', this.tar_path, '-C', texmf_dist)];
             await this.commands(this.and(...cmds));
-
         }
     }
    

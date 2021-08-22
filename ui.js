@@ -30,7 +30,7 @@ export class Shell
         this.tex_path = '';
         this.zip_path = this.tmp_dir + '/archive.zip';
         this.tar_path = this.tmp_dir + '/archive.tar';
-        this.xz_path = this.tmp_dir + '/archive.xz';
+        this.tar_xz_path = this.tmp_dir + '/archive.tar.xz';
         this.targz_path = this.tmp_dir + '/archive.tar.gz';
         this.arxiv_path = this.tmp_dir + '/arxiv.tar';
         this.patch_path = this.tmp_dir + '/uploaded.patch';
@@ -1284,7 +1284,7 @@ export class Shell
             
             const https_path = 'https://mirrors.ctan.org/systems/texlive/tlnet/archive/' + pkg + '.tar.xz';
             
-            const cmds = [this.cmd('wget', https_path, '-O', this.xz_path), this.cmd('unxz', this.xz_path), this.cmd('tar', '-xf', this.xz_path.replace('.xz', ''), '-C', this.tmp_decompressed)];
+            const cmds = [this.cmd('wget', https_path, '-O', this.tar_xz_path), this.cmd('unxz', this.tar_xz_path), this.cmd('tar', '-xf', this.tar_path, '-C', this.tmp_decompressed)];
             await this.commands(this.and(...cmds));
 
         }

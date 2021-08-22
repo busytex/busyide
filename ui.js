@@ -522,6 +522,7 @@ export class Shell
     fetch_via_cors_proxy(url, opts)
     {
         //{headers : {'X-Requested-With': 'XMLHttpRequest'}
+        //TODO: LOG every request
         return fetch(this.cors_proxy_fmt.replace('${url}', url), {...opts, redirect : 'manual'});
     }
 
@@ -1277,12 +1278,13 @@ export class Shell
         for(const pkg of pkgs)
         {
             const j = await this.fetch_via_cors_proxy('https://www.ctan.org/json/2.0/pkg/' + pkg).then(r => r.json());
-            console.log('TLMGR', j);
+            const texlive_package_name = j.texlive;
+            console.log('TLMGR', texlive_package_name, j);
             //console.log('https://mirrors.ctan.org' + j.ctan.path + '.zip');
             
             const https_path = 'https://mirrors.ctan.org/systems/texlive/tlnet/archive/' + pkg + '.tar.xz';
             
-            const cmds = [this.cmd('wget', https_path, '-O', this.xz_path), this.cmd('unxz', '-d', this.xz_path), this.cmd('tar', '-xf', this.xz_path.replace('.xz', ''), '-C', this.tmp_decompressed)];
+            const cmds = [this.cmd('wget', https_path, '-O', this.xz_path), this.cmd('unxz', this.xz_path), this.cmd('tar', '-xf', this.xz_path.replace('.xz', ''), '-C', this.tmp_decompressed)];
             await this.commands(this.and(...cmds));
 
         }

@@ -1284,10 +1284,10 @@ export class Shell
             
             const https_path = 'https://mirrors.ctan.org/systems/texlive/tlnet/archive/' + pkg + '.tar.xz';
             
-            this.rm_rf(this.tmp_decompressed);
-            this.mkdir_p(this.tmp_decompressed);
+            const texmf_dist = this.PATH.join(this.project_dir(), this.texmf_local[0], 'texmf-dist');
+            this.mkdir_p(texmf_dist);
 
-            const cmds = [this.cmd('wget', https_path, '-O', this.tar_xz_path), this.cmd('unxz', this.tar_xz_path), this.cmd('tar', '-xf', this.tar_path, '-C', this.tmp_decompressed)];
+            const cmds = [this.cmd('wget', https_path, '-O', this.tar_xz_path), this.cmd('unxz', this.tar_xz_path), this.cmd('tar', '-xf', this.tar_path, '-C', texmf_dist)];
             await this.commands(this.and(...cmds));
 
         }

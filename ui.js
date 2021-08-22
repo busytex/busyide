@@ -103,6 +103,11 @@ export class Shell
         const {cmd, arg, and, or, qq, qx} = this;
         const is_special_dir = abspath => [this.FS.cwd(), this.PATH.normalize(this.PATH.join(this.FS.cwd(), '..'))].includes(abspath);
         const is_user_dir = (abspath, strict = true) => abspath.startsWith(this.home_dir + '/') || (!strict && abspath == this.home_dir);
+        const swap_value = (input, val = '') => {
+            const old = input.value;
+            input.value = val;
+            return old;
+        };
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.onKey(this.onkey.bind(this));
@@ -179,7 +184,7 @@ export class Shell
         
         this.ui.search_query.onkeydown = ev => ev.key == 'Enter' ? this.ui.search.onclick() : ev.key == 'Escape' ? (this.ui.search_query.value = '') : null;
         
-        this.ui.install_tex_package.onclick = () => this.ui.current_tex_package.value && this.commands(cmd('tlmgr', 'install', '--no-depends-at-all', this.ui.current_tex_package.value));
+        this.ui.install_tex_package.onclick = () => this.ui.current_tex_package.value && this.commands(cmd('tlmgr', 'install', '--no-depends-at-all', swap_value(this.ui.current_tex_package)));
         this.ui.current_tex_package.onkeydown = ev => ev.key == 'Enter' ? this.ui.install_tex_package.onclick() : ev.key == 'Escape' ? (this.ui.current_tex_package.value = '') : null;
 		
         this.editor.onDidFocusEditorText(ev => this.edit_path && this.ui.set_current_file(this.PATH.basename(this.edit_path), this.edit_path, 'editing'));
@@ -1278,6 +1283,7 @@ export class Shell
 
     async tlmgr(install, __no_depends_at_all, ...pkgs)
     {
+        this.log_big_header('$ tlmgr install --no-depends-at-all ' + pkgs.join(' '));
         for(const pkg of pkgs)
         {
             const j = await this.fetch_via_cors_proxy('https://www.ctan.org/json/2.0/pkg/' + pkg).then(r => r.json());
@@ -1291,7 +1297,9 @@ export class Shell
             this.mkdir_p(texmf_dist);
 
             const cmds = [this.cmd('wget', https_path, '-O', this.tar_xz_path), this.cmd('unxz', this.tar_xz_path), this.cmd('tar', '-xf', this.tar_path, '-C', texmf_dist)];
+            this.log_big(`[${this.tar_xz_path}] <- [${https_path}]...`);
             await this.commands(this.and(...cmds));
+            this.log_big(`[${tex_mf_dist}] <- [${this.tar_xz_path}]...`);
         }
     }
    

@@ -96,6 +96,7 @@ export class Shell
         this.data_package_resolver = new BusytexDataPackageResolver(this.paths.texlive_data_packages_js);
 
         this.compiler = new Worker(paths.busytex_worker_js);
+        this.busytex_applet_versions = {};
     }
 
     bind()
@@ -968,7 +969,12 @@ export class Shell
 
     oncompilermessage(e)
     {
-        const {pdf, log, print, exit_code, exception} = e.data;
+        const {pdf, log, print, exit_code, exception, initialized} = e.data;
+        if(initialized)
+        {
+            this.busytex_applet_versions = initialized;
+            this.ui.update_busytex_applet_versions(this.busytex_applet_versions);
+        }
         if(pdf)
         {
             this.toc();

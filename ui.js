@@ -47,8 +47,8 @@ export class Shell
         this.archive_extensions = ['.zip', '.tar.gz', '.tar'];
         this.text_extensions = ['.tex', '.bib', '.sty', '.bst', '.bbl', '.txt', '.md', '.svg', '.sh', '.py', '.csv', '.tsv', '.eps', '.xml', '.json', '.md', '.r'];
         this.search_extensions = ['', '.tex', '.bib', '.sty', '.txt', '.md', '.sh', '.py', '.xml', '.json', '.md', '.r'];
-        this.busybox_applets = ['busyz', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed', 'true', 'false', 'seq', 'patch', 'grep', 'test', 'xxd', 'xz', 'hexdump', 'unxz'];
-        this.shell_builtins =  ['cd', 'mv', 'man', 'help', 'open', 'close', 'download', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty', 'hub', 'rgrep', 'tlmgr'];
+        this.busybox_applets = ['busyz', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed', 'true', 'false', 'seq', 'patch', 'grep', 'test', 'xxd', 'xz', 'hexdump', 'unxz', 'mv'];
+        this.shell_builtins =  ['cd', 'rename', 'man', 'help', 'open', 'close', 'download', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty', 'hub', 'rgrep', 'tlmgr'];
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'diff', 'fetch', 'checkout'];
         this.hub_applets = ['release'];
@@ -178,7 +178,7 @@ export class Shell
         };
         
         this.ui.rename.onclick = () => (!is_special_dir(this.ui.get_current_file(true)) && is_user_dir(this.ui.get_current_file(true))) && (this.ui.current_file_rename.value
-            ? (this.mv(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value, this.abspath(this.ui.current_file_rename.value)) || this.ui.toggle_current_file_rename(''))
+            ? (this.rename(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value, this.abspath(this.ui.current_file_rename.value)) || this.ui.toggle_current_file_rename(''))
             : (this.ui.toggle_current_file_rename(this.ui.current_file_rename.hidden ? this.ui.get_current_file() : '') || this.ui.current_file_rename.focus()));
         this.ui.current_file_rename.onblur = () => this.ui.toggle_current_file_rename('');
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? this.ui.rename.onclick() : ev.key == 'Escape' ? ev.target.onblur() : null;
@@ -646,7 +646,7 @@ export class Shell
             const src_path = this.strip_components(this.tmp_decompressed);
 
             const project_dir = this.PATH.join('~', (src_path && src_path != this.tmp_decompressed) ? this.PATH.basename(src_path) : basename_noext);
-            const cmds2 = [this.cmd('mv', this.arg(src_path), this.arg(project_dir)), this.cmd('cd', this.arg(project_dir)), this.cmd('open', '.')];
+            const cmds2 = [this.cmd('rename', this.arg(src_path), this.arg(project_dir)), this.cmd('cd', this.arg(project_dir)), this.cmd('open', '.')];
             await this.commands(this.and(...cmds2));
         }
         if(route0 == 'file')
@@ -1521,7 +1521,7 @@ export class Shell
         }
     }
 
-    mv(src_file_path, dst_file_path)
+    rename(src_file_path, dst_file_path)
     {
         const src_abspath = this.abspath(src_file_path), dst_abspath = this.abspath(dst_file_path);
         if(src_abspath == dst_abspath)

@@ -1287,7 +1287,8 @@ export class Shell
         const texmf_dist = this.PATH.join(this.project_dir(), this.texmf_local[0], 'texmf-dist');
         this.mkdir_p(texmf_dist);
 
-        const cmds = [this.cmd('wget', https_path, '-O', this.tar_xz_path), this.cmd('unxz', this.tar_xz_path), this.cmd('tar', '-xf', this.tar_path, '-C', texmf_dist), this.cmd('find', this.qq(texmf_dist), '-name', this.qq('*.pdf'), '-delete')];
+        //TODO: deletes with OR
+        const cmds = [this.cmd('wget', https_path, '-O', this.tar_xz_path), this.cmd('unxz', this.tar_xz_path), this.cmd('tar', '-xf', this.tar_path, '-C', texmf_dist), this.cmd('find', this.qq(texmf_dist), '-name', this.qq('*.pdf'), '-delete'), this.cmd('rm', '-rf', this.PATH.join(texmf_dist, 'tlpkg'))];
         this.log_big(`[${this.tar_xz_path}] <- [${https_path}]...`);
         await this.commands(this.and(...cmds));
         this.log_big(`[${this.tar_xz_path}] -> [${texmf_dist}]...`);

@@ -815,7 +815,8 @@ export class Shell
 
         token = token || this.ui.github_token.value;
         
-        if(!branch && !parsed.gist)
+        const no_branch = !branch;
+        if(no_branch && !parsed.gist)
             branch = this.ui.github_branch.value = await this.github.get_default_branch(this.log_big.bind(this), parsed.path);
 
         const exit_code = await this.github.clone(this.log_big.bind(this), token, https_path, repo_path);
@@ -829,7 +830,7 @@ export class Shell
         }
         
         await this.cache_save();
-        this.ui.set_route(this.github.format_url(parsed.username, parsed.reponame, parsed.gist, branch));
+        this.ui.set_route(this.github.format_url(parsed.username, parsed.reponame, parsed.gist, no_branch ? null : branch));
     }
 
     git_status()

@@ -970,11 +970,15 @@ export class Shell
 
     oncompilermessage(e)
     {
-        const {pdf, log, print, exit_code, exception, initialized} = e.data;
+        const {pdf, log, print, exit_code, exception, initialized, logs} = e.data;
         if(initialized)
         {
             this.busytex_applet_versions = initialized;
             this.ui.update_busytex_applet_versions(this.busytex_applet_versions);
+        }
+        if(logs)
+        {
+            console.log('LOGS', logs);
         }
         if(pdf)
         {

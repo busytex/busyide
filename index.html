@@ -312,14 +312,6 @@
             <figcaption>$ # TeX Settings</figcaption>
             <table>
                 <thead>
-                    <tr><th class="tl">tex program</th><th class="tl">version</th></tr>
-                </thead>
-                <tbody id="tex_versions">
-                </tbody>
-            </table>
-            <hr />
-            <table>
-                <thead>
                     <tr><th colspan="2" class="tl">ubuntu package</th><th class="tl">tex packages</th></tr>
                     <tr><td colspan="3"><input type="checkbox" id="data_package_auto" checked>auto selection</input></td></tr>
                 </thead>
@@ -328,6 +320,14 @@
                     <tr><td><input type="checkbox" value="texlive-science" class="data_package">[texlive-science]</input></td></tr>
                     <tr><td><input type="checkbox" value="texlive-latex-recommended" class="data_package">[texlive-latex-recommended]</input></td></tr>
                     <tr><td><input type="checkbox" value="texlive-latex-extra" class="data_package">[texlive-latex-extra]</input></td></tr>-->
+                </tbody>
+            </table>
+            <hr />
+            <table>
+                <thead>
+                    <tr><th class="tl">program</th><th class="tl">version</th></tr>
+                </thead>
+                <tbody id="tex_versions">
                 </tbody>
             </table>
         </figure>
@@ -588,10 +588,11 @@ const ui =
         {
             const tr = tbody.insertRow();
             
-            let tc = tr.insertCell();
-            tc.innerText = applet;
+            const th = document.createElement('th');
+            th.innerText = applet;
+            tr.appendChild(th);
 
-            tc = tr.insertCell();
+            const tc = tr.insertCell();
             tc.innerText = version;
         }
     },

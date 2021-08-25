@@ -312,6 +312,14 @@
             <figcaption>$ # TeX Settings</figcaption>
             <table>
                 <thead>
+                    <tr><th class="tl">tex program</th><th class="tl">version</th></tr>
+                </thead>
+                <tbody id="tex_versions">
+                </tbody>
+            </table>
+            <hr />
+            <table>
+                <thead>
                     <tr><th colspan="2" class="tl">ubuntu package</th><th class="tl">tex packages</th></tr>
                     <tr><td colspan="3"><input type="checkbox" id="data_package_auto" checked>auto selection</input></td></tr>
                 </thead>
@@ -573,13 +581,25 @@ const ui =
 
     update_busytex_applet_versions(applet_versions)
     {
-        console.log('VERSIONS', applet_versions);
+        const figure = document.getElementById('texsettings');
+        const tbody = figure.querySelector('#tex_versions');
+        tbody.innerHTML = '';
+        for(const [applet, version] of Object.entries(applet_versions))
+        {
+            const tr = tbody.insertRow();
+            
+            let tc = tr.insertCell();
+            tc.innerText = applet;
+
+            tc = tr.insertCell();
+            tc.innerText = version;
+        }
     },
     
     update_tex_settings(data_packages)
     {
         const figure = document.getElementById('texsettings');
-        const tbody = figure.querySelector('tbody');
+        const tbody = figure.querySelector('#data_packages');
         tbody.innerHTML = '';
         const basename = path => path.slice(path.lastIndexOf('/') + 1);
         for(const [k, v] of data_packages)

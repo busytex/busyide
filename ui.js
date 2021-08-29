@@ -178,6 +178,7 @@ export class Shell
             }
         };
         
+        //TODO: clicking on rename twice should make the box disappear
         this.ui.rename.onclick = () => (!is_special_dir(this.ui.get_current_file(true)) && is_user_dir(this.ui.get_current_file(true))) && (this.ui.current_file_rename.value
             ? (this.rename(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value, this.abspath(this.ui.current_file_rename.value)) || this.ui.toggle_current_file_rename(''))
             : (this.ui.toggle_current_file_rename(this.ui.current_file_rename.hidden ? this.ui.get_current_file() : '') || this.ui.current_file_rename.focus()));
@@ -365,7 +366,7 @@ export class Shell
                 args = args.map(a => this.expandcollapseuser(a));
                 //args = args.map(a => a.startsWith('"') ? a.slice(1) : a).map(a => a.endsWith('"') ? a.slice(0, a.length - 1) : a);
 
-                cmds.push({cmd : cmd, args : args, stdout_redirect : stdout_redirect, stdout_redirect_append : stdout_redirect_append, subcommand : false});
+                cmds.push({cmd : cmd, args : args, stdout_redirect : stdout_redirect, stdout_redirect_append : stdout_redirect_append});
             }
 
             for(const c of cmds)
@@ -538,10 +539,21 @@ export class Shell
     {
         output_path = _OP == '-P' ? this.PATH.join(output_path, this.PATH.basename(url)) : (output_path || this.PATH.basename(url));
         const resp = await this.fetch_via_cors_proxy(url);
-        console.log('wget', resp.status, resp.headers);
-        console.assert(this.HTTP_OK == resp.status);
-        const uint8array = new Uint8Array(await resp.arrayBuffer());
-        this.FS.writeFile(output_path, uint8array);
+
+        if(resp.status != this.HTTP_OK)
+        {
+            let text = '';
+            try
+            {
+                text = await resp.text();
+            }
+            catch(err)
+            {
+                text = `Could not get response text: [${err.toString()}], stack: [${err.stack}]`;
+            }
+            throw new Error(`HTTP request to [${url}] failed with status [${resp.status}], status text: [${resp.statusText}], response text: [${text}]`);
+        }
+        this.FS.writeFile(output_path, new Uint8Array(await resp.arrayBuffer()));
     }
 
     inline_clone(serialized)

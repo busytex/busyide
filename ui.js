@@ -1303,11 +1303,11 @@ export class Shell
     {
         this.log_big_header('$ tlmgr install --no-depends-at-all ' + pkg);
 
-        const req = await this.fetch_via_cors_proxy('https://www.ctan.org/json/2.0/pkg/' + pkg);
-        if(this.HTTP_OK != j.status)
+        const resp = await this.fetch_via_cors_proxy('https://www.ctan.org/json/2.0/pkg/' + pkg);
+        if(this.HTTP_OK != resp.status)
             throw new Error(`Package [${pkg}] not found: [${resp.status}], [${resp.statusText}]`);
 
-        const j = await req.json();
+        const j = await resp.json();
         const texlive_package_name = j.texlive;
         console.log('TLMGR', texlive_package_name, j, 'https://mirrors.ctan.org' + j.ctan.path + '.zip');
         

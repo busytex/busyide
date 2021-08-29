@@ -1305,7 +1305,10 @@ export class Shell
 
         const resp = await this.fetch_via_cors_proxy('https://www.ctan.org/json/2.0/pkg/' + pkg);
         if(this.HTTP_OK != resp.status)
-            throw new Error(`Package [${pkg}] not found: [${resp.status}], [${resp.statusText}]`);
+        {
+            this.log_big(`Package [${pkg}] not found: [${resp.status}], [${resp.statusText}]`);
+            return this.EXIT_FAILURE;
+        }
 
         const j = await resp.json();
         const texlive_package_name = j.texlive;

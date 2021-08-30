@@ -1,5 +1,7 @@
 // inspired by https://github.com/Darkseal/CORSflare/blob/master/CORSflare.js and https://github.com/Zibri/cloudflare-cors-anywhere/blob/master/index.js
 
+// TODO: pass only arxiv.org, ctan.org, github.com ?
+
 addEventListener('fetch', event => event.respondWith((async () =>
 {
     

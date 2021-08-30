@@ -134,6 +134,8 @@ export class Shell
         this.ui.flatten_texmf.onclick = () => this.project_dir() && this.exists(this.texmf_local[0]) && this.isdir(this.texmf_local[0]) && this.commands(this.and(cmd('mv', qx(cmd('find', this.texmf_local[0], '-type', 'f')), '.'), cmd('find', this.texmf_local[0], '-empty', '-delete')));
         this.ui.compile_project.onclick = () => this.project_dir() && this.ui.get_current_tex_path() && this.commands(cmd('latexmk', arg(this.ui.get_current_tex_path())));
         this.ui.compile_current_file.onclick = () => (this.ui.get_current_file() || '').endsWith('.tex') && !this.isdir(this.ui.get_current_file()) && this.commands(cmd('latexmk', arg(this.ui.get_current_file())));
+        
+        // TODO: share multiple variants: short, full
         this.ui.share.onclick = () => this.github.git_dir() ? [this.log_big_header(''), this.log_big(this.ui.get_origin() + '/#' + this.github.format_url() )] : this.project_dir() ? this.commands(and(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#' + this.data_uri_prefix_tar_gz, '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log)))) : null;
         this.ui.show_not_modified.onclick = this.ui.toggle_not_modified.bind(this);
         this.ui.show_tex_settings.onclick = async () => this.ui.update_tex_settings(await this.data_package_resolver.resolve_data_packages()) || this.ui.toggle_viewer('texsettings');
@@ -188,7 +190,7 @@ export class Shell
         
         this.ui.search_query.onkeydown = ev => ev.key == 'Enter' ? this.ui.search.onclick() : ev.key == 'Escape' ? (this.ui.search_query.value = '') : null;
         
-        this.ui.install_tex_package.onclick = () => this.project_dir() && this.ui.current_tex_package.value && this.commands(cmd('tlmgr', 'install', '--no-depends-at-all', swap_value(this.ui.current_tex_package)));
+        this.ui.install_tex_package.onclick = () => this.project_dir() && this.ui.current_tex_package.value && this.tlmgr('install', '--no-depends-at-all', swap_value(this.ui.current_tex_package)); //TODO: problems with terminal because of nested commands calls this.commands(cmd('tlmgr', 'install', '--no-depends-at-all', swap_value(this.ui.current_tex_package)));
         this.ui.current_tex_package.onkeydown = ev => ev.key == 'Enter' ? this.ui.install_tex_package.onclick() : ev.key == 'Escape' ? (this.ui.current_tex_package.value = '') : null;
 		
         this.editor.onDidFocusEditorText(ev => this.edit_path && this.ui.set_current_file(this.PATH.basename(this.edit_path), this.edit_path, 'editing'));
@@ -1339,6 +1341,7 @@ export class Shell
 
         this.terminal_print(`Running in background (verbosity = [${verbose}], TeX driver = [${tex_driver}])...`);
         
+        // TODO: set_current_pdf / set_current_log only on response from compiler?
         this.pdf_path = abspath.replace(this.tex_ext, '.pdf').replace(this.project_dir(), this.project_tmp_dir());
         this.ui.set_current_pdf(this.pdf_path);
         

@@ -619,6 +619,7 @@ export class Shell
         {
             const arxiv_https_path = route1.replace('/abs/', '/e-print/');
             const project_dir = this.PATH.join('~', this.PATH.basename(arxiv_https_path));
+            // TODO: wget -U busytex, real wget does not gzip-decompress, chrome does https://superuser.com/questions/940605/chromium-prevent-unpacking-tar-gz
             const cmds = [this.cmd('wget', arxiv_https_path, '-O', this.arxiv_path), this.cmd('mkdir', project_dir), this.cmd('tar', '-xf', this.arxiv_path, '-C', project_dir), this.cmd('cd', project_dir), this.cmd('open', '.')];
             
             this.log_big(`Opening project from arxiv [${route1}]...`);

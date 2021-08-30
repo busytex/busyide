@@ -6,6 +6,9 @@ export class Shell
     constructor(monaco, ui, paths, readme, versions, terminal, editor, difftool, cors_proxy_fmt = 'https://withered-shape-3305.vadimkantorov.workers.dev/?${url}')
     {
         this.monaco = monaco;
+        this.ctan_package_path = 'https://www.ctan.org/json/2.0/pkg';
+        this.ctan_texlive_archive_pattern = 'https://mirrors.ctan.org/systems/texlive/tlnet/archive/${PKG}.tar.xz';
+        this.ctan_archive_pattern = 'https://mirrors.ctan.org/${PKG}.zip';
         this.share_link_log = '/tmp/share_link.log';
         this.shared_project_tar = '/tmp/shared_project.tar';
         this.shared_project_targz = this.shared_project_tar + '.gz';
@@ -1306,7 +1309,7 @@ export class Shell
     {
         this.log_big_header('$ tlmgr install --no-depends-at-all ' + pkg);
 
-        const resp = await this.fetch_via_cors_proxy('https://www.ctan.org/json/2.0/pkg/' + pkg);
+        const resp = await this.fetch_via_cors_proxy(this.PATH.join(this.ctan_package_path, pkg));
         if(this.HTTP_OK != resp.status)
         {
             this.log_big(`Package [${pkg}] not found: [${resp.status}], [${resp.statusText}]`);
@@ -1315,15 +1318,15 @@ export class Shell
 
         const j = await resp.json();
         const texlive_package_name = j.texlive;
-        console.log('TLMGR', texlive_package_name, j, 'https://mirrors.ctan.org' + j.ctan.path + '.zip');
+        console.log('TLMGR', texlive_package_name, j.ctan.path);
         
-        const https_path = 'https://mirrors.ctan.org/systems/texlive/tlnet/archive/' + pkg + '.tar.xz';
+        const https_path = this.ctan_texlive_archive_pattern.replace('${PKG}', pkg);
         
         const texmf_dist = this.PATH.join(this.project_dir(), this.texmf_local[0], 'texmf-dist');
         this.mkdir_p(texmf_dist);
 
         //TODO: deletes with OR
-        const cmds = [this.cmd('wget', https_path, '-O', this.tar_xz_path), this.cmd('unxz', this.tar_xz_path), this.cmd('tar', '-xf', this.tar_path, '-C', texmf_dist), this.cmd('find', this.qq(texmf_dist), '-name', this.qq('*.pdf'), '-delete'), this.cmd('rm', '-rf', this.PATH.join(texmf_dist, 'tlpkg'))];
+        const cmds = [this.cmd('wget', https_path, '-O', this.tar_xz_path), this.cmd('unxz', this.tar_xz_path), this.cmd('tar', '-xf', this.tar_path, '-C', texmf_dist), this.cmd('find', this.arg(texmf_dist), '-name', this.qq('*.pdf'), '-delete'), this.cmd('rm', '-rf', this.arg(this.PATH.join(texmf_dist, 'tlpkg')))];
         this.log_big(`[${this.tar_xz_path}] <- [${https_path}]...`);
         await this.commands(this.and(...cmds));
         this.log_big(`[${this.tar_xz_path}] -> [${texmf_dist}]...`);

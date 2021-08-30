@@ -78,6 +78,7 @@ export class Shell
         this.tab = null;
         this.interval_id = 0;
         this.HTTP_OK = 200;
+        this.HTTP_FORBIDDEN = 403;
         this.EXIT_SUCCESS = '0';
         this.EXIT_FAILURE = '1';
         this.last_exit_code = this.EXIT_SUCCESS;
@@ -538,7 +539,7 @@ export class Shell
     {
         //{headers : {'X-Requested-With': 'XMLHttpRequest'}
         //TODO: LOG every request
-        return fetch(this.cors_proxy_fmt.replace('${url}', url), {...opts, redirect : 'manual'});
+        return fetch(this.cors_proxy_fmt.replace('${url}', url), opts);
     }
 
     async wget(url, _OP = '-O', output_path = null)
@@ -1308,8 +1309,17 @@ export class Shell
     async tlmgr(install, __no_depends_at_all, pkg)
     {
         this.log_big_header('$ tlmgr install --no-depends-at-all ' + pkg);
+        
+        let resp = {};
+        try
+        {
+            resp = await this.fetch_via_cors_proxy(this.PATH.join(this.ctan_package_path, pkg));
+        }
+        catch(err)
+        {
+            resp = {status: this.HTTP_FORBIDDEN, statusText : err.toString}; 
+        }
 
-        const resp = await this.fetch_via_cors_proxy(this.PATH.join(this.ctan_package_path, pkg));
         if(this.HTTP_OK != resp.status)
         {
             this.log_big(`Package [${pkg}] not found: [${resp.status}], [${resp.statusText}]`);

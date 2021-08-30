@@ -6,7 +6,7 @@ export class Shell
     constructor(monaco, ui, paths, readme, versions, terminal, editor, difftool, cors_proxy_fmt = 'https://withered-shape-3305.vadimkantorov.workers.dev/?${url}')
     {
         this.monaco = monaco;
-        this.ctan_package_path = 'https://www.ctan.org/json/2.0/pkg';
+        this.ctan_package_path = 'https://www.ctan.org/json/2.0/pkg/';
         this.ctan_texlive_archive_pattern = 'https://mirrors.ctan.org/systems/texlive/tlnet/archive/${PKG}.tar.xz';
         this.ctan_archive_pattern = 'https://mirrors.ctan.org/${PKG}.zip';
         this.share_link_log = '/tmp/share_link.log';
@@ -1313,7 +1313,7 @@ export class Shell
         let resp = {};
         try
         {
-            resp = await this.fetch_via_cors_proxy(this.PATH.join(this.ctan_package_path, pkg));
+            resp = await this.fetch_via_cors_proxy(this.ctan_package_path + pkg);
         }
         catch(err)
         {

@@ -1309,6 +1309,7 @@ export class Shell
 
     async tlmgr(install, __no_depends_at_all, pkg)
     {
+        //TODO: update font maps? local font maps?
         this.log_big_header('$ tlmgr install --no-depends-at-all ' + pkg);
         
         let resp = {};

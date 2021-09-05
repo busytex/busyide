@@ -1338,7 +1338,7 @@ export class Shell
 
         //TODO: deletes with OR
         const cmds = [this.cmd('wget', https_path, '-O', this.tar_xz_path), this.cmd('unxz', this.tar_xz_path), this.cmd('tar', '-xf', this.tar_path, '-C', texmf_dist), this.cmd('find', this.arg(texmf_dist), '-name', this.qq('*.pdf'), '-delete'), this.cmd('rm', '-rf', this.arg(this.PATH.join(texmf_dist, 'tlpkg')))];
-        this.log_big(`[${this.tar_xz_path}] <- [${https_path}]...`);
+        this.log_big(`[${this.tar_xz_path}] <CORS- [${https_path}]...`);
         await this.commands(this.and(...cmds));
         this.log_big(`[${this.tar_xz_path}] -> [${texmf_dist}]...`);
     }
@@ -1516,7 +1516,7 @@ export class Shell
         console.log('refresh', '(', selected_file_path, ')');
 
         this.ui.update_file_tree(files, selected_file_path);
-        // TODO: keep old tex project path when adding new
+        // TODO: keep old tex project path when adding newfile.tex
         this.ui.update_tex_paths(project_dir ? files.filter(f => f.path.endsWith('.tex')) : [], selected_file_path);
         this.ui.set_project_name(project_dir ? this.PATH.basename(project_dir) : 'N/A');
 

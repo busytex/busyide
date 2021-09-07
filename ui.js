@@ -1022,6 +1022,9 @@ export class Shell
         {
             this.ui.set_error(`[latexmk] exception: [${exception}]`);
         }
+        
+        //TODO: start caching downloading all remaining data packages?
+        this.data_package_resolver.cache_data_packages();
     }
 
     project_dir(cwd = null)

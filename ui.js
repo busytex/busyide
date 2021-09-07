@@ -46,7 +46,7 @@ export class Shell
         this.log_sink_path = null;
         this.current_terminal_line = '';
         this.data_uri_prefix_tar_gz = 'data:application/tar+gzip;base64,';
-        this.texmf_local = ['./texmf', './.texmf'];
+        this.texmf_local = ['texmf', '.texmf'];
         this.archive_extensions = ['.zip', '.tar.gz', '.tar'];
         this.text_extensions = ['.tex', '.bib', '.sty', '.bst', '.bbl', '.txt', '.md', '.svg', '.sh', '.py', '.csv', '.tsv', '.eps', '.xml', '.json', '.md', '.r'];
         this.search_extensions = ['', '.tex', '.bib', '.sty', '.txt', '.md', '.sh', '.py', '.xml', '.json', '.md', '.r'];
@@ -97,7 +97,7 @@ export class Shell
         this.rm_rf = dirpath => this.busybox.run(['rm', '-rf', dirpath]);
         this.diff = (abspath, basepath, cwd) => this.busybox.run(['bsddiff', '-Nu', this.exists(basepath) && basepath != '/dev/null' ? basepath : this.empty_file, this.exists(abspath) && abspath != '/dev/null' ? abspath : this.empty_file]).stdout; // TODO: get newer diff from FreeBSD: https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=233402
         
-        this.data_package_resolver = new BusytexDataPackageResolver(this.paths.texlive_data_packages_js);
+        this.data_package_resolver = new BusytexDataPackageResolver(this.paths.texlive_data_packages_js, BusytexPipeline.texmf_system, this.texmf_local);
 
         this.compiler = new Worker(paths.busytex_worker_js);
         this.busytex_applet_versions = {};

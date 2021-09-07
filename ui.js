@@ -180,7 +180,7 @@ export class Shell
                 if(samedir)
                     this.refresh();
                 else
-                    // TODO: open .. does not open a single tex file for some reason?
+                    // TODO: open .. does not open a single tex file for some reason? go to cv/texmf and then ..
                     this.commands(parentdir ? and(cmd('open', '..'), cmd('cd', '..')) : and(cmd('cd', arg(option.value)), cmd('open', '.')));
             }
         };

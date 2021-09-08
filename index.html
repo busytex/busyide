@@ -302,23 +302,16 @@
         <img hidden id="imgpreview" class="busyui"></img>
         <textarea readonly hidden id="txtpreview" class="busyui"></textarea>
         <figure hidden id="texsettings" class="busyui">
-            <figcaption>$ # TeX Settings</figcaption>
             <table>
                 <thead>
                     <tr><th colspan="2" class="tl">ubuntu package</th><th class="tl">tex packages</th></tr>
                     <tr><td colspan="3"><input type="checkbox" id="data_package_auto" checked>auto selection</input></td></tr>
                 </thead>
                 <tbody id="data_packages">
-                    <!--<tr><td><input type="checkbox" value="texlive-basic" class="data_package">[texlive-basic]</input></td></tr>
-                    <tr><td><input type="checkbox" value="texlive-science" class="data_package">[texlive-science]</input></td></tr>
-                    <tr><td><input type="checkbox" value="texlive-latex-recommended" class="data_package">[texlive-latex-recommended]</input></td></tr>
-                    <tr><td><input type="checkbox" value="texlive-latex-extra" class="data_package">[texlive-latex-extra]</input></td></tr>-->
                 </tbody>
-            </table>
-            <hr />
-            <table>
                 <thead>
-                    <tr><th class="tl">program</th><th class="tl">version</th></tr>
+                    <tr><td colspan="3"><hr /></td></tr>
+                    <tr><th class="tl" colspan="2">program</th><th class="tl">version</th></tr>
                 </thead>
                 <tbody id="tex_versions">
                 </tbody>
@@ -584,6 +577,7 @@ const ui =
             const th = document.createElement('th');
             th.innerText = applet;
             th.className = 'vt';
+            th.colspan = 2;
             tr.appendChild(th);
 
             const tc = tr.insertCell();

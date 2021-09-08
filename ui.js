@@ -1517,11 +1517,13 @@ export class Shell
         console.log('refresh', '[', selected_file_path, ']');
         //selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd && this.ui.filetree.selectedIndex >= 0 ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : null);
         selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd ? this.ui.get_selected_file_path() : null);
+        const project_tex_path = this.exists(this.ui.get_current_tex_path()) ? this.ui.get_current_tex_path() : selected_file_path.endsWith('.tex') ? selected_file_path : null;
+        
         console.log('refresh', '(', selected_file_path, ')', 'current tex path (', this.ui.get_current_tex_path(), ')');
 
         this.ui.update_file_tree(files, selected_file_path);
         // TODO: keep old tex project path when adding newfile.tex
-        this.ui.update_tex_paths(project_dir ? files.filter(f => f.path.endsWith('.tex')) : [], selected_file_path);
+        this.ui.update_tex_paths(project_dir ? files.filter(f => f.path.endsWith('.tex')) : [], project_tex_path);
         this.ui.set_project_name(project_dir ? this.PATH.basename(project_dir) : 'N/A');
 
         if(this.edit_path && !this.exists(this.edit_path))

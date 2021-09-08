@@ -795,10 +795,11 @@ export class Shell
     rgrep(query)
     {
         const strip_project_dir = (path, project_dir = this.project_dir()) => path.startsWith(project_dir + '/') ? path.slice(project_dir.length + 1) : path;
-
+        const is_texmf_local_dir = abspath => this.project_dir() && this.texmf_local.some(t => abspath.startsWith(this.PATH.join(this.project_dir(), t)));
+        // TODO: if current dir is local, then pass only local results
         const stdout = this.busybox.run(['grep', query, '-n', '-i', '-r', this.project_dir()]).stdout;
         const lines = stdout.split('\n').filter(l => l.length > 0).map(l => l.split(':'));
-        const search_results = lines.map(splitted => ({path : strip_project_dir(splitted[0]), abspath : splitted[0], line_number : parseInt(splitted[1]), line : splitted.slice(2).join(':')})).filter(f => this.search_extensions.some(ext => f.abspath.toLowerCase().endsWith(ext)));
+        const search_results = lines.map(splitted => ({path : strip_project_dir(splitted[0]), abspath : splitted[0], line_number : parseInt(splitted[1]), line : splitted.slice(2).join(':')})).filter(f => this.search_extensions.some(ext => f.abspath.toLowerCase().endsWith(ext)) && !is_texmf_local_dir(f.abspath));
         this.ui.update_search_results(query, search_results, this.open.bind(this));
         this.ui.toggle_viewer('searchresults');
     }

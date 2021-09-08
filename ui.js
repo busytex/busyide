@@ -1517,7 +1517,7 @@ export class Shell
         console.log('refresh', '[', selected_file_path, ']');
         //selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd && this.ui.filetree.selectedIndex >= 0 ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : null);
         selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd ? this.ui.get_selected_file_path() : null);
-        console.log('refresh', '(', selected_file_path, ')');
+        console.log('refresh', '(', selected_file_path, ')', 'current tex path (', this.ui.get_current_tex_path(), ')');
 
         this.ui.update_file_tree(files, selected_file_path);
         // TODO: keep old tex project path when adding newfile.tex

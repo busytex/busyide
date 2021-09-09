@@ -173,7 +173,7 @@ export class Shell
 
         this.ui.filetree.ondblclick = ev =>
         {
-            const option = ev.target;
+            const option = ev.target; // || this.ui.filetree.options[this.ui.filetree.selectedIndex];
             if(this.ui.isdir(option))
             {
                 const samedir = option.text == '.', parentdir = option.text == '..';
@@ -205,7 +205,7 @@ export class Shell
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyMod.Shift | this.monaco.KeyCode.Enter, this.ui.compile_current_file.onclick);
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyMod.Shift | this.monaco.KeyCode.KEY_F, () => this.ui.search_query.focus());
 		this.difftool.addCommand(this.monaco.KeyCode.Escape, () => this.ui.toggle_editor('editor'), '!findWidgetVisible && !inReferenceSearchEditor && !editorHasSelection'); 
-        this.ui.filetree.onkeydown = ev => ev.key == 'Enter' || ev.key == ' ' ? this.ui.filetree.ondblclick() : ev.key == 'Delete' ? this.ui.remove.onclick() : null;
+        this.ui.filetree.onkeydown = ev => (ev.key == 'Enter' || ev.key == ' ') ? this.ui.filetree.ondblclick(ev) : ev.key == 'Delete' ? this.ui.remove.onclick() : null;
     }
 
     new_file_path(prefix, ext = '', max_attempts = 1000)

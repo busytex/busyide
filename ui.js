@@ -1100,9 +1100,9 @@ export class Shell
 
     ls_la(abspath, file_path)
     {
-        //this.log_big_header('');
-        //this.log_big_header('$ ls -la ' + this.arg(abspath));
-        //this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
+        this.log_big_header('');
+        this.log_big_header('$ ls -la ' + this.arg(abspath));
+        this.log_big(this.busybox.run(['ls', '-la', file_path]).stdout);
     }
 
     open(file_path, contents, readonly, language_id_path)
@@ -1202,17 +1202,14 @@ export class Shell
                 const abspath = this.abspath(file_path);
                 const basename = this.PATH.basename(abspath);
                 const default_path = (file_path == '.' || file_path == '..') ? this.open_find_default_path(file_path) : null;
+                // open selected project tex path instead of default?
                 
                 contents = null;
                 
                 if(default_path == null)
                 {
-                    // open selected project tex path instead of default?
-                    console.log('open', 'default_path', default_path, 'basename', basename, 'file_path', abspath);
                     this.ui.set_current_file(basename, abspath, 'viewing');
 
-                    this.ls_la(abspath, file_path);
-                    
                     if(file_path != '.')
                         open_editor_tab('');
                     
@@ -1221,9 +1218,7 @@ export class Shell
                 }
                 else
                 {
-                    this.ls_la(abspath, file_path);
-
-                    file_path = this.PATH.join(file_path, default_path);
+                    file_path = this.PATH.join(abspath, default_path);
                     this.refresh(file_path);
                 }
             }

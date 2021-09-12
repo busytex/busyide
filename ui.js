@@ -101,13 +101,13 @@ export class Shell
 
         this.compiler = new Worker(paths.busytex_worker_js);
         this.busytex_applet_versions = {};
+        this.is_special_dir = abspath => [this.FS.cwd(), this.PATH.normalize(this.PATH.join(this.FS.cwd(), '..'))].includes(abspath);
+        this.is_user_dir = (abspath, strict = true) => abspath.startsWith(this.home_dir + '/') || (!strict && abspath == this.home_dir);
     }
 
     bind()
     {
-        const {cmd, arg, and, or, qq, qx} = this;
-        const is_special_dir = abspath => [this.FS.cwd(), this.PATH.normalize(this.PATH.join(this.FS.cwd(), '..'))].includes(abspath);
-        const is_user_dir = (abspath, strict = true) => abspath.startsWith(this.home_dir + '/') || (!strict && abspath == this.home_dir);
+        const {cmd, arg, and, or, qq, qx, is_special_dir, is_user_dir} = this;
         const swap_value = (input, val = '') => {
             const old = input.value;
             input.value = val;
@@ -186,9 +186,7 @@ export class Shell
         };
         
         //TODO: clicking on rename twice should make the box disappear
-        this.ui.rename.onclick = () => (!is_special_dir(this.ui.get_current_file(true)) && is_user_dir(this.ui.get_current_file(true))) && (this.ui.current_file_rename.value
-            ? (this.rename(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value, this.abspath(this.ui.current_file_rename.value)) || this.ui.toggle_current_file_rename(''))
-            : (this.ui.toggle_current_file_rename(this.ui.current_file_rename.hidden ? this.ui.get_current_file() : '') || this.ui.current_file_rename.focus()));
+        this.ui.rename.onclick = () => this.rename_onclick();
         this.ui.current_file_rename.onblur = () => this.ui.toggle_current_file_rename('');
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? this.ui.rename.onclick() : ev.key == 'Escape' ? ev.target.onblur() : null;
         this.ui.remove.onclick = () => (!is_special_dir(this.ui.get_current_file(true)) && is_user_dir(this.ui.get_current_file(true))) && this.ui.get_current_file() && this.commands(and(this.isdir(this.ui.get_current_file()) ? cmd('rm', '-rf', arg(this.ui.get_current_file())) : cmd('rm', arg(this.ui.get_current_file())), cmd('open', '.'))); 
@@ -208,6 +206,12 @@ export class Shell
         this.ui.filetree.onkeydown = ev => (ev.key == 'Enter' || ev.key == ' ') ? this.ui.filetree.ondblclick({target: this.ui.filetree.options[this.ui.filetree.selectedIndex]}) : ev.key == 'Delete' ? this.ui.remove.onclick() : null;
     }
 
+    rename_onclick()
+    {
+        (!this.is_special_dir(this.ui.get_current_file(true)) && this.is_user_dir(this.ui.get_current_file(true))) && (this.ui.current_file_rename.value
+            ? (this.rename(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value, this.abspath(this.ui.current_file_rename.value)) || this.ui.toggle_current_file_rename(''))
+            : (this.ui.toggle_current_file_rename(this.ui.current_file_rename.hidden ? this.ui.get_current_file() : '') || this.ui.current_file_rename.focus()));
+    }
     new_file_path(prefix, ext = '', max_attempts = 1000)
     {
         for(let i = 0; i < max_attempts; i++)
@@ -1219,7 +1223,7 @@ export class Shell
                 else
                 {
                     file_path = this.PATH.join(abspath, default_path);
-                    this.refresh(file_path);
+                    //this.refresh(file_path);
                 }
             }
         }
@@ -1515,9 +1519,10 @@ export class Shell
         console.log('refresh', '[', selected_file_path, ']');
         //selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd && this.ui.filetree.selectedIndex >= 0 ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : null);
         selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd ? this.ui.get_selected_file_path() : null);
+        // get_current_file?
         const project_tex_path = this.exists(this.ui.get_current_tex_path()) ? this.ui.get_current_tex_path() : selected_file_path.endsWith('.tex') ? selected_file_path : null;
         
-        console.log('refresh', '(', selected_file_path, ')', 'current tex path (', this.ui.get_current_tex_path(), ')');
+        console.log('refresh', '(', selected_file_path, ')', 'current tex path (', this.ui.get_current_tex_path(), ')', 'current file (', this.ui.get_current_file(), ')');
 
         this.ui.update_file_tree(files, selected_file_path);
         // TODO: keep old tex project path when adding newfile.tex

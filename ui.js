@@ -1201,12 +1201,13 @@ export class Shell
             {
                 const abspath = this.abspath(file_path);
                 const basename = this.PATH.basename(abspath);
-                const default_path = file_path == '.' ? this.open_find_default_path(file_path) : null;
+                const default_path = (file_path == '.' || file_path == '..') ? this.open_find_default_path(file_path) : null;
                 
                 contents = null;
                 
                 if(default_path == null)
                 {
+                    // open selected project tex path instead of default?
                     console.log('open', 'default_path', default_path, 'basename', basename, 'file_path', abspath);
                     this.ui.set_current_file(basename, abspath, 'viewing');
 

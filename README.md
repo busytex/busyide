@@ -115,3 +115,6 @@ https://developer.github.com/v3/repos/contents/#create-or-update-file-contents
 https://github.com/zrxiv/browserext/blob/master/backend.js
 
 http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
+
+# https://blog.jcoglan.com/2017/03/22/myers-diff-in-linear-space-theory/
+# http://www.xmailserver.org/xdiff-lib.html

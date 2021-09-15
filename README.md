@@ -1,3 +1,47 @@
+# Features of BusyTex and comparison with Overleaf
+### GitHub integration
+- BusyTeX has client-side integration with GitHub. This means, you clone the latest version of GitHub repo and branch when you start a BusyTeX session and then you upload updates to GitHub in form of Git commits. GitHub integration is very primitive (e.g. does not support viewing history)
+- Overleaf has paid sever-side integration with GitHub.
+
+### Documentation
+- BusyTex has almost no documentation besides this file
+- Overleaf has extensive documentation, including great https://www.overleaf.com/learn resource that has beginner and expert documentation about LaTeX itself.
+
+### Project storage
+- BusyTex does not have its own server-side storage and fully relies on GitHub integration as project storage as well.
+- Overleaf provides server-side project storage and does not require any third-party services for basic work.
+
+### Project collaboration
+- BusyTex support collaboration only via GitHub. BusyTex does not support multiple users editing the document or online collaboration.
+- Overleaf supports multiple users editing the document and also supports online collaboration. Overleaf supports GitHub integration as a paid feature.
+
+### Project compilation
+- BusyTex compiles projects locally on your machine, in the browser. This requires a good internet connection for first-time downloading ~100 megabytes of binaries / TexLive distribution, CPU resources, ~100 megabytes of RAM. Speed of compilation is limited by your CPU speed / efficiency of WASM support in browser.
+- Overleaf compiles projects server-side. This does not require and significant local resources. This normally means faster compilation times than BusyTex, except for conference deadline times, during these peak load times, compilation may take indefinitely longer or fail.
+
+### Work recovery
+- BusyTex currently does not support any recovery of un-committed work (e.g. after browser crash or closing the browser unintentionally).
+- Overleaf does not have this problem because edits are sent to the server in real-time. The only problem for recovery may be during internet connection problems.
+
+### Open source
+- BusyTex is open source and lives at https://github.com/busytex/busytex and https://github.com/busytex/busyide
+- Overleaf is open source as well and lives at https://github.com/overleaf/overleaf 
+
+### Hackability
+- BusyTex is highly hackable, it does not use any UI-frameworks
+- Overleaf is also hackable but its codebase is more complex
+
+### Hosting
+- BusyTex is completely client-side software and runs on your machine. Besides using BusyTex at https://busytex.github.io, There are multiple options of hosting your own copy of BusyTex.
+- Overleaf requires running server-side services. Besides using Overleaf at https://overleaf.com, one can run your own free copy as a Docker image. Overleaf provides paid service for supporting on-premises version: https://www.overleaf.com/for/enterprises.
+
+### BusyTex architecture
+1. TexLive programs compiled to WASM
+2. TexLive data packages
+3. Busybox programs compiled to WASM
+4. IDE shell
+
+<hr />
 ### Supported URIs
 - https://busytex.github.io/#https://github.com/vadimkantorov/busyidetest/archive/refs/heads/master.zip
 - https://busytex.github.io/#https://github.com/vadimkantorov/busyidetest/tree/master/

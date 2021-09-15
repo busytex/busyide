@@ -96,9 +96,16 @@ export class Shell
         this.sha1 = uint8array => this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40);
         this.rm_rf = dirpath => this.busybox.run(['rm', '-rf', dirpath]);
         this.diff = (abspath, basepath, cwd) => this.busybox.run(['bsddiff', '-Nu', this.exists(basepath) && basepath != '/dev/null' ? basepath : this.empty_file, this.exists(abspath) && abspath != '/dev/null' ? abspath : this.empty_file]).stdout; // TODO: get newer diff from FreeBSD: https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=233402
+
+        this.read_all_text  = path => this.FS.readFile(path, {encoding : 'utf8'  });
+        this.read_all_bytes = path => this.FS.readFile(path, {encoding : 'binary'});
+        this.expandcollapseuser = (path, expand = true) => expand ? path.replace('~', this.home_dir) : path.replace(this.home_dir, '~');
+        this.exists = path => path ? this.FS.analyzePath(path).exists : false;
+        this.abspath = path => path.startsWith('/') ? path : this.PATH.normalize(this.PATH.join(this.FS.cwd(), path));
+        this.isdir = path => this.exists(path) && this.FS.isDir(this.FS.lookupPath(path).node.mode);
+
         
         this.data_package_resolver = new BusytexDataPackageResolver(this.paths.texlive_data_packages_js, BusytexPipeline.texmf_system, this.texmf_local);
-
         this.compiler = new Worker(paths.busytex_worker_js);
         this.busytex_applet_versions = {};
         this.is_special_dir = abspath => [this.FS.cwd(), this.PATH.normalize(this.PATH.join(this.FS.cwd(), '..'))].includes(abspath);
@@ -114,10 +121,10 @@ export class Shell
             return old;
         };
         
+        self.onfocus = () => this.cancel_file_upload ? this.cancel_file_upload() : null;
+        
         this.compiler.onmessage = this.oncompilermessage.bind(this);
         this.terminal.onKey(this.onkey.bind(this));
-
-        self.onfocus = () => this.cancel_file_upload ? this.cancel_file_upload() : null;
 
         this.ui.man.onclick = () => this.commands('man');
         this.ui.search.onclick = () => this.project_dir() && this.ui.search_query.value && this.commands(cmd('rgrep', qq(this.ui.search_query.value)));
@@ -141,7 +148,7 @@ export class Shell
         
         // TODO: share multiple variants: short, full
         // TODO: remove newlines? newlines present even with base64 -w? for arxiv case
-        this.ui.share.onclick = () => this.github.git_dir() ? [this.log_big_header(''), this.log_big(this.ui.get_origin() + '/#' + this.github.format_url() )] : this.project_dir() ? this.commands(and(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#' + this.data_uri_prefix_tar_gz, '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log)))) : null;
+        this.ui.share.onclick = () => this.share_onclick(); 
         this.ui.show_not_modified.onclick = this.ui.toggle_not_modified.bind(this);
         this.ui.show_tex_settings.onclick = async () => this.ui.update_tex_settings(await this.data_package_resolver.resolve_data_packages()) || this.ui.toggle_viewer('texsettings');
 
@@ -206,12 +213,18 @@ export class Shell
         this.ui.filetree.onkeydown = ev => (ev.key == 'Enter' || ev.key == ' ') ? this.ui.filetree.ondblclick({target: this.ui.filetree.options[this.ui.filetree.selectedIndex]}) : ev.key == 'Delete' ? this.ui.remove.onclick() : null;
     }
 
+    share_onclick()
+    {
+        this.github.git_dir() ? [this.log_big_header(''), this.log_big(this.ui.get_origin() + '/#' + this.github.format_url() )] : this.project_dir() ? this.commands(and(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#' + this.data_uri_prefix_tar_gz, '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log)))) : null;
+    }
+
     rename_onclick()
     {
         (!this.is_special_dir(this.ui.get_current_file(true)) && this.is_user_dir(this.ui.get_current_file(true))) && (this.ui.current_file_rename.value
             ? (this.rename(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value, this.abspath(this.ui.current_file_rename.value)) || this.ui.toggle_current_file_rename(''))
             : (this.ui.toggle_current_file_rename(this.ui.current_file_rename.hidden ? this.ui.get_current_file() : '') || this.ui.current_file_rename.focus()));
     }
+
     new_file_path(prefix, ext = '', max_attempts = 1000)
     {
         for(let i = 0; i < max_attempts; i++)
@@ -221,21 +234,6 @@ export class Shell
                 return path;
         }
         throw new Error(`Cannot create new [${prefix}{ext}]`);
-    }
-
-    exists(path)
-    {
-        return path ? this.FS.analyzePath(path).exists : false;
-    }
-
-    abspath(path)
-    {
-        return path.startsWith('/') ? path : this.PATH.normalize(this.PATH.join(this.FS.cwd(), path));
-    }
-
-    isdir(path)
-    {
-        return this.exists(path) && this.FS.isDir(this.FS.lookupPath(path).node.mode);
     }
 
     dirty(mode)
@@ -814,7 +812,6 @@ export class Shell
         this.log_big_header('$ git checkout -b ' + new_branch_name, this.git_log);
         await this.github.checkout(this.log_big.bind(this), new_branch_name);
 
-        //TODO: factor out updating the URL
         this.ui.github_branch.value = new_branch_name;
     }
 
@@ -1267,16 +1264,6 @@ export class Shell
         }
     }
 
-    read_all_text(path)
-    {
-        return this.FS.readFile(path, {encoding : 'utf8'});
-    }
-
-    read_all_bytes(path)
-    {
-        return this.FS.readFile(path, {encoding : 'binary'});
-    }
-
     tabs_save(busyshell)
     {
         if(busyshell.edit_path && busyshell.tab) // TODO: do not save readonly
@@ -1432,7 +1419,6 @@ export class Shell
             {
                 this.cancel_file_upload = null; 
                 reject(this.EXIT_FAILURE); 
-                console.log('CANCELED'); 
             };
             fileupload.click();
         });
@@ -1526,6 +1512,7 @@ export class Shell
 
         this.ui.update_file_tree(files, selected_file_path);
         // TODO: keep old tex project path when adding newfile.tex
+        // TODO: project file resets when going into a subdir
         this.ui.update_tex_paths(project_dir ? files.filter(f => f.path.endsWith('.tex')) : [], project_tex_path);
         this.ui.set_project_name(project_dir ? this.PATH.basename(project_dir) : 'N/A');
 
@@ -1561,11 +1548,6 @@ export class Shell
     {
         const cwd = this.FS ? this.FS.cwd() : this.home_dir;
         return replace_home == true ? cwd.replace(this.home_dir, '~') : cwd;    
-    }
-    
-    expandcollapseuser(path, expand = true)
-    {
-        return expand ? path.replace('~', this.home_dir) : path.replace(this.home_dir, '~');
     }
     
     mkdir_p(dirpath, dirs = new Set(['/']))

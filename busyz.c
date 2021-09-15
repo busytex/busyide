@@ -7,7 +7,7 @@
 //kbuild:lib-$(CONFIG_BUSYZ) += busyz.o
 //applet:IF_BUSYZ(APPLET(busyz, BB_DIR_USR_BIN, BB_SUID_DROP))
 //usage:#define busyz_trivial_usage
-//usage:				 "busyz [-r] [[-x EXCLUDED_PATH] ...] OUTPUT_NAME.zip INPUT_PATH [...]"
+//usage:				 "busyz [zip | unzip] [-l] [-r] [[-x EXCLUDED_PATH] ...] OUTPUT_NAME.zip INPUT_PATH [...]"
 
 //usage:#define busyz_full_usage  "\n\n"
 //usage:         "Only terse usage"
@@ -36,7 +36,7 @@ char* input[MAX_INPUT_PATHS];
 char file_path_buffer[MAX_FILE_PATH_LENGTH];
 char* output;
 
-int recurse, num_input, num_exclude;
+int recurse, num_input, num_exclude, do_list;
 
 void* ptr_zip;
 
@@ -94,6 +94,11 @@ int busyz_main(int argc, char *argv[])
             assert(i + 1 < argc);
             exclude[num_exclude++] = argv[++i];
         }
+        else if(0 == strcmp("-l", argv[i]))
+        {
+            assert(i + 1 < argc);
+            do_list = 1;
+        }
         else if(0 == strcmp("-d", argv[i]))
         {
             assert(i + 1 < argc);
@@ -139,11 +144,18 @@ int busyz_main(int argc, char *argv[])
             mz_zip_archive_file_stat file_stat;
             mz_zip_reader_file_stat(ptr_zip, file_index, &file_stat);
             sprintf(file_path_buffer, "%s/%s", outp, file_stat.m_filename);
-            printf("inflating [%s] -> [%s]\n", file_stat.m_filename, file_path_buffer); 
-            if(mz_zip_reader_is_file_a_directory(ptr_zip, file_index))
-                mkdir(file_path_buffer, MKDIR_FLAGS);
+            if(do_list)
+            {
+                puts(file_stat.m_filename);
+            }
             else
-                mz_zip_reader_extract_to_file(ptr_zip, file_index, file_path_buffer, 0);
+            {
+                printf("inflating [%s] -> [%s]\n", file_stat.m_filename, file_path_buffer); 
+                if(mz_zip_reader_is_file_a_directory(ptr_zip, file_index))
+                    mkdir(file_path_buffer, MKDIR_FLAGS);
+                else
+                    mz_zip_reader_extract_to_file(ptr_zip, file_index, file_path_buffer, 0);
+            }
         }
         mz_zip_reader_end(&ptr_zip);
     }

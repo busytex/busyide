@@ -1256,6 +1256,11 @@ export class Shell
         }
         else
         {
+            //if(extname == '.tar')
+            //    contents = this.busybox.run(['tar', '-tvf', abspath]).stdout;
+            //else if(extname == '.zip')
+            //    contents = this.busybox.run(['busyz', 'unzip', '-l', abspath]).stdout;
+
             contents = this.busybox.run(['xxd', abspath]).stdout;
 
             open_viewer_tab(abspath, contents);

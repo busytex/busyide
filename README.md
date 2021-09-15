@@ -1,4 +1,23 @@
-# Features of BusyTex and comparison with Overleaf
+# Key Features
+- Fully client-side functioning, including project compilation and GitHub integration
+- Syntax highlighting
+- GitHub integration for both repositories and gists
+- Importing papers' LaTeX sources from arxiv.org
+- Removing comments for preparing paper submissions
+- Project export as ZIP, TAR.GZ
+- Installing TexLive packages in one click
+- Three TeX drivers: PdfTeX, XeTeX, LuaTeX
+- Supports bibtex
+- High hackability and minimal codebase size
+
+# GitHub integration
+- Both repositories and gists
+- Clone
+- Push
+- Pull
+- Publish PDF to Releases
+
+# Features of BusyTex and detailed comparison with Overleaf
 ### GitHub integration
 - BusyTeX has client-side integration with GitHub. This means, you clone the latest version of GitHub repo and branch when you start a BusyTeX session and then you upload updates to GitHub in form of Git commits. GitHub integration is very primitive (e.g. does not support viewing history)
 - Overleaf has paid sever-side integration with GitHub.

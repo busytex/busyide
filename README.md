@@ -4,11 +4,13 @@
 - GitHub integration for both repositories and gists
 - Importing papers' LaTeX sources from arxiv.org
 - Removing comments for preparing paper submissions
-- Project export as ZIP, TAR.GZ
+- Export and download projects as ZIP and TAR.GZ
 - Installing TexLive packages in one click
 - Three TeX drivers: PdfTeX, XeTeX, LuaTeX
 - Supports bibtex
 - High hackability and minimal codebase size
+- Search in files
+- Share projects using base64-encoded URLs, useful for sharing MWEs at https://tex.stackexchange.com
 
 # GitHub integration
 - Both repositories and gists
@@ -16,6 +18,16 @@
 - Push
 - Pull
 - Publish PDF to Releases
+
+# Help needed
+- Better UI design: eliminate unneeded scrollbars, better support for huge resolutions, splitters
+- Replace native browser PDF viewer with pdf.js
+- Show Git history / all commits
+- Figure out SyncTeX support
+- Rerender only changed pages
+- Render Markdown
+- Explore porting Biber to WASM, https://github.com/plk/biber/issues/338
+- Locally cache unpushed projects in IDBFS
 
 # Features of BusyTex and detailed comparison with Overleaf
 ### GitHub integration

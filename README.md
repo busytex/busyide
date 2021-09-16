@@ -8,9 +8,10 @@
 - Installing TexLive packages in one click
 - Three TeX drivers: PdfTeX, XeTeX, LuaTeX
 - Supports bibtex
-- High hackability and minimal codebase size
 - Search in files
+- Basic diff tool
 - Share projects using base64-encoded URLs, useful for sharing MWEs at https://tex.stackexchange.com
+- High hackability and minimal codebase size
 
 # GitHub integration
 - Both repositories and gists

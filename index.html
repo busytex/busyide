@@ -850,7 +850,7 @@ function init_editor(monaco, editor_element, difftool_element, lang_monarch, lat
     monaco.languages.setLanguageConfiguration(bibtex_monarch.name, lang_monarch);
 
     return {
-        editor: monaco.editor.create(editor_element, { automaticLayout: true, theme: monaco_theme, minimap: {enabled: false } }), 
+        editor: monaco.editor.create(editor_element, { automaticLayout: true, wordWrap: 'on', theme: monaco_theme, minimap: {enabled: false } }), 
         difftool: monaco.editor.createDiffEditor(difftool_element, { automaticLayout: true, theme: monaco_theme, readOnly: true })
     };
 }

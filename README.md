@@ -32,15 +32,25 @@
 - Figure out SyncTeX support
 - Do not scroll to top at rerender, rerender only changed pages
 - Render Markdown
-- Explore porting Biber to WASM, https://github.com/plk/biber/issues/338
+- Explore porting Biber to WASM, https://github.com/plk/biber/issues/338, https://github.com/busytex/buildbiber
 - Locally cache unpushed projects in IDBFS to recover after browser crash / unintentional tab closing
 - When shallow repo support lands in libgit2 https://github.com/libgit2/libgit2/pull/5254, experiment with recreating shallow repos locally using GitHub API
 - Some sort of automated functional testing
+- Explore bundling everything in a single huge HTML file openable in browser
+
+# BusyTex architecture
+1. TexLive programs compiled to WASM: https://github.com/busytex/busytex
+2. TexLive data packages
+3. Busybox programs compiled to WASM: [`busybox.js`](./busybox.js), [`.config`](./config), [`Makefile`](./Makefile)
+4. IDE shell: [`index.html`](./index.html), [`ui.js`](./ui.js)
+5. GitHub integration: [`github.js`](./github.js)
 
 # CORS proxy is used only for:
 - download paper sources from https://arxiv.org
 - manual TexLive package installation from https://ctan.org
 - publish PDF to GitHub releases
+
+<hr>
 
 # Features of BusyTex and detailed comparison with Overleaf
 ### GitHub integration
@@ -79,13 +89,8 @@
 - BusyTex is completely client-side software and runs on your machine. Besides using BusyTex at https://busytex.github.io, There are multiple options of hosting your own copy of BusyTex.
 - Overleaf requires running server-side services. Besides using Overleaf at https://overleaf.com, one can run your own free copy as a Docker image. Overleaf provides paid service for supporting on-premises version: https://www.overleaf.com/for/enterprises.
 
-### BusyTex architecture
-1. TexLive programs compiled to WASM
-2. TexLive data packages
-3. Busybox programs compiled to WASM
-4. IDE shell
+<hr>
 
-<hr />
 ### Supported URIs
 - https://busytex.github.io/#https://github.com/vadimkantorov/busyidetest/archive/refs/heads/master.zip
 - https://busytex.github.io/#https://github.com/vadimkantorov/busyidetest/tree/master/
@@ -98,7 +103,7 @@
 - local run with serve.py (mount FS / terminal?)
 - packaging of everything into one large HTML file to run from file://
 
-### TODO
+### Notes
 - https://github.com/GoogleChromeLabs/browser-fs-access
 - https://developpaper.com/monaco-uses-vscode-related-syntax-to-highlight-on-the-browser/
 - view log + search (bad rename)
@@ -138,8 +143,6 @@
 - dot and dotdot get unselected, because dirname does not match . or .. in the select
 - Do not close edited file when viewing directory or git
 - Better status: how many commits behind master (refresh button?). Check before push
-
-```shell
 - https://github.com/xloem/emterm
 - https://github.com/tomoyukim/vscode-mermaid-editor
 - https://github.com/koka-lang/madoko/blob/master/web/client/scripts/editor.js
@@ -150,10 +153,6 @@
 - http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
 - https://blog.jcoglan.com/2017/05/08/merging-with-diff3/
 - https://github.com/ywangd/stash/blob/master/lib/git/gitutils.py
-```
-
-### Links
-
 - http://gitlet.maryrosecook.com/docs/gitlet.html
 - https://mincong.io/2018/04/28/git-index/
 - https://medium.com/hackernoon/understanding-git-index-4821a0765cf

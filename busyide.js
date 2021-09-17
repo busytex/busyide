@@ -721,7 +721,7 @@ export class Shell
         catch(err)
         {
             this.last_exit_code = this.EXIT_FAILURE;
-            const msg = `[${cmd}] last error code: [${this.last_exit_code}], error message: [${err.message || "no message"}]`
+            const msg = `[busybox] last error code: [${this.last_exit_code}], error message: [${err.message || "no message"}]`
             this.ui.set_error(msg);
             this.log_big(msg);
             return;

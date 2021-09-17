@@ -10,6 +10,7 @@
 - Supports bibtex
 - Search in files
 - Basic diff tool
+- Preview for BMP, PNG, JPG, SVG, PDF
 - Share projects using base64-encoded URLs, useful for sharing MWEs at https://tex.stackexchange.com
 - High hackability and minimal codebase size
 
@@ -21,14 +22,19 @@
 - Publish PDF to Releases
 
 # Help needed
+- Ask https://arxiv.org (https://twitter.com/arxiv) to add CORS headers to TAR.GZ export of paper sources
+- Ask https://ctan.org to add CORS headers to downloads of package sources
+- Ask https://github.com (https://twitter.com/natfriedman) to support uploads of release assets without CORS headers
+- Ask https://github.com (https://twitter.com/natfriedman) to add CORS headers to TAR.GZ/ZIP export of repository sources
 - Better UI design: eliminate unneeded scrollbars, better support for huge resolutions, splitters
 - Replace native browser PDF viewer with pdf.js
 - Show Git history / all commits
 - Figure out SyncTeX support
-- Rerender only changed pages
+- Do not scroll to top at rerender, rerender only changed pages
 - Render Markdown
 - Explore porting Biber to WASM, https://github.com/plk/biber/issues/338
 - Locally cache unpushed projects in IDBFS
+- When shallow repo support lands in libgit2 https://github.com/libgit2/libgit2/pull/5254, experiment with recreating shallow repos locally using GitHub API
 
 # Features of BusyTex and detailed comparison with Overleaf
 ### GitHub integration

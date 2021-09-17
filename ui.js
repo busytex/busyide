@@ -55,7 +55,7 @@ export class Shell
         this.cache_applets = ['object', 'token'];
         this.git_applets = ['clone', 'pull', 'push', 'status', 'difftool', 'diff', 'fetch', 'checkout'];
         this.hub_applets = ['release'];
-        this.viewer_extensions = ['.log', '.svg', '.png', '.jpg', '.pdf'];
+        this.viewer_extensions = ['.log', '.png', '.jpg', '.bmp', '.svg', '.pdf'];
         this.editor_extensions = ['', '.svg', ...this.text_extensions];
         this.shell_commands = [...this.shell_builtins, ...this.busybox_applets, ...this.git_applets.map(cmd => 'git ' + cmd), ...this.cache_applets.map(cmd => 'cache ' + cmd)].sort();
         this.tic_ = 0;

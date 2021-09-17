@@ -48,8 +48,8 @@ export class Shell
         this.data_uri_prefix_tar_gz = 'data:application/tar+gzip;base64,';
         this.texmf_local = ['texmf', '.texmf'];
         this.archive_extensions = ['.zip', '.tar.gz', '.tar'];
-        this.text_extensions = ['.tex', '.bib', '.sty', '.bst', '.bbl', '.txt', '.md', '.svg', '.sh', '.py', '.csv', '.tsv', '.eps', '.xml', '.json', '.md', '.r'];
-        this.search_extensions = ['', '.tex', '.bib', '.sty', '.txt', '.md', '.sh', '.py', '.xml', '.json', '.md', '.r'];
+        this.text_extensions = ['.tex', '.bib', '.sty', '.bst', '.bbl', '.txt', '.md', '.svg', '.sh', '.py', '.csv', '.tsv', '.eps', '.xml', '.json', '.md', '.r', '.c', '.cpp', '.h', '.js', '.html'];
+        this.search_extensions = ['', '.tex', '.bib', '.sty', '.txt', '.md', '.sh', '.py', '.xml', '.json', '.md', '.r', '.c', '.cpp', '.h', '.js', '.html'];
         this.busybox_applets = ['busyz', 'bsddiff3prog', 'bsddiff', 'busybox', 'find', 'mkdir', 'pwd', 'ls', 'echo', 'cp', 'rm', 'du', 'tar', 'touch', 'wc', 'cat', 'head', 'clear', 'gzip', 'base64', 'sha1sum', 'whoami', 'sed', 'true', 'false', 'seq', 'patch', 'grep', 'test', 'xxd', 'xz', 'hexdump', 'unxz', 'mv'];
         this.shell_builtins =  ['cd', 'rename', 'man', 'help', 'open', 'close', 'download', 'purge', 'latexmk', 'git', 'upload', 'wget', 'init', 'dirty', 'hub', 'rgrep', 'tlmgr'];
         this.cache_applets = ['object', 'token'];

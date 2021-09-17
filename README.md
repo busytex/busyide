@@ -2,7 +2,7 @@
 - Fully client-side functioning, including project compilation and GitHub integration
 - Syntax highlighting
 - GitHub integration for both repositories and gists
-- Importing papers' LaTeX sources from arxiv.org
+- Importing papers' LaTeX sources from https://arxiv.org
 - Removing comments for preparing paper submissions
 - Export and download projects as ZIP and TAR.GZ
 - Installing TexLive packages in one click

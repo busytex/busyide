@@ -76,6 +76,12 @@
 |        |**Documentation**|
 |BusyTex | BusyTex has almost no documentation besides this README at the moment :( |
 |Overleaf| Overleaf has extensive documentation, including great https://www.overleaf.com/learn resource that has beginner and expert documentation about LaTeX itself. |
+|        |**Spell checking**|
+|BusyTex | Not supported for now |
+|Overleaf| Supported |
+|        |**Compilation error reporting**|
+|BusyTex | Displays raw compilation logs |
+|Overleaf| Presents errors' file and line numbers |
 |        |**Project storage**|
 |BusyTex | BusyTex does not have its own server-side storage and fully relies on GitHub integration as project storage as well. |
 |Overleaf| Overleaf provides server-side project storage and does not require any third-party services for basic work. |

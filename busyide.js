@@ -38,12 +38,14 @@ export class Shell
         this.arxiv_path = this.tmp_dir + '/arxiv.tar';
         this.patch_path = this.tmp_dir + '/uploaded.patch';
         this.git_log = this.tmp_dir + '/git.log';
+        this.big_log = this.tmp_dir + '/big.log';
+        this.small_log = this.tmp_dir + '/small.log';
         this.git_dir = this.home_dir.replace('home', '.git');
         this.empty_file = '/etc/empty';
         this.new_file_name = 'newfile';
         this.new_file_ext = '.tex';
         this.new_dir_name = 'newfolder';
-        this.log_sink_path = null;
+        this.log_big_sink_path = null;
         this.current_terminal_line = '';
         this.data_uri_prefix_tar_gz = 'data:application/tar+gzip;base64,';
         this.texmf_local = ['texmf', '.texmf'];
@@ -69,7 +71,7 @@ export class Shell
         this.difftool = difftool;
         this.ui = ui;
         this.paths = paths;
-        this.log_small = this.ui.log_small;
+        
         this.readme = readme;
         this.versions = versions;
         this.busybox = null;
@@ -212,7 +214,7 @@ export class Shell
 		this.difftool.addCommand(this.monaco.KeyCode.Escape, () => this.ui.toggle_editor('editor'), '!findWidgetVisible && !inReferenceSearchEditor && !editorHasSelection'); 
         this.ui.filetree.onkeydown = ev => (ev.key == 'Enter' || ev.key == ' ') ? this.ui.filetree.ondblclick({target: this.ui.filetree.options[this.ui.filetree.selectedIndex]}) : ev.key == 'Delete' ? this.ui.remove.onclick() : null;
         
-        this.ui.status.ondblclick = () => console.log('STATUSDBLCLICK');
+        this.ui.status.ondblclick = () => this.commands(cmd('open', this.big_log)); 
     }
 
     share_onclick()
@@ -735,6 +737,8 @@ export class Shell
         this.FS.writeFile(this.readme_tex, this.readme);
         this.FS.writeFile(this.versions_txt, this.versions);
         this.FS.writeFile(this.git_log, '');
+        this.FS.writeFile(this.big_log, '');
+        this.FS.writeFile(this.small_log, '');
         this.FS.writeFile(this.empty_file, '');
         this.FS.chdir(this.home_dir);
         this.github = new Github(this.cache_dir, this.merge.bind(this), this.sha1.bind(this), this.rm_rf.bind(this), this.diff.bind(this), this.fetch_via_cors_proxy.bind(this), this.FS, this.PATH, this);
@@ -766,20 +770,26 @@ export class Shell
         this.dirty('timer_save');
     }
    
-    log_big_header(text = '', log_sink_path = null)
+    log_big_header(text = '', log_big_sink_path = null)
     {
         this.log_big(this.ui.log_reset_sequence);
         this.ui.toggle_viewer('.log', text + '\n');
-        this.log_sink_path = log_sink_path;
+        this.log_big_sink_path = log_big_sink_path || this.big_log;
     }
 
     log_big(text)
     {
         this.ui.log_big(text);
-        if(this.log_sink_path)
-            this.FS.writeFile(this.log_sink_path, this.read_all_text(this.log_sink_path) + text + '\n');
+        if(this.log_big_sink_path)
+            this.FS.writeFile(this.log_big_sink_path, this.read_all_text(this.log_big_sink_path) + text + '\n');
     }
     
+    log_small(text)
+    {
+        this.ui.log_small(text);
+        this.FS.writeFile(this.small_log, this.read_all_text(this.small_log) + text + '\n');
+    }
+
     async git_fetch()
     {
         this.log_big_header('$ git fetch', this.git_log); 

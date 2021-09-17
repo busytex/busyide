@@ -166,8 +166,6 @@
 - https://swimburger.net/blog/dotnet/how-to-deploy-aspnet-blazor-webassembly-to-github-pages
 - https://medium.com/codingtown/xterm-js-terminal-2b19ccd2a52
 - https://github.com/RangerMauve/xterm-js-shell
-- https://github.com/latexjs/latexjs/blob/master/latexjs/Dockerfile
-- https://github.com/latexjs/latexjs
 - https://github.com/emscripten-core/emscripten/issues/2040
 - https://git-scm.com/docs/gitrepository-layout
 - https://stackoverflow.com/questions/59983250/there-is-any-standalone-version-of-the-treeview-component-of-vscode
@@ -177,7 +175,11 @@
 - https://github.com/microsoft/monaco-languages
 - https://browsix.org/latex-demo-sync/
 - https://developer.github.com/v3/repos/contents/#create-or-update-file-contents
-- https://github.com/zrxiv/browserext/blob/master/backend.js
 - http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
 - https://blog.jcoglan.com/2017/03/22/myers-diff-in-linear-space-theory/
 - http://www.xmailserver.org/xdiff-lib.html
+
+### References
+- [madoko](https://github.com/koka-lang/madoko/tree/master/styles/lang)
+- [iodide.io](https://alpha.iodide.io/tryit)
+- [pyodide](https://pyodide.org/en/stable)

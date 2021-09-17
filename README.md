@@ -6,7 +6,7 @@
 - Removing comments for preparing paper submissions
 - Export and download projects as ZIP and TAR.GZ
 - Installing TexLive packages in one click
-- Three TeX drivers: PdfTeX, XeTeX, LuaTeX
+- Three LaTeX drivers: PdfLaTeX, XeLaTeX, LuaLaTeX
 - Supports bibtex
 - Search in files
 - Basic diff tool
@@ -183,3 +183,5 @@
 - [madoko](https://github.com/koka-lang/madoko/tree/master/styles/lang)
 - [iodide.io](https://alpha.iodide.io/tryit)
 - [pyodide](https://pyodide.org/en/stable)
+- [monaco-editor](https://github.com/microsoft/monaco-editor)
+- [xterm.js](https://github.com/xtermjs/xterm.js)

@@ -74,7 +74,7 @@
 |BusyTex | BusyTeX has client-side integration with GitHub. This means, you clone the latest version of GitHub repo and branch when you start a BusyTeX session and then you upload updates to GitHub in form of Git commits. GitHub integration is very primitive (e.g. does not support viewing history) |
 |Overleaf| Overleaf has paid sever-side integration with GitHub. |
 |        |**Documentation**|
-|BusyTex | BusyTex has almost no documentation besides this file |
+|BusyTex | BusyTex has almost no documentation besides this README at the moment :( |
 |Overleaf| Overleaf has extensive documentation, including great https://www.overleaf.com/learn resource that has beginner and expert documentation about LaTeX itself. |
 |        |**Project storage**|
 |BusyTex | BusyTex does not have its own server-side storage and fully relies on GitHub integration as project storage as well. |

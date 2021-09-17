@@ -1,4 +1,5 @@
 # Client-side GitHub-enabled LaTeX editor and compiler: https://busytex.github.io
+- Obviously, inspired by awesome [Overleaf](https://overleaf.com)
 - Fully client-side functioning, including project compilation and GitHub integration
 - Syntax highlighting
 - GitHub integration for both repositories and gists
@@ -12,6 +13,7 @@
 - Basic diff tool
 - Preview for BMP, PNG, JPG, SVG, PDF
 - Share projects using base64-encoded URLs, useful for sharing MWEs at https://tex.stackexchange.com
+- As fast as your local machine, even at conference deadline times 
 - High hackability and minimal codebase size
 
 # GitHub integration
@@ -173,6 +175,7 @@
 - http://www.xmailserver.org/xdiff-lib.html
 
 ### References
+- [overleaf](https://overleaf.com)
 - [madoko](https://github.com/koka-lang/madoko/tree/master/styles/lang)
 - [iodide.io](https://alpha.iodide.io/tryit)
 - [pyodide](https://pyodide.org/en/stable)

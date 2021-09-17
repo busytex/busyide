@@ -46,6 +46,7 @@ export class Shell
         this.new_file_ext = '.tex';
         this.new_dir_name = 'newfolder';
         this.log_big_sink_path = null;
+        this.log_small_sink_path = null;
         this.current_terminal_line = '';
         this.data_uri_prefix_tar_gz = 'data:application/tar+gzip;base64,';
         this.texmf_local = ['texmf', '.texmf'];
@@ -99,7 +100,7 @@ export class Shell
         this.rm_rf = dirpath => this.busybox.run(['rm', '-rf', dirpath]);
         this.diff = (abspath, basepath, cwd) => this.busybox.run(['bsddiff', '-Nu', this.exists(basepath) && basepath != '/dev/null' ? basepath : this.empty_file, this.exists(abspath) && abspath != '/dev/null' ? abspath : this.empty_file]).stdout; // TODO: get newer diff from FreeBSD: https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=233402
 
-        this.read_all_text  = path => this.FS.readFile(path, {encoding : 'utf8'  });
+        this.read_all_text  = path => this.exists(path) ? this.FS.readFile(path, {encoding : 'utf8' }) : '';
         this.read_all_bytes = path => this.FS.readFile(path, {encoding : 'binary'});
         this.expandcollapseuser = (path, expand = true) => expand ? path.replace('~', this.home_dir) : path.replace(this.home_dir, '~');
         this.exists = path => path ? this.FS.analyzePath(path).exists : false;
@@ -730,6 +731,8 @@ export class Shell
         
         this.PATH = this.busybox.Module.PATH;
         this.FS = this.busybox.Module.FS;
+        this.log_small_sink_path = this.small_log;
+
         this.FS.mkdir(this.readme_dir);
         this.FS.mkdir(this.cache_dir);
         this.mkdir_p(this.git_dir);
@@ -787,7 +790,8 @@ export class Shell
     log_small(text)
     {
         this.ui.log_small(text);
-        this.FS.writeFile(this.small_log, this.read_all_text(this.small_log) + text + '\n');
+        if(this.log_small_sink_path)
+            this.FS.writeFile(this.log_small_sink_path, this.read_all_text(this.log_small_sink_path) + text + '\n');
     }
 
     async git_fetch()

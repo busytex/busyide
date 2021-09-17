@@ -46,7 +46,7 @@ export class Shell
         this.new_file_ext = '.tex';
         this.new_dir_name = 'newfolder';
         this.log_big_sink_path = null;
-        this.log_small_sink_path = null;
+        this.log_small_sink_path = this.small_log;
         this.current_terminal_line = '';
         this.data_uri_prefix_tar_gz = 'data:application/tar+gzip;base64,';
         this.texmf_local = ['texmf', '.texmf'];
@@ -731,8 +731,6 @@ export class Shell
         
         this.PATH = this.busybox.Module.PATH;
         this.FS = this.busybox.Module.FS;
-        this.log_small_sink_path = this.small_log;
-
         this.FS.mkdir(this.readme_dir);
         this.FS.mkdir(this.cache_dir);
         this.mkdir_p(this.git_dir);
@@ -783,14 +781,14 @@ export class Shell
     log_big(text)
     {
         this.ui.log_big(text);
-        if(this.log_big_sink_path)
+        if(this.log_big_sink_path && this.FS)
             this.FS.writeFile(this.log_big_sink_path, this.read_all_text(this.log_big_sink_path) + text + '\n');
     }
     
     log_small(text)
     {
         this.ui.log_small(text);
-        if(this.log_small_sink_path)
+        if(this.log_small_sink_path && this.FS)
             this.FS.writeFile(this.log_small_sink_path, this.read_all_text(this.log_small_sink_path) + text + '\n');
     }
 

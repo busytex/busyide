@@ -68,10 +68,11 @@
 
 # Features of BusyTex and detailed comparison with Overleaf
 |        | Feature |
-|--------| GitHub Integration |
+|--------| ------  |
+|        |**GitHub Integration** |
 |BusyTex |  |
 |Overleaf|  |
-|--------| Documentation |
+|--------|**Documentation**|
 |BusyTex |  |
 |Overleaf|  |
 

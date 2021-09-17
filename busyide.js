@@ -215,7 +215,7 @@ export class Shell
 		this.difftool.addCommand(this.monaco.KeyCode.Escape, () => this.ui.toggle_editor('editor'), '!findWidgetVisible && !inReferenceSearchEditor && !editorHasSelection'); 
         this.ui.filetree.onkeydown = ev => (ev.key == 'Enter' || ev.key == ' ') ? this.ui.filetree.ondblclick({target: this.ui.filetree.options[this.ui.filetree.selectedIndex]}) : ev.key == 'Delete' ? this.ui.remove.onclick() : null;
         
-        this.ui.status.ondblclick = () => this.commands(cmd('open', this.big_log)); 
+        this.ui.status.ondblclick = () => this.commands(cmd('open', this.log_small_sink_path)); 
     }
 
     share_onclick()

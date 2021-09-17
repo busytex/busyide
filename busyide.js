@@ -692,6 +692,7 @@ export class Shell
         {
             this.log_big(`Opening project from data URI (*.tar.gz)...`);
             const cmds = [this.cmd('echo', '$@', '>', this.share_link_log), this.cmd('sed', '-i', '-e', this.qq(`s#${this.data_uri_prefix_tar_gz}##`), this.share_link_log), this.cmd('base64', '-d', this.share_link_log, '>', this.shared_project_targz), this.cmd('gzip', '-d', this.shared_project_targz), 'cd', this.cmd('tar', '-xf', this.shared_project_tar), this.cmd('open', '.')];
+            //TODO: open single subdirectory? or single non-readme
             await this.commands(this.and(...cmds));
         }
 

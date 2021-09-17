@@ -105,20 +105,18 @@
 - https://developpaper.com/monaco-uses-vscode-related-syntax-to-highlight-on-the-browser/
 - view log + search (bad rename)
 - https://stackoverflow.com/questions/34632839/checkbox-marked-with-click-in-link
-- https://github.com/Darkseal/CORSflare
 - https://gist.github.com/jimmywarting/ac1be6ea0297c16c477e17f8fbe51347
 - https://github.com/wasmerio/wasmer-js/blob/master/packages/wasm-terminal/src/wasm-shell/wasm-shell.ts, https://webassembly.sh
 - https://chromium.googlesource.com/apps/libapps/+/master/hterm/
 - https://github.com/Microsoft/monaco-editor/issues/44 https://stackoverflow.com/questions/57246356/how-to-highlight-merge-conflict-blocks-in-monaco-editor-like-vscode https://github.com/Symbolk/IntelliMerge-UI
-- https://stackoverflow.com/questions/4628544/how-to-detect-when-cancel-is-clicked-on-file-input https://stackoverflow.com/questions/34855400/cancel-event-on-input-type-file
 - https://github.com/microsoft/monaco-editor/issues/102
+- https://stackoverflow.com/questions/4628544/how-to-detect-when-cancel-is-clicked-on-file-input https://stackoverflow.com/questions/34855400/cancel-event-on-input-type-file
 - https://github.com/ochachacha/ps-wasm https://codepen.io/sivadass/details/XZEVmM https://stackoverflow.com/questions/33063213/pdf-js-with-text-selection/43345096 https://github.com/mozilla/pdf.js/issues/11359#issuecomment-558841393 https://github.com/allefeld/atom-pdfjs-viewer
 - https://developers.cloudflare.com/workers/examples/cors-header-proxy, https://github.com/Zibri/cloudflare-cors-anywhere
 - Store file sha hashes in .git directory
 - Ctrl+V, command history
 - file tab auto-complete
 - https://github.com/ElektraInitiative/libelektra/issues/2873
-- do not download all artefacts, not just a single pdfpath/logpath -> move artefacts to /tmp
 - Typing is not shown until commands finished processing
 - Splitter: https://codepen.io/rstrahl/pen/eJZQej
 - Broken texpath
@@ -127,9 +125,7 @@
 - renaming a current directory + needs a re-cd
 - GitHub links: github file, project: https://gist.github.com/btoone/2288960 https://github.com/go-jsonfile/jsonfiddle#usage-1
 - http://showdownjs.com/
-- support cors proxy + tar/tar.gz/gz/zip inputs (github tar.gz)
-- support single file mode from http
-- Versions file, preload all media in HTML
+- preload all media in HTML
 - Merge binary files
 - timer for auto-save https://stackoverflow.com/questions/5766263/run-settimeout-only-when-tab-is-active
 - selection is unchanged when going inside a directory
@@ -137,7 +133,6 @@
 - https://api.github.com/repos/busytex/busytex/git/trees/main?recursive=1
 - Unify ok/error + initial promp
 - pstoedit
-- dot and dotdot get unselected, because dirname does not match . or .. in the select
 - Do not close edited file when viewing directory or git
 - Better status: how many commits behind master (refresh button?). Check before push
 - https://github.com/xloem/emterm
@@ -158,16 +153,13 @@
 - https://git-scm.com/book/en/v2/Git-Tools-Advanced-Merging
 - http://www.jpeek.com/articles/linuxmag/2007-06/
 - https://github.com/BlueMagnificent/monaco-tree
-- https://swimburger.net/blog/dotnet/how-to-deploy-aspnet-blazor-webassembly-to-github-pages
 - https://medium.com/codingtown/xterm-js-terminal-2b19ccd2a52
 - https://github.com/RangerMauve/xterm-js-shell
 - https://github.com/emscripten-core/emscripten/issues/2040
 - https://git-scm.com/docs/gitrepository-layout
 - https://stackoverflow.com/questions/59983250/there-is-any-standalone-version-of-the-treeview-component-of-vscode
-- https://itnext.io/build-ffmpeg-webassembly-version-ffmpeg-js-part-3-ffmpeg-js-v0-1-0-transcoding-avi-to-mp4-f729e503a397
 - https://mozilla.github.io/pdf.js/examples/index.html#interactive-examples
 - https://github.com/AREA44/vscode-LaTeX-support
-- https://github.com/microsoft/monaco-languages
 - https://browsix.org/latex-demo-sync/
 - https://developer.github.com/v3/repos/contents/#create-or-update-file-contents
 - http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
@@ -181,3 +173,4 @@
 - [pyodide](https://pyodide.org/en/stable)
 - [monaco-editor](https://github.com/microsoft/monaco-editor)
 - [xterm.js](https://github.com/xtermjs/xterm.js)
+- [CORSflare](https://github.com/Darkseal/CORSflare)

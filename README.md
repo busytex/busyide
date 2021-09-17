@@ -36,7 +36,11 @@
 - Locally cache unpushed projects in IDBFS to recover after browser crash / unintentional tab closing
 - When shallow repo support lands in libgit2 https://github.com/libgit2/libgit2/pull/5254, experiment with recreating shallow repos locally using GitHub API
 - Some sort of automated functional testing
-- Explore bundling everything in a single huge HTML file openable in browser
+- Serve locally with serve.py
+- Explore bundling everything in a single huge HTML file openable in browser with file:/// protocol
+- Explore local backend: FS and shell
+- More faithful bash
+
 
 # BusyTex architecture
 1. TexLive programs compiled to WASM: https://github.com/busytex/busytex
@@ -49,6 +53,14 @@
 - download paper sources from https://arxiv.org
 - manual TexLive package installation from https://ctan.org
 - publish PDF to GitHub releases
+
+# Supported URIs
+- https://busytex.github.io/#https://github.com/vadimkantorov/busyidetest/archive/refs/heads/master.zip
+- https://busytex.github.io/#https://github.com/vadimkantorov/busyidetest/tree/master/
+- https://busytex.github.io/#https://github.com/vadimkantorov/busyidetest
+- https://busytex.github.io/#https://gist.github.com/vadimkantorov/43590508854c6e1dac58bcee8d940a8d
+- https://busytex.github.io/#https://arxiv.org/abs/1808.00158
+- https://busytex.github.io/#data:application/tar+gzip;base64,H4sIAAAAAAAAA+1TS2/TQBDO2b9iLpVACsE2SYx641GBRBAVRKgSRmjsHSerrHetfeShqP+dieuGplWPKYfmu6xnd+abbx62hKKm171jImZkWdaejPtn+50M42GSDtPhmP2SJE5HPRgdVVWH4DxagN6Kij/BkX20iKcQ8/SwN/P/fvHu49eLgaf1EXLsBjwejx+bf5Jko3/zz1KefzqKhz2Ij6DlAZ75/HNhylCT9qVC534lSeN/b9F6WSq6jvKCZlJvb32uoyj30ivavg9uM6U1e2Dwc2O3P1HIGr6g9saaJd8L9LSdGoEbNmpcUBvIBI5KL42+pfimldSc6sAE6QChVJKTOinoldFqAxOc0hWQkJwDUAsoTd1IRXYAP0LTGOtJQBV0y+/Owc3REvMw46LPbIaJK2tq+CT951D0oQluDt509gAeqtvr6hQZpW4cwFTA1xO5JGismVmsHfAqceNQsdZOmgDJHeFIJ/VMEdCayuCxUDSAD8Faro+di6DFzndPxLrP4Yq43D4UsuDf8m1b8FosZSOqet2HReNoNZfl/C6R27ehUegrY2tuw0TqwAErdPWbFF4U1qx4zzspu1K4NE+Oo/qgjaDDF2189/pyAJdkS84E+VkU4Vl7v6t0txtRdGhDyt2875KTFne26X8v/wknnHDCM8ZfeL5NggAMAAA=
 
 <hr>
 
@@ -90,18 +102,6 @@
 - Overleaf requires running server-side services. Besides using Overleaf at https://overleaf.com, one can run your own free copy as a Docker image. Overleaf provides paid service for supporting on-premises version: https://www.overleaf.com/for/enterprises.
 
 <hr>
-
-### Supported URIs
-- https://busytex.github.io/#https://github.com/vadimkantorov/busyidetest/archive/refs/heads/master.zip
-- https://busytex.github.io/#https://github.com/vadimkantorov/busyidetest/tree/master/
-- https://busytex.github.io/#https://github.com/vadimkantorov/busyidetest
-- https://busytex.github.io/#https://gist.github.com/vadimkantorov/43590508854c6e1dac58bcee8d940a8d
-- https://busytex.github.io/#https://arxiv.org/abs/1808.00158
-- https://busytex.github.io/#data:application/tar+gzip;base64,H4sIAAAAAAAAA+1TS2/TQBDO2b9iLpVACsE2SYx641GBRBAVRKgSRmjsHSerrHetfeShqP+dieuGplWPKYfmu6xnd+abbx62hKKm171jImZkWdaejPtn+50M42GSDtPhmP2SJE5HPRgdVVWH4DxagN6Kij/BkX20iKcQ8/SwN/P/fvHu49eLgaf1EXLsBjwejx+bf5Jko3/zz1KefzqKhz2Ij6DlAZ75/HNhylCT9qVC534lSeN/b9F6WSq6jvKCZlJvb32uoyj30ivavg9uM6U1e2Dwc2O3P1HIGr6g9saaJd8L9LSdGoEbNmpcUBvIBI5KL42+pfimldSc6sAE6QChVJKTOinoldFqAxOc0hWQkJwDUAsoTd1IRXYAP0LTGOtJQBV0y+/Owc3REvMw46LPbIaJK2tq+CT951D0oQluDt509gAeqtvr6hQZpW4cwFTA1xO5JGismVmsHfAqceNQsdZOmgDJHeFIJ/VMEdCayuCxUDSAD8Faro+di6DFzndPxLrP4Yq43D4UsuDf8m1b8FosZSOqet2HReNoNZfl/C6R27ehUegrY2tuw0TqwAErdPWbFF4U1qx4zzspu1K4NE+Oo/qgjaDDF2189/pyAJdkS84E+VkU4Vl7v6t0txtRdGhDyt2875KTFne26X8v/wknnHDCM8ZfeL5NggAMAAA=
-
-### Planned modes of operation
-- local run with serve.py (mount FS / terminal?)
-- packaging of everything into one large HTML file to run from file://
 
 ### Notes
 - https://github.com/GoogleChromeLabs/browser-fs-access

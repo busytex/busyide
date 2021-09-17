@@ -67,6 +67,14 @@
 <hr>
 
 # Features of BusyTex and detailed comparison with Overleaf
+|        | Feature |
+|--------| GitHub Integration |
+|BusyTex |  |
+|Overleaf|  |
+|--------| Documentation |
+|BusyTex |  |
+|Overleaf|  |
+
 ### GitHub integration
 - BusyTeX has client-side integration with GitHub. This means, you clone the latest version of GitHub repo and branch when you start a BusyTeX session and then you upload updates to GitHub in form of Git commits. GitHub integration is very primitive (e.g. does not support viewing history)
 - Overleaf has paid sever-side integration with GitHub.

@@ -871,6 +871,7 @@ export class Github
                 asset = null;
             }
 
+            // TODO: fix CORS proxy to support POST
             asset = await this.fetch_check(`Asset [${basename}] -CORS> ...`, print, upload_url, {method : 'POST', headers : this.auth_headers(), body : blob}, 'json', this.fetch_via_cors_proxy.bind(this));
             
             print('OK!\n');

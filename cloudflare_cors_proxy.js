@@ -12,6 +12,7 @@ addEventListener('fetch', event => event.respondWith((async () =>
     {
         const url_href = unescape(unescape(url.search.substr(1)));
 
+        // TODO: allow POST to https://uploads.github.com/
         const response = await fetch(url_href, { method: 'GET', headers : {'User-Agent' : user_agent } } );
 
         const headers = new Headers(response.headers);

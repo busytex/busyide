@@ -54,7 +54,7 @@
 # CORS proxy is used only for:
 - download paper sources from https://arxiv.org
 - manual TexLive package installation from https://ctan.org
-- publish PDF to GitHub releases
+- publish PDF to https://github.com repos' releases
 
 # Try out supported URIs
 - https://busytex.github.io/#https://github.com/busytex/busyide/archive/refs/heads/main.zip

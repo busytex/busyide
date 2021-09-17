@@ -48,7 +48,7 @@
 1. TexLive programs compiled to WASM: https://github.com/busytex/busytex
 2. TexLive data packages
 3. Busybox programs compiled to WASM: [`busybox.js`](./busybox.js), [`.config`](./config), [`Makefile`](./Makefile)
-4. IDE shell: [`index.html`](./index.html), [`ui.js`](./ui.js)
+4. IDE shell: [`index.html`](./index.html), [`busyide.js`](./busyide.js)
 5. GitHub integration: [`github.js`](./github.js)
 
 # CORS proxy is used only for:
@@ -57,8 +57,8 @@
 - publish PDF to GitHub releases
 
 # Try out supported URIs
-- https://busytex.github.io/#https://github.com/busytex/busyide/archive/refs/heads/master.zip
-- https://busytex.github.io/#https://github.com/busytex/busyide/tree/master/
+- https://busytex.github.io/#https://github.com/busytex/busyide/archive/refs/heads/main.zip
+- https://busytex.github.io/#https://github.com/busytex/busyide/tree/main/
 - https://busytex.github.io/#https://github.com/busytex/busyide
 - https://busytex.github.io/#https://gist.github.com/vadimkantorov/43590508854c6e1dac58bcee8d940a8d
 - https://busytex.github.io/#https://arxiv.org/abs/1808.00158

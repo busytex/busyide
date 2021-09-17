@@ -1,4 +1,4 @@
-# Key Features - https://busytex.github.io
+# Client-side GitHub-enabled LaTeX editor and compiler: https://busytex.github.io
 - Fully client-side functioning, including project compilation and GitHub integration
 - Syntax highlighting
 - GitHub integration for both repositories and gists

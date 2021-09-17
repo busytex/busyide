@@ -760,8 +760,8 @@ export class Shell
             {
                 if(exit_code == this.EXIT_SUCCESS)
                     exit_code = this.EXIT_FAILURE;
-                this.ui.set_error(`[init] error code: [${exit_code}], exception: [${err.toString()}]`);
                 await this.commands('man');
+                this.ui.set_error(`[init] error code: [${exit_code}], exception: [${err.toString()}]`);
             }
         }
         else
@@ -1525,7 +1525,7 @@ export class Shell
         //selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd && this.ui.filetree.selectedIndex >= 0 ? this.ui.filetree.options[this.ui.filetree.selectedIndex].value : null);
         selected_file_path = selected_file_path || (this.FS.cwd() == this.refresh_cwd ? this.ui.get_selected_file_path() : null);
         // TODO: selected_file_path <- get_current_file(true) if in the good directory
-        const project_tex_path = this.exists(this.ui.get_current_tex_path()) ? this.ui.get_current_tex_path() : selected_file_path.endsWith('.tex') ? selected_file_path : null;
+        const project_tex_path = this.exists(this.ui.get_current_tex_path()) ? this.ui.get_current_tex_path() : (selected_file_path || '').endsWith('.tex') ? selected_file_path : null;
         
         console.log('refresh', '(', selected_file_path, ')', 'current tex path (', this.ui.get_current_tex_path(), ')', 'current file (', this.ui.get_current_file(true), ')');
 

@@ -103,6 +103,9 @@
 |        |**Hosting**|
 |BusyTex | BusyTex is completely client-side software and runs on your machine. Besides using BusyTex at https://busytex.github.io, There are multiple options of hosting your own copy of BusyTex. |
 |Overleaf| Overleaf requires running server-side services. Besides using Overleaf at https://overleaf.com, one can run your own free copy as a Docker image. Overleaf provides paid service for supporting on-premises version: https://www.overleaf.com/for/enterprises. |
+|        |**Expertise**|
+|BusyTex | BusyTex is just some tinkering without understanding of LaTeX, TexLive, fonts, CJK specifics etc. |
+|Overleaf| Overleaf is developed by LaTeX experts. |
 
 <hr>
 

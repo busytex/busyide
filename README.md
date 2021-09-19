@@ -7,7 +7,7 @@
 - Removing comments for preparing paper submissions
 - Export and download projects as ZIP and TAR.GZ
 - Installing TexLive packages in one click
-- Three LaTeX drivers: PdfLaTeX, XeLaTeX, LuaLaTeX
+- Three LaTeX engines: PdfLaTeX, XeLaTeX, LuaHBLaTeX
 - Supports bibtex
 - Search in files
 - Basic diff tool

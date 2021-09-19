@@ -271,7 +271,7 @@
         <select id="tex_driver" class="busyui" >
             <option value="xetex_bibtex8_dvipdfmx" selected>TeX Pipeline: XeTeX + bibtex8 + dvipdfmx</option>
             <option value="pdftex_bibtex8">TeX Pipeline: PdfTeX + bibtex8</option>
-            <option value="luahbtex_bibtex8">TeX Pipeline: LuahbTeX + bibtex8</option>
+            <option value="luahbtex_bibtex8">TeX Pipeline: LuaHBTeX + bibtex8</option>
         </select>
         <select id="bibtex" class="busyui">
             <option value="auto" selected title="scans files for bibliography commands">BibTeX: auto detection</option>
@@ -610,7 +610,7 @@ const ui =
             let a = document.createElement('a');
             a.innerText = basename(k);
             a.target = '_blank';
-            a.href = basename(k).startsWith('ubuntu-') ? ('https://packages.ubuntu.com/groovy/all/' + basename(k).replace('ubuntu-', '').replace('.js', '') + '/filelist') : 'https://tug.org/svn/texlive/trunk/Master/tlpkg/tlpsrc/collection-basic.tlpsrc?view=markup';
+            a.href = basename(k).startsWith('ubuntu-') ? ('https://packages.ubuntu.com/groovy/all/' + basename(k).replace('ubuntu-', '').replace('.js', '') + '/filelist') : 'https://tug.org/svn/texlive/trunk/Master/tlpkg/tlpsrc/collection-basic.tlpsrc?view=markup'; // http://www.tug.org/texlive/devsrc/Master/tlpkg/tlpsrc/collection-basic.tlpsrc
             tc.appendChild(a);
             
             tc = tr.insertCell();

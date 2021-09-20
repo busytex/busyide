@@ -1358,6 +1358,7 @@ export class Shell
    
     async latexmk(tex_path)
     {
+        //TODO: successful compilation changes current file, but does not change focus from editor to the viewer, so clicking again on the editor does not change it either. should not change the current file at all?
         let cwd = this.FS.cwd();
         
         if(!cwd.startsWith(this.home_dir) || !tex_path || !tex_path.endsWith(this.tex_ext))

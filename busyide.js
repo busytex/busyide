@@ -220,14 +220,42 @@ export class Shell
 
     share_onclick()
     {
-        this.github.git_dir() ? [this.log_big_header(''), this.log_big(this.ui.get_origin() + '/#' + this.github.format_url() )] : this.project_dir() ? this.commands(and(cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), cmd('gzip', this.shared_project_tar), cmd('echo', '-n', this.ui.get_origin() + '/#' + this.data_uri_prefix_tar_gz, '>', this.share_link_log), cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), cmd('open', arg(this.share_link_log)))) : null;
+        const {arg, cmd, and} = this;
+        if(this.github.git_dir())
+        {
+            this.log_big_header('');
+            this.log_big(this.ui.get_origin() + '/#' + this.github.format_url() );
+        }
+        else if(this.project_dir())
+        {
+            const cmds = [
+                cmd('tar', '-C', arg(this.PATH.dirname(this.project_dir())), '-cf', this.shared_project_tar, this.PATH.basename(this.project_dir())), 
+                cmd('gzip', this.shared_project_tar), 
+                cmd('echo', '-n', this.ui.get_origin() + '/#' + this.data_uri_prefix_tar_gz, '>', this.share_link_log), 
+                cmd('base64', '-w', '0', this.shared_project_targz, '>>', this.share_link_log), 
+                cmd('open', arg(this.share_link_log))
+            ];
+            this.commands(and(...cmds));
+        }
     }
 
     rename_onclick()
     {
-        (!this.is_special_dir(this.ui.get_current_file(true)) && this.is_user_dir(this.ui.get_current_file(true))) && (this.ui.current_file_rename.value
-            ? (this.rename(this.ui.get_current_file(), this.ui.current_file_rename.value) || this.ui.set_current_file(this.ui.current_file_rename.value, this.abspath(this.ui.current_file_rename.value)) || this.ui.toggle_current_file_rename(''))
-            : (this.ui.toggle_current_file_rename(this.ui.current_file_rename.hidden ? this.ui.get_current_file() : '') || this.ui.current_file_rename.focus()));
+        const curfile = this.ui.get_current_file(true);
+        if(!this.is_special_dir(curfile) && this.is_user_dir(curfile))
+        {
+            if(this.ui.current_file_rename.value)
+            {
+                this.rename(this.ui.get_current_file(), this.ui.current_file_rename.value);
+                this.ui.set_current_file(this.ui.current_file_rename.value, this.abspath(this.ui.current_file_rename.value));
+                this.ui.toggle_current_file_rename('');
+            }
+            else
+            {
+                this.ui.toggle_current_file_rename(this.ui.current_file_rename.hidden ? this.ui.get_current_file() : '');
+                this.ui.current_file_rename.focus();
+            }
+        }
     }
 
     new_file_path(prefix, ext = '', max_attempts = 1000)

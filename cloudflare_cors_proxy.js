@@ -4,7 +4,7 @@
 
 addEventListener('fetch', event => event.respondWith((async () =>
 {
-    
+      
     const url = new URL(event.request.url);
     const origin = event.request.headers.get('Origin'), user_agent = event.request.headers.get('User-Agent');
 
@@ -13,6 +13,7 @@ addEventListener('fetch', event => event.respondWith((async () =>
         const url_href = unescape(unescape(url.search.substr(1)));
 
         // TODO: allow POST to https://uploads.github.com/
+        // passes through User-Agent to satisfy arxiv.org constraints
         const response = await fetch(url_href, { method: 'GET', headers : {'User-Agent' : user_agent } } );
 
         const headers = new Headers(response.headers);

@@ -579,6 +579,7 @@ export class Shell
 
     async wget(url, _OP = '-O', output_path = null)
     {
+        //TODO: replace by curl +- compressed?
         output_path = _OP == '-P' ? this.PATH.join(output_path, this.PATH.basename(url)) : (output_path || this.PATH.basename(url));
         const resp = await this.fetch_via_cors_proxy(url);
 

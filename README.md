@@ -41,10 +41,11 @@
 - Some sort of automated functional testing
 - Serve locally with serve.py
 - Explore bundling everything in a single huge HTML file openable in browser with file:/// protocol
-- Explore local backend: FS and shell
+- Explore local machine backend: FS and shell
 - More faithful bash
 - Test on Safari, Firefox
 - Support Safari mobile on iPhone and iPad
+- Licensing: uses compiled busybox (https://busybox.net/), miniz (https://github.com/richgel999/miniz), diff (https://www.openbsd.org/)
 
 
 # BusyTex architecture

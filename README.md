@@ -4,7 +4,7 @@
 - Syntax highlighting
 - GitHub integration for both repositories and gists
 - Importing papers' LaTeX sources from https://arxiv.org
-- Removing comments for preparing paper submissions
+- Removing TeX comments for preparing paper submissions
 - Export and download projects as ZIP and TAR.GZ
 - Installing TexLive packages in one click
 - Three LaTeX engines: PdfLaTeX, XeLaTeX, LuaHBLaTeX
@@ -15,7 +15,7 @@
 - Share projects using base64-encoded URLs, useful for sharing small MWEs at https://tex.stackexchange.com
 - As fast as your local machine, even at conference deadline times
 - No browser tracking, not even Google Analytics
-- High hackability and minimal codebase size
+- High hackability and minimal codebase size: three JavaScript files, single HTML file, no UI frameworks used
 
 # GitHub integration
 - Both repositories and gists

@@ -120,7 +120,6 @@
 - https://chromium.googlesource.com/apps/libapps/+/master/hterm/
 - https://github.com/Microsoft/monaco-editor/issues/44 https://stackoverflow.com/questions/57246356/how-to-highlight-merge-conflict-blocks-in-monaco-editor-like-vscode https://github.com/Symbolk/IntelliMerge-UI
 - https://github.com/microsoft/monaco-editor/issues/102
-- https://stackoverflow.com/questions/4628544/how-to-detect-when-cancel-is-clicked-on-file-input https://stackoverflow.com/questions/34855400/cancel-event-on-input-type-file
 - https://github.com/ochachacha/ps-wasm https://codepen.io/sivadass/details/XZEVmM https://stackoverflow.com/questions/33063213/pdf-js-with-text-selection/43345096 https://github.com/mozilla/pdf.js/issues/11359#issuecomment-558841393 https://github.com/allefeld/atom-pdfjs-viewer
 - https://developers.cloudflare.com/workers/examples/cors-header-proxy, https://github.com/Zibri/cloudflare-cors-anywhere
 - Store file sha hashes in .git directory
@@ -129,7 +128,6 @@
 - https://github.com/ElektraInitiative/libelektra/issues/2873
 - Typing is not shown until commands finished processing
 - Splitter: https://codepen.io/rstrahl/pen/eJZQej
-- Broken texpath
 - autosave
 - pseudo-shell quotes
 - renaming a current directory + needs a re-cd
@@ -142,9 +140,8 @@
 - Disposing an opened model, do not close upon renaming
 - https://api.github.com/repos/busytex/busytex/git/trees/main?recursive=1
 - Unify ok/error + initial promp
-- pstoedit
 - Do not close edited file when viewing directory or git
-- Better status: how many commits behind master (refresh button?). Check before push
+- Better status: how many commits behind master. Check before push
 - https://github.com/xloem/emterm
 - https://github.com/tomoyukim/vscode-mermaid-editor
 - https://github.com/koka-lang/madoko/blob/master/web/client/scripts/editor.js
@@ -166,12 +163,10 @@
 - https://medium.com/codingtown/xterm-js-terminal-2b19ccd2a52
 - https://github.com/RangerMauve/xterm-js-shell
 - https://github.com/emscripten-core/emscripten/issues/2040
-- https://git-scm.com/docs/gitrepository-layout
 - https://stackoverflow.com/questions/59983250/there-is-any-standalone-version-of-the-treeview-component-of-vscode
 - https://mozilla.github.io/pdf.js/examples/index.html#interactive-examples
 - https://github.com/AREA44/vscode-LaTeX-support
 - https://browsix.org/latex-demo-sync/
-- https://developer.github.com/v3/repos/contents/#create-or-update-file-contents
 - http://www.levibotelho.com/development/commit-a-file-with-the-github-api/
 - https://blog.jcoglan.com/2017/03/22/myers-diff-in-linear-space-theory/
 - http://www.xmailserver.org/xdiff-lib.html

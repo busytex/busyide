@@ -13,7 +13,8 @@
 - Basic diff tool
 - Preview for BMP, PNG, JPG, SVG, PDF
 - Share projects using base64-encoded URLs, useful for sharing MWEs at https://tex.stackexchange.com
-- As fast as your local machine, even at conference deadline times 
+- As fast as your local machine, even at conference deadline times
+- No browser tracking, not even Google Analytics
 - High hackability and minimal codebase size
 
 # GitHub integration

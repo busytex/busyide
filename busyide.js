@@ -1043,10 +1043,6 @@ export class Shell
             this.busytex_applet_versions = initialized;
             this.ui.update_busytex_applet_versions(this.busytex_applet_versions);
         }
-        if(logs)
-        {
-            console.log('LOGS', logs);
-        }
         if(pdf)
         {
             this.toc();
@@ -1081,7 +1077,7 @@ export class Shell
         if(!cwd)
             cwd = this.ui.get_current_tex_path() ? this.PATH.dirname(this.ui.get_current_tex_path()) : curdir;
 
-        console.log('curdir', curdir, 'cwd', cwd, this.home_dir);
+        console.log('project_dir', 'curdir', curdir, 'cwd', cwd, this.home_dir);
 
         if(!cwd || !cwd.startsWith(this.home_dir) || cwd == this.home_dir || !curdir.startsWith(cwd))
             return null;
@@ -1094,7 +1090,7 @@ export class Shell
         return this.project_dir().replace(this.home_dir, this.tmp_dir);
     }
 
-    open_find_default_path(file_path)
+    find_default_path(file_path)
     {
         const tex_files = this.find(file_path, '', false).filter(f => f.contents != null && f.path.endsWith(this.tex_ext));
         let default_path = null;
@@ -1246,7 +1242,7 @@ export class Shell
             {
                 const abspath = this.abspath(file_path);
                 const basename = this.PATH.basename(abspath);
-                const default_path = (file_path == '.' || file_path == '..') ? this.open_find_default_path(file_path) : null;
+                const default_path = (file_path == '.' || file_path == '..') ? this.find_default_path(file_path) : null;
                 // open selected project tex path instead of default?
                 
                 contents = null;

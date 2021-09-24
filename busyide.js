@@ -208,6 +208,7 @@ export class Shell
 
     filetree_open_onclick(ev)
     {
+        const {arg, cmd, and} = this;
         const option = ev.target; 
         if(this.ui.isdir(option))
         {

@@ -42,7 +42,7 @@
 - Serve locally with serve.py
 - Explore bundling everything in a single huge HTML file openable in browser with file:/// protocol
 - Explore local machine backend: FS and shell
-- More faithful bash
+- More faithful bash (keystrokes and execution)
 - Test on Safari, Firefox
 - Support Safari mobile on iPhone and iPad
 - Licensing: uses compiled busybox (https://busybox.net/), miniz (https://github.com/richgel999/miniz), diff (https://www.openbsd.org/)

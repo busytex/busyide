@@ -181,19 +181,7 @@ export class Shell
         this.ui.github_https_path.onkeypress = this.ui.github_branch.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
         this.ui.filetree.onchange = ev => this.open(this.expandcollapseuser(this.ui.get_selected_file_path() || '', false));
 
-        this.ui.filetree.ondblclick = ev =>
-        {
-            const option = ev.target; 
-            if(this.ui.isdir(option))
-            {
-                const samedir = option.text == '.', parentdir = option.text == '..';
-                if(samedir)
-                    this.refresh();
-                else
-                    // TODO: open .. does not open a single tex file for some reason? go to cv/texmf and then ..
-                    this.commands(parentdir ? and(cmd('open', '..'), cmd('cd', '..')) : and(cmd('cd', arg(option.value)), cmd('open', '.')));
-            }
-        };
+        this.ui.filetree.ondblclick = ev => this.filetree_open_onclick(ev);
         
         //TODO: clicking on rename twice should make the box disappear
         this.ui.rename.onclick = () => this.rename_onclick();
@@ -217,6 +205,20 @@ export class Shell
         
         this.ui.status.ondblclick = () => this.commands(cmd('open', this.log_small_sink_path)); 
     }
+
+    filetree_open_onclick(ev)
+    {
+        const option = ev.target; 
+        if(this.ui.isdir(option))
+        {
+            const samedir = option.text == '.', parentdir = option.text == '..';
+            if(samedir)
+                this.refresh();
+            else
+                // TODO: open .. does not open a single tex file for some reason? go to cv/texmf and then ..
+                this.commands(parentdir ? and(cmd('open', '..'), cmd('cd', '..')) : and(cmd('cd', arg(option.value)), cmd('open', '.')));
+        }
+    };
 
     share_onclick()
     {

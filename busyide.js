@@ -196,7 +196,7 @@ export class Shell
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyMod.Shift | this.monaco.KeyCode.Enter, this.ui.compile_current_file.onclick);
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyMod.Shift | this.monaco.KeyCode.KEY_F, () => this.ui.search_query.focus());
 		this.difftool.addCommand(this.monaco.KeyCode.Escape, () => this.ui.toggle_editor('editor'), '!findWidgetVisible && !inReferenceSearchEditor && !editorHasSelection'); 
-        this.ui.filetree.onkeydown = ev => (ev.key == 'Enter' || ev.key == ' ') ? this.ui.filetree.ondblclick({target: this.ui.filetree.options[this.ui.filetree.selectedIndex]}) : ev.key == 'Delete' ? this.ui.remove.onclick() : null;
+        this.ui.filetree.onkeydown = ev => (ev.key == 'Enter' || ev.key == ' ') ? this.ui.filetree.ondblclick({target: this.ui.filetree.selectedOptions[0]}) : ev.key == 'Delete' ? this.ui.remove.onclick() : null;
         
         this.ui.status.ondblclick = () => this.commands(cmd('open', this.log_small_sink_path)); 
     }
@@ -1093,7 +1093,7 @@ export class Shell
         return this.project_dir().replace(this.home_dir, this.tmp_dir);
     }
 
-    find_default_path(file_path)
+    find_default_basename(file_path)
     {
         const tex_files = this.find(file_path, '', false).filter(f => f.contents != null && f.path.endsWith(this.tex_ext));
         let default_path = null;
@@ -1244,7 +1244,7 @@ export class Shell
             {
                 const abspath = this.abspath(file_path);
                 const basename = this.PATH.basename(abspath);
-                const default_path = (file_path == '.' || file_path == '..') ? this.find_default_path(file_path) : null;
+                const default_path = (file_path == '.' || file_path == '..') ? this.find_default_basename(file_path) : null;
                 // open selected project tex path instead of default?
                 
                 contents = null;

@@ -1562,9 +1562,9 @@ export class Shell
         this.ui.update_file_tree(files, selected_file_path);
         // TODO: keep old tex project path when adding newfile.tex
         // TODO: project file resets when going into a subdir
+        console.log('project_tex_path', project_tex_path);
         this.ui.update_tex_paths(project_dir ? files.filter(f => f.path.endsWith('.tex')) : [], project_tex_path);
         
-        console.log('set_project_name', project_dir ? this.PATH.basename(project_dir) : 'N/A');
         this.ui.set_project_name(project_dir ? this.PATH.basename(project_dir) : 'N/A');
 
         if(this.edit_path && !this.exists(this.edit_path))

@@ -30,7 +30,6 @@ export class Shell
         this.log_path = null;
         this.edit_path = null;
         this.view_path = null;
-        this.tex_path = '';
         this.zip_path = this.tmp_dir + '/archive.zip';
         this.tar_path = this.tmp_dir + '/archive.tar';
         this.tar_xz_path = this.tmp_dir + '/archive.tar.xz';
@@ -1232,7 +1231,6 @@ export class Shell
         
         if(file_path === '')
         {
-            this.tex_path = '';
             this.ui.set_current_file('');
             open_editor_tab('');
             this.ui.toggle_viewer('.log', '');
@@ -1275,9 +1273,6 @@ export class Shell
         const abspath = this.abspath(file_path);
         const basename = this.PATH.basename(abspath);
         const extname = this.PATH.extname(abspath).toLowerCase();
-        
-        if(extname == '.tex')
-            this.tex_path = abspath; // file_path.startsWith('/') ? file_path : (this.FS.cwd() + '/' + file_path);
         
         if(this.viewer_extensions.includes(extname) && this.editor_extensions.includes(extname))
         {
@@ -1561,7 +1556,8 @@ export class Shell
         
         console.log('refresh', '(', selected_file_path, ')', 'current tex path (', this.ui.get_current_tex_path(), ')', 'current file (', this.ui.get_current_file(true), ')');
 
-        this.ui.update_file_tree(files, selected_file_path);
+        this.ui.update_file_tree(files, this.PATH.dirname(this.ui.get_current_file(true)) == selected_file_path ? this.ui.get_current_file(true) : selected_file_path);
+
         // TODO: keep old tex project path when adding newfile.tex
         // TODO: project file resets when going into a subdir
 
@@ -1631,8 +1627,6 @@ export class Shell
             this.view_path = dst_abspath;
         if(src_abspath == this.pdf_path)
             this.pdf_path = dst_abspath;
-        if(src_abspath == this.tex_path)
-            this.tex_path = dst_abspath;
 
         this.refresh();
         this.dirty('timer_save');

@@ -469,8 +469,10 @@ const ui =
     set_error : error => ([ui.view_log.className, ui.view_log.title] = error ? ['error', error] : ['ok', 'All OK!']),
 
     set_current_pdf : abspath => (ui.download_pdf.title = ui.view_pdf.title = abspath),
+    
+    get_project_dir : () => ui.project_name.title,
 
-    set_project_name : basename => (ui.project_name.innerText = basename || 'N/A'),
+    set_project_dir : (abspath, basename) => [(ui.project_name.innerText = basename || 'N/A'), (ui.project_name.title = abspath)],
     
     log_big : text => ui.log(text, ui.txtpreview),
     

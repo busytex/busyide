@@ -1549,7 +1549,7 @@ export class Shell
     refresh(selected_file_path = null)
     {
         const project_dir = this.project_dir();
-        const files = this.find(this.pwd(), '', false, true, true, true, []);
+        let files = this.find(this.pwd(), '', false, true, true, true, []);
         files.sort((fa, fb) => (fa.isdir ^ fb.isdir) ? (fa.isdir ? -1 : 1) : fa.name.localeCompare(fb.name));
         
         console.log('refresh', '[', selected_file_path, ']');
@@ -1564,9 +1564,12 @@ export class Shell
         this.ui.update_file_tree(files, selected_file_path);
         // TODO: keep old tex project path when adding newfile.tex
         // TODO: project file resets when going into a subdir
+
+        
+        files = this.find(project_dir, '', false, true, true, true, []);
         this.ui.update_tex_paths(project_dir ? files.filter(f => f.path.endsWith('.tex')) : [], project_tex_path);
         
-        this.ui.set_project_name(project_dir ? this.PATH.basename(project_dir) : 'N/A');
+        this.ui.set_project_dir(project_dir ? project_dir : '', project_dir ? this.PATH.basename(project_dir) : 'N/A');
 
         if(this.edit_path && !this.exists(this.edit_path))
         {

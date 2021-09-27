@@ -149,8 +149,6 @@ export class Shell
         this.ui.compile_project.onclick = () => this.project_dir() && this.ui.get_current_tex_path() && this.commands(cmd('latexmk', arg(this.ui.get_current_tex_path())));
         this.ui.compile_current_file.onclick = () => (this.ui.get_current_file() || '').endsWith('.tex') && !this.isdir(this.ui.get_current_file()) && this.commands(cmd('latexmk', arg(this.ui.get_current_file())));
         
-        // TODO: share multiple variants: short, full
-        // TODO: remove newlines? newlines present even with base64 -w? for arxiv case
         this.ui.share.onclick = () => this.share_onclick(); 
         this.ui.show_not_modified.onclick = this.ui.toggle_not_modified.bind(this);
         this.ui.show_tex_settings.onclick = async () => this.ui.update_tex_settings(await this.data_package_resolver.resolve_data_packages()) || this.ui.toggle_viewer('texsettings');
@@ -172,18 +170,17 @@ export class Shell
             this.commands(and(cmd('mkdir', new_path), cmd('open', new_path)));
         }
 
+        this.ui.gitops.onclick = () => this.github.git_dir() && this.commands(cmd('git', 'status'));
         this.ui.refresh_fetch.onclick = () => this.commands(cmd('git', 'fetch'));
         this.ui.pull.onclick = () => this.commands(cmd('git', 'pull'));
-        this.ui.gitops.onclick = () => this.github.git_dir() && this.commands(cmd('git', 'status'));
         this.ui.commit_push.onclick = () => this.commands(cmd('git', 'push'));
         this.ui.commit_push_new_branch.onclick = () => this.commands(and(cmd('git', 'checkout', '-b', this.github.propose_new_branch_name()), cmd('git', 'push')));
 
         this.ui.github_https_path.onkeypress = this.ui.github_branch.onkeypress = this.ui.github_token.onkeypress = ev => ev.key == 'Enter' ? this.ui.clone.click() : null;
         this.ui.filetree.onchange = ev => this.open(this.expandcollapseuser(this.ui.get_selected_file_path() || '', false));
 
-        this.ui.filetree.ondblclick = ev => this.filetree_open_onclick(ev);
+        this.ui.filetree.ondblclick = ev => this.filetree_onclick(ev);
         
-        //TODO: clicking on rename twice should make the box disappear
         this.ui.rename.onclick = () => this.rename_onclick();
         this.ui.current_file_rename.onblur = () => this.ui.toggle_current_file_rename('');
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? this.ui.rename.onclick() : ev.key == 'Escape' ? ev.target.onblur() : null;
@@ -196,7 +193,6 @@ export class Shell
 		
         this.editor.onDidFocusEditorText(ev => this.edit_path && this.ui.set_current_file(this.PATH.basename(this.edit_path), this.edit_path, 'editing'));
         this.ui.txtpreview.onfocus = this.ui.imgpreview.onclick = () => this.view_path && this.ui.set_current_file(this.PATH.basename(this.view_path), this.view_path, 'viewing');
-        //this.ui.pdfpreview.onclick = ev => console.log('pdfpreview', ev);
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyCode.Enter, this.ui.compile_project.onclick);
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyMod.Shift | this.monaco.KeyCode.Enter, this.ui.compile_current_file.onclick);
 		this.editor.addCommand(this.monaco.KeyMod.CtrlCmd | this.monaco.KeyMod.Shift | this.monaco.KeyCode.KEY_F, () => this.ui.search_query.focus());
@@ -206,7 +202,7 @@ export class Shell
         this.ui.status.ondblclick = () => this.commands(cmd('open', this.log_small_sink_path)); 
     }
 
-    filetree_open_onclick(ev)
+    filetree_onclick(ev)
     {
         const {arg, cmd, and} = this;
         const option = ev.target; 
@@ -216,13 +212,17 @@ export class Shell
             if(samedir)
                 this.refresh();
             else
+            {
                 // TODO: open .. does not open a single tex file for some reason? go to cv/texmf and then ..
                 this.commands(parentdir ? and(cmd('open', '..'), cmd('cd', '..')) : and(cmd('cd', arg(option.value)), cmd('open', '.')));
+            }
         }
     };
 
     share_onclick()
     {
+        // TODO: share multiple variants: short, full
+        // TODO: remove newlines? newlines present even with base64 -w? for arxiv case
         const {arg, cmd, and} = this;
         if(this.github.git_dir())
         {
@@ -244,6 +244,7 @@ export class Shell
 
     rename_onclick()
     {
+        //TODO: clicking on rename twice should make the box disappear
         const curfile = this.ui.get_current_file(true);
         if(!this.is_special_dir(curfile) && this.is_user_dir(curfile))
         {

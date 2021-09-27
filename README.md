@@ -37,6 +37,7 @@
 - Render Markdown
 - Explore porting Biber to WASM, https://github.com/plk/biber/issues/338, https://github.com/busytex/buildbiber
 - Locally cache unpushed projects in IDBFS to recover after browser crash / unintentional tab closing
+- Review token / file cache
 - When shallow repo support lands in libgit2 https://github.com/libgit2/libgit2/pull/5254, experiment with recreating shallow repos locally using GitHub API
 - Some sort of automated functional testing
 - Serve locally with serve.py

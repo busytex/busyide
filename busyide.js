@@ -582,7 +582,6 @@ export class Shell
 
     async curl(url, _o = '-o', output_path = null, __compressed = null)
     {
-        //TODO: replace by curl +- compressed?
         output_path = output_path || this.PATH.basename(url);
         const resp = await this.fetch_via_cors_proxy(url);
 

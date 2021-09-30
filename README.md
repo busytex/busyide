@@ -174,8 +174,8 @@
 - http://www.xmailserver.org/xdiff-lib.html
 
 ### Contributors
-* Vadim Kantorov: JavaScript
-* Ilya: HTML, layout
+* **Vadim Kantorov**: JavaScript
+* **Ilya**: HTML, layout
 
 
 ### References

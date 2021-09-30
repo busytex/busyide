@@ -181,7 +181,7 @@ export class Shell
         this.ui.filetree.ondblclick = ev => this.filetree_onclick(ev);
         
         this.ui.rename.onclick = () => this.rename_onclick();
-        this.ui.current_file_rename.onblur = () => this.ui.toggle_current_file_rename('');
+        this.ui.current_file_rename.onblur = () => this.ui.toggle_current_file_rename(null);
         this.ui.current_file_rename.onkeydown = ev => ev.key == 'Enter' ? this.ui.rename.onclick() : ev.key == 'Escape' ? ev.target.onblur() : null;
         this.ui.remove.onclick = () => (!is_special_dir(this.ui.get_current_file(true)) && is_user_dir(this.ui.get_current_file(true))) && this.ui.get_current_file() && this.commands(and(this.isdir(this.ui.get_current_file()) ? cmd('rm', '-rf', arg(this.ui.get_current_file())) : cmd('rm', arg(this.ui.get_current_file())), cmd('open', '.'))); 
         

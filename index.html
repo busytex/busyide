@@ -500,7 +500,7 @@ const ui =
     toggle_current_file_rename(basename)
     {
         const input = ui.current_file_rename;
-        input.value = basename;
+        input.value = basename === null ? input.value : basename;
         input.hidden = basename ? false : true;
     },
 

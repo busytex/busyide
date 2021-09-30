@@ -173,6 +173,11 @@
 - https://blog.jcoglan.com/2017/03/22/myers-diff-in-linear-space-theory/
 - http://www.xmailserver.org/xdiff-lib.html
 
+### Contributors
+* Vadim Kantorov: JavaScript
+* Ilya: HTML, layout
+
+
 ### References
 - [overleaf](https://overleaf.com)
 - [madoko](https://github.com/koka-lang/madoko/tree/master/styles/lang)

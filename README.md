@@ -29,7 +29,7 @@
 - Ask https://ctan.org to add CORS headers to downloads of package sources
 - Ask https://github.com (https://twitter.com/natfriedman) to support uploads of release assets without CORS headers: https://github.community/t/uploading-a-release-asset-possible-from-browser/177582
 - Ask https://github.com (https://twitter.com/natfriedman) to add CORS headers to TAR.GZ/ZIP export of repository sources (currently not used): https://github.community/t/feature-request-cors-headers-for-repository-archives/177595
-- Better UI design: eliminate unneeded scrollbars, better support for huge resolutions, splitters
+- Better, cleaner, simpler, less cluttered UI design: eliminate unneeded scrollbars, better support for huge resolutions, splitters
 - Replace native browser PDF viewer with pdf.js
 - Show Git history / all commits
 - Figure out SyncTeX support

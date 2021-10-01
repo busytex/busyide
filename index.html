@@ -346,14 +346,14 @@
                 <tr><th>changes:</th><td id="gitsummarychanges"></td></tr>
             </table>
             <hr />
-            <table id="gitstatustable">
+            <table>
                 <thead><tr><th class="tl">path</th><th>remote</th><th>github</th><th class="tr">diff</th></tr></thead>
-                <tbody></tbody>
+                <tbody id="gitstatustable"></tbody>
                 <!--<tfoot hidden><tr><td colspan="4">nothing to commit</td></tr></tfoot>-->
             </table>
-            <table id="gitcommits">
+            <table>
                 <thead><tr><th class="tl">date</th><th>sha</th><th class="tr">message</th></tr></thead>
-                <tbody></tbody>
+                <tbody id="gitcommits"></tbody>
                 <!--<tfoot hidden><tr><td colspan="4">nothing to commit</td></tr></tfoot>-->
             </table>
         </figure>
@@ -666,8 +666,9 @@ const ui =
     
     update_git_status(container, status, format_url, git_difftool, open)
     {
-        const table = container.querySelector('#gitstatustable');
-        const tbody = table.querySelector('tbody');
+        console.log('update_git_status', status);
+
+        const tbody = container.querySelector('#gitstatustable');
 
         const a_url = container.querySelector('#remoteurl');
         const a_branch = container.querySelector('#remotebranch');
@@ -675,6 +676,7 @@ const ui =
         const a_lcommit = container.querySelector('#localcommit');
         const gitsummarystatus = container.querySelector('#gitsummarystatus');
         const gitsummarychanges = container.querySelector('#gitsummarychanges');
+        const gitcommits = container.querySelector('#gitcommits');
 
         a_url.href = format_url(status.username, status.reponame, status.gist);
         a_url.innerText = `${status.username}/${status.reponame}`;

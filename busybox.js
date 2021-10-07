@@ -97,7 +97,6 @@ export class Busybox
 
     run(cmd, stdin = '', cwd = '')
     {
-        console.log('busybox run', cmd);
         const NOCLEANUP_callMain = (Module, args) =>
         {
             const main = Module._main, fflush = Module._fflush, putchar = Module._putchar, NULL = 0;

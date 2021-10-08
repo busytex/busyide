@@ -387,6 +387,10 @@ export class Github
         
         const commit = await this.api_check(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits/${remote_branch}`);
 
+        const commits = await this.api_check(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits/?per_page=100&sha=${remote_branch}`);
+        console.log('COMMIT', commit);
+        console.log('COMMITS', commits);
+
         const tree = await this.api_check(`Tree of commit [${commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
         if(tree.truncated)
             throw new Error('Tree retrieved from GitHub is truncated: not supported yet');

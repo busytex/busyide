@@ -387,7 +387,7 @@ export class Github
         
         const commit = await this.api_check(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits/${remote_branch}`);
 
-        const commits = await this.api_check(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits/?per_page=100&sha=${commit.sha}`);
+        const commits = await this.api_check(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits?per_page=100&sha=${commit.sha}`);
         console.log('COMMIT', commit);
         console.log('COMMITS', commits);
 

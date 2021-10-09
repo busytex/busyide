@@ -702,17 +702,17 @@ const ui =
 
         const tbody = container.querySelector('#gitcommits');
         tbody.innerHTML = '';
-        for(const {commit} of status.commits)
+        for(const {sha, commit} of status.commits)
         {
             const tr = tbody.insertRow();
             let tc = tr.insertCell();
             tc.innerText = commit.committer.date;
             
             tc = tr.insertCell();
-            tc.innerText = commit.sha;
+            tc.innerText = sha;
             
             tc = tr.insertCell();
-            tc.innerText = commit.commit.message;
+            tc.innerText = commit.message;
         }
     },
     

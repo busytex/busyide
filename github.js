@@ -57,7 +57,7 @@ export class Github
         return fetch(url, {method : method || 'GET', headers : headers, ...(body != null ? {body : JSON.stringify(body)} : {})}).then(resp => resp[then]().then(data => 
         {
             print(log_prefix + (resp.ok ? (' OK! [ ' + (data.sha || (object_name ? data[object_name].sha : '')) + ' ]') : (` FAILED! [ [${resp.status}]: [${resp.statusText}], [${data.message}] ]`)));
-            return ({...data, length : data.length, orig : data, ok : resp.ok, status : resp.status, statusText : resp.statusText}); 
+            return ({...data, length : data.length, ok : resp.ok, status : resp.status, statusText : resp.statusText}); 
         }));
     }
     
@@ -405,7 +405,6 @@ export class Github
         console.log('COMMIT', commit);
 
         const commits = await this.api_check(`Commits of branch [${remote_branch}] <- ...`, print, 'repos', repo_url, `/commits?per_page=100&sha=${commit.sha}`);
-        console.log('COMMITSArrayFrom', Array.from(commits));
 
         const tree = await this.api_check(`Tree of commit [${commit.commit.tree.sha}] <- ...`, print, 'repos', repo_url, `/git/trees/${commit.commit.tree.sha}?recursive=1`);
         if(tree.truncated)
@@ -413,7 +412,7 @@ export class Github
 
         this.init(repo_path);
         this.remote_set_url(repo_path, repo_url);
-        this.commits(repo_path, commits.orig);
+        this.commits(repo_path, commits);
         
         const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
         const local_branch = this.PATH.join(this.ref_heads, remote_branch);

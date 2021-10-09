@@ -387,7 +387,7 @@ export class Github
     {
         const file_path = this.get_commits_path(repo_path);
         if(commits === null)
-            return this.FS.analyzePath(file_path).exists ? JSON.parse(this.FS.readFile(file_path, {encoding : 'utf-8'})) : [];
+            return this.FS.analyzePath(file_path).exists ? JSON.parse(this.FS.readFile(file_path, {encoding : 'utf8'})) : [];
         else
             this.FS.writeFile(file_path, JSON.stringify(Array.from(commits)));
     }

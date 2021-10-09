@@ -515,7 +515,7 @@ const ui =
             tr.hidden = !tr.hidden;
     },
 
-    update_tbody(tbody, st, format_path, onclick_open, onclick_open_remote, onclick_diff)
+    update_gitstatus_tbody(tbody, st, format_path, onclick_open, onclick_open_remote, onclick_diff)
     {
         tbody.innerHTML = '';
         for(const {path, status, abspath, abspath_remote} of st)
@@ -668,8 +668,6 @@ const ui =
     {
         console.log('update_git_status', status);
 
-        const tbody = container.querySelector('#gitstatustable');
-
         const a_url = container.querySelector('#remoteurl');
         const a_branch = container.querySelector('#remotebranch');
         const a_rcommit = container.querySelector('#remotecommit');
@@ -700,7 +698,22 @@ const ui =
         const onclick_open = ignore(evt => open(evt.target.dataset.abspath));
         const onclick_open_remote = ignore(evt => open(evt.target.dataset.abspath_remote, null, true, evt.target.dataset.abspath));
         
-        this.update_tbody(tbody, status.files, format_path, onclick_open, onclick_open_remote, onclick_diff);
+        this.update_gitstatus_tbody(container.querySelector('#gitstatustable'), status.files, format_path, onclick_open, onclick_open_remote, onclick_diff);
+
+        const tbody = container.querySelector('#gitcommits');
+        tbody.innerHTML = '';
+        for(const {commit} of status.commits)
+        {
+            const tr = tbody.insertRow();
+            let tc = tr.insertCell();
+            tc.innerText = commit.committer.date;
+            
+            tc = tr.insertCell();
+            tc.innerText = commit.sha;
+            
+            tc = tr.insertCell();
+            tc.innerText = commit.commit.message;
+        }
     },
     
     update_file_tree(files, selected_file_path = null)

@@ -368,12 +368,28 @@ export class Github
             f.abspath_remote = this.cat_file(f.abspath, tree_dict_copy).abspath;
         }
         
-        return {...this.parse_url(s.repo_url), files : files, remote_branch : s.remote_branch, remote_commit : s.remote_commit_sha, local_commit : s.local_commit_sha, repo_url : s.repo_url};
+        const commits = this.commits(s.repo_path);
+
+        return {...this.parse_url(s.repo_url), files : files, commits : commits, remote_branch : s.remote_branch, remote_commit : s.remote_commit_sha, local_commit : s.local_commit_sha, repo_url : s.repo_url};
     }
     
     async get_default_branch(print, repo_url)
     {
         return (await this.api_check('Default branch <- ...', print, 'repos', repo_url)).default_branch;
+    }
+
+    get_commits_path(repo_path)
+    {
+        return this.PATH.join(this.git_dir(repo_path), 'commits.json');
+    }
+
+    commits(repo_path, commits = null)
+    {
+        const file_path = this.get_commits_path(repo_path);
+        if(commits === null)
+            return this.FS.analyzePath(file_path).exists ? JSON.parse(this.FS.readFile(file_path, {encoding : 'utf-8'})) : [];
+        else
+            this.FS.writeFile(file_path, JSON.stringify(Array.from(commits)));
     }
 
     async clone_repo(print, auth_token, repo_url, repo_path, remote_branch = null)
@@ -397,6 +413,7 @@ export class Github
 
         this.init(repo_path);
         this.remote_set_url(repo_path, repo_url);
+        this.commits(repo_path, commits);
         
         const origin_branch = this.PATH.join(this.ref_origin, remote_branch);
         const local_branch = this.PATH.join(this.ref_heads, remote_branch);

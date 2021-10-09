@@ -123,15 +123,7 @@
             text-align: right
         }
         
-        #gitsummary {
-            width: 100%
-        }
-        
-        #gitcommits {
-            width: 100%
-        }
-
-        #gitstatustable {
+        .w {
             width: 100%
         }
 
@@ -341,7 +333,7 @@
             <textarea id="commit_message" class="busyui" placeholder="Please add a commit message"></textarea>
             
             <hr />
-            <table id="gitsummary">
+            <table id="gitsummary" class="w">
                 <tr><th>repo:</th><td><a id="remoteurl"></a></td></tr>
                 <tr><th>remote branch:</th><td><a id="remotebranch"></a></td></tr>
                 <tr><th>remote commit:</th><td><a id="remotecommit"></a></td></tr>
@@ -350,13 +342,13 @@
                 <tr><th>changes:</th><td id="gitsummarychanges"></td></tr>
             </table>
             <hr />
-            <table>
+            <table class="w">
                 <thead><tr><th class="tl">path</th><th>remote</th><th>github</th><th class="tr">diff</th></tr></thead>
                 <tbody id="gitstatustable"></tbody>
                 <!--<tfoot hidden><tr><td colspan="4">nothing to commit</td></tr></tfoot>-->
             </table>
             <hr />
-            <table>
+            <table class="w">
                 <thead><tr><th class="tl">date</th><th>sha</th><th class="tr">message</th></tr></thead>
                 <tbody id="gitcommits"></tbody>
                 <!--<tfoot hidden><tr><td colspan="4">nothing to commit</td></tr></tfoot>-->

@@ -698,14 +698,18 @@ const ui =
 
         const tbody = container.querySelector('#gitcommits');
         tbody.innerHTML = '';
-        for(const {sha, commit} of status.commits)
+        for(const {sha, commit, html_url} of status.commits)
         {
             const tr = tbody.insertRow();
             let tc = tr.insertCell();
             tc.innerText = commit.committer.date;
             
             tc = tr.insertCell();
-            tc.innerText = sha;
+            const a = document.createElement('a');
+            tc.appendChild(a)
+            a.target = '_blank';
+            a.innerText = sha;
+            a.href = html_url;
             
             tc = tr.insertCell();
             tc.innerText = commit.message;

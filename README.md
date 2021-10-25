@@ -1,6 +1,7 @@
 # Client-side GitHub-enabled LaTeX editor and compiler: https://busytex.github.io
-- Obviously, inspired by awesome [Overleaf](https://overleaf.com)
+- Inspired by awesome [Overleaf](https://overleaf.com)
 - Fully client-side functioning, including project compilation and GitHub integration
+- Survives well missing internet connection
 - Syntax highlighting
 - GitHub integration for both repositories and gists
 - Importing papers' LaTeX sources from https://arxiv.org
@@ -47,6 +48,7 @@
 - Test on Safari, Firefox
 - Support Safari mobile on iPhone and iPad
 - Licensing: uses compiled busybox (https://busybox.net/), miniz (https://github.com/richgel999/miniz), diff (https://www.openbsd.org/)
+- Support opening of busytex site when offline
 
 
 # BusyTex architecture

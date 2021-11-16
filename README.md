@@ -49,6 +49,7 @@
 - Support Safari mobile on iPhone and iPad
 - Licensing: uses compiled busybox (https://busybox.net/), miniz (https://github.com/richgel999/miniz), diff (https://www.openbsd.org/)
 - Support opening of busytex site when offline
+- Auto-commit to GitHub backup branches + delete them when pushed to non-backup
 
 
 # BusyTex architecture

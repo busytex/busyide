@@ -116,6 +116,7 @@
 <hr>
 
 ### Notes
+- drop console / xterm.js
 - broken `cd`
 ```
 Uncaught (in promise) TypeError: Cannot read properties of null (reading 'startsWith')

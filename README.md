@@ -116,6 +116,7 @@
 <hr>
 
 ### Notes
+- clone from github only a directory in the repo
 - https://github.com/GoogleChromeLabs/browser-fs-access
 - https://developpaper.com/monaco-uses-vscode-related-syntax-to-highlight-on-the-browser/
 - view log + search (bad rename)

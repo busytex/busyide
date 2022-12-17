@@ -116,6 +116,14 @@
 <hr>
 
 ### Notes
+- broken `cd`
+```
+Uncaught (in promise) TypeError: Cannot read properties of null (reading 'startsWith')
+    at Shell.abspath (busyide.js:106:37)
+    at Shell.find (busyide.js:1541:34)
+    at Shell.refresh (busyide.js:1591:22)
+    at Shell.commands (busyide.js:366:14)
+```
 - clone from github only a directory in the repo
 - https://github.com/GoogleChromeLabs/browser-fs-access
 - https://developpaper.com/monaco-uses-vscode-related-syntax-to-highlight-on-the-browser/

@@ -1127,26 +1127,30 @@ export class Shell
         return this.project_dir().replace(this.home_dir, this.tmp_dir);
     }
 
-    find_default_basename(file_path)
+    find_default_basename(dirname)
     {
-        // TODO: also consider tex files with names matching project name or directory name
-        const tex_files = this.find(file_path, '', false).filter(f => f.contents != null && f.path.endsWith(this.tex_ext));
+        console.log('find_default_basename', '(', dirname, ')');
+        const basename = this.PATH.basename(dirname);
+        const tex_files = this.find(dirname, '', false).filter(f => f.contents != null && f.path.endsWith(this.tex_ext));
         let default_path = null;
+        
         if(tex_files.length == 1)
             default_path = tex_files[0].path;
+
         else if(tex_files.length > 1)
         {
-            const main_tex_files = this.find(file_path, '', false).filter(f => f.contents != null && f.path.endsWith(this.tex_ext) && f.path.includes('main'));
+            const main_tex_files = this.find(dirname, '', false).filter(f => f.contents != null && f.path.endsWith(this.tex_ext) && (f.path.includes('main') || f.path.includes(basename)));
             default_path = main_tex_files.length > 0 ? main_tex_files[0].path : tex_files[0].path;
         }
+
         if(default_path == null)
         {
-            const text_files = this.find(file_path, '', false).filter(f => f.contents != null && this.text_extensions.some(ext => f.path.toLowerCase().endsWith(ext)));
+            const text_files = this.find(dirname, '', false).filter(f => f.contents != null && this.text_extensions.some(ext => f.path.toLowerCase().endsWith(ext)));
             if(text_files.length == 1)
                 default_path = text_files[0].path;
             else if(text_files.length > 1)
             {
-                const main_text_files = this.find(file_path, '', false).filter(f => f.contents != null && f.path.toUpperCase().includes('README'));
+                const main_text_files = this.find(dirname, '', false).filter(f => f.contents != null && f.path.toUpperCase().includes('README'));
                 default_path = main_text_files.length > 0 ? main_text_files[0].path : text_files[0].path;
             }
         }

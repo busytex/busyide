@@ -1283,7 +1283,8 @@ export class Shell
             {
                 const abspath = this.abspath(file_path);
                 const basename = this.PATH.basename(abspath);
-                const default_path = (file_path == '.' || file_path == '..') ? this.find_default_basename(file_path) : null;
+                console.log('open -> find_default_path', 'file_path', '(', file_path, ')', 'abspath', '(', abspath, ')', 'basename', '(', basename, ')');
+                const default_path = (file_path == '.' || file_path == '..') ? this.find_default_basename(abspath) : null;
                 // open selected project tex path instead of default?
                 
                 contents = null;

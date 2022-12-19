@@ -892,6 +892,7 @@ export class Shell
     {
         this.log_big_header('$ git clone ' + (branch ? `--branch ${branch} ` : '') + https_path, this.git_log); 
         const parsed = this.github.parse_url(https_path);
+        console.log('github url', https_path, 'branch', '(', branch, ')', 'parsed github url', parsed);
         
         let repo_path = parsed.reponame;
         this.log_path = this.git_log;
@@ -913,7 +914,7 @@ export class Shell
         
         const no_branch = !branch;
         if(no_branch && !parsed.gist)
-            branch = this.ui.github_branch.value = await this.github.get_default_branch(this.log_big.bind(this), parsed.path);
+            branch = this.ui.github_branch.value = await this.github.get_default_branch(this.log_big.bind(this), parsed.path, token);
 
         const exit_code = await this.github.clone(this.log_big.bind(this), token, https_path, repo_path);
         if(exit_code === false)

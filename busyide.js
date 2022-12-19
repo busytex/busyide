@@ -111,7 +111,7 @@ export class Shell
         this.compiler = new Worker(paths.busytex_worker_js);
         this.busytex_applet_versions = {};
         this.is_special_dir = abspath => [this.FS.cwd(), this.PATH.normalize(this.PATH.join(this.FS.cwd(), '..'))].includes(abspath);
-        this.is_user_dir = (abspath, strict = true) => abspath.startsWith(this.home_dir + '/') || (!strict && abspath == this.home_dir);
+        this.is_user_dir = (abspath, strict = true) => abspath.startsWith(this.tmp_dir + '/') || abspath == this.tmp_dir || abspath.startsWith(this.home_dir + '/') || (!strict && abspath == this.home_dir);
     }
 
     bind()
@@ -1336,6 +1336,7 @@ export class Shell
         }
         else
         {
+            //TODO: do not automatically xxd large binary files (such as archives)
             //if(extname == '.tar')
             //    contents = this.busybox.run(['tar', '-tvf', abspath]).stdout;
             //else if(extname == '.zip')

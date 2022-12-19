@@ -1588,7 +1588,8 @@ export class Shell
         // TODO: project file resets when going into a subdir
 
         
-        files = this.find(project_dir, '', false, true, true, true, []);
+        console.log('project_dir', '(', project_dir, ')');
+        files = this.find(project_dir ? project_dir : '.', '', false, true, true, true, []);
         this.ui.update_tex_paths(project_dir ? files.filter(f => f.path.endsWith('.tex')) : [], project_tex_path);
         
         this.ui.set_project_dir(project_dir ? project_dir : '', project_dir ? this.PATH.basename(project_dir) : 'N/A');

@@ -1129,6 +1129,7 @@ export class Shell
 
     find_default_basename(file_path)
     {
+        // TODO: also consider tex files with names matching project name or directory name
         const tex_files = this.find(file_path, '', false).filter(f => f.contents != null && f.path.endsWith(this.tex_ext));
         let default_path = null;
         if(tex_files.length == 1)

@@ -915,18 +915,24 @@ export class Shell
         const no_branch = !branch;
         if(no_branch && !parsed.gist)
             branch = this.ui.github_branch.value = await this.github.get_default_branch(this.log_big.bind(this), parsed.path, token);
-
-        const exit_code = await this.github.clone(this.log_big.bind(this), token, https_path, repo_path);
-        if(exit_code === false)
-            return false;
         
+        // TODO: check if can access repo and then save token
         if(!token_cached && token != '')
         {
             this.log_big(`Caching for '${https_path}' token [${token}]...`);
             await this.cache_token('add', https_path, token);
         }
-        
         await this.cache_save();
+
+        const exit_code = await this.github.clone(this.log_big.bind(this), token, https_path, repo_path);
+        if(exit_code === false)
+        {
+            //await this.cache_save();
+            return false;
+        }
+
+        await this.cache_save();
+
         this.ui.set_route(this.github.format_url(parsed.username, parsed.reponame, parsed.gist, no_branch ? null : branch));
     }
 

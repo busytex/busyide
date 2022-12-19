@@ -924,6 +924,7 @@ export class Shell
         }
         await this.cache_save();
 
+        // TODO: provide a progress hook to call cache_save and preserve progress in case of some errors
         const exit_code = await this.github.clone(this.log_big.bind(this), token, https_path, repo_path);
         if(exit_code === false)
         {

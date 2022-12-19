@@ -53,7 +53,7 @@ export class Github
         const url = api + relative_url;
         
         print(log_prefix);
-        print(`${method} ${url}`);
+        print(`${method} ${url} ${JSON.stringify(headers)}`);
         return fetch(url, {method : method || 'GET', headers : headers, ...(body != null ? {body : JSON.stringify(body)} : {})}).then(resp => resp[then]().then(data => 
         {
             print(log_prefix + (resp.ok ? (' OK! [ ' + (data.sha || (object_name ? data[object_name].sha : '')) + ' ]') : (` FAILED! [ [${resp.status}]: [${resp.statusText}], [${data.message}] ]`)));

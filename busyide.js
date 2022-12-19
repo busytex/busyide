@@ -1415,7 +1415,7 @@ export class Shell
         this.mkdir_p(texmf_dist);
 
         //TODO: deletes with OR
-        const cmds = [this.cmd('curl', https_path, '-o', this.tar_xz_path), this.cmd('unxz', this.tar_xz_path), this.cmd('tar', '-xf', this.tar_path, '-C', texmf_dist), this.cmd('find', this.arg(texmf_dist), '-name', this.qq('*.pdf'), '-delete'), this.cmd('rm', '-rf', this.arg(this.PATH.join(texmf_dist, 'tlpkg')))];
+        const cmds = [this.cmd('curl', https_path, '-o', this.tar_xz_path), this.cmd('unxz', this.tar_xz_path), this.cmd('tar', '-xf', this.tar_path, '-C', texmf_dist), this.cmd('find', this.arg(texmf_dist), '-name', this.qq('*.pdf'), '-delete'), this.cmd('rm', '-rf', this.tar_path, this.tar_xz_path, this.arg(this.PATH.join(texmf_dist, 'tlpkg')))];
         this.log_big(`[${this.tar_xz_path}] <CORS- [${https_path}]...`);
         await this.commands(this.and(...cmds));
         this.log_big(`[${this.tar_xz_path}] -> [${texmf_dist}]...`);

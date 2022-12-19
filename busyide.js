@@ -1407,7 +1407,7 @@ export class Shell
 
         const j = await resp.json();
         const texlive_package_name = j.texlive;
-        console.log('TLMGR', texlive_package_name, j.ctan.path);
+        console.log('TLMGR', texlive_package_name, j.ctan ? j.ctan.path : JSON.stringify(j));
         
         const https_path = this.ctan_texlive_archive_pattern.replace('${PKG}', pkg);
         

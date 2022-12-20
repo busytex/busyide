@@ -100,8 +100,8 @@
         }
 
         #pdfpreview, #txtpreview {
-            width: 95%;
-            height: 95%;
+            width: 100%;
+            height: 100%;
         }
 
         #imgpreview {
@@ -299,7 +299,6 @@
       <div id="viewer">
         <iframe id="pdfpreview" class="busyui"></iframe>
         <img hidden id="imgpreview" class="busyui"></img>
-        <!--<textarea readonly hidden id="txtpreview" class="busyui"></textarea>-->
         <div hidden id="txtpreview" class="busyui"></div>
         <figure hidden id="texsettings" class="busyui">
             <table>
@@ -479,8 +478,6 @@ const ui =
     set_project_dir : (abspath, basename) => [(ui.project_name.innerText = basename || 'N/A'), (ui.project_name.title = abspath)],
     
     log_big : text => ui.log(text, ui.txtpreview),
-    
-    log_small : text => ui.log(text, ui.status),
     
     set_route : (...route_parts) => (window.location.hash = route_parts.join('/')),
 
@@ -797,11 +794,9 @@ const ui =
     {
         if(text == ui.log_reset_sequence)
             textarea.innerText = '';
-            //textarea.value = '';
         else
         {
             textarea.innerText += text + '\n';
-            //textarea.value += text + '\n';
             textarea.scrollTop = textarea.scrollHeight;
         }
     },
@@ -820,7 +815,6 @@ const ui =
     {
         if(mode == 'empty')
         {
-            //ui.txtpreview.value = '';
             ui.txtpreview.innerText = '';
             mode = '.log';
         }
@@ -830,7 +824,6 @@ const ui =
 
         if(mode == '.log')
             ui.txtpreview.innerText = contents;
-            //ui.txtpreview.value = contents;
         else if(mode == '.pdf')
             ui.pdfpreview.src = URL.createObjectURL(new Blob([contents], {type: 'application/pdf'}));
         else if(mode == '.svg')

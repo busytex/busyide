@@ -1344,7 +1344,9 @@ export class Shell
             //else if(extname == '.zip')
             //    contents = this.busybox.run(['busyz', 'unzip', '-l', abspath]).stdout;
 
-            contents = this.busybox.run(['xxd', abspath]).stdout;
+            //contents = this.busybox.run(['xxd', abspath]).stdout;
+
+            contents = `Viewing of binary file extension [${extname}] is not supported`;
 
             open_viewer_tab(abspath, contents);
             

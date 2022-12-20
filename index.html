@@ -11,28 +11,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="logo.png" />
     
-    <link rel="busytex" type="text"             id="readme_tex"                 href="/README.tex" />
-    <link rel="busytex" type="text"             id="versions_txt"               href="/versions.txt" />
+    <link rel="busytex" type="text"             id="readme_tex"                 href="/README.tex" rel="preload" as="fetch" />
+    <link rel="busytex" type="text"             id="versions_txt"               href="/versions.txt" rel="preload" as="fetch"  />
     
-    <link rel="busytex" type="text/javascript"  id="busybox_js"                 href="/dist/busybox_unstripped.js" />
+    <link rel="busytex" type="text/javascript"  id="busybox_js"                 href="/dist/busybox_unstripped.js" rel="preload" as="script" />
     <link rel="busytex" type="application/wasm" id="busybox_wasm"               href="/dist/busybox_unstripped.wasm" />
-    <link rel="busytex" type="text/javascript"  id="busytex_js"                 href="/dist/busytex.js"  />
+    <link rel="busytex" type="text/javascript"  id="busytex_js"                 href="/dist/busytex.js"  rel="preload" as="script" />
     <link rel="busytex" type="application/wasm" id="busytex_wasm"               href="/dist/busytex.wasm" />
 
-    <link rel="busytex" type="text/javascript"  id="busytex_worker_js"          href="/dist/busytex_worker.js" /> 
-    <link rel="busytex" type="text/javascript"  id="busytex_pipeline_js"        href="/dist/busytex_pipeline.js" />
+    <link rel="busytex" type="text/javascript"  id="busytex_worker_js"          href="/dist/busytex_worker.js" rel="preload" as="script" /> 
+    <link rel="busytex" type="text/javascript"  id="busytex_pipeline_js"        href="/dist/busytex_pipeline.js" rel="preload" as="script" />
     
-    <link rel="busytex" type="application/json" id="lang_monarch_json"          href="./monarch_lang.json" />
-    <link rel="busytex" type="application/json" id="latex_monarch_json"         href="./monarch_latex.json" />
-    <link rel="busytex" type="application/json" id="bibtex_monarch_json"        href="./monarch_bibtex.json" />
+    <link rel="busytex" type="application/json" id="lang_monarch_json"          href="./monarch_lang.json" rel="preload" as="fetch" />
+    <link rel="busytex" type="application/json" id="latex_monarch_json"         href="./monarch_latex.json" rel="preload" as="fetch"  />
+    <link rel="busytex" type="application/json" id="bibtex_monarch_json"        href="./monarch_bibtex.json" rel="preload" as="fetch"  />
     
     <link rel="busytex" type="text/javascript"  id="texlive_basic"              href="/dist/texlive-basic.js" />
     <link rel="busytex" type="text/javascript"  id="texlive_ubuntu_science"     href="/dist/ubuntu-texlive-science.js" />
     <link rel="busytex" type="text/javascript"  id="texlive_ubuntu_recommended" href="/dist/ubuntu-texlive-latex-recommended.js" />
     <link rel="busytex" type="text/javascript"  id="texlive_ubuntu_extra"       href="/dist/ubuntu-texlive-latex-extra.js" />
     
-    <link  href="https://unpkg.com/xterm@4.9.0/css/xterm.css" rel="stylesheet" />
-    <link  href="https://unpkg.com/xterm@4.9.0/lib" id="require_xterm" rel="busytex" />
     <link  href="https://unpkg.com/monaco-editor@latest/min/vs" rel="busytex" id="require_monaco_editor" />
     <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
     
@@ -78,12 +76,6 @@
         #filetree {
             height:100%;
             width: 10%;
-        }
-
-        #terminal {
-            width: 50%;
-            height: 100%;
-            display:none;
         }
 
         #status {
@@ -361,7 +353,6 @@
       </div>
     </div>
     <div style="display: flex; flex-direction: row; height: 5%; display: none">
-      <div id="terminal" class="busyui"></div>
       <textarea readonly
         title="double click for expanding"
         name="status"
@@ -378,76 +369,7 @@
 
 <script type="module">
 
-import { Shell } from '/busyide.js'
-
-// taken from https://github.com/xtermjs/xterm.js/tree/master/addons/xterm-addon-fit
-class FitAddon{
-
-  constructor() {this._terminal = undefined;}
-
-  activate(terminal) {
-    this._terminal = terminal;
-  }
-
-  dispose(){}
-
-  fit(){
-    const dims = this.proposeDimensions();
-    if (!dims || !this._terminal) {
-      return;
-    }
-
-    // TODO: Remove reliance on private API
-    const core = (this._terminal)._core;
-
-    // Force a full render
-    if (this._terminal.rows !== dims.rows || this._terminal.cols !== dims.cols) {
-      core._renderService.clear();
-      this._terminal.resize(dims.cols, dims.rows);
-    }
-  }
-
-  proposeDimensions(){
-    if (!this._terminal) {
-      return undefined;
-    }
-
-    if (!this._terminal.element || !this._terminal.element.parentElement) {
-      return undefined;
-    }
-
-    // TODO: Remove reliance on private API
-    const core = (this._terminal)._core;
-
-    if (core._renderService.dimensions.actualCellWidth === 0 || core._renderService.dimensions.actualCellHeight === 0) {
-      return undefined;
-    }
-
-    const parentElementStyle = window.getComputedStyle(this._terminal.element.parentElement);
-    const parentElementHeight = parseInt(parentElementStyle.getPropertyValue('height'));
-    const parentElementWidth = Math.max(0, parseInt(parentElementStyle.getPropertyValue('width')));
-    const elementStyle = window.getComputedStyle(this._terminal.element);
-    const elementPadding = {
-      top: parseInt(elementStyle.getPropertyValue('padding-top')),
-      bottom: parseInt(elementStyle.getPropertyValue('padding-bottom')),
-      right: parseInt(elementStyle.getPropertyValue('padding-right')),
-      left: parseInt(elementStyle.getPropertyValue('padding-left'))
-    };
-    const elementPaddingVer = elementPadding.top + elementPadding.bottom;
-    const elementPaddingHor = elementPadding.right + elementPadding.left;
-    const availableHeight = parentElementHeight - elementPaddingVer;
-    const availableWidth = parentElementWidth - elementPaddingHor - core.viewport.scrollBarWidth;
-    
-    const MINIMUM_COLS = 2;
-    const MINIMUM_ROWS = 1;
-
-    const geometry = {
-      cols: Math.max(MINIMUM_COLS, Math.floor(availableWidth / core._renderService.dimensions.actualCellWidth)),
-      rows: Math.max(MINIMUM_ROWS, Math.floor(availableHeight / core._renderService.dimensions.actualCellHeight))
-    };
-    return geometry;
-  }
-}
+import { BusyIde } from '/busyide.js'
 
 const ui =
 {
@@ -784,11 +706,7 @@ const ui =
         setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(a.href); }, timeout_millisec);
     },
     
-    onresize()
-    {
-        window.busyshell.editor.layout()
-        window.busyshell.terminal.fit_addon.fit()
-    },
+    onresize : () => window.busyshell.editor.layout(),
 
     log(text, textarea)
     {
@@ -843,7 +761,7 @@ const texlive_data_packages_js = paths_list.filter(([id, href]) => id.startsWith
 
 const paths = { ...Object.fromEntries(paths_list), texlive_data_packages_js : texlive_data_packages_js };
 
-require.config({ paths: { vs: paths.require_monaco_editor , xterm: paths.require_xterm } });
+require.config({ paths: { vs: paths.require_monaco_editor } });
 
 window.MonacoEnvironment = 
 {
@@ -881,29 +799,18 @@ function init_editor(monaco, editor_element, difftool_element, lang_monarch, lat
     };
 }
 
-function init_terminal(Terminal, terminal_element, FitAddon)
-{
-    const terminal = new Terminal.Terminal();
-    terminal.fit_addon = new FitAddon();
-    terminal.loadAddon(terminal.fit_addon);
-
-    terminal.open(ui.terminal);
-    return terminal;
-}
-
 const monarch_promises = [paths.lang_monarch_json, paths.latex_monarch_json, paths.bibtex_monarch_json].map(x => fetch(x).then(r => r.json()));
 
 const readme_tex_promise = fetch(paths.readme_tex).then(r => r.text());
 const versions_txt_promise = fetch(paths.versions_txt).then(r => r.text());
 const busybox_wasm_module_promise = fetch(paths.busybox_wasm);
 
-require(['vs/editor/editor.main', 'xterm/xterm', paths.busybox_js], async (Monaco, Terminal, busybox_module_constructor) =>
+require(['vs/editor/editor.main', paths.busybox_js], async (Monaco, busybox_module_constructor) =>
 {
     //TODO: handle errors
     const {editor, difftool} = init_editor(Monaco, ui.editor, ui.difftool, ...(await Promise.all(monarch_promises)));
-    const terminal = init_terminal(Terminal, ui.terminal, FitAddon);
         
-    window.busyshell = new Shell(monaco, ui, paths, await readme_tex_promise, await versions_txt_promise, terminal, editor, difftool);
+    window.busyshell = new BusyIde(monaco, ui, paths, await readme_tex_promise, await versions_txt_promise, editor, difftool);
     window.onresize = ui.onresize;
     window.onresize();
 

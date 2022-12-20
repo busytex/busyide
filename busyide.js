@@ -3,7 +3,7 @@ import { Busybox } from '/busybox.js'
 
 export class Shell
 {
-    constructor(monaco, ui, paths, readme, versions, terminal, editor, difftool, cors_proxy_fmt = 'https://withered-shape-3305.vadimkantorov.workers.dev/?${url}')
+    constructor(monaco, ui, paths, readme, versions, editor, difftool, cors_proxy_fmt = 'https://withered-shape-3305.vadimkantorov.workers.dev/?${url}')
     {
         this.monaco = monaco;
         this.ctan_package_path = 'https://www.ctan.org/json/2.0/pkg/';
@@ -66,7 +66,6 @@ export class Shell
         this.FS = null;
         this.PATH = null;
         this.github = null;
-        this.terminal = terminal;
         this.editor = editor;
         this.difftool = difftool;
         this.ui = ui;
@@ -126,7 +125,7 @@ export class Shell
         self.onfocus = () => this.cancel_file_upload ? this.cancel_file_upload() : null;
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);
-        this.terminal.onKey(this.onKey.bind(this));
+        //this.terminal.onKey(this.onKey.bind(this));
 
         this.ui.man.onclick = () => this.commands('man');
         this.ui.search.onclick = () => this.project_dir() && this.ui.search_query.value && this.commands(cmd('rgrep', qq(this.ui.search_query.value)));
@@ -311,23 +310,6 @@ export class Shell
             this.tic_ = 0.0;
         }
     }
-
-    async type(cmd)
-    {
-        for(const c of cmd)
-            await this.onKey({key : c, domEvent: {key : null}});
-        await this.onKey({key : '', domEvent: {key : 'Enter'}});
-    }
-
-    terminal_print(line, newline = '\r\n')
-    {
-        this.terminal.write((line || '') + newline);
-    }
-
-    terminal_prompt(red_begin_sequence = '\x1B[1;3;31m', red_end_sequence = '\x1B[0m')
-    {
-        return this.terminal.write(`${red_begin_sequence}busytex${red_end_sequence}:` + this.pwd(true) + '$ ');
-    }
     
     async onKey({key, domEvent})
     {
@@ -341,7 +323,7 @@ export class Shell
         }
         else if(domEvent.key == 'Enter')
         {
-            this.terminal_print();
+            this.log_small('\r\n');
             await this.shell(this.current_terminal_line);
             this.terminal_prompt();
             this.current_terminal_line = '';
@@ -362,7 +344,11 @@ export class Shell
         this.current_terminal_line = '';
         this.terminal.write('\b'.repeat(this.old_terminal_line.length));
         for(const cmd of cmds)
-            await this.type(cmd);
+        {
+            for(const c of cmd)
+                await this.onKey({key : c, domEvent: {key : null}});
+            await this.onKey({key : '', domEvent: {key : 'Enter'}});
+        }
         this.terminal.write(this.old_terminal_line);
         this.refresh();
        
@@ -457,7 +443,7 @@ export class Shell
         {
             args = expand_subcommand_args(args);
 
-            let print_or_dump = (arg, ...args) => arg && this.terminal_print(toString(arg), ...args);
+            let print_or_dump = (arg, ...args) => arg && this.log_small(toString(arg) + '\r\n');//, ...args);
             
             if(stdout_redirect_append)
             {
@@ -548,7 +534,7 @@ export class Shell
                 {
                     this.last_exit_code = this.EXIT_FAILURE;
                     const msg = `[${cmd}]: command not found`;
-                    this.terminal_print(msg);
+                    this.log_small(msg);
                     this.ui.set_error(msg);
                     break;
                 }
@@ -567,7 +553,7 @@ export class Shell
             {
                 this.last_exit_code = (this.last_exit_code === '' || this.last_exit_code === this.EXIT_SUCCESS) ? this.EXIT_FAILURE : this.last_exit_code;
                 const msg = `[${cmd}] last error code: [${this.last_exit_code}], error message: [${err.message || "no message"}]`
-                this.terminal_print(msg);
+                this.log_small(msg);
                 this.ui.set_error(msg);
                 break;
             }
@@ -806,8 +792,6 @@ export class Shell
         
         await this.cache_load();
        
-        this.terminal_prompt();
-        
         const route = this.ui.get_route();
         if(route.length > 0)
         {
@@ -1439,7 +1423,7 @@ export class Shell
 
         const verbose = this.ui.verbose.value, tex_driver = this.ui.tex_driver.value;
 
-        this.terminal_print(`Running in background (verbosity = [${verbose}], TeX driver = [${tex_driver}])...`);
+        this.log_small(`Running in background (verbosity = [${verbose}], TeX driver = [${tex_driver}])...`);
         
         // TODO: set_current_pdf / set_current_log only on response from compiler?
         this.pdf_path = abspath.replace(this.tex_ext, '.pdf').replace(this.project_dir(), this.project_tmp_dir());

@@ -126,7 +126,7 @@ export class Shell
         self.onfocus = () => this.cancel_file_upload ? this.cancel_file_upload() : null;
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);
-        this.terminal.onKey(this.onkey.bind(this));
+        this.terminal.onKey(this.onKey.bind(this));
 
         this.ui.man.onclick = () => this.commands('man');
         this.ui.search.onclick = () => this.project_dir() && this.ui.search_query.value && this.commands(cmd('rgrep', qq(this.ui.search_query.value)));
@@ -315,8 +315,8 @@ export class Shell
     async type(cmd)
     {
         for(const c of cmd)
-            await this.onkey({key : c, domEvent: {key : null}});
-        await this.onkey({key : '', domEvent: {key : 'Enter'}});
+            await this.onKey({key : c, domEvent: {key : null}});
+        await this.onKey({key : '', domEvent: {key : 'Enter'}});
     }
 
     terminal_print(line, newline = '\r\n')
@@ -329,7 +329,7 @@ export class Shell
         return this.terminal.write(`${red_begin_sequence}busytex${red_end_sequence}:` + this.pwd(true) + '$ ');
     }
     
-    async onkey({key, domEvent})
+    async onKey({key, domEvent})
     {
         if(domEvent.key == 'Backspace')
         {

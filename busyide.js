@@ -841,8 +841,9 @@ export class Shell
     log_big(text)
     {
         this.ui.log_big(text);
-        if(this.log_big_sink_path && this.FS)
-            this.FS.writeFile(this.log_big_sink_path, this.read_all_text(this.log_big_sink_path) + text + '\n');
+        //TODO: check if available?
+        //if(this.log_big_sink_path && this.FS)
+        //    this.FS.writeFile(this.log_big_sink_path, this.read_all_text(this.log_big_sink_path) + text + '\n');
     }
     
     log_small(text)

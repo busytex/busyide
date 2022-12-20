@@ -796,10 +796,12 @@ const ui =
     log(text, textarea)
     {
         if(text == ui.log_reset_sequence)
-            textarea.value = '';
+            textarea.innerText = '';
+            //textarea.value = '';
         else
         {
-            textarea.value += text + '\n';
+            textarea.innerText += text + '\n';
+            //textarea.value += text + '\n';
             textarea.scrollTop = textarea.scrollHeight;
         }
     },

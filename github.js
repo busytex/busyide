@@ -422,6 +422,7 @@ export class Github
         
         for(const file of tree.tree)
         {
+            console.log('clone_repo', file.path);
             //TODO: assert type only tree or blob - submodules, symbolic links?
             if(file.type == 'tree')
             {

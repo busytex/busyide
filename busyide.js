@@ -847,9 +847,10 @@ export class Shell
     
     log_small(text)
     {
-        this.ui.log_small(text);
-        if(this.log_small_sink_path && this.FS)
-            this.FS.writeFile(this.log_small_sink_path, this.read_all_text(this.log_small_sink_path) + text + '\n');
+        this.log_big(text);
+        //this.ui.log_small(text);
+        //if(this.log_small_sink_path && this.FS)
+        //    this.FS.writeFile(this.log_small_sink_path, this.read_all_text(this.log_small_sink_path) + text + '\n');
     }
 
     async git_fetch()
@@ -1420,6 +1421,7 @@ export class Shell
         this.log_big(`[${this.tar_xz_path}] <CORS- [${https_path}]...`);
         await this.commands(this.and(...cmds));
         this.log_big(`[${this.tar_xz_path}] -> [${texmf_dist}]...`);
+        this.log_big('OK');
     }
    
     async latexmk(tex_path)

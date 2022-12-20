@@ -100,8 +100,8 @@
         }
 
         #pdfpreview, #txtpreview {
-            width: 99%;
-            height: 100%;
+            width: 95%;
+            height: 95%;
         }
 
         #imgpreview {
@@ -299,7 +299,8 @@
       <div id="viewer">
         <iframe id="pdfpreview" class="busyui"></iframe>
         <img hidden id="imgpreview" class="busyui"></img>
-        <textarea readonly hidden id="txtpreview" class="busyui"></textarea>
+        <!--<textarea readonly hidden id="txtpreview" class="busyui"></textarea>-->
+        <div hidden id="txtpreview" class="busyui"></div>
         <figure hidden id="texsettings" class="busyui">
             <table>
                 <thead>
@@ -817,7 +818,8 @@ const ui =
     {
         if(mode == 'empty')
         {
-            ui.txtpreview.value = '';
+            //ui.txtpreview.value = '';
+            ui.txtpreview.innerText = '';
             mode = '.log';
         }
         [ui.imgpreview.hidden, ui.pdfpreview.hidden, ui.txtpreview.hidden, ui.gitstatus.hidden, ui.gitpull.hidden, ui.searchresults.hidden, ui.texsettings.hidden] = [mode != '.svg' && mode != '.jpg' && mode != '.png' && mode != '.bmp', mode != '.pdf', mode != '.log', mode != 'gitstatus', mode != 'gitpull', mode != 'searchresults', mode != 'texsettings'];
@@ -825,7 +827,8 @@ const ui =
         const b64encode = uint8array => btoa(uint8array.reduce((acc, i) => acc += String.fromCharCode.apply(null, [i]), ''));
 
         if(mode == '.log')
-            ui.txtpreview.value = contents;
+            ui.txtpreview.innerText = contents;
+            //ui.txtpreview.value = contents;
         else if(mode == '.pdf')
             ui.pdfpreview.src = URL.createObjectURL(new Blob([contents], {type: 'application/pdf'}));
         else if(mode == '.svg')

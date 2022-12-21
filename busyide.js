@@ -151,6 +151,7 @@ export class Shell
         this.ui.share.onclick = () => this.share_onclick(); 
         this.ui.show_not_modified.onclick = this.ui.toggle_not_modified.bind(this);
         this.ui.show_tex_settings.onclick = async () => this.ui.update_tex_settings(await this.data_package_resolver.resolve_data_packages()) || this.ui.toggle_viewer('texsettings');
+        this.ui.show_more_commands.onclick = async () => this.ui.toggle_viewer('morecommands');
 
         this.ui.new_file.onclick = () =>
         {
@@ -311,45 +312,22 @@ export class Shell
         }
     }
     
-    async onKey({key, domEvent})
-    {
-        if(domEvent.key == 'Backspace')
-        {
-            if(this.current_terminal_line.length > 0)
-            {
-                this.current_terminal_line = this.current_terminal_line.slice(0, this.current_terminal_line.length - 1);
-                this.terminal.write('\b \b');
-            }
-        }
-        else if(domEvent.key == 'Enter')
-        {
-            this.log_small('\r\n');
-            await this.shell(this.current_terminal_line);
-            this.terminal_prompt();
-            this.current_terminal_line = '';
-        }
-        else
-        {
-            this.current_terminal_line += key;
-            this.terminal.write(key);
-        }
-    }
-    
     async commands(...cmds)
     {
         this.tabs_save(this);
         this.dirty('timer_off');
 
-        this.old_terminal_line = this.current_terminal_line;
         this.current_terminal_line = '';
-        this.terminal.write('\b'.repeat(this.old_terminal_line.length));
         for(const cmd of cmds)
         {
-            for(const c of cmd)
-                await this.onKey({key : c, domEvent: {key : null}});
-            await this.onKey({key : '', domEvent: {key : 'Enter'}});
+            this.current_terminal_line += cmd;
+            this.log_small(cmd);
+            this.log_small('\r\n');
+
+            await this.shell(this.current_terminal_line);
+            this.current_terminal_line = '';
+
         }
-        this.terminal.write(this.old_terminal_line);
         this.refresh();
        
         this.tabs_load(this);

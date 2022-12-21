@@ -1,7 +1,7 @@
 import { Github } from '/github.js'
 import { Busybox } from '/busybox.js'
 
-export class Shell
+export class BusyIde
 {
     constructor(monaco, ui, paths, readme, versions, editor, difftool, cors_proxy_fmt = 'https://withered-shape-3305.vadimkantorov.workers.dev/?${url}')
     {

@@ -218,6 +218,14 @@
         <button id="upload" class="busyui">Upload Files</button>
         <button id="new_file" class="busyui">New File</button>
         <button id="new_folder" class="busyui">New Folder</button>
+        <button id="remove" class="busyui">Delete</button>
+        <input hidden type="text" class="busyui" id="current_file_rename" title="Press [Enter] to complete renaming"></input>
+        <button id="rename" class="busyui">
+            Rename [<span id="verb" class="busyui">N/A</span>]:&nbsp;
+            [<span id="current_file" class="busyui">N/A</span>]
+            <span id="dirty" class="busyui" hidden title="file is changed. wait for autosave">*</span>
+        </button>
+        
         <div style="display: flex; margin-left:auto">
             <input type="text" id="github_https_path" class="busyui" placeholder="GitHub https link" title="GitHub https url"></input>
             <input type="text" id="github_branch" class="busyui" placeholder="GitHub branch" title="GitHub repo branch"></input>
@@ -234,15 +242,6 @@
         <input type="text" id="search_query" class="busyui" placeholder="Search terms" title="ignores case"></input>
         <button id="show_more_commands" class="busyui">More Commands</button>
         <div style="display: flex; margin-left:auto">
-            <input hidden type="text" class="busyui" id="current_file_rename" title="Press [Enter] to complete renaming"></input>
-            <button id="rename" class="busyui">
-                Rename [<span id="verb" class="busyui">N/A</span>]:&nbsp;
-                [<span id="current_file" class="busyui">N/A</span>]
-                <span id="dirty" class="busyui" hidden title="file is changed. wait for autosave">*</span>
-            </button>
-            
-            
-            <button id="remove" class="busyui">Delete</button>
             <button id="view_log" class="busyui ok">View LOG</button>
             <button id="upload_pdf" class="busyui">Upload PDF to Project</button>
             <button id="view_pdf" class="busyui">View PDF</button>
@@ -253,31 +252,10 @@
         <button id="compile_current_file" class="busyui" title="Ctrl + Shift + Enter">Compile Current File</button>
         <button id="compile_project" class="busyui" title="Ctrl + Enter">Compile Project</button>
         <button id="show_tex_settings" class="busyui">TeX Settings</button>
-        <select id="tex_driver" class="busyui" >
-            <option value="xetex_bibtex8_dvipdfmx" selected>TeX Pipeline: XeTeX + bibtex8 + dvipdfmx</option>
-            <option value="pdftex_bibtex8">TeX Pipeline: PdfTeX + bibtex8</option>
-            <option value="luahbtex_bibtex8">TeX Pipeline: LuaHBTeX + bibtex8</option>
-            <option value="luatex_bibtex8">TeX Pipeline: LuaTeX + bibtex8</option>
-        </select>
-        <select id="bibtex" class="busyui">
-            <option value="auto" selected title="scans files for bibliography commands">BibTeX: auto detection</option>
-            <option value="enabled">BibTeX: enabled</option>
-            <option value="disabled" title="runs much faster">BibTeX: disabled</option>
-        </select>
-        <select id="verbose" class="busyui">
-            <option value="silent" selected="selected">Verbosity: Silent</option>
-            <option value="info">Verbosity: Info</option>
-            <option value="debug">Verbosity: Debug</option>
-        </select>
         <select id="tex_path" class="busyui">
             <option value="" disabled selected hidden>TeX Project File: N/A</option>
         </select>
             
-
-        <div style="display: flex; margin-left:auto">
-            <button id="install_tex_package" class="busyui" title="without dependencies">Install TexLive Package</button>
-            <input type="text" class="busyui" id="current_tex_package" placeholder="Package name"></input>
-        </div> 
     </div>
     <div style="display: flex; height: 85%">
       <select id="filetree" class="busyui" size="100"></select>
@@ -297,6 +275,26 @@
             <input hidden type="text" style="width: 100px" id="github_release" class="busyui" placeholder="Publish Release Name" title="for publishing a PDF into a release"></input>
         </figure>
         <figure hidden id="texsettings" class="busyui">
+            <select id="tex_driver" class="busyui" >
+                <option value="xetex_bibtex8_dvipdfmx" selected>TeX Pipeline: XeTeX + bibtex8 + dvipdfmx</option>
+                <option value="pdftex_bibtex8">TeX Pipeline: PdfTeX + bibtex8</option>
+                <option value="luahbtex_bibtex8">TeX Pipeline: LuaHBTeX + bibtex8</option>
+                <option value="luatex_bibtex8">TeX Pipeline: LuaTeX + bibtex8</option>
+            </select>
+            <select id="bibtex" class="busyui">
+                <option value="auto" selected title="scans files for bibliography commands">BibTeX: auto detection</option>
+                <option value="enabled">BibTeX: enabled</option>
+                <option value="disabled" title="runs much faster">BibTeX: disabled</option>
+            </select>
+            <select id="verbose" class="busyui">
+                <option value="silent" selected="selected">Verbosity: Silent</option>
+                <option value="info">Verbosity: Info</option>
+                <option value="debug">Verbosity: Debug</option>
+            </select>
+            <div style="/*display: flex; margin-left:auto*/">
+                <button id="install_tex_package" class="busyui" title="without dependencies">Install TexLive Package</button>
+                <input type="text" class="busyui" id="current_tex_package" placeholder="Package name"></input>
+            </div> 
             <table>
                 <thead>
                     <tr><th colspan="2" class="tl">ubuntu package</th><th class="tl">tex packages</th></tr>

@@ -237,25 +237,23 @@
         </div>
     </div>
     <div style="display: flex; flex-direction: row; height: 5%">
-        <button id="download" class="busyui">Download Current File</button>
-        <button id="show_more_commands" class="busyui">More Commands</button>
-        <div style="display: flex; margin-left:auto">
-            <button id="view_log" class="busyui ok">View LOG</button>
-            <button id="upload_pdf" class="busyui">Upload PDF to Project</button>
-            <button id="view_pdf" class="busyui">View PDF</button>
-            <button id="download_pdf" class="busyui">Download PDF</button>
-        </div>
-    </div>
-    <div style="display: flex; flex-direction: row; height: 5%">
         <button id="compile_current_file" class="busyui" title="Ctrl + Shift + Enter">Compile Current File</button>
         <button id="compile_project" class="busyui" title="Ctrl + Enter">Compile Project</button>
         <select id="tex_path" class="busyui">
             <option value="" disabled selected hidden>TeX Project File: N/A</option>
         </select>
         <button id="show_tex_settings" class="busyui">TeX Settings</button>
+        <button id="show_more_commands" class="busyui">More Commands</button>
+        <div style="display: flex; margin-left:auto">
+            <button id="download" class="busyui">Download Current File</button>
+            <button id="view_log" class="busyui ok">View LOG</button>
+            <button id="upload_pdf" class="busyui">Upload PDF to Project</button>
+            <button id="view_pdf" class="busyui">View PDF</button>
+            <button id="download_pdf" class="busyui">Download PDF</button>
+        </div>
             
     </div>
-    <div style="display: flex; height: 85%">
+    <div style="display: flex; height: 90%">
       <select id="filetree" class="busyui" size="100"></select>
       <div id="editor" class="busyui"></div>
       <div id="difftool" class="busyui" hidden></div>

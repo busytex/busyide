@@ -902,10 +902,10 @@ export class BusyIde
         this.ui.set_route(this.github.format_url(parsed.username, parsed.reponame, parsed.gist, no_branch ? null : branch));
     }
 
-    git_status()
+    async git_status()
     {
         this.ui.commit_message.value = '';
-        this.ui.update_git_status(this.ui.gitstatus, this.github.status(), this.github.format_url, this.git_difftool.bind(this), this.open.bind(this));
+        this.ui.update_git_status(this.ui.gitstatus, await this.github.status(), this.github.format_url, this.git_difftool.bind(this), this.open.bind(this));
         this.ui.toggle_viewer('gitstatus');
     }
 
@@ -931,7 +931,7 @@ export class BusyIde
     async git_pull()
     {
         this.log_big_header('$ git pull', this.git_log);
-        let status = this.github.status();
+        let status = await this.github.status();
         status = await this.github.pull(this.log_big.bind(this), status);
         
         //TODO: reload editor if updated
@@ -939,18 +939,18 @@ export class BusyIde
         this.ui.toggle_viewer('gitstatus');
     }
     
-    git_push()
+    async git_push()
     {
         this.log_big_header('$ git push', this.git_log); 
-        return this.github.push(this.log_big.bind(this), this.github.status(), this.ui.commit_message.value);
+        return this.github.push(this.log_big.bind(this), await this.github.status(), this.ui.commit_message.value);
     }
     
-    git_diff(HEAD, __output, output_path)
+    async git_diff(HEAD, __output, output_path)
     {
         // https://man.openbsd.org/diff.1
         this.log_big_header('$ git diff' + (output_path ? ` --output "${output_path}"` : '')); 
         
-        const status = this.github.status();
+        const status = await this.github.status();
         const diff = this.github.diff(status);
 
         if(output_path)

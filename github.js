@@ -23,7 +23,7 @@ export class Github
         this.auth_token = '';
         this.cache_dir = cache_dir;
         this.diff3 = diff3;
-        this.sha1 = sha1;
+        //this.sha1 = sha1;
         this.rm_rf = rm_rf;
         this.diff_ = diff_;
         this.fetch_via_cors_proxy = fetch_via_cors_proxy;
@@ -39,6 +39,14 @@ export class Github
         this.git_root = this.PATH_.home_dir.replace('home', this.dot_git);
         this.gist_branch = 'gist';
         this.hosts = ['github.com', 'gist.github.com'];
+    }
+
+    async sha1(msgUint8)
+    {
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);           // hash the message
+        const hashArray = Array.from(new Uint8Array(hashBuffer));                     // convert buffer to byte array
+        const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
     }
     
     auth_headers()
@@ -355,7 +363,7 @@ export class Github
                 files.push({path : file.path, abspath : this.PATH.join(s.repo_path, file.path), status : 'new'});
             else
             {
-                files.push({path : file.path, abspath : this.PATH.join(s.repo_path, file.path), status : sha != this.blob_sha(file.contents) ? 'modified' : 'not modified', sha_base : sha});
+                files.push({path : file.path, abspath : this.PATH.join(s.repo_path, file.path), status : sha != (await this.blob_sha(file.contents)) ? 'modified' : 'not modified', sha_base : sha});
                 delete tree_dict[file.path];
             }
         }

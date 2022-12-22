@@ -125,6 +125,7 @@ Uncaught (in promise) TypeError: Cannot read properties of null (reading 'starts
     at Shell.refresh (busyide.js:1591:22)
     at Shell.commands (busyide.js:366:14)
 ```
+- https://github.com/kawanet/sha1-uint8array/blob/main/lib/sha1-uint8array.ts
 - clone from github only a directory in the repo
 - https://github.com/GoogleChromeLabs/browser-fs-access
 - https://developpaper.com/monaco-uses-vscode-related-syntax-to-highlight-on-the-browser/

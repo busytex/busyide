@@ -23,7 +23,7 @@ export class Github
         this.auth_token = '';
         this.cache_dir = cache_dir;
         this.diff3 = diff3;
-        //this.sha1 = sha1;
+        this._sha1 = sha1;
         this.rm_rf = rm_rf;
         this.diff_ = diff_;
         this.fetch_via_cors_proxy = fetch_via_cors_proxy;
@@ -46,6 +46,8 @@ export class Github
         const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);           // hash the message
         const hashArray = Array.from(new Uint8Array(hashBuffer));                     // convert buffer to byte array
         const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+        const _sha1 = this._sha1(msgUint8);
+        console.assert(hashHex == _sha1, 'hash does not match');
         return hashHex;
     }
     

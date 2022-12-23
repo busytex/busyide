@@ -402,8 +402,6 @@ const ui =
 
     set_project_dir : (abspath, basename) => [(ui.project_name.innerText = basename || 'N/A'), (ui.project_name.title = abspath)],
     
-    log_big : text => ui.log(text, ui.txtpreview),
-    
     set_route : (...route_parts) => (window.location.hash = route_parts.join('/')),
 
     get_route : () => window.location.hash.length > 0 ? [window.location.hash.substring(1)] : [],
@@ -411,6 +409,18 @@ const ui =
     onresize : () => window.busyshell.editor.layout(),
 
     toggle_editor : mode => ([ui.editor.hidden, ui.difftool.hidden] = [mode != 'editor', mode != 'difftool']),
+    
+    log_big(text)
+    {
+        if(text == ui.log_reset_sequence)
+            ui.txtpreview.innerText = '';
+        else
+        {
+            ui.txtpreview.innerText += text + '\n';
+            //textarea.scrollTop = textarea.scrollHeight;
+            ui.txtpreview.scrollIntoView(false);
+        }
+    },
 
     set_current_file(basename, abspath, verb = '')
     {
@@ -711,17 +721,6 @@ const ui =
         a.click();
   
         setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(a.href); }, timeout_millisec);
-    },
-
-    log(text, textarea)
-    {
-        if(text == ui.log_reset_sequence)
-            textarea.innerText = '';
-        else
-        {
-            textarea.innerText += text + '\n';
-            textarea.scrollTop = textarea.scrollHeight;
-        }
     },
 
     get_enabled_data_packages()

@@ -394,8 +394,6 @@ const ui =
     
     set_dirty : dirty => (ui.dirty.hidden = !dirty),
 
-    set_error : error => ([ui.view_log.className, ui.view_log.title] = error ? ['error', error] : ['ok', 'All OK!']),
-
     set_current_pdf : abspath => (ui.download_pdf.title = ui.view_pdf.title = abspath),
     
     get_project_dir : () => ui.project_name.title,
@@ -409,6 +407,22 @@ const ui =
     onresize : () => window.busyshell.editor.layout(),
 
     toggle_editor : mode => ([ui.editor.hidden, ui.difftool.hidden] = [mode != 'editor', mode != 'difftool']),
+
+    set_error(error)
+    {
+        if(error)
+        {
+            ui.view_log.classList.remove('ok');
+            ui.view_log.classList.add('error');
+            ui.view_log.title = error; 
+        }
+        else
+        {
+            ui.view_log.classList.remove('error');
+            ui.view_log.classList.add('ok');
+            ui.view_log.title = 'All OK!';
+        }
+    },
     
     log_big(text)
     {

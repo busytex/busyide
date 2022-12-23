@@ -341,7 +341,7 @@ export class Github
         return {remote_branch : remote_branch, repo_path : repo_path, repo_url : repo_url, origin_branch : origin_branch, remote_commit_sha : remote_commit_sha, local_commit_sha : local_commit_sha, username : parsed.username, reponame : parsed.reponame, gist : parsed.gist};
     }
 
-    status()
+    async status()
     {
         const s = this.summary();
         

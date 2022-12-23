@@ -17,13 +17,12 @@ const base64_encode_uint8array = uint8array => btoa(String.fromCharCode.apply(nu
 
 export class Github
 {
-    constructor(cache_dir, diff3, sha1, rm_rf, diff_, fetch_via_cors_proxy, FS, PATH, PATH_)
+    constructor(cache_dir, diff3, rm_rf, diff_, fetch_via_cors_proxy, FS, PATH, PATH_)
     {
         this.retry_delay_seconds = 2;
         this.auth_token = '';
         this.cache_dir = cache_dir;
         this.diff3 = diff3;
-        this._sha1 = sha1;
         this.rm_rf = rm_rf;
         this.diff_ = diff_;
         this.fetch_via_cors_proxy = fetch_via_cors_proxy;
@@ -46,8 +45,6 @@ export class Github
         const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8);
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-        const _sha1 = this._sha1(msgUint8);
-        console.assert(hashHex == _sha1, 'hash does not match');
         return hashHex;
     }
     

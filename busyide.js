@@ -45,7 +45,7 @@ export class BusyIde
         this.new_file_ext = '.tex';
         this.new_dir_name = 'newfolder';
         this.log_big_sink_path = null;
-        this.log_small_sink_path = this.small_log;
+        this.log_big_sink_path = this.small_log;
         this.current_terminal_line = '';
         this.data_uri_prefix_tar_gz = 'data:application/tar+gzip;base64,';
         this.texmf_local = ['texmf', '.texmf'];
@@ -94,7 +94,6 @@ export class BusyIde
         this.and = (...cmds) => cmds.join(' && ');
         this.or = (...cmds) => cmds.join(' || ');
 
-        this.sha1 = uint8array => this.busybox.run(['sha1sum'], uint8array).stdout.substring(0, 40);
         this.rm_rf = dirpath => this.busybox.run(['rm', '-rf', dirpath]);
         this.diff = (abspath, basepath, cwd) => this.busybox.run(['bsddiff', '-Nu', this.exists(basepath) && basepath != '/dev/null' ? basepath : this.empty_file, this.exists(abspath) && abspath != '/dev/null' ? abspath : this.empty_file]).stdout; // TODO: get newer diff from FreeBSD: https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=233402
 
@@ -125,7 +124,6 @@ export class BusyIde
         self.onfocus = () => this.cancel_file_upload ? this.cancel_file_upload() : null;
         
         this.compiler.onmessage = this.oncompilermessage.bind(this);
-        //this.terminal.onKey(this.onKey.bind(this));
 
         this.ui.man.onclick = () => this.commands('man');
         this.ui.search.onclick = () => this.project_dir() && this.ui.search_query.value && this.commands(cmd('rgrep', qq(this.ui.search_query.value)));
@@ -199,7 +197,7 @@ export class BusyIde
 		this.difftool.addCommand(this.monaco.KeyCode.Escape, () => this.ui.toggle_editor('editor'), '!findWidgetVisible && !inReferenceSearchEditor && !editorHasSelection'); 
         this.ui.filetree.onkeydown = ev => (ev.key == 'Enter' || ev.key == ' ') ? this.ui.filetree.ondblclick({target: this.ui.filetree.selectedOptions[0]}) : ev.key == 'Delete' ? this.ui.remove.onclick() : null;
         
-        this.ui.status.ondblclick = () => this.commands(cmd('open', this.log_small_sink_path)); 
+        this.ui.status.ondblclick = () => this.commands(cmd('open', this.log_big_sink_path)); 
     }
 
     filetree_onclick(ev)
@@ -307,7 +305,7 @@ export class BusyIde
         if(this.tic_ > 0)
         {
             const elapsed = (performance.now() - this.tic_) / 1000.0;
-            this.log_small(`Elapsed time: ${elapsed.toFixed(2)} sec`);
+            this.log_big(`Elapsed time: ${elapsed.toFixed(2)} sec`);
             this.tic_ = 0.0;
         }
     }
@@ -321,8 +319,8 @@ export class BusyIde
         for(const cmd of cmds)
         {
             this.current_terminal_line += cmd;
-            this.log_small(cmd);
-            this.log_small('\r\n');
+            this.log_big(cmd);
+            this.log_big('\r\n');
 
             await this.shell(this.current_terminal_line);
             this.current_terminal_line = '';
@@ -421,7 +419,7 @@ export class BusyIde
         {
             args = expand_subcommand_args(args);
 
-            let print_or_dump = (arg, ...args) => arg && this.log_small(toString(arg) + '\r\n');//, ...args);
+            let print_or_dump = (arg, ...args) => arg && this.log_big(toString(arg) + '\r\n');//, ...args);
             
             if(stdout_redirect_append)
             {
@@ -462,7 +460,7 @@ export class BusyIde
                 if (cmd == '')
                     continue;
 
-                this.log_small(`$ ${cmd} ` + args.join(' '));
+                this.log_big(`$ ${cmd} ` + args.join(' '));
 
                 if(cmd == 'help')
                 {
@@ -512,7 +510,7 @@ export class BusyIde
                 {
                     this.last_exit_code = this.EXIT_FAILURE;
                     const msg = `[${cmd}]: command not found`;
-                    this.log_small(msg);
+                    this.log_big(msg);
                     this.ui.set_error(msg);
                     break;
                 }
@@ -531,7 +529,7 @@ export class BusyIde
             {
                 this.last_exit_code = (this.last_exit_code === '' || this.last_exit_code === this.EXIT_SUCCESS) ? this.EXIT_FAILURE : this.last_exit_code;
                 const msg = `[${cmd}] last error code: [${this.last_exit_code}], error message: [${err.message || "no message"}]`
-                this.log_small(msg);
+                this.log_big(msg);
                 this.ui.set_error(msg);
                 break;
             }
@@ -736,7 +734,7 @@ export class BusyIde
             data_packages_js : this.paths.texlive_data_packages_js
         });
 
-        this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, this.log_small.bind(this));
+        this.busybox = new Busybox(busybox_module_constructor, busybox_wasm_module_promise, this.log_big.bind(this));
         
         this.log_big_header('Loading BusyBox...');
         try
@@ -766,7 +764,7 @@ export class BusyIde
         this.FS.writeFile(this.small_log, '');
         this.FS.writeFile(this.empty_file, '');
         this.FS.chdir(this.home_dir);
-        this.github = new Github(this.cache_dir, this.merge.bind(this), this.sha1.bind(this), this.rm_rf.bind(this), this.diff.bind(this), this.fetch_via_cors_proxy.bind(this), this.FS, this.PATH, this);
+        this.github = new Github(this.cache_dir, this.merge.bind(this), this.rm_rf.bind(this), this.diff.bind(this), this.fetch_via_cors_proxy.bind(this), this.FS, this.PATH, this);
         
         await this.cache_load();
        
@@ -808,14 +806,6 @@ export class BusyIde
         //    this.FS.writeFile(this.log_big_sink_path, this.read_all_text(this.log_big_sink_path) + text + '\n');
     }
     
-    log_small(text)
-    {
-        this.log_big(text);
-        //this.ui.log_small(text);
-        //if(this.log_small_sink_path && this.FS)
-        //    this.FS.writeFile(this.log_small_sink_path, this.read_all_text(this.log_small_sink_path) + text + '\n');
-    }
-
     async git_fetch()
     {
         this.log_big_header('$ git fetch', this.git_log); 
@@ -1064,7 +1054,7 @@ export class BusyIde
         }
         if(print)
         {
-            this.log_small(print);
+            this.log_big(print);
         }
         if(exception)
         {
@@ -1401,7 +1391,7 @@ export class BusyIde
 
         const verbose = this.ui.verbose.value, tex_driver = this.ui.tex_driver.value;
 
-        this.log_small(`Running in background (verbosity = [${verbose}], TeX driver = [${tex_driver}])...`);
+        this.log_big(`Running in background (verbosity = [${verbose}], TeX driver = [${tex_driver}])...`);
         
         // TODO: set_current_pdf / set_current_log only on response from compiler?
         this.pdf_path = abspath.replace(this.tex_ext, '.pdf').replace(this.project_dir(), this.project_tmp_dir());

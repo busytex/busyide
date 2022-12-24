@@ -59,9 +59,11 @@
             background-color: green
         }
 
-        .nomarginborder {
+        .nomarginpaddingborder {
             margin-left:  0px;
             margin-right: 0px; 
+            padding-left:  0px;
+            padding-right: 0px; 
             border-left:  0px; 
             border-right: 0px;
         }
@@ -238,9 +240,9 @@
         </button>
         
         <div style="display: flex; margin-left:auto">
-            <input type="text" id="github_https_path" class="busyui wide nomarginborder" placeholder="GitHub https link" title="GitHub https url"></input>
-            <input type="text" id="github_branch" class="busyui wide nomarginborder" placeholder="GitHub branch" title="GitHub repo branch"></input>
-            <input type="text" id="github_token" class="busyui wide nomarginborder" placeholder="GitHub token" title="GitHub personal access token (PAT) for private clone/push"></input>
+            <input type="text" id="github_https_path" class="busyui wide nomarginpaddingborder" placeholder="GitHub https link" title="GitHub https url"></input>
+            <input type="text" id="github_branch" class="busyui wide nomarginpaddingborder" placeholder="GitHub branch" title="GitHub repo branch"></input>
+            <input type="text" id="github_token" class="busyui wide nomarginpaddingborder" placeholder="GitHub token" title="GitHub personal access token (PAT) for private clone/push"></input>
             <button id="clone" class="busyui short">Clone</button>
             <button id="gitops" class="busyui wide">Status, Pull, Push</button>
         </div>

@@ -59,6 +59,8 @@
             background-color: green
         }
 
+        .nomarginpadding {margin-left:0px; margin-right:0px;padding-left:0px; padding-right:0px;}
+
         #fileupload {
             display: none;
         }
@@ -222,7 +224,7 @@
         <button id="new_file" class="busyui short">New File</button>
         <button id="new_folder" class="busyui short">New Folder</button>
         <button id="remove" class="busyui short">Delete</button>
-        <button id="download" class="busyui short">Download</button>
+        <button id="download" class="busyui wide">Download</button>
         <input hidden type="text" class="busyui" id="current_file_rename" title="Press [Enter] to complete renaming"></input>
         <button id="rename" class="busyui">
             Rename [<span id="verb" class="busyui">N/A</span>]:&nbsp;
@@ -231,9 +233,9 @@
         </button>
         
         <div style="display: flex; margin-left:auto">
-            <input type="text" id="github_https_path" class="busyui wide" placeholder="GitHub https link" title="GitHub https url"></input>
-            <input type="text" id="github_branch" class="busyui wide" placeholder="GitHub branch" title="GitHub repo branch"></input>
-            <input type="text" id="github_token" class="busyui wide" placeholder="GitHub token" title="GitHub personal access token (PAT) for private clone/push"></input>
+            <input type="text" id="github_https_path" class="busyui wide nomarginpadding" placeholder="GitHub https link" title="GitHub https url"></input>
+            <input type="text" id="github_branch" class="busyui wide nomarginpadding" placeholder="GitHub branch" title="GitHub repo branch"></input>
+            <input type="text" id="github_token" class="busyui wide nomarginpadding" placeholder="GitHub token" title="GitHub personal access token (PAT) for private clone/push"></input>
             <button id="clone" class="busyui short">Clone</button>
             <button id="gitops" class="busyui wide">Status, Pull, Push</button>
         </div>

@@ -11,21 +11,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="logo.png" />
     
-    <link rel="busytex" type="text"             id="readme_tex"                 href="/README.tex" rel="preload" as="fetch" />
-    <link rel="busytex" type="text"             id="versions_txt"               href="/versions.txt" rel="preload" as="fetch"  />
+    <!--(index):978 A preload for 'https://busytex.github.io/README.tex' is found, but is not used because the request credentials mode does not match. Consider taking a look at crossorigin attribute.-->
+    <link type="text"             id="readme_tex"                 href="/README.tex"   rel="preload" as="fetch" />
+    <link type="text"             id="versions_txt"               href="/versions.txt" rel="preload" as="fetch" />
+    <!-- -->
+    <!-- The resource https://busytex.github.io/dist/busytex.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. -->
+    <link type="text/javascript"  id="busytex_js"                 href="/dist/busytex.js"  rel="preload" as="script" />
+    <link type="text/javascript"  id="busytex_worker_js"          href="/dist/busytex_worker.js" rel="preload" as="script" />
+    <!-- -->
     
-    <link rel="busytex" type="text/javascript"  id="busybox_js"                 href="/dist/busybox_unstripped.js" rel="preload" as="script" />
-    <link rel="busytex" type="application/wasm" id="busybox_wasm"               href="/dist/busybox_unstripped.wasm" />
-    <link rel="busytex" type="text/javascript"  id="busytex_js"                 href="/dist/busytex.js"  rel="preload" as="script" />
-    <link rel="busytex" type="application/wasm" id="busytex_wasm"               href="/dist/busytex.wasm" />
-
-    <link rel="busytex" type="text/javascript"  id="busytex_worker_js"          href="/dist/busytex_worker.js" rel="preload" as="script" /> 
-    <link rel="busytex" type="text/javascript"  id="busytex_pipeline_js"        href="/dist/busytex_pipeline.js" rel="preload" as="script" />
+    <script src="/dist/busytex_pipeline.js"></script>
+    <!--<link rel="busytex" type="text/javascript"  id="busytex_pipeline_js"        href="/dist/busytex_pipeline.js" rel="preload" as="script" />-->
+    <link type="text/javascript"  id="busybox_js"                 href="/dist/busybox_unstripped.js" rel="preload" as="script" />
+    <link type="application/wasm" id="busybox_wasm"               href="/dist/busybox_unstripped.wasm" />
+    <link type="application/wasm" id="busytex_wasm"               href="/dist/busytex.wasm" />
     
-    <link rel="busytex" type="text/javascript"  id="texlive_basic"              href="/dist/texlive-basic.js" />
-    <link rel="busytex" type="text/javascript"  id="texlive_ubuntu_science"     href="/dist/ubuntu-texlive-science.js" />
-    <link rel="busytex" type="text/javascript"  id="texlive_ubuntu_recommended" href="/dist/ubuntu-texlive-latex-recommended.js" />
-    <link rel="busytex" type="text/javascript"  id="texlive_ubuntu_extra"       href="/dist/ubuntu-texlive-latex-extra.js" />
+    <link type="text/javascript"  id="texlive_basic"              href="/dist/texlive-basic.js" />
+    <link type="text/javascript"  id="texlive_ubuntu_science"     href="/dist/ubuntu-texlive-science.js" />
+    <link type="text/javascript"  id="texlive_ubuntu_recommended" href="/dist/ubuntu-texlive-latex-recommended.js" />
+    <link type="text/javascript"  id="texlive_ubuntu_extra"       href="/dist/ubuntu-texlive-latex-extra.js" />
     
     <link  href="https://unpkg.com/monaco-editor@latest/min/vs" rel="busytex" id="require_monaco_editor" />
     <script src="https://unpkg.com/monaco-editor@latest/min/vs/loader.js"></script>
@@ -525,8 +529,6 @@
     </div>
 
 
-<script src="/dist/busytex_pipeline.js"></script>
-
 <script type="module">
 
 import { BusyIde } from '/busyide.js'
@@ -928,7 +930,7 @@ const ui =
     }
 };
 
-const paths_list = Array.from(document.head.getElementsByTagName('link')).filter(link => link.rel == 'busytex').map(link => [link.id, link.href])
+const paths_list = Array.from(document.head.getElementsByTagName('link')).map(link => [link.id, link.href]);
 
 const texlive_data_packages_js = paths_list.filter(([id, href]) => id.startsWith('texlive_')).map(([id, href]) => href);
 

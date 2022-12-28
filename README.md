@@ -187,6 +187,110 @@ Uncaught (in promise) TypeError: Cannot read properties of null (reading 'starts
 - https://blog.jcoglan.com/2017/03/22/myers-diff-in-linear-space-theory/
 - http://www.xmailserver.org/xdiff-lib.html
 
+```
+Error: Stray end tag input.
+
+From line 387, column 118; to line 387, column 125
+
+renaming"></input>↩
+
+Error: Stray end tag input.
+
+From line 395, column 154; to line 395, column 161
+
+ttps url"></input>↩
+
+Error: Stray end tag input.
+
+From line 396, column 148; to line 396, column 155
+
+o branch"></input>↩
+
+Error: Stray end tag input.
+
+From line 397, column 185; to line 397, column 192
+
+one/push"></input>↩
+
+Error: Stray end tag input.
+
+From line 411, column 140; to line 411, column 147
+
+res case"></input>↩
+
+Error: Element img is missing required attribute src.
+
+From line 425, column 9; to line 425, column 51
+
+>↩        <img hidden id="imgpreview" class="busyui"></img>
+
+Attributes for element img:
+Global attributes
+alt — Replacement text for use when images are not available
+src — Address of the resource
+srcset — Images to use in different situations, e.g., high-resolution displays, small monitors, etc.
+sizes — Image sizes for different page layouts
+crossorigin — How the element handles crossorigin requests
+usemap — Name of image map to use
+ismap — Whether the image is a server-side image map
+width — Horizontal dimension
+height — Vertical dimension
+referrerpolicy — Referrer policy for fetches initiated by the element
+decoding — Decoding hint to use when processing this image for presentation
+loading — Used when determining loading deferral
+Error: An img element must have an alt attribute, except under certain conditions. For details, consult guidance on providing text alternatives for images.
+
+From line 425, column 9; to line 425, column 51
+
+>↩        <img hidden id="imgpreview" class="busyui"></img>
+
+Error: Stray end tag img.
+
+From line 425, column 52; to line 425, column 57
+
+="busyui"></img>↩
+
+Error: Stray end tag input.
+
+From line 457, column 103; to line 457, column 110
+
+age name"></input>↩
+
+Error: Stray end tag input.
+
+From line 462, column 109; to line 462, column 116
+
+ selection</input></td><
+
+Error: Element thead not allowed as child of element table in this context. (Suppressing further errors from this subtree.)
+
+From line 465, column 25; to line 466, column 23
+
+  </tbody>↩                <thead>↩
+
+Contexts in which element thead may be used:
+As a child of a table element, after any caption, and colgroup elements and before any tbody, tfoot, and tr elements, but only if there are no other thead elements that are children of the table element.
+Content model for element table:
+In this order: optionally a caption element, followed by zero or more colgroup elements, followed optionally by a thead element, followed by either zero or more tbody elements or one or more tr elements, followed optionally by a tfoot element, optionally intermixed with one or more script-supporting elements.
+Error: Table column 2 established by element th has no cells beginning in it.
+
+From line 461, column 25; to line 461, column 51
+
+      <tr><th colspan="2" class="tl">ubuntu
+
+Error: th start tag in table body.
+
+From line 477, column 24; to line 477, column 38
+
+   <thead><th class="tl">#line<
+
+Error: Stray end tag input.
+
+From line 489, column 174; to line 489, column 181
+
+ release"></input>↩
+```
+
 ### Contributors
 * **Vadim Kantorov**: JavaScript
 * **Ilya**: HTML, layout

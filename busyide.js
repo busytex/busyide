@@ -730,7 +730,7 @@ export class BusyIde
             ...this.paths,
             texmf_local : this.texmf_local,
 
-            preload_data_packages_js : this.paths.texlive_data_packages_js.slice(0, 1),
+            preload_data_packages_js : this.paths.texlive_data_packages_js_preload,
             data_packages_js : this.paths.texlive_data_packages_js
         });
 

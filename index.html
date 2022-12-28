@@ -26,7 +26,8 @@
     <link type="application/wasm" id="busybox_wasm"               href="/dist/busybox_unstripped.wasm" />
     <link type="application/wasm" id="busytex_wasm"               href="/dist/busytex.wasm" />
     
-    <link type="text/javascript"  id="texlive_basic"              href="/dist/texlive-basic.js" />
+    <link type="text/javascript"  id="texlive_basic_preload"              href="/dist/texlive-basic.js" rel="preload" as="script" />
+    <link type="text/javascript"  id="texlive_ubuntu_fonts_recommended_preload" href="/dist/ubuntu-texlive-fonts-recommended.js" rel="preload" as="script" />
     <link type="text/javascript"  id="texlive_ubuntu_science"     href="/dist/ubuntu-texlive-science.js" />
     <link type="text/javascript"  id="texlive_ubuntu_recommended" href="/dist/ubuntu-texlive-latex-recommended.js" />
     <link type="text/javascript"  id="texlive_ubuntu_extra"       href="/dist/ubuntu-texlive-latex-extra.js" />
@@ -932,9 +933,10 @@ const ui =
 
 const paths_list = Array.from(document.head.getElementsByTagName('link')).map(link => [link.id, link.href]);
 
-const texlive_data_packages_js = paths_list.filter(([id, href]) => id.startsWith('texlive_')).map(([id, href]) => href);
+const texlive_data_packages_js = paths_list.filter(([id, href]) => id.startsWith('texlive_') && !id.endsWith('_preload')).map(([id, href]) => href );
+const texlive_data_packages_js_preload = paths_list.filter(([id, href]) => id.startsWith('texlive_') && id.endsWith('_preload')).map(([id, href]) => href);
 
-const paths = { ...Object.fromEntries(paths_list), texlive_data_packages_js : texlive_data_packages_js };
+const paths = { ...Object.fromEntries(paths_list), texlive_data_packages_js : texlive_data_packages_js, texlive_data_packages_js_preload : texlive_data_packages_js_preload };
 
 require.config({ paths: { vs: paths.require_monaco_editor } });
 

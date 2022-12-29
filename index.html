@@ -592,8 +592,7 @@ const ui =
         else
         {
             ui.txtpreview.innerText += text + '\n';
-            //textarea.scrollTop = textarea.scrollHeight;
-            ui.txtpreview.scrollIntoView(false);
+            ui.viewer.scrollTop = ui.viewer.scrollHeight;
         }
     },
 

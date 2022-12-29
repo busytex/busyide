@@ -1029,6 +1029,7 @@ export class BusyIde
 
     oncompilermessage(e)
     {
+        console.log('oncompilermessage', e.data);
         const {pdf, log, print, exit_code, exception, initialized, logs} = e.data;
         if(initialized)
         {
@@ -1058,6 +1059,7 @@ export class BusyIde
         }
         if(exception)
         {
+            console.log('oncompilermessage', 'exception', exception);
             this.ui.set_error(`[latexmk] exception: [${exception}]`);
         }
     }

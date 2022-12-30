@@ -28,7 +28,7 @@
     
     <link type="text/javascript"  id="texlive_basic"              href="/dist/texlive-basic.js" rel="preload" as="script" />
     <link type="text/javascript"  id="texlive_ubuntu_fonts_recommended" href="/dist/ubuntu-texlive-fonts-recommended.js" rel="preload" as="script" />
-    <link type="text/javascript"  id="texlive_ubuntu_fonts_recommended" href="/dist/ubuntu-texlive-base.js" rel="preload" as="script" />
+    <!--<link type="text/javascript"  id="texlive_ubuntu_fonts_recommended" href="/dist/ubuntu-texlive-base.js" rel="preload" as="script" />-->
     <link type="text/javascript"  id="texlive_ubuntu_science"     href="/dist/ubuntu-texlive-science.js" />
     <link type="text/javascript"  id="texlive_ubuntu_recommended" href="/dist/ubuntu-texlive-latex-recommended.js" />
     <link type="text/javascript"  id="texlive_ubuntu_extra"       href="/dist/ubuntu-texlive-latex-extra.js" />
@@ -934,7 +934,7 @@ const ui =
 const paths_list = Array.from(document.head.getElementsByTagName('link')).map(link => [link.id, link.href]);
 
 const texlive_data_packages_js = paths_list.filter(([id, href]) => id.startsWith('texlive_')).map(([id, href]) => href);
-const texlive_data_packages_js_preload = texlive_data_packages_js.slice(0, 3);
+const texlive_data_packages_js_preload = texlive_data_packages_js.slice(0, 2);
 
 const paths = { ...Object.fromEntries(paths_list), texlive_data_packages_js : texlive_data_packages_js, texlive_data_packages_js_preload : texlive_data_packages_js_preload };
 

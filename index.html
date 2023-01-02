@@ -907,11 +907,15 @@ const ui =
 
     toggle_viewer(mode, contents = '')
     {
+        ui.viewer.scrollTop = 0;
+        ui.viewer.dataset.toggle_mode = mode;
+        
         if(mode == 'empty')
         {
             ui.txtpreview.innerText = '';
             mode = '.log';
         }
+
         [ui.imgpreview.hidden, ui.pdfpreview.hidden, ui.txtpreview.hidden, ui.gitstatus.hidden, ui.gitpull.hidden, ui.searchresults.hidden, ui.texsettings.hidden, ui.morecommands.hidden] = [mode != '.svg' && mode != '.jpg' && mode != '.png' && mode != '.bmp', mode != '.pdf', mode != '.log', mode != 'gitstatus', mode != 'gitpull', mode != 'searchresults', mode != 'texsettings', mode != 'morecommands'];
 
         const b64encode = uint8array => btoa(uint8array.reduce((acc, i) => acc += String.fromCharCode.apply(null, [i]), ''));

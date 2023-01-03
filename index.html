@@ -907,6 +907,8 @@ const ui =
 
     toggle_viewer(mode, contents = '')
     {
+        ui.imgpreview.hidden = ui.pdfpreview.hidden = ui.txtpreview.hidden = ui.gitstatus.hidden = ui.gitpull.hidden = ui.searchresults.hidden = ui.texsettings.hidden = ui.morecommands.hidden = true;
+
         ui.viewer.scrollTop = 0;
         ui.viewer.dataset.toggle_mode = mode;
         

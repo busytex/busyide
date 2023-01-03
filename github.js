@@ -13,7 +13,15 @@
 */
 
 const base64_encode_utf8 = str => btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {return String.fromCharCode(parseInt(p1, 16)) }));
-const base64_encode_uint8array = uint8array => btoa(new TextDecoder().decode(uint8array)); //btoa(String.fromCharCode.apply(null, uint8array));
+
+function base64_encode_uint8array(uint8array)
+{
+    let res = '';
+    for(let i = 0; i < uint8array.length; i++)
+        res += String.fromCharCode(uint8array[i]);
+    return btoa(res); //String.fromCharCode.apply(null, uint8array) 
+}
+//const base64_encode_uint8array = uint8array => btoa(new TextDecoder().decode(uint8array)); //);
 
 export class Github
 {

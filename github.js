@@ -620,6 +620,7 @@ export class Github
                     }
                 });
             });
+            //TODO: check what happens with exceptions from promises
             const blob_shas = await Promise.all(blob_promises);
             
             if(blob_shas.some(blob_sha => blob_sha === null))

@@ -607,7 +607,7 @@ export class Github
                     else
                     {
                         print(`Blob [${path}] local -> [${resp.sha}]...`);
-                        this.add(resp, contents, repo_path);
+                        this.add(resp, contents, s.repo_path);
                         return resp.sha;
                     }
                 });

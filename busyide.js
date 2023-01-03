@@ -528,7 +528,7 @@ export class BusyIde
             catch(err)
             {
                 this.last_exit_code = (this.last_exit_code === '' || this.last_exit_code === this.EXIT_SUCCESS) ? this.EXIT_FAILURE : this.last_exit_code;
-                const msg = `[${cmd}] last error code: [${this.last_exit_code}], error message: [${err.message || "no message"}]`
+                const msg = `[${cmd}] last error code: [${this.last_exit_code}], error message: [${err.message || "no message"}], error stack: [${err.stack || "no stack"}]`
                 this.log_big(msg);
                 this.ui.set_error(msg);
                 break;
@@ -744,7 +744,7 @@ export class BusyIde
         catch(err)
         {
             this.last_exit_code = this.EXIT_FAILURE;
-            const msg = `[busybox] last error code: [${this.last_exit_code}], error message: [${err.message || "no message"}]`
+            const msg = `[busybox] last error code: [${this.last_exit_code}], error message: [${err.message || "no message"}], error stack: [${err.stack || "no stack"}]`;
             this.ui.set_error(msg);
             this.log_big(msg);
             return;
@@ -781,7 +781,7 @@ export class BusyIde
                 if(exit_code == this.EXIT_SUCCESS)
                     exit_code = this.EXIT_FAILURE;
                 await this.commands('man');
-                this.ui.set_error(`[init] error code: [${exit_code}], exception: [${err.toString()}]`);
+                this.ui.set_error(`[init] error code: [${exit_code}], exception: [${err.toString()}], error stack: [${err.stack || "no stack"}]`);
             }
         }
         else

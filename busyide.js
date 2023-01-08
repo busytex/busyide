@@ -136,7 +136,7 @@ export class BusyIde
         this.ui.view_log.onclick = () => this.exists(this.log_path) && this.commands(cmd('open', arg(this.log_path)));
         this.ui.view_pdf.onclick = () => this.exists(this.pdf_path) && this.commands(cmd('open', arg(this.pdf_path)));
         this.ui.release_pdf.onclick = () => this.exists(this.pdf_path) && this.commands( cmd('hub', 'release', 'create', 'busytex'), cmd('hub', 'release', 'edit', '-a', this.pdf_path, 'busytex') ); // or() this.pdf_path && https://hub.github.com/hub-release.1.html
-        this.ui.download.onclick = () => this.ui.get_current_file() && !this.isdir(this.ui.get_current_file()) && this.commands(cmd('download', arg(this.ui.get_current_file())));
+        this.ui.download.onclick = () => this.ui.get_current_file() && !this.isdir(this.ui.get_current_file(true)) && this.commands(cmd('download', arg(this.ui.get_current_file(true))));
         this.ui.upload.onclick = async () => await this.commands('upload');
         this.ui.import_project.onclick = this.import_project.bind(this);
         this.ui.download_zip.onclick = () => this.project_dir() && this.commands(and('cd', cmd('busyz', 'zip', '-r', this.zip_path, this.PATH.basename(this.project_dir())), cmd('cd', '-'), cmd('download', arg(this.zip_path))));
@@ -243,18 +243,18 @@ export class BusyIde
     rename_onclick()
     {
         //TODO: clicking on rename twice should make the box disappear
-        const curfile = this.ui.get_current_file(true);
-        if(!this.is_special_dir(curfile) && this.is_user_dir(curfile))
+        const abspath = this.ui.get_current_file(true);
+        if(!this.is_special_dir(abspath) && this.is_user_dir(abspath))
         {
             if(this.ui.current_file_rename.value)
             {
-                this.rename(this.ui.get_current_file(), this.ui.current_file_rename.value);
+                this.rename(abspath, this.ui.current_file_rename.value);
                 this.ui.set_current_file(this.ui.current_file_rename.value, this.abspath(this.ui.current_file_rename.value));
                 this.ui.toggle_current_file_rename('');
             }
             else
             {
-                this.ui.toggle_current_file_rename(this.ui.current_file_rename.hidden ? this.ui.get_current_file() : '');
+                this.ui.toggle_current_file_rename(this.ui.current_file_rename.hidden ? abspath : '');
                 this.ui.current_file_rename.focus();
             }
         }

@@ -1,4 +1,4 @@
-MIT License
+MIT License applies to all code in this repo except monaco-editor diretory and openbsd_diff program sources (both taken from external sources).
 
 Copyright (c) 2023 Vadim Kantorov
 
